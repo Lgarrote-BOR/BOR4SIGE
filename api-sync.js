@@ -1,6 +1,6 @@
-/**
+﻿/**
  * api-sync.js
- * Interceptor transparente de localStorage para sincronización cliente-servidor en SGI 2.0.
+ * Interceptor transparente de localStorage para sincronización cliente-servidor en SIGE 2.0.
  * Si detecta que está corriendo dentro del portal (iframe) y el servidor está activo, 
  * redirige las consultas a la base de datos centralizada de la Webapp en el parent.
  * De lo contrario, cae en el comportamiento por defecto de localStorage de forma segura.

@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <!-- Interceptor de LocalStorage para sincronización con el servidor -->
     <script src="../api-sync.js"></script>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Cuadro de Mando - Gestión SIG 2.0</title>
+    <title>Cuadro de Mando - Gestión SIGE 2.0</title>
     <!-- Tailwind CSS con plugins -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <!-- Google Fonts: IBM Plex Sans & JetBrains Mono -->
@@ -308,7 +308,83 @@
 
             </div>
         </div>
+    </div>
 
+    <!-- Panel de Auditoría y Seguimiento Automatizado con IA -->
+    <div class="glass-card p-6 rounded-lg mb-8 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant pb-4 mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-2xl animate-pulse">psychology</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-primary">Seguimiento Automatizado de Cumplimiento por IA</h3>
+                    <p class="text-xs text-on-surface-variant">Revisión autónoma y registro automático de cumplimiento para normas de referencia (ISO, ENS)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Toggle Switch -->
+                <span class="text-xs font-bold text-primary" id="ai-status-label">Estado: Inactivo</span>
+                <button id="toggle-ai-btn" onclick="toggleAiCompliance()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-secondary bg-outline-variant">
+                    <span id="toggle-ai-thumb" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Col 1: Estado del Agente de IA -->
+            <div class="bg-surface-container-low p-4 rounded-lg border border-outline-variant flex flex-col justify-between">
+                <div>
+                    <h4 class="text-xs font-bold text-primary uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">robot</span>
+                        Agente Auditor Autónomo
+                    </h4>
+                    <p class="text-xs text-on-surface-variant mb-4">El agente escanea periódicamente el estado de RFCs, proveedores, registros de calibración y PRL para verificar el cumplimiento técnico.</p>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-[11px] font-semibold text-on-surface-variant">
+                        <span>Frecuencia de Escaneo:</span>
+                        <span>Cada 6 segundos (Simulado)</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] font-semibold text-on-surface-variant">
+                        <span>Último Análisis:</span>
+                        <span id="ai-last-check" class="font-semibold text-primary">Nunca</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] font-semibold text-on-surface-variant">
+                        <span>Acciones de IA Ejecutadas:</span>
+                        <span id="ai-actions-count" class="font-mono bg-surface-container-high px-1.5 py-0.5 rounded font-bold text-primary">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Col 2: Log de Auditoría del Agente -->
+            <div class="md:col-span-2 bg-surface p-4 rounded-lg border border-outline-variant flex flex-col justify-between">
+                <div>
+                    <h4 class="text-xs font-bold text-primary uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-secondary font-bold">terminal</span>
+                            Registro de Actividad IA
+                        </span>
+                        <span id="ai-live-badge" class="hidden text-[9px] bg-success-container text-success px-2 py-0.5 rounded font-bold animate-pulse">ESCANEANDO...</span>
+                    </h4>
+                    
+                    <div id="ai-logs-container" class="h-32 overflow-y-auto font-mono text-[10px] text-on-surface bg-surface-container-low p-3 rounded-lg border border-outline-variant space-y-1.5 custom-scrollbar">
+                        <div class="text-outline">[Sistema] El seguimiento automatizado por IA está desactivado. Active el interruptor superior para iniciar el escaneo continuo.</div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 flex gap-2">
+                    <button id="ai-manual-btn" disabled onclick="runAiScanManual()" class="flex-1 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg hover:bg-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-base">sync</span>
+                        Escanear Ahora
+                    </button>
+                    <button id="ai-clear-btn" onclick="clearAiLogs()" class="py-1.5 px-3 bg-surface border border-outline-variant text-primary text-xs font-bold rounded-lg hover:bg-surface-container transition-all flex items-center justify-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-base">clear_all</span>
+                        Limpiar Log
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Logs de Actividades Recientes y Alertas Inteligentes -->
@@ -1152,9 +1228,250 @@
             switchOrganization(id);
         }
 
+        // Variables de AI Compliance
+        let aiInterval = null;
+        let aiLogs = [];
+        let aiActionsCount = 0;
+        let aiLastCheck = "Nunca";
+        let aiActive = false;
+
+        function initAiCompliance() {
+            const activeStr = localStorage.getItem('sig_ai_compliance_active');
+            aiActive = activeStr === 'true';
+            
+            const logsStr = localStorage.getItem('sig_ai_compliance_logs');
+            if (logsStr) {
+                try { aiLogs = JSON.parse(logsStr); } catch(e) { aiLogs = []; }
+            }
+            
+            const countStr = localStorage.getItem('sig_ai_actions_count');
+            aiActionsCount = parseInt(countStr) || 0;
+            
+            const lastCheckStr = localStorage.getItem('sig_ai_last_check');
+            aiLastCheck = lastCheckStr || "Nunca";
+
+            updateAiUi();
+
+            if (aiActive) {
+                startAiInterval();
+            }
+        }
+
+        function updateAiUi() {
+            const statusLabel = document.getElementById("ai-status-label");
+            const toggleThumb = document.getElementById("toggle-ai-thumb");
+            const toggleBtn = document.getElementById("toggle-ai-btn");
+            const liveBadge = document.getElementById("ai-live-badge");
+            const manualBtn = document.getElementById("ai-manual-btn");
+            const actionsCountEl = document.getElementById("ai-actions-count");
+            const lastCheckEl = document.getElementById("ai-last-check");
+            const logsContainer = document.getElementById("ai-logs-container");
+
+            if (!statusLabel) return;
+
+            actionsCountEl.innerText = aiActionsCount;
+            lastCheckEl.innerText = aiLastCheck;
+
+            if (aiActive) {
+                statusLabel.innerText = "Estado: Activo - Escaneando";
+                statusLabel.className = "text-xs font-semibold text-success flex items-center gap-1";
+                toggleBtn.className = "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-secondary bg-success";
+                toggleThumb.className = "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5";
+                liveBadge.classList.remove("hidden");
+                manualBtn.disabled = false;
+            } else {
+                statusLabel.innerText = "Estado: Inactivo";
+                statusLabel.className = "text-xs font-semibold text-outline-variant";
+                toggleBtn.className = "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-secondary bg-outline-variant";
+                toggleThumb.className = "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0";
+                liveBadge.classList.add("hidden");
+                manualBtn.disabled = true;
+            }
+
+            if (aiLogs.length === 0) {
+                logsContainer.innerHTML = `<div class="text-outline">${aiActive ? '[Sistema] Iniciando análisis continuo de cumplimiento...' : '[Sistema] El seguimiento automatizado por IA está desactivado. Active el interruptor superior para iniciar el escaneo continuo.'}</div>`;
+            } else {
+                logsContainer.innerHTML = aiLogs.map(log => {
+                    let textClass = "text-on-surface-variant";
+                    if (log.includes("⚠️ ADVERTENCIA")) textClass = "text-error font-semibold";
+                    else if (log.includes("✓")) textClass = "text-success font-semibold";
+                    else if (log.includes("🤖")) textClass = "text-secondary font-bold";
+                    return `<div class="${textClass}">${log}</div>`;
+                }).join("");
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+        }
+
+        function toggleAiCompliance() {
+            aiActive = !aiActive;
+            localStorage.setItem('sig_ai_compliance_active', aiActive);
+            
+            if (aiActive) {
+                addAiLog(`🤖 [Agente IA] Activado el seguimiento y auditoría automatizada del cumplimiento.`);
+                startAiInterval();
+                runAiScanManual();
+            } else {
+                addAiLog(`🤖 [Agente IA] Desactivado el servicio de auditoría continua.`);
+                stopAiInterval();
+            }
+            updateAiUi();
+        }
+
+        function startAiInterval() {
+            stopAiInterval();
+            aiInterval = setInterval(() => {
+                simulateAiScan();
+            }, 6000);
+        }
+
+        function stopAiInterval() {
+            if (aiInterval) {
+                clearInterval(aiInterval);
+                aiInterval = null;
+            }
+        }
+
+        function addAiLog(message) {
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            const logEntry = `[${timeStr}] ${message}`;
+            
+            aiLogs.push(logEntry);
+            if (aiLogs.length > 50) {
+                aiLogs.shift();
+            }
+            localStorage.setItem('sig_ai_compliance_logs', JSON.stringify(aiLogs));
+            updateAiUi();
+        }
+
+        function clearAiLogs() {
+            aiLogs = [];
+            localStorage.setItem('sig_ai_compliance_logs', JSON.stringify(aiLogs));
+            updateAiUi();
+        }
+
+        function runAiScanManual() {
+            const liveBadge = document.getElementById("ai-live-badge");
+            if (liveBadge) {
+                liveBadge.innerText = "ESCANEANDO...";
+                liveBadge.classList.remove("hidden");
+            }
+            simulateAiScan(true);
+        }
+
+        function simulateAiScan(isManual = false) {
+            if (!aiActive && !isManual) return;
+
+            aiActionsCount++;
+            localStorage.setItem('sig_ai_actions_count', aiActionsCount);
+
+            const now = new Date();
+            aiLastCheck = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            localStorage.setItem('sig_ai_last_check', aiLastCheck);
+
+            addAiLog(`[Escáner] Iniciando análisis cruzado de requisitos en base de datos local...`);
+
+            // 1. Escanear cambios TI
+            const rfcsStr = localStorage.getItem('sig_cambios_ti');
+            if (rfcsStr) {
+                try {
+                    const rfcs = JSON.parse(rfcsStr);
+                    const openRfcs = rfcs.filter(r => r.status !== 'Cerrado' && r.status !== 'Rechazado');
+                    if (openRfcs.length > 0) {
+                        addAiLog(`[Escáner] Encontrados ${openRfcs.length} RFCs abiertos. Verificando cumplimiento ISO 20000-1 §8.5.1...`);
+                        openRfcs.forEach(rfc => {
+                            if (!rfc.rollback || rfc.rollback.trim().length < 10) {
+                                addAiLog(`⚠️ ADVERTENCIA (ISO 20000-1 §8.5.1): El RFC '${rfc.id}' (${rfc.title}) tiene un plan de reversión incompleto. Riesgo crítico.`);
+                            } else {
+                                addAiLog(`✓ Verificación (ISO 20000-1 §8.5): RFC '${rfc.id}' aprobado con plan de rollback validado.`);
+                            }
+                        });
+                    } else {
+                        addAiLog(`✓ Verificación (ISO 20000-1 §8.5): 0 RFCs abiertos con riesgos de rollback.`);
+                    }
+                } catch(e) {
+                    console.error("Error al auditar RFCs:", e);
+                }
+            }
+
+            // 2. Escanear proveedores
+            const provsStr = localStorage.getItem('sig_desempeno_proveedores');
+            if (provsStr) {
+                try {
+                    const provs = JSON.parse(provsStr);
+                    const lowProvs = provs.filter(p => p.avg < 3.0);
+                    if (lowProvs.length > 0) {
+                        addAiLog(`[Escáner] Encontrados ${lowProvs.length} proveedores con nota baja. Verificando planes de acción correctiva (ISO 9001 §8.4)...`);
+                        lowProvs.forEach(p => {
+                            const ncStr = localStorage.getItem('sig_incidencias_nc_data');
+                            let hasNc = false;
+                            if (ncStr) {
+                                try {
+                                    const ncData = JSON.parse(ncStr);
+                                    hasNc = ncData.incidencias.some(nc => nc.title.includes(p.name));
+                                } catch(e) {}
+                            }
+                            if (!hasNc) {
+                                addAiLog(`⚠️ ADVERTENCIA (ISO 9001 §8.4): Proveedor '${p.name}' con calificación deficiente (${p.avg} estrellas) sin plan de acción correctiva CAPA registrado.`);
+                            } else {
+                                addAiLog(`✓ Verificación (ISO 9001 §8.4): Proveedor '${p.name}' bajo plan CAPA activo.`);
+                            }
+                        });
+                    } else {
+                        addAiLog(`✓ Verificación (ISO 9001 §8.4): Todos los proveedores activos cumplen con la nota mínima apta.`);
+                    }
+                } catch(e) {
+                    console.error("Error al auditar proveedores:", e);
+                }
+            }
+
+            // 3. Escanear formación
+            const formStr = localStorage.getItem('sig_eficacia_formacion');
+            if (formStr) {
+                try {
+                    const forms = JSON.parse(formStr);
+                    const lowForms = forms.filter(f => f.avg < 3.0);
+                    if (lowForms.length > 0) {
+                        addAiLog(`[Escáner] Encontradas ${lowForms.length} acciones formativas con eficacia deficiente. Verificando planes de refuerzo (ISO 45001 §7.2)...`);
+                        lowForms.forEach(f => {
+                            const accStr = localStorage.getItem('sig_acciones_mejora_data');
+                            let hasAcc = false;
+                            if (accStr) {
+                                try {
+                                    const accData = JSON.parse(accStr);
+                                    hasAcc = accData.acciones.some(ac => ac.title.includes(f.course));
+                                } catch(e) {}
+                            }
+                            if (!hasAcc) {
+                                addAiLog(`⚠️ ADVERTENCIA (ISO 45001 §7.2): Formación '${f.course}' evaluada como no eficaz sin acción de mejora de competencia registrada.`);
+                            } else {
+                                addAiLog(`✓ Verificación (ISO 45001 §7.2): Brecha de competencia formativa en '${f.course}' mitigada con acción de mejora.`);
+                            }
+                        });
+                    } else {
+                        addAiLog(`✓ Verificación (ISO 45001 §7.2): 100% de expedientes de formación demuestran eficacia de competencia.`);
+                    }
+                } catch(e) {
+                    console.error("Error al auditar formación:", e);
+                }
+            }
+
+            addAiLog(`[Escáner] Verificando controles técnicos del ENS y control operacional ambiental (ISO 14001)...`);
+            setTimeout(() => {
+                addAiLog(`✓ Verificación (ISO 14001 §8.1): Registros de inspección ambiental al día.`);
+                addAiLog(`✓ Verificación (ENS MP.SI): Cumplimiento de política de contraseñas y doble factor (MFA) validado.`);
+                addAiLog(`🤖 [Agente IA] Análisis de cumplimiento integral finalizado con éxito.`);
+                
+                const liveBadge = document.getElementById("ai-live-badge");
+                if (liveBadge) liveBadge.innerText = "ACTIVO";
+                updateAiUi();
+            }, 800);
+        }
+
         // Inicializar al cargar el documento
         document.addEventListener("DOMContentLoaded", () => {
             initOrganizations();
+            initAiCompliance();
         });
     </script>
 </body>

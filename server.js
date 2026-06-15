@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -73,7 +73,7 @@ app.get('*', (req, res, next) => {
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`===================================================`);
-    console.log(`🚀 SGI 2.0 Webapp activa y lista.`);
+    console.log(`🚀 SIGE 2.0 Webapp activa y lista.`);
     console.log(`   Desplegada localmente en: http://localhost:${PORT}`);
     console.log(`===================================================`);
 });
