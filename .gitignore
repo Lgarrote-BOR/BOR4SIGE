@@ -1,0 +1,13 @@
+node_modules/
+*.zip
+db.json
+dist/
+PDF Normas.pdf
+.tempmediaStorage/
+*.png
+*.webp
+*.mp4
+sgi_webapp_instalable/
+stitch_gesti_n_integral_multi_norma/
+
+

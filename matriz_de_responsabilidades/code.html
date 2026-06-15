@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Matriz de Responsabilidades del Proceso</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from Style Guidance -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#fefcff",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-container": "#e5eeff",
+                        "surface-container-low": "#eff4ff",
+                        "outline": "#76777d",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#565e74",
+                        "on-secondary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#818486",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary": "#0051d5",
+                        "surface-container-high": "#dce9ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#131b2e",
+                        "secondary-container": "#316bf3",
+                        "primary": "#000000",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "background": "#f8f9ff",
+                        "tertiary-container": "#191c1e",
+                        "on-tertiary-fixed-variant": "#444749"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "max-width": "1440px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "margin": "24px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Subtle scrollbar for data tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f8f9ff; /* surface */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c6c6cd; /* outline-variant */
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #76777d; /* outline */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- NavigationDrawer (Desktop) -->
+<aside class="w-[240px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface flex flex-col h-full py-md hidden md:flex z-40">
+<!-- Environment Switcher -->
+<div class="px-md mb-lg">
+<div class="flex items-center justify-between bg-surface-container-lowest border border-outline-variant rounded p-sm cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Entorno</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-error"></span> Producción
+                    </span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">expand_more</span>
+</div>
+</div>
+<!-- Profile Header -->
+<div class="px-md mb-lg flex flex-col items-start gap-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-headline-sm text-headline-sm">
+                GC
+            </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Gerente de Calidad</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">ISO-IMS v2.4</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 overflow-y-auto custom-scrollbar px-sm space-y-1">
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">security</span>
+<span class="font-body-md text-body-md">Gestión de Riesgos</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-body-md text-body-md">Control Documental</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-body-md text-body-md">Auditorías</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-body-md text-body-md">Cumplimiento Legal</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-md text-body-md">Recursos Humanos</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-secondary font-semibold bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined icon-fill">account_tree</span>
+<span class="font-body-md text-body-md">Gestión de Procesos</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-1 flex flex-col min-h-screen w-full md:ml-[240px]">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center px-margin h-[64px] sticky z-30">
+<div class="flex items-center gap-md">
+<button class="md:hidden p-sm -ml-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Gestión de Procesos</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border-2 border-surface-container-lowest"></span>
+</button>
+<div class="hidden md:flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas Area -->
+<div class="flex-1 p-margin w-full max-w-max-width mx-auto">
+<!-- Page Context & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+<div>
+<div class="flex items-center gap-xs text-on-surface-variant mb-xs">
+<a class="font-body-sm text-body-sm hover:text-secondary" href="#">Procesos Base</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<a class="font-body-sm text-body-sm hover:text-secondary" href="#">Producción</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="font-body-sm text-body-sm text-on-surface">PR-PROD-01</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Matriz de Responsabilidades (RACI)</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+                        Vista detallada de asignación de roles para las actividades críticas del proceso de Fabricación de Lotes Estándar.
+                    </p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-DEFAULT text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Filtrar Roles
+                    </button>
+<button class="flex items-center gap-xs px-md py-sm bg-secondary text-on-secondary rounded-DEFAULT font-label-md text-label-md hover:bg-on-secondary-fixed-variant transition-colors shadow-sm">
+<span class="material-symbols-outlined text-sm">download</span>
+                        Exportar
+                    </button>
+</div>
+</div>
+<!-- RACI Legend Card (Level 1 Elevation) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md mb-lg flex flex-wrap gap-lg items-center justify-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mr-md">Leyenda:</span>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded flex items-center justify-center font-code-sm text-code-sm font-bold bg-primary-fixed text-on-primary-fixed">R</div>
+<span class="font-body-sm text-body-sm text-on-surface">Responsable <span class="text-on-surface-variant text-xs ml-1">(Ejecuta)</span></span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded flex items-center justify-center font-code-sm text-code-sm font-bold bg-secondary-fixed text-on-secondary-fixed">A</div>
+<span class="font-body-sm text-body-sm text-on-surface">Asegura <span class="text-on-surface-variant text-xs ml-1">(Aprueba)</span></span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded flex items-center justify-center font-code-sm text-code-sm font-bold bg-surface-variant text-on-surface-variant border border-outline-variant">C</div>
+<span class="font-body-sm text-body-sm text-on-surface">Consultado <span class="text-on-surface-variant text-xs ml-1">(Asesora)</span></span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded flex items-center justify-center font-code-sm text-code-sm font-bold bg-surface text-on-surface-variant border border-outline-variant">I</div>
+<span class="font-body-sm text-body-sm text-on-surface">Informado <span class="text-on-surface-variant text-xs ml-1">(Recibe datos)</span></span>
+</div>
+</div>
+<!-- RACI Matrix Table Container (Level 1 Elevation) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden shadow-sm relative">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface border-b border-outline-variant">
+<th class="p-md font-label-md text-label-md text-on-surface-variant uppercase sticky left-0 bg-surface z-10 border-r border-outline-variant w-[30%] min-w-[250px]">
+                                    Actividad del Proceso
+                                </th>
+<!-- Perfiles de Cualificación -->
+<th class="p-md font-label-md text-label-md text-on-surface text-center border-r border-outline-variant/50 min-w-[140px]">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary mb-xs text-sm">engineering</span>
+                                        Operario Producción
+                                    </div>
+</th>
+<th class="p-md font-label-md text-label-md text-on-surface text-center border-r border-outline-variant/50 min-w-[140px]">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary mb-xs text-sm">verified_user</span>
+                                        Responsable Calidad
+                                    </div>
+</th>
+<th class="p-md font-label-md text-label-md text-on-surface text-center border-r border-outline-variant/50 min-w-[140px]">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary mb-xs text-sm">factory</span>
+                                        Director Planta
+                                    </div>
+</th>
+<th class="p-md font-label-md text-label-md text-on-surface text-center border-r border-outline-variant/50 min-w-[140px]">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary mb-xs text-sm">build</span>
+                                        Mantenimiento
+                                    </div>
+</th>
+<th class="p-md font-label-md text-label-md text-on-surface text-center min-w-[140px]">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary mb-xs text-sm">inventory_2</span>
+                                        Almacén
+                                    </div>
+</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-body-md text-body-md text-on-surface sticky left-0 bg-surface-container-lowest group-hover:bg-surface-container-low border-r border-outline-variant transition-colors">
+<div class="font-semibold mb-xs">1. Verificación de Materia Prima</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Cotejo contra especificación técnica antes de carga.</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-primary-fixed text-on-primary-fixed shadow-sm">R</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-secondary-fixed text-on-secondary-fixed shadow-sm">A</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-surface text-on-surface-variant border border-outline-variant">I</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<span class="text-outline-variant">-</span>
+</td>
+<td class="p-md text-center">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-surface-variant text-on-surface-variant border border-outline-variant">C</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-body-md text-body-md text-on-surface sticky left-0 bg-surface-container-lowest group-hover:bg-surface-container-low border-r border-outline-variant transition-colors">
+<div class="font-semibold mb-xs">2. Configuración de Parámetros de Máquina</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Ajuste de temperatura y presión según receta.</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-primary-fixed text-on-primary-fixed shadow-sm">R</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<span class="text-outline-variant">-</span>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<span class="text-outline-variant">-</span>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-surface-variant text-on-surface-variant border border-outline-variant">C</div>
+</td>
+<td class="p-md text-center">
+<span class="text-outline-variant">-</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-body-md text-body-md text-on-surface sticky left-0 bg-surface-container-lowest group-hover:bg-surface-container-low border-r border-outline-variant transition-colors">
+<div class="font-semibold mb-xs">3. Toma de Muestra Intermedia</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Extracción al 50% del ciclo para control de viscosidad.</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-primary-fixed text-on-primary-fixed shadow-sm">R</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-secondary-fixed text-on-secondary-fixed shadow-sm">A</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<span class="text-outline-variant">-</span>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<span class="text-outline-variant">-</span>
+</td>
+<td class="p-md text-center">
+<span class="text-outline-variant">-</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-body-md text-body-md text-on-surface sticky left-0 bg-surface-container-lowest group-hover:bg-surface-container-low border-r border-outline-variant transition-colors">
+<div class="font-semibold mb-xs">4. Aprobación Final de Lote (Liberación)</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Firma digital de conformidad antes de envasado.</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-surface text-on-surface-variant border border-outline-variant">I</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-primary-fixed text-on-primary-fixed shadow-sm">R</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-secondary-fixed text-on-secondary-fixed shadow-sm">A</div>
+</td>
+<td class="p-md text-center border-r border-outline-variant/50">
+<span class="text-outline-variant">-</span>
+</td>
+<td class="p-md text-center">
+<div class="inline-flex w-8 h-8 rounded justify-center items-center font-code-sm text-code-sm font-bold bg-surface text-on-surface-variant border border-outline-variant">I</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter py-xs md:hidden bg-surface-container border-t border-outline-variant shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Tablero</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 transition-all" href="#">
+<span class="material-symbols-outlined icon-fill">account_tree</span>
+<span class="font-label-md text-label-md mt-1">Procesos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md mt-1">Tareas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-label-md text-label-md mt-1">Reportes</span>
+</a>
+</nav>
+</body></html>

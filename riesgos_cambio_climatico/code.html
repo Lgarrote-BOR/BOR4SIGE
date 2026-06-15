@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Riesgos y Oportunidades — Cambio Climático · SIG 2.0</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#064e3b",
+                        "secondary": "#059669",
+                        "accent": "#0d9488",
+                        "background": "#f0fdf4",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#f0fdf4",
+                        "surface-container": "#dcfce7",
+                        "surface-container-high": "#bbf7d0",
+                        "on-surface": "#052e16",
+                        "on-surface-variant": "#166534",
+                        "outline": "#4ade80",
+                        "outline-variant": "#bbf7d0",
+                        "danger": "#c5221f",
+                        "warning": "#b06000",
+                        "success": "#137333",
+                        "neutral": "#64748b"
+                    },
+                    fontFamily: { sans: ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp 0.22s ease-out; }
+        .no-scrollbar::-webkit-scrollbar { display:none; }
+        .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+        /* Mapa de calor */
+        .heat-cell { transition: all 0.15s; cursor: default; }
+        .heat-cell:hover { filter: brightness(0.85); transform: scale(1.08); z-index: 10; position: relative; }
+        /* Gradiente de cabecera ambiental */
+        .env-header { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- Header -->
+    <header class="env-header text-white w-full sticky top-0 z-40 px-6 py-3 shrink-0 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none">SIG 2.0</h1>
+                <span class="text-[10px] text-green-200 font-semibold">Gestión Ambiental</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-green-400 rounded-full px-3 py-1 bg-white/10 text-green-100 gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm filled">eco</span>
+                <span>Riesgos Climáticos — ISO 14001:2024 §4.1 / §6.1</span>
+            </div>
+            <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">US</button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+
+        <!-- Cabecera -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary filled">thermostat</span>
+                    Riesgos y Oportunidades — Cambio Climático
+                </h2>
+                <p class="text-sm text-on-surface-variant mt-1">
+                    Evaluación de riesgos físicos (agudos y crónicos) y de transición derivados del cambio climático. <strong>Obligatorio ISO 14001:2024 §4.1 y §6.1</strong> — las organizaciones deben considerar explícitamente si el cambio climático es un asunto pertinente para su actividad.
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Nuevo Riesgo / Oportunidad
+                </button>
+            </div>
+        </div>
+
+        <!-- Banner normativo ISO 14001:2024 -->
+        <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-4 flex items-start gap-3">
+            <span class="material-symbols-outlined text-secondary mt-0.5 shrink-0 filled">info</span>
+            <div>
+                <p class="text-xs font-bold text-primary">ISO 14001:2024 — Nueva cláusula de Cambio Climático</p>
+                <p class="text-[11px] text-on-surface-variant mt-0.5">La revisión de 2024 introduce la obligación de considerar el cambio climático como asunto pertinente del contexto (§4.1) y de identificar los riesgos y oportunidades asociados (§6.1). Los riesgos <strong>físicos</strong> incluyen eventos extremos (ciclones, inundaciones, olas de calor) y cambios graduales (escasez de agua, subida del nivel del mar). Los riesgos de <strong>transición</strong> incluyen regulación, mercado, tecnología y reputación.</p>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow sm:col-span-1">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total</span><span class="material-symbols-outlined text-secondary text-lg">list</span></div>
+                <span id="kpi-total" class="font-bold text-2xl text-primary">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Riesgos/Oportunidades</p>
+            </div>
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-red-700 uppercase tracking-wider">Críticos</span><span class="material-symbols-outlined text-red-500 text-lg">crisis_alert</span></div>
+                <span id="kpi-critical" class="font-bold text-2xl text-red-700">0</span>
+                <p class="text-[11px] text-red-600 mt-1">Riesgo no tolerable</p>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Altos</span><span class="material-symbols-outlined text-amber-500 text-lg">warning</span></div>
+                <span id="kpi-high" class="font-bold text-2xl text-amber-700">0</span>
+                <p class="text-[11px] text-amber-600 mt-1">Requieren plan de acción</p>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Oportunidades</span><span class="material-symbols-outlined text-blue-500 text-lg">trending_up</span></div>
+                <span id="kpi-opps" class="font-bold text-2xl text-blue-700">0</span>
+                <p class="text-[11px] text-blue-600 mt-1">Aprovechar / explotar</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Con Plan</span><span class="material-symbols-outlined text-secondary text-lg">task_alt</span></div>
+                <span id="kpi-with-plan" class="font-bold text-2xl text-primary">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Tienen acción definida</p>
+            </div>
+        </div>
+
+        <!-- Declaración de pertinencia §4.1 -->
+        <div class="bg-surface border border-outline-variant rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3 border-b border-outline-variant pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">assignment</span>
+                    <h3 class="font-bold text-sm text-primary">Declaración de Pertinencia del Cambio Climático — ISO 14001:2024 §4.1</h3>
+                </div>
+                <button onclick="saveDeclaration()" class="text-xs font-bold text-secondary hover:text-primary flex items-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-sm">save</span>Guardar
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">¿Es el cambio climático un asunto pertinente para la organización? *</label>
+                    <select id="cc-relevant" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Si">Sí — Es un asunto pertinente</option>
+                        <option value="Parcialmente">Parcialmente — Algunos aspectos son pertinentes</option>
+                        <option value="No">No — No se considera pertinente (justificar)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha de Evaluación</label>
+                    <input id="cc-date" type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Próxima Revisión</label>
+                    <input id="cc-review" type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Justificación / Razonamiento</label>
+                    <textarea id="cc-justification" rows="2" placeholder="Describir por qué el cambio climático es (o no) un asunto pertinente para la organización, teniendo en cuenta la naturaleza de su actividad, ubicación geográfica y cadena de valor..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa de Calor -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="bg-surface border border-outline-variant rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-4 border-b border-outline-variant pb-3">
+                    <span class="material-symbols-outlined text-secondary">grid_on</span>
+                    <h3 class="font-bold text-sm text-primary">Mapa de Calor — Riesgos Climáticos</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse select-none" id="heat-table">
+                        <thead>
+                            <tr>
+                                <th class="w-16 p-1 text-[10px] font-bold text-on-surface-variant text-right pr-2">P\I</th>
+                                <th class="p-1 text-center text-[10px] font-bold text-on-surface-variant">Muy Bajo</th>
+                                <th class="p-1 text-center text-[10px] font-bold text-on-surface-variant">Bajo</th>
+                                <th class="p-1 text-center text-[10px] font-bold text-on-surface-variant">Medio</th>
+                                <th class="p-1 text-center text-[10px] font-bold text-on-surface-variant">Alto</th>
+                                <th class="p-1 text-center text-[10px] font-bold text-on-surface-variant">Muy Alto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="heatmap-body"></tbody>
+                    </table>
+                </div>
+                <div class="flex items-center gap-4 mt-3 text-[10px] text-on-surface-variant">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-200 inline-block"></span>Bajo (1–4)</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-200 inline-block"></span>Medio (5–9)</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-orange-300 inline-block"></span>Alto (10–16)</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-400 inline-block"></span>Crítico (17–25)</span>
+                </div>
+            </div>
+
+            <!-- Distribución por tipo -->
+            <div class="bg-surface border border-outline-variant rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-4 border-b border-outline-variant pb-3">
+                    <span class="material-symbols-outlined text-secondary">donut_large</span>
+                    <h3 class="font-bold text-sm text-primary">Distribución por Tipo de Riesgo Climático</h3>
+                </div>
+                <div id="type-distribution" class="space-y-2"></div>
+                <div class="mt-4 pt-3 border-t border-outline-variant">
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Marcos de Referencia</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">ISO 14001:2024 §4.1</span>
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">ISO 14001:2024 §6.1</span>
+                        <span class="text-[10px] bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-full font-bold">TCFD</span>
+                        <span class="text-[10px] bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-full font-bold">EU CSRD</span>
+                        <span class="text-[10px] bg-purple-100 text-purple-800 border border-purple-200 px-2 py-0.5 rounded-full font-bold">ISO 9001 DIS §4.1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center bg-surface p-4 border border-outline-variant rounded-xl">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar riesgo u oportunidad..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+                <select id="filter-type" onchange="renderCards()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Todos los Tipos</option>
+                    <option value="Físico Agudo">Físico Agudo</option>
+                    <option value="Físico Crónico">Físico Crónico</option>
+                    <option value="Transición — Regulatorio">Transición — Regulatorio</option>
+                    <option value="Transición — Mercado">Transición — Mercado</option>
+                    <option value="Transición — Tecnológico">Transición — Tecnológico</option>
+                    <option value="Transición — Reputacional">Transición — Reputacional</option>
+                    <option value="Oportunidad">Oportunidad</option>
+                </select>
+                <select id="filter-level" onchange="renderCards()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Todos los Niveles</option>
+                    <option value="Crítico">Crítico</option>
+                    <option value="Alto">Alto</option>
+                    <option value="Medio">Medio</option>
+                    <option value="Bajo">Bajo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Cards de Riesgos -->
+        <div id="risks-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+    </main>
+
+    <!-- MODAL Crear/Editar -->
+    <div id="modal-risk" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-surface border border-outline-variant rounded-2xl max-w-2xl w-full my-8 p-6 flex flex-col gap-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-title" class="font-bold text-base text-primary">Nuevo Riesgo / Oportunidad Climático</h3>
+                <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form onsubmit="saveRisk(event)" class="space-y-4">
+                <input type="hidden" id="risk-id"/>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Denominación *</label>
+                        <input id="r-name" required type="text" placeholder="Ej: Inundaciones por lluvias extremas" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo *</label>
+                        <select id="r-type" required onchange="toggleOppFields()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                            <optgroup label="Riesgos Físicos">
+                                <option value="Físico Agudo">Físico Agudo — Eventos extremos (ciclones, inundaciones, olas de calor)</option>
+                                <option value="Físico Crónico">Físico Crónico — Cambios graduales (escasez agua, temperatura)</option>
+                            </optgroup>
+                            <optgroup label="Riesgos de Transición">
+                                <option value="Transición — Regulatorio">Transición — Regulatorio (impuesto carbono, normativa ETS)</option>
+                                <option value="Transición — Mercado">Transición — Mercado (preferencias clientes, competidores)</option>
+                                <option value="Transición — Tecnológico">Transición — Tecnológico (tecnologías bajas en carbono)</option>
+                                <option value="Transición — Reputacional">Transición — Reputacional (imagen, greenwashing)</option>
+                            </optgroup>
+                            <optgroup label="Oportunidades">
+                                <option value="Oportunidad">Oportunidad (eficiencia, nuevos mercados, innovación)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción del Riesgo / Oportunidad *</label>
+                    <textarea id="r-desc" required rows="3" placeholder="Describir el escenario climático, mecanismo de impacto y principales efectos para la organización..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Área / Proceso Afectado</label>
+                    <input id="r-area" type="text" placeholder="Ej: Cadena de suministro, Producción, Instalaciones, IT" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Probabilidad (1–5) *</label>
+                        <select id="r-prob" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer" onchange="calcRisk()">
+                            <option value="1">1 — Muy baja</option>
+                            <option value="2">2 — Baja</option>
+                            <option value="3" selected>3 — Media</option>
+                            <option value="4">4 — Alta</option>
+                            <option value="5">5 — Muy alta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Impacto (1–5) *</label>
+                        <select id="r-impact" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer" onchange="calcRisk()">
+                            <option value="1">1 — Muy bajo</option>
+                            <option value="2">2 — Bajo</option>
+                            <option value="3" selected>3 — Medio</option>
+                            <option value="4">4 — Alto</option>
+                            <option value="5">5 — Muy alto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Horizonte Temporal</label>
+                        <select id="r-horizon" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                            <option>Corto (≤ 5 años)</option>
+                            <option>Medio (5–15 años)</option>
+                            <option>Largo (> 15 años)</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Puntuación Calculada</label>
+                        <div id="risk-score-badge" class="h-9 rounded-lg flex items-center justify-center font-bold text-sm bg-amber-100 text-amber-800 border border-amber-200">
+                            9 — Medio
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Respuesta / Acción Planificada</label>
+                    <textarea id="r-action" rows="2" placeholder="Describir la respuesta prevista: mitigación, adaptación, transferencia (seguro), aceptación o explotación (oportunidad)..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Responsable</label>
+                        <input id="r-responsible" type="text" placeholder="Ej: Responsable Ambiental / Dirección" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha Límite de Acción</label>
+                        <input id="r-deadline" type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-4">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">Cancelar</button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const RISK_TYPES = {
+            "Físico Agudo": { icon: "storm", color: "blue", bg: "bg-blue-50", text: "text-blue-800", border: "border-blue-200" },
+            "Físico Crónico": { icon: "water_drop", color: "cyan", bg: "bg-cyan-50", text: "text-cyan-800", border: "border-cyan-200" },
+            "Transición — Regulatorio": { icon: "gavel", color: "purple", bg: "bg-purple-50", text: "text-purple-800", border: "border-purple-200" },
+            "Transición — Mercado": { icon: "store", color: "orange", bg: "bg-orange-50", text: "text-orange-800", border: "border-orange-200" },
+            "Transición — Tecnológico": { icon: "memory", color: "indigo", bg: "bg-indigo-50", text: "text-indigo-800", border: "border-indigo-200" },
+            "Transición — Reputacional": { icon: "thumb_down", color: "pink", bg: "bg-pink-50", text: "text-pink-800", border: "border-pink-200" },
+            "Oportunidad": { icon: "trending_up", color: "teal", bg: "bg-teal-50", text: "text-teal-800", border: "border-teal-200" }
+        };
+
+        const IMPACT_LABELS = ["", "Muy Bajo", "Bajo", "Medio", "Alto", "Muy Alto"];
+        const PROB_LABELS = ["", "Muy Baja", "Baja", "Media", "Alta", "Muy Alta"];
+
+        const seed = [
+            { id: "CC-001", name: "Inundaciones por precipitaciones extremas", type: "Físico Agudo", desc: "Aumento de la frecuencia e intensidad de lluvias torrenciales que pueden inundar instalaciones, afectar a la cadena de suministro y provocar daños en equipos e infraestructuras críticas.", area: "Instalaciones, Cadena de Suministro", prob: 3, impact: 4, horizon: "Corto (≤ 5 años)", action: "Evaluación de vulnerabilidad física de instalaciones, plan de emergencias por inundación, revisión de coberturas de seguro.", responsible: "Responsable Ambiental", deadline: "2026-12-31" },
+            { id: "CC-002", name: "Escasez hídrica por sequía prolongada", type: "Físico Crónico", desc: "Reducción progresiva de disponibilidad de agua dulce en las cuencas donde opera la organización, afectando a procesos productivos dependientes del agua y aumentando el coste operativo.", area: "Producción, Operaciones", prob: 4, impact: 4, horizon: "Medio (5–15 años)", action: "Auditoría de eficiencia hídrica, instalación de sistemas de reutilización de agua, identificación de fuentes alternativas.", responsible: "Responsable Ambiental", deadline: "2027-06-30" },
+            { id: "CC-003", name: "Endurecimiento normativa de carbono (EU ETS/CBAM)", type: "Transición — Regulatorio", desc: "Ampliación del mercado de derechos de emisión europeo (ETS) y entrada en vigor del mecanismo de ajuste en frontera de carbono (CBAM) incrementan los costes de cumplimiento.", area: "Finanzas, Compras, Operaciones", prob: 5, impact: 3, horizon: "Corto (≤ 5 años)", action: "Inventario de emisiones de alcance 1, 2 y 3 (GHG Protocol), plan de reducción de huella de carbono, evaluación de compensaciones.", responsible: "Dirección / Compliance Ambiental", deadline: "2026-09-30" },
+            { id: "CC-004", name: "Demanda de productos/servicios bajos en carbono", type: "Oportunidad", desc: "Creciente preferencia de clientes y licitadores públicos por proveedores con acreditación ambiental y baja huella de carbono, abriendo oportunidades de diferenciación y nuevos contratos.", area: "Comercial, Marketing", prob: 4, impact: 3, horizon: "Corto (≤ 5 años)", action: "Obtención de certificación ISO 14001:2024, comunicación ambiental verificable, participación en licitaciones con criterios verdes.", responsible: "Director Comercial", deadline: "2026-12-31" },
+            { id: "CC-005", name: "Olas de calor y estrés térmico en trabajadores", type: "Físico Agudo", desc: "Aumento de temperaturas extremas en verano afecta a la salud y productividad de trabajadores en exterior e instalaciones sin climatización adecuada.", area: "RRHH, Instalaciones, SST", prob: 4, impact: 3, horizon: "Corto (≤ 5 años)", action: "Protocolo de actuación en ola de calor, revisión del plan de prevención SST, climatización de áreas críticas.", responsible: "Responsable PRL / Ambiental", deadline: "2026-06-30" }
+        ];
+
+        let risks = [];
+        let declaration = {};
+
+        function init() {
+            const stored = localStorage.getItem('sig_cambio_climatico');
+            const storedDecl = localStorage.getItem('sig_cc_declaration');
+            risks = stored ? JSON.parse(stored) : [...seed];
+            declaration = storedDecl ? JSON.parse(storedDecl) : { relevant: 'Si', date: new Date().toISOString().split('T')[0], review: '2027-06-15', justification: 'La organización opera en sectores y ubicaciones geográficas expuestas a los efectos físicos del cambio climático (precipitaciones extremas, escasez hídrica) y está sujeta a regulación climática europea (EU ETS, CBAM, CSRD), por lo que el cambio climático se considera un asunto pertinente para el sistema de gestión ambiental.' };
+            if (!stored) save();
+            if (!storedDecl) saveDeclaration();
+            loadDeclaration();
+            render();
+        }
+
+        function save() { localStorage.setItem('sig_cambio_climatico', JSON.stringify(risks)); }
+        function saveDeclaration() {
+            declaration = {
+                relevant: document.getElementById('cc-relevant')?.value || declaration.relevant,
+                date: document.getElementById('cc-date')?.value || declaration.date,
+                review: document.getElementById('cc-review')?.value || declaration.review,
+                justification: document.getElementById('cc-justification')?.value || declaration.justification
+            };
+            localStorage.setItem('sig_cc_declaration', JSON.stringify(declaration));
+        }
+        function loadDeclaration() {
+            if (document.getElementById('cc-relevant')) document.getElementById('cc-relevant').value = declaration.relevant || 'Si';
+            if (document.getElementById('cc-date')) document.getElementById('cc-date').value = declaration.date || '';
+            if (document.getElementById('cc-review')) document.getElementById('cc-review').value = declaration.review || '';
+            if (document.getElementById('cc-justification')) document.getElementById('cc-justification').value = declaration.justification || '';
+        }
+
+        function getRiskLevel(score) {
+            if (score >= 17) return { label: 'Crítico', cls: 'bg-red-100 text-red-800 border-red-300' };
+            if (score >= 10) return { label: 'Alto', cls: 'bg-orange-100 text-orange-800 border-orange-300' };
+            if (score >= 5)  return { label: 'Medio', cls: 'bg-amber-100 text-amber-800 border-amber-300' };
+            return { label: 'Bajo', cls: 'bg-green-100 text-green-800 border-green-300' };
+        }
+
+        function getHeatColor(score) {
+            if (score >= 17) return 'bg-red-400 text-white';
+            if (score >= 10) return 'bg-orange-300 text-white';
+            if (score >= 5)  return 'bg-amber-200 text-amber-900';
+            return 'bg-green-200 text-green-900';
+        }
+
+        function render() {
+            renderKPIs();
+            renderHeatmap();
+            renderDistribution();
+            renderCards();
+        }
+
+        function renderKPIs() {
+            const total = risks.length;
+            const critical = risks.filter(r => r.prob * r.impact >= 17).length;
+            const high = risks.filter(r => { const s = r.prob*r.impact; return s >= 10 && s < 17; }).length;
+            const opps = risks.filter(r => r.type === 'Oportunidad').length;
+            const withPlan = risks.filter(r => r.action && r.action.trim().length > 0).length;
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-critical').textContent = critical;
+            document.getElementById('kpi-high').textContent = high;
+            document.getElementById('kpi-opps').textContent = opps;
+            document.getElementById('kpi-with-plan').textContent = withPlan;
+        }
+
+        function renderHeatmap() {
+            const body = document.getElementById('heatmap-body');
+            body.innerHTML = '';
+            const probLevels = [5, 4, 3, 2, 1];
+            const impLevels = [1, 2, 3, 4, 5];
+            probLevels.forEach(p => {
+                let row = `<tr><td class="text-[10px] font-bold text-on-surface-variant text-right pr-2 py-1">${PROB_LABELS[p]}</td>`;
+                impLevels.forEach(i => {
+                    const score = p * i;
+                    const color = getHeatColor(score);
+                    const inCell = risks.filter(r => r.type !== 'Oportunidad' && r.prob === p && r.impact === i);
+                    const count = inCell.length;
+                    const names = inCell.map(r => r.name).join(', ');
+                    row += `<td class="p-0.5"><div class="heat-cell ${color} rounded w-full h-10 flex items-center justify-center font-bold text-sm" title="${names || score}">${count > 0 ? `<span class="text-xs">${count}</span>` : score}</div></td>`;
+                });
+                row += '</tr>';
+                body.innerHTML += row;
+            });
+        }
+
+        function renderDistribution() {
+            const container = document.getElementById('type-distribution');
+            const types = {};
+            risks.forEach(r => { types[r.type] = (types[r.type] || 0) + 1; });
+            const total = risks.length || 1;
+            container.innerHTML = Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t, count]) => {
+                const info = RISK_TYPES[t] || { text: 'text-primary', bg: 'bg-surface-container' };
+                const pct = Math.round(count/total*100);
+                return `<div class="flex items-center gap-2">
+                    <span class="text-[10px] font-semibold text-on-surface-variant w-36 truncate">${t}</span>
+                    <div class="flex-1 bg-surface-container rounded-full h-2">
+                        <div class="${info.bg.replace('50','400')} h-2 rounded-full" style="width:${pct}%"></div>
+                    </div>
+                    <span class="text-[11px] font-bold text-primary w-6 text-right">${count}</span>
+                </div>`;
+            }).join('') || '<p class="text-xs text-on-surface-variant italic">Sin datos</p>';
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('risks-grid');
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const typeF = document.getElementById('filter-type').value;
+            const levelF = document.getElementById('filter-level').value;
+
+            const filtered = risks.filter(r => {
+                const score = r.prob * r.impact;
+                const level = getRiskLevel(score).label;
+                return (r.name.toLowerCase().includes(query) || r.type.toLowerCase().includes(query)) &&
+                    (!typeF || r.type === typeF) &&
+                    (!levelF || level === levelF);
+            });
+
+            grid.innerHTML = '';
+            if (!filtered.length) {
+                grid.innerHTML = `<div class="col-span-3 py-12 text-center text-on-surface-variant font-medium text-sm">Sin riesgos que coincidan con los filtros.</div>`;
+                return;
+            }
+
+            filtered.forEach(r => {
+                const t = RISK_TYPES[r.type] || RISK_TYPES['Oportunidad'];
+                const score = r.prob * r.impact;
+                const level = getRiskLevel(score);
+                const isOpp = r.type === 'Oportunidad';
+                const today = new Date();
+                const ddl = r.deadline ? new Date(r.deadline) : null;
+                let deadlineAlert = '';
+                if (ddl) {
+                    const diff = Math.ceil((ddl - today) / 86400000);
+                    if (diff < 0) deadlineAlert = `<span class="text-danger text-[10px] font-bold">⚠ Plazo vencido</span>`;
+                    else if (diff <= 60) deadlineAlert = `<span class="text-warning text-[10px] font-bold">⏰ ${diff} días restantes</span>`;
+                }
+
+                grid.innerHTML += `
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 flex flex-col gap-3 fade-up hover:shadow-md transition-all hover:border-secondary/40">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl ${t.bg} ${t.border} border flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined ${t.text} text-lg">${t.icon}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold ${t.text} ${t.bg} ${t.border} border px-2 py-0.5 rounded-full">${r.type}</span>
+                                <p class="text-[11px] text-on-surface-variant font-mono mt-0.5">${r.id}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] border font-bold ${level.cls}">${isOpp ? '📈 Oportunidad' : level.label}</span>
+                            ${!isOpp ? `<span class="text-[10px] font-mono text-on-surface-variant">P${r.prob}×I${r.impact}=${score}</span>` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-primary leading-snug">${r.name}</h4>
+                        <p class="text-[11px] text-on-surface-variant mt-1 line-clamp-2">${r.desc}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px] text-on-surface-variant border-t border-outline-variant pt-3">
+                        <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">location_on</span><span class="truncate">${r.area || '—'}</span></div>
+                        <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span><span>${r.horizon || '—'}</span></div>
+                        <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">person</span><span class="truncate">${r.responsible || '—'}</span></div>
+                        <div>${deadlineAlert}</div>
+                    </div>
+                    ${r.action ? `<div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[11px] text-on-surface-variant line-clamp-2">
+                        <span class="font-bold text-primary">Acción:</span> ${r.action}
+                    </div>` : ''}
+                    <div class="flex items-center justify-end gap-2 border-t border-outline-variant pt-2">
+                        <button onclick="editRisk('${r.id}')" class="text-secondary hover:text-primary text-xs font-bold flex items-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-sm">edit</span> Editar
+                        </button>
+                        <button onclick="deleteRisk('${r.id}')" class="text-danger hover:text-red-700 text-xs font-bold flex items-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function calcRisk() {
+            const p = parseInt(document.getElementById('r-prob').value);
+            const i = parseInt(document.getElementById('r-impact').value);
+            const score = p * i;
+            const level = getRiskLevel(score);
+            const badge = document.getElementById('risk-score-badge');
+            badge.textContent = `${score} — ${level.label}`;
+            badge.className = `h-9 rounded-lg flex items-center justify-center font-bold text-sm border ${level.cls}`;
+        }
+
+        function toggleOppFields() { calcRisk(); }
+
+        function openModal(data = null) {
+            document.getElementById('modal-title').textContent = data ? 'Editar Riesgo / Oportunidad' : 'Nuevo Riesgo / Oportunidad Climático';
+            document.getElementById('risk-id').value = data ? data.id : '';
+            document.getElementById('r-name').value = data ? data.name : '';
+            document.getElementById('r-type').value = data ? data.type : 'Físico Agudo';
+            document.getElementById('r-desc').value = data ? data.desc : '';
+            document.getElementById('r-area').value = data ? data.area : '';
+            document.getElementById('r-prob').value = data ? data.prob : 3;
+            document.getElementById('r-impact').value = data ? data.impact : 3;
+            document.getElementById('r-horizon').value = data ? data.horizon : 'Corto (≤ 5 años)';
+            document.getElementById('r-action').value = data ? data.action : '';
+            document.getElementById('r-responsible').value = data ? data.responsible : '';
+            document.getElementById('r-deadline').value = data ? data.deadline : '';
+            calcRisk();
+            document.getElementById('modal-risk').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal-risk').classList.add('hidden'); }
+
+        function saveRisk(e) {
+            e.preventDefault();
+            const id = document.getElementById('risk-id').value;
+            const obj = {
+                id: id || `CC-${String(risks.length + 1).padStart(3,'0')}`,
+                name: document.getElementById('r-name').value.trim(),
+                type: document.getElementById('r-type').value,
+                desc: document.getElementById('r-desc').value.trim(),
+                area: document.getElementById('r-area').value.trim(),
+                prob: parseInt(document.getElementById('r-prob').value),
+                impact: parseInt(document.getElementById('r-impact').value),
+                horizon: document.getElementById('r-horizon').value,
+                action: document.getElementById('r-action').value.trim(),
+                responsible: document.getElementById('r-responsible').value.trim(),
+                deadline: document.getElementById('r-deadline').value
+            };
+            if (id) { const idx = risks.findIndex(r => r.id === id); if (idx !== -1) risks[idx] = obj; }
+            else risks.push(obj);
+            save(); closeModal(); render();
+        }
+
+        function editRisk(id) { openModal(risks.find(r => r.id === id)); }
+        function deleteRisk(id) { if (confirm('¿Eliminar este riesgo/oportunidad?')) { risks = risks.filter(r => r.id !== id); save(); render(); } }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

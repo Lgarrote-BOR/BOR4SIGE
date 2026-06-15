@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recuperación de Contraseña - Bor4D</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#0b1c30",
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-container": "#818486",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "surface": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container-low": "#eff4ff",
+                        "primary": "#000000",
+                        "secondary": "#0051d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-surface-variant": "#45464d",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "outline-variant": "#c6c6cd",
+                        "background": "#f8f9ff",
+                        "on-primary-container": "#7c839b",
+                        "tertiary": "#000000",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "outline": "#76777d",
+                        "on-surface": "#0b1c30",
+                        "inverse-surface": "#213145",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0",
+                        "tertiary-container": "#191c1e",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "max-width": "1440px",
+                        "gutter": "16px",
+                        "margin": "24px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        body {
+            background-color: #f8f9ff;
+            color: #0b1c30;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-md bg-background relative overflow-hidden">
+<!-- Decorative background elements -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+<div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-surface-container-high opacity-50 blur-3xl mix-blend-multiply"></div>
+<div class="absolute top-[60%] -right-[10%] w-[40%] h-[40%] rounded-full bg-surface-container-highest opacity-50 blur-3xl mix-blend-multiply"></div>
+</div>
+<!-- Main Container -->
+<main class="w-full max-w-md bg-surface-container-lowest rounded-xl shadow-[0px_10px_25px_rgba(15,23,42,0.1)] border border-outline-variant p-xl relative z-10">
+<!-- Header / Logo -->
+<div class="flex flex-col items-center mb-xl text-center">
+<img alt="Bor4D Logo" class="h-16 mb-md object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXB2KtxPKJD8MvkgbPeWTdASHjfGhnic-dO2ytiXVpx7N62wYHaNqZ5pXVZp0G8k66j1hbnyOTnr7Q7Dt9AARxeHGKesu_D-xLnPNzy5lsc6vZ7cvVHgru8ePzntlt7L_yFIiu8qURd2mIGHaXtHN_yhRr4pY1uKWBP3hW2sEGly-b0jzwZ2qL7iABZMescOaMfNglPYl0uTmCmgFFjlih1YjIfD81ydKNZqU1kGr4LeUTyDFC1Afj1u3I-F76d_1MPGAoKipSo8g"/>
+<h1 class="font-headline-md text-headline-md text-primary mb-sm">Recuperación de Contraseña</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Introduce tu correo electrónico corporativo y te enviaremos las instrucciones para restablecer tu contraseña de acceso seguro.</p>
+</div>
+<!-- Form -->
+<form action="#" class="space-y-lg" method="POST">
+<!-- Email Input -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs uppercase tracking-wider" for="email">Correo Electrónico Corporativo</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline" data-icon="mail">mail</span>
+</div>
+<input class="block w-full pl-[40px] pr-sm py-sm font-body-md text-body-md bg-surface border border-outline-variant rounded focus:ring-secondary focus:border-secondary transition-colors" id="email" name="email" placeholder="usuario@bor4d.com" required="" type="email"/>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full flex justify-center py-sm px-md border border-transparent rounded bg-secondary text-on-secondary font-label-md text-label-md uppercase tracking-wider hover:bg-[#0041ab] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary transition-colors shadow-sm" type="submit">
+                Enviar enlace de recuperación
+            </button>
+<!-- Back to Login Link -->
+<div class="text-center mt-md">
+<a class="inline-flex items-center font-label-md text-label-md text-secondary hover:text-[#0041ab] transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px] mr-xs" data-icon="arrow_back">arrow_back</span>
+                    Volver al inicio de sesión
+                </a>
+</div>
+</form>
+<!-- Footer / Support -->
+<div class="mt-xl pt-md border-t border-outline-variant text-center">
+<p class="font-code-sm text-code-sm text-on-surface-variant">¿Necesitas ayuda adicional? <br/> Contacta con el equipo de soporte de TI.</p>
+</div>
+</main>
+</body></html>

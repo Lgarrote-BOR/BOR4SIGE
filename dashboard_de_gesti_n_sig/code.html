@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Cuadro de Mando - Gestión SIG 2.0</title>
+    <!-- Tailwind CSS con plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: IBM Plex Sans & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#003366",       // Azul Marino Profundo (Core 2)
+                        "secondary": "#0060ac",     // Azul Interactivo (Core 2)
+                        "background": "#f8f9fb",    // Lienzo Principal (Core 2)
+                        "surface": "#ffffff",       // Blanco Puro (Core 2)
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "success": "#166534",
+                        "success-container": "#dcfce7",
+                        "warning": "#a16207",
+                        "warning-container": "#fef9c3",
+                        "info-bg": "#e0f2fe",
+                        "info-text": "#0369a1"
+                    },
+                    borderRadius: {
+                        "sm": "0.25rem",
+                        "DEFAULT": "0.5rem",
+                        "md": "0.75rem",
+                        "lg": "1.0rem",
+                        "xl": "1.5rem"
+                    },
+                    fontFamily: {
+                        sans: ["IBM Plex Sans", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Glassmorphism sutil para tarjetas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(195, 198, 209, 0.5);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f2f4f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a16207;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen p-4 md:p-6 lg:p-8">
+
+    <!-- Header Principal -->
+    <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant pb-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-3xl">dashboard</span>
+                Cuadro de Mando Integral
+            </h1>
+            <p class="text-sm text-on-surface-variant mt-1">
+                Sistema de Gestión Integrado (SGI) • Control de Normas ISO y Esquema Nacional de Seguridad (ENS)
+            </p>
+        </div>
+
+        <!-- Selector Multiorganización (Multi-Tenant) -->
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 bg-white border border-outline-variant px-3 py-2 rounded-lg shadow-sm">
+                <span class="material-symbols-outlined text-secondary text-xl">domain</span>
+                <label for="tenant-select" class="sr-only">Organización</label>
+                <select id="tenant-select" onchange="switchOrganization(this.value)" class="bg-transparent text-sm font-semibold text-primary outline-none border-none cursor-pointer focus:ring-0 py-0 pl-1 pr-8">
+                    <!-- Dinámico -->
+                </select>
+            </div>
+            <button id="edit-org-btn" onclick="openEditOrgModal()" class="flex items-center justify-center p-2 bg-surface border border-outline-variant text-primary hover:bg-surface-container transition-all rounded-lg shadow-sm h-10 w-10" title="Configurar alcance y certificación de la organización">
+                <span class="material-symbols-outlined">edit_note</span>
+            </button>
+            <button id="add-org-btn" onclick="openOrgModal()" class="flex items-center justify-center p-2 bg-secondary text-white hover:bg-primary transition-all rounded-lg shadow-sm h-10 w-10" title="Dar de alta nueva organización">
+                <span class="material-symbols-outlined">add_business</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Bento Grid de KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <!-- KPI 1: Cumplimiento Global -->
+        <div class="glass-card p-5 rounded-lg flex flex-col justify-between shadow-sm relative overflow-hidden h-40">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Cumplimiento Global</p>
+                    <h3 class="text-sm font-medium text-primary mt-1">Índice General SGI</h3>
+                </div>
+                <span class="material-symbols-outlined text-secondary text-2xl">insights</span>
+            </div>
+            <div>
+                <div class="flex items-baseline gap-2">
+                    <span id="global-percent" class="text-4xl font-bold text-primary tracking-tight">88%</span>
+                    <span id="global-trend" class="text-success text-xs font-bold bg-success-container px-2 py-0.5 rounded flex items-center">
+                        <span class="material-symbols-outlined text-xs mr-0.5">trending_up</span>+1.5%
+                    </span>
+                </div>
+                <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden mt-3">
+                    <div id="global-progress" class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 88%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 2: Acciones Correctivas (CAPA) -->
+        <div class="glass-card p-5 rounded-lg flex flex-col justify-between shadow-sm h-40">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">No Conformidades</p>
+                    <h3 class="text-sm font-medium text-primary mt-1">Planes de Acción CAPA</h3>
+                </div>
+                <span class="material-symbols-outlined text-warning text-2xl">pending_actions</span>
+            </div>
+            <div>
+                <div class="flex items-baseline gap-4">
+                    <span id="kpi-capa-total" class="text-4xl font-bold text-primary">14</span>
+                    <div class="text-xs">
+                        <span id="kpi-capa-criticas" class="text-error font-bold block">3 Críticas</span>
+                        <span id="kpi-capa-abiertas" class="text-on-surface-variant">11 Abiertas</span>
+                    </div>
+                </div>
+                <p class="text-xs text-on-surface-variant mt-3">9 acciones resueltas con éxito este mes</p>
+            </div>
+        </div>
+
+        <!-- KPI 3: Riesgos y Salvaguardas -->
+        <div class="glass-card p-5 rounded-lg flex flex-col justify-between shadow-sm h-40">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Gestión de Riesgos</p>
+                    <h3 class="text-sm font-medium text-primary mt-1">Riesgos Críticos Activos</h3>
+                </div>
+                <span class="material-symbols-outlined text-error text-2xl">security</span>
+            </div>
+            <div>
+                <div class="flex items-baseline gap-4">
+                    <span id="kpi-risks-total" class="text-4xl font-bold text-primary">8</span>
+                    <div class="text-xs">
+                        <span id="kpi-risks-mitigated" class="text-success font-bold block">5 Mitigados</span>
+                        <span id="kpi-risks-unmitigated" class="text-error font-bold">3 Sin Control</span>
+                    </div>
+                </div>
+                <p class="text-xs text-on-surface-variant mt-3">Mitigación promedio: 64%</p>
+            </div>
+        </div>
+
+        <!-- KPI 4: Auditorías e Informes -->
+        <div class="glass-card p-5 rounded-lg flex flex-col justify-between shadow-sm h-40">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Auditorías Internas</p>
+                    <h3 class="text-sm font-medium text-primary mt-1">Planificación Anual</h3>
+                </div>
+                <span class="material-symbols-outlined text-primary text-2xl">rule</span>
+            </div>
+            <div>
+                <div class="flex items-baseline gap-4">
+                    <span id="kpi-audits-planned" class="text-4xl font-bold text-primary">3</span>
+                    <div class="text-xs">
+                        <span id="kpi-audits-retrasada" class="text-warning font-bold block">1 Retrasada</span>
+                        <span class="text-on-surface-variant">2 En Plazo</span>
+                    </div>
+                </div>
+                <p class="text-xs text-on-surface-variant mt-3">Próxima auditoría: ISO 9001 (15 Oct)</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sección de Detalle: Normas e Integración ENS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <!-- Tarjetas de Cumplimiento de las 10 Normas -->
+        <div class="lg:col-span-2 space-y-4">
+            <h2 class="text-lg font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">verified</span>
+                Estado del SGI por Normativa
+            </h2>
+            
+            <div id="normativas-cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Inyectado dinámicamente en JS -->
+            </div>
+        </div>
+
+        <!-- Panel de Categorización y Dimensiones del ENS (CIDAT) -->
+        <div class="space-y-4">
+            <h2 class="text-lg font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">shield</span>
+                Categorización del ENS
+            </h2>
+
+            <div class="bg-white p-5 rounded-lg border border-outline-variant shadow-sm flex flex-col justify-between gap-4">
+                <div>
+                    <h4 class="font-bold text-sm text-primary">ISO 9001:2026</h4>
+                    <h3 class="font-bold text-sm text-primary">Dimensiones de Seguridad CIDAT</h3>
+                    <p class="text-xs text-on-surface-variant mt-1">Evalue las dimensiones para calcular dinámicamente la categoría global del sistema del ENS.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <!-- Confidencialidad -->
+                    <div class="flex items-center justify-between bg-surface-container-low p-2.5 rounded border border-outline-variant">
+                        <span class="text-xs font-bold text-primary font-mono uppercase">Confidencialidad [C]</span>
+                        <select onchange="updateEnsCategory('c', this.value)" id="ens-c" class="text-xs bg-white border border-outline-variant rounded p-1 font-semibold text-primary outline-none py-0.5">
+                            <option value="Bajo" selected>Bajo</option>
+                            <option value="Medio">Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+
+                    <!-- Integridad -->
+                    <div class="flex items-center justify-between bg-surface-container-low p-2.5 rounded border border-outline-variant">
+                        <span class="text-xs font-bold text-primary font-mono uppercase">Integridad [I]</span>
+                        <select onchange="updateEnsCategory('i', this.value)" id="ens-i" class="text-xs bg-white border border-outline-variant rounded p-1 font-semibold text-primary outline-none py-0.5">
+                            <option value="Bajo">Bajo</option>
+                            <option value="Medio" selected>Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+
+                    <!-- Disponibilidad -->
+                    <div class="flex items-center justify-between bg-surface-container-low p-2.5 rounded border border-outline-variant">
+                        <span class="text-xs font-bold text-primary font-mono uppercase">Disponibilidad [D]</span>
+                        <select onchange="updateEnsCategory('d', this.value)" id="ens-d" class="text-xs bg-white border border-outline-variant rounded p-1 font-semibold text-primary outline-none py-0.5">
+                            <option value="Bajo">Bajo</option>
+                            <option value="Medio" selected>Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+
+                    <!-- Autenticidad -->
+                    <div class="flex items-center justify-between bg-surface-container-low p-2.5 rounded border border-outline-variant">
+                        <span class="text-xs font-bold text-primary font-mono uppercase">Autenticidad [A]</span>
+                        <select onchange="updateEnsCategory('a', this.value)" id="ens-a" class="text-xs bg-white border border-outline-variant rounded p-1 font-semibold text-primary outline-none py-0.5">
+                            <option value="Bajo" selected>Bajo</option>
+                            <option value="Medio">Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+
+                    <!-- Trazabilidad -->
+                    <div class="flex items-center justify-between bg-surface-container-low p-2.5 rounded border border-outline-variant">
+                        <span class="text-xs font-bold text-primary font-mono uppercase">Trazabilidad [T]</span>
+                        <select onchange="updateEnsCategory('t', this.value)" id="ens-t" class="text-xs bg-white border border-outline-variant rounded p-1 font-semibold text-primary outline-none py-0.5">
+                            <option value="Bajo">Bajo</option>
+                            <option value="Medio" selected>Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Resultado de Categoría Calculada -->
+                <div class="mt-2 border-t border-outline-variant pt-4 flex items-center justify-between bg-[#f0f4f8] -mx-5 -mb-5 p-4 rounded-b-lg">
+                    <div>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase font-mono">Categoría Calculada</p>
+                        <h4 id="calculated-category-label" class="text-base font-bold text-primary">NIVEL MEDIO</h4>
+                    </div>
+                    <span id="calculated-category-badge" class="px-3 py-1.5 bg-warning-container text-warning border border-warning/20 font-black rounded-lg text-sm">
+                        MEDIO
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Logs de Actividades Recientes y Alertas Inteligentes -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Alertas del Sistema (SLA) -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-lg border border-outline-variant shadow-sm">
+            <h3 class="text-base font-bold text-primary flex items-center gap-2 mb-4">
+                <span class="w-2.5 h-2.5 bg-error rounded-full animate-pulse"></span>
+                Alertas de Cumplimiento Críticas
+            </h3>
+            
+            <div class="space-y-3" id="alerts-container">
+                <!-- Alerta 1 -->
+                <div class="bg-background hover:bg-surface-container-low p-4 rounded-lg border border-outline-variant flex gap-3 items-start relative transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-error mt-0.5">security_update_warning</span>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold text-primary">Parche de Seguridad Pendiente (ENS MP.SI.1)</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">Vulnerabilidad de inyección de código identificada en el servidor de bases de datos. SLA requiere mitigación.</p>
+                        <span class="inline-block mt-2 text-[10px] font-bold bg-error-container text-error px-2 py-0.5 rounded">SLA: Quedan 2h</span>
+                    </div>
+                </div>
+
+                <!-- Alerta 2 -->
+                <div class="bg-background hover:bg-surface-container-low p-4 rounded-lg border border-outline-variant flex gap-3 items-start relative transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-warning mt-0.5">pending_actions</span>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold text-primary">Revisión de Política de Calidad Pendiente (ISO 9001 Cláusula 5.2)</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">El documento de la Política de Calidad no se ha actualizado desde hace 11 meses. Se requiere firma antes de la auditoría.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registro de Actividades Recientes -->
+        <div class="bg-white p-5 rounded-lg border border-outline-variant shadow-sm flex flex-col justify-between">
+            <div>
+                <h3 class="text-base font-bold text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">history</span>
+                    Historial de Actividad
+                </h3>
+                
+                <div class="space-y-4 text-xs" id="activity-log">
+                    
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-success">check_circle</span>
+                        <div>
+                            <p class="text-on-surface font-semibold">Auditoría Interna ISO 14001 Finalizada</p>
+                            <p class="text-on-surface-variant mt-0.5">Informe finalizado con 0 NC Críticas y 2 Observaciones.</p>
+                            <span class="text-[10px] text-outline mt-1 block font-mono">06/06/2026 09:12</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-secondary">task_alt</span>
+                        <div>
+                            <p class="text-on-surface font-semibold">Acción Correctiva AC-2023-041 Creada</p>
+                            <p class="text-on-surface-variant mt-0.5">Generada por Laura M. asociada a descalibración de sensor.</p>
+                            <span class="text-[10px] text-outline mt-1 block font-mono">06/06/2026 08:45</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-secondary">download</span>
+                        <div>
+                            <p class="text-on-surface font-semibold">Documento POL-SGI-001 Exportado</p>
+                            <p class="text-on-surface-variant mt-0.5">La Política de Seguridad de la Información ha sido descargada en formato TXT.</p>
+                            <span class="text-[10px] text-outline mt-1 block font-mono">05/06/2026 17:30</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <button class="mt-4 w-full py-2 bg-secondary text-white text-xs font-bold rounded-lg hover:bg-primary transition-all flex items-center justify-center gap-2">
+                Ver Historial Completo
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Modal Nueva/Editar Organización -->
+    <div id="modal-org" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-org-title" class="text-lg font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">add_business</span>
+                    Alta de Organización
+                </h3>
+                <button onclick="closeOrgModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors flex items-center justify-center">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-org" onsubmit="saveOrganization(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="org-id">ID de Organización</label>
+                        <input required id="org-id" type="text" pattern="[a-z0-9]+" placeholder="Ej: gamma" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="org-compliance">Cumplimiento Inicial (%)</label>
+                        <input id="org-compliance" type="number" min="0" max="100" value="10" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="org-name">Nombre Comercial / Razón Social</label>
+                    <input required id="org-name" type="text" placeholder="Ej: Gama Tecnologías S.L." class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Sistemas de Gestión y Certificación</label>
+                    <div class="border border-outline-variant rounded-lg overflow-hidden mt-1 max-h-60 overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant font-bold text-primary sticky top-0 z-10">
+                                    <th class="p-2">Normativa / Sistema</th>
+                                    <th class="p-2 text-center w-16">Activo</th>
+                                    <th class="p-2 w-32">Certificación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-systems-table" class="divide-y divide-outline-variant bg-white">
+                                <!-- Inyectado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-4 mt-4">
+                    <button type="button" onclick="closeOrgModal()" class="bg-surface border border-outline-variant text-primary text-xs font-bold px-4 py-2 rounded-lg hover:bg-surface-container transition-colors">
+                        Cancelar
+                    </button>
+                    <button id="modal-org-submit-btn" type="submit" class="bg-secondary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary transition-colors shadow-sm">
+                        Registrar Organización
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Estado del Selector Tenant (Multi-Tenant Offline) -->
+    <script>
+        const availableNorms = [
+            { id: "iso9001", code: "ISO 9001:2026", name: "Gestión de la Calidad" },
+            { id: "iso14001", code: "ISO 14001:2026", name: "Gestión Ambiental" },
+            { id: "iso45001", code: "ISO 45001:2018", name: "Seguridad y Salud en el Trabajo" },
+            { id: "iso27001", code: "ISO 27001:2022", name: "Seguridad de la Información" },
+            { id: "iso22301", code: "ISO 22301:2019", name: "Continuidad de Negocio" },
+            { id: "iso37001", code: "ISO 37001:2016", name: "Sistemas Antisoborno" },
+            { id: "iso37301", code: "ISO 37301:2021", name: "Sistemas de Compliance" },
+            { id: "iso20000", code: "ISO 20000-1:2018", name: "Gestión de Servicios TI" },
+            { id: "iso27701", code: "ISO 27701:2019", name: "Gestión de Privacidad (RGPD)" },
+            { id: "ens", code: "ENS RD 311/2022", name: "Esquema Nacional de Seguridad", isEns: true }
+        ];
+
+        // Datos semilla para simulación offline de organizaciones
+        const seedOrgData = {
+            alfa: {
+                name: "Alfa Industrial S.A.",
+                compliance: 88,
+                trend: "+1.5%",
+                trendUp: true,
+                capa: { total: 14, criticas: 3, abiertas: 11 },
+                risks: { total: 8, mitigated: 5, unmitigated: 3 },
+                audits: { planned: 3, retrasada: 1 },
+                ens: { c: "Bajo", i: "Medio", d: "Medio", a: "Bajo", t: "Medio" },
+                scores: {
+                    iso9001: 92,
+                    iso14001: 85,
+                    iso45001: 90,
+                    iso27001: 91,
+                    iso22301: 82,
+                    iso37001: 95,
+                    iso37301: 88,
+                    iso20000: 78,
+                    iso27701: 86,
+                    ens: 84
+                },
+                systems: {
+                    iso9001: { active: true, status: "Certificado" },
+                    iso14001: { active: true, status: "Certificado" },
+                    iso45001: { active: true, status: "Certificado" },
+                    iso27001: { active: true, status: "En Proceso" },
+                    iso22301: { active: true, status: "En Proceso" },
+                    iso37001: { active: false, status: "Certificado" },
+                    iso37301: { active: false, status: "En Proceso" },
+                    iso20000: { active: false, status: "En Proceso" },
+                    iso27701: { active: false, status: "En Proceso" },
+                    ens: { active: true, status: "Nivel Medio" }
+                },
+                activities: [
+                    { icon: "check_circle", type: "success", title: "Auditoría Interna ISO 14001 Finalizada", desc: "Informe finalizado con 0 NC Críticas y 2 Observaciones.", date: "06/06/2026 09:12" },
+                    { icon: "task_alt", type: "secondary", title: "Acción Correctiva AC-2023-041 Creada", desc: "Generada por Laura M. asociada a descalibración de sensor.", date: "06/06/2026 08:45" },
+                    { icon: "download", type: "secondary", title: "Documento POL-SGI-001 Exportado", desc: "La Política de Seguridad de la Información ha sido descargada en formato TXT.", date: "05/06/2026 17:30" }
+                ],
+                alerts: [
+                    { icon: "security_update_warning", type: "error", title: "Parche de Seguridad Pendiente (ENS MP.SI.1)", desc: "Vulnerabilidad de inyección de código identificada en el servidor de bases de datos. SLA requiere mitigación.", badge: "SLA: Quedan 2h" },
+                    { icon: "pending_actions", type: "warning", title: "Revisión de Política de Calidad Pendiente (ISO 9001 Cláusula 5.2)", desc: "El documento de la Política de Calidad no se ha actualizado desde hace 11 meses. Se requiere firma antes de la auditoría." }
+                ]
+            },
+            omega: {
+                name: "Omega Cloud Solutions",
+                compliance: 94,
+                trend: "+2.8%",
+                trendUp: true,
+                capa: { total: 4, criticas: 0, abiertas: 4 },
+                risks: { total: 15, mitigated: 13, unmitigated: 2 },
+                audits: { planned: 5, retrasada: 0 },
+                ens: { c: "Alto", i: "Alto", d: "Alto", a: "Alto", t: "Alto" },
+                scores: {
+                    iso9001: 96,
+                    iso14001: 92,
+                    iso45001: 94,
+                    iso27001: 98,
+                    iso22301: 95,
+                    iso37001: 97,
+                    iso37301: 93,
+                    iso20000: 91,
+                    iso27701: 94,
+                    ens: 93
+                },
+                systems: {
+                    iso9001: { active: true, status: "Certificado" },
+                    iso14001: { active: true, status: "Certificado" },
+                    iso45001: { active: true, status: "Certificado" },
+                    iso27001: { active: true, status: "Certificado" },
+                    iso22301: { active: true, status: "Certificado" },
+                    iso37001: { active: true, status: "Certificado" },
+                    iso37301: { active: true, status: "Certificado" },
+                    iso20000: { active: true, status: "Certificado" },
+                    iso27701: { active: true, status: "Certificado" },
+                    ens: { active: true, status: "Nivel Alto" }
+                },
+                activities: [
+                    { icon: "verified", type: "success", title: "Certificado ISO 27001 Renovado con éxito", desc: "Superada la auditoría de recertificación sin no conformidades.", date: "04/06/2026 14:00" },
+                    { icon: "lock", type: "secondary", title: "Rotación de credenciales administradores completada", desc: "Cumpliendo con la medida ENS OP.ACC.1.", date: "03/06/2026 09:00" }
+                ],
+                alerts: [
+                    { icon: "campaign", type: "warning", title: "Plan de simulacro de continuidad (ISO 22301)", desc: "Simulacro anual programado para el día 10 de Junio. Verifique la comunicación del comité." }
+                ]
+            },
+            beta: {
+                name: "Beta Salud & Software",
+                compliance: 79,
+                trend: "-1.2%",
+                trendUp: false,
+                capa: { total: 22, criticas: 6, abiertas: 16 },
+                risks: { total: 18, mitigated: 10, unmitigated: 8 },
+                audits: { planned: 2, retrasada: 1 },
+                ens: { c: "Alto", i: "Alto", d: "Medio", a: "Alto", t: "Alto" },
+                scores: {
+                    iso9001: 85,
+                    iso14001: 60,
+                    iso45001: 72,
+                    iso27001: 82,
+                    iso22301: 76,
+                    iso37001: 84,
+                    iso37301: 78,
+                    iso20000: 70,
+                    iso27701: 81,
+                    ens: 78
+                },
+                systems: {
+                    iso9001: { active: true, status: "Certificado" },
+                    iso14001: { active: true, status: "En Proceso" },
+                    iso45001: { active: true, status: "En Proceso" },
+                    iso27001: { active: true, status: "Certificado" },
+                    iso22301: { active: true, status: "En Proceso" },
+                    iso37001: { active: true, status: "Certificado" },
+                    iso37301: { active: true, status: "En Proceso" },
+                    iso20000: { active: true, status: "En Proceso" },
+                    iso27701: { active: true, status: "En Proceso" },
+                    ens: { active: true, status: "Nivel Alto" }
+                },
+                activities: [
+                    { icon: "report_problem", type: "error", title: "Incidencia de Seguridad Registrada", desc: "Intento de acceso no autorizado detectado en base de datos clínica.", date: "05/06/2026 23:45" },
+                    { icon: "assignment", type: "secondary", title: "Auditoría de cumplimiento interno iniciada", desc: "Evaluando la adecuación a ISO 27701 (privacidad de pacientes).", date: "05/06/2026 09:00" }
+                ],
+                alerts: [
+                    { icon: "emergency_home", type: "error", title: "Incumplimiento Crítico Plan de Formación (ISO 45001)", desc: "El 40% del personal médico no ha realizado el curso de PRL obligatorio del trimestre.", badge: "Vencido hace 5 días" },
+                    { icon: "warning", type: "warning", title: "Evaluación de Impacto de Privacidad Pendiente (EIPD)", desc: "El nuevo módulo de telemedicina requiere realizar EIPD según el RGPD." }
+                ]
+            }
+        };
+
+        let orgData = {};
+        let currentTenant = "alfa";
+        let isEditingMode = false;
+
+        function initOrganizations() {
+            const stored = localStorage.getItem('sig_organizations');
+            if (stored) {
+                try {
+                    orgData = JSON.parse(stored);
+                } catch(e) {
+                    console.error("Error al parsear organizaciones de localStorage:", e);
+                    orgData = { ...seedOrgData };
+                }
+            } else {
+                orgData = { ...seedOrgData };
+                localStorage.setItem('sig_organizations', JSON.stringify(orgData));
+            }
+
+            // Migrar organizaciones sin el campo "systems"
+            let modified = false;
+            for (let id in orgData) {
+                if (!orgData[id].systems) {
+                    orgData[id].systems = {};
+                    availableNorms.forEach(norm => {
+                        const score = orgData[id].scores ? orgData[id].scores[norm.id] : 0;
+                        const active = (score > 0 || norm.id === 'iso9001' || norm.id === 'iso14001' || norm.id === 'iso45001' || norm.id === 'iso27001' || norm.id === 'iso22301' || norm.id === 'ens');
+                        let status = "En Proceso";
+                        if (norm.id === 'ens') {
+                            status = orgData[id].ens ? `Nivel ${orgData[id].ens.c === 'Alto' || orgData[id].ens.i === 'Alto' || orgData[id].ens.d === 'Alto' ? 'Alto' : (orgData[id].ens.i === 'Medio' || orgData[id].ens.d === 'Medio' || orgData[id].ens.t === 'Medio' ? 'Medio' : 'Bajo')}` : "Nivel Bajo";
+                        } else if (score >= 80) {
+                            status = "Certificado";
+                        }
+                        orgData[id].systems[norm.id] = { active, status };
+                    });
+                    modified = true;
+                }
+            }
+            if (modified) {
+                localStorage.setItem('sig_organizations', JSON.stringify(orgData));
+            }
+
+            // Cargar usuario activo para comprobar permisos
+            let currentUser = null;
+            const currentUserStr = localStorage.getItem('sig_current_user');
+            if (currentUserStr) {
+                try {
+                    currentUser = typeof currentUserStr === 'string' ? JSON.parse(currentUserStr) : currentUserStr;
+                } catch(e) {}
+            }
+
+            // Cargar tenant activo anterior si existe
+            const activeTenant = localStorage.getItem('sig_active_tenant');
+            if (activeTenant && orgData[activeTenant]) {
+                currentTenant = activeTenant;
+            } else {
+                currentTenant = Object.keys(orgData)[0] || "alfa";
+            }
+
+            // Si el usuario no es superadministrador, forzar a su propio tenant
+            if (currentUser && !currentUser.isSuperadmin) {
+                currentTenant = currentUser.tenantId || "alfa";
+                localStorage.setItem('sig_active_tenant', currentTenant);
+            }
+
+            renderTenantSelector(currentUser);
+            switchOrganization(currentTenant);
+        }
+
+        function renderTenantSelector(currentUser) {
+            const select = document.getElementById("tenant-select");
+            const addOrgBtn = document.getElementById("add-org-btn");
+            const editOrgBtn = document.getElementById("edit-org-btn");
+            if (!select) return;
+            select.innerHTML = "";
+
+            if (currentUser && !currentUser.isSuperadmin) {
+                // Si NO es superadministrador, ocultar botón de dar de alta y de editar, y bloquear el selector
+                if (addOrgBtn) addOrgBtn.classList.add("hidden");
+                if (editOrgBtn) editOrgBtn.classList.add("hidden");
+                select.disabled = true;
+                
+                // Mostrar solo su organización
+                const userTenant = currentUser.tenantId || "alfa";
+                const org = orgData[userTenant] || orgData["alfa"];
+                const opt = document.createElement("option");
+                opt.value = userTenant;
+                opt.innerText = org.name;
+                opt.selected = true;
+                select.appendChild(opt);
+            } else {
+                // Es superadministrador: habilitar todo
+                if (addOrgBtn) addOrgBtn.classList.remove("hidden");
+                if (editOrgBtn) editOrgBtn.classList.remove("hidden");
+                select.disabled = false;
+                
+                for (let tenantId in orgData) {
+                    const opt = document.createElement("option");
+                    opt.value = tenantId;
+                    opt.innerText = orgData[tenantId].name;
+                    if (tenantId === currentTenant) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                }
+            }
+        }
+
+        function switchOrganization(tenantId) {
+            currentTenant = tenantId;
+            localStorage.setItem('sig_active_tenant', tenantId);
+            const data = orgData[tenantId];
+            if (!data) return;
+            
+            // Sincronizar selector
+            const select = document.getElementById("tenant-select");
+            if (select && select.value !== tenantId) {
+                select.value = tenantId;
+            }
+            
+            // Actualizar KPIs superiores
+            document.getElementById("global-percent").innerText = data.compliance + "%";
+            document.getElementById("global-progress").style.width = data.compliance + "%";
+            
+            const trendEl = document.getElementById("global-trend");
+            if (data.trendUp) {
+                trendEl.className = "text-success text-xs font-bold bg-success-container px-2 py-0.5 rounded flex items-center";
+                trendEl.innerHTML = `<span class="material-symbols-outlined text-xs mr-0.5">trending_up</span>${data.trend}`;
+            } else {
+                trendEl.className = "text-error text-xs font-bold bg-error-container px-2 py-0.5 rounded flex items-center";
+                trendEl.innerHTML = `<span class="material-symbols-outlined text-xs mr-0.5">trending_down</span>${data.trend}`;
+            }
+            
+            document.getElementById("kpi-capa-total").innerText = data.capa.total;
+            document.getElementById("kpi-capa-criticas").innerText = data.capa.criticas + " Críticas";
+            document.getElementById("kpi-capa-abiertas").innerText = data.capa.abiertas + " Abiertas";
+            
+            document.getElementById("kpi-risks-total").innerText = data.risks.total;
+            document.getElementById("kpi-risks-mitigated").innerText = data.risks.mitigated + " Mitigados";
+            document.getElementById("kpi-risks-unmitigated").innerText = data.risks.unmitigated + " Sin Control";
+            
+            document.getElementById("kpi-audits-planned").innerText = data.audits.planned;
+            document.getElementById("kpi-audits-retrasada").innerText = data.audits.retrasada + " Retrasada";
+            
+            // Actualizar selectores ENS si existen
+            if (data.ens) {
+                document.getElementById("ens-c").value = data.ens.c || "Bajo";
+                document.getElementById("ens-i").value = data.ens.i || "Bajo";
+                document.getElementById("ens-d").value = data.ens.d || "Bajo";
+                document.getElementById("ens-a").value = data.ens.a || "Bajo";
+                document.getElementById("ens-t").value = data.ens.t || "Bajo";
+            }
+            
+            // Renderizar tarjetas de normativa dinámicamente
+            renderNormativeCards(data);
+
+            // Recalcular categoría ENS (que además actualiza el badge y valor de la tarjeta de ENS)
+            recalculateCategory();
+            
+            // Actualizar actividades recientes
+            const logEl = document.getElementById("activity-log");
+            logEl.innerHTML = "";
+            data.activities.forEach(act => {
+                const actDiv = document.createElement("div");
+                actDiv.className = "flex gap-3";
+                actDiv.innerHTML = `
+                    <span class="material-symbols-outlined text-${act.type === 'success' ? 'success' : 'secondary'}">${act.icon}</span>
+                    <div>
+                        <p class="text-on-surface font-semibold">${act.title}</p>
+                        <p class="text-on-surface-variant mt-0.5">${act.desc}</p>
+                        <span class="text-[10px] text-outline mt-1 block font-mono">${act.date}</span>
+                    </div>
+                `;
+                logEl.appendChild(actDiv);
+            });
+ 
+            // Actualizar alertas
+            const alertsEl = document.getElementById("alerts-container");
+            alertsEl.innerHTML = "";
+            data.alerts.forEach(alert => {
+                const alertDiv = document.createElement("div");
+                alertDiv.className = `bg-background hover:bg-surface-container-low p-4 rounded-lg border border-outline-variant flex gap-3 items-start relative transition-colors cursor-pointer`;
+                alertDiv.innerHTML = `
+                    <span class="material-symbols-outlined text-${alert.type === 'error' ? 'error' : 'warning'} mt-0.5">${alert.icon}</span>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold text-primary">${alert.title}</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">${alert.desc}</p>
+                        ${alert.badge ? `<span class="inline-block mt-2 text-[10px] font-bold bg-${alert.type}-container text-${alert.type} px-2 py-0.5 rounded">${alert.badge}</span>` : ''}
+                    </div>
+                `;
+                alertsEl.appendChild(alertDiv);
+            });
+        }
+ 
+        // Algoritmo de categorización ENS (CIDAT)
+        function recalculateCategory() {
+            const c = document.getElementById("ens-c").value;
+            const i = document.getElementById("ens-i").value;
+            const d = document.getElementById("ens-d").value;
+            const a = document.getElementById("ens-a").value;
+            const t = document.getElementById("ens-t").value;
+            
+            const dimensions = [c, i, d, a, t];
+            
+            let category = "BAJO";
+            let badgeClass = "bg-success-container text-success border-success/20";
+            
+            if (dimensions.includes("Alto")) {
+                category = "ALTO";
+                badgeClass = "bg-error-container text-error border-error/20";
+            } else if (dimensions.includes("Medio")) {
+                category = "MEDIO";
+                badgeClass = "bg-warning-container text-warning border-warning/20";
+            }
+            
+            // Actualizar labels
+            document.getElementById("calculated-category-label").innerText = "NIVEL " + category;
+            
+            const badge = document.getElementById("calculated-category-badge");
+            badge.className = `px-3 py-1.5 font-black rounded-lg text-sm border ${badgeClass}`;
+            badge.innerText = category;
+            
+            // Actualizar la puntuación y el badge de la norma ENS en la lista de normas
+            const ensValEl = document.getElementById("norm-ens-val");
+            const ensBadgeEl = document.getElementById("norm-ens-badge");
+            
+            if (ensValEl && orgData[currentTenant]) {
+                const score = orgData[currentTenant].scores.ens || 0;
+                const active = orgData[currentTenant].systems && orgData[currentTenant].systems.ens ? orgData[currentTenant].systems.ens.active : true;
+                ensValEl.innerText = active ? score : 0;
+            }
+            
+            if (ensBadgeEl) {
+                if (orgData[currentTenant] && orgData[currentTenant].systems && !orgData[currentTenant].systems.ens.active) {
+                    ensBadgeEl.className = "text-[10px] font-bold text-outline bg-surface-container border border-outline-variant px-2 py-0.5 rounded-full";
+                    ensBadgeEl.innerText = "DESACTIVADO";
+                } else {
+                    if (category === "ALTO") {
+                        ensBadgeEl.className = "text-[10px] font-bold text-error bg-error-container px-2 py-0.5 rounded-full";
+                        ensBadgeEl.innerText = "NIVEL ALTO";
+                    } else if (category === "MEDIO") {
+                        ensBadgeEl.className = "text-[10px] font-bold text-warning bg-warning-container px-2 py-0.5 rounded-full";
+                        ensBadgeEl.innerText = "NIVEL MEDIO";
+                    } else {
+                        ensBadgeEl.className = "text-[10px] font-bold text-success bg-success-container px-2 py-0.5 rounded-full";
+                        ensBadgeEl.innerText = "NIVEL BAJO";
+                    }
+                }
+            }
+        }
+ 
+        function updateEnsCategory(dimension, value) {
+            orgData[currentTenant].ens[dimension] = value;
+            
+            // Recalcular categoría ENS
+            const c = document.getElementById("ens-c").value;
+            const i = document.getElementById("ens-i").value;
+            const d = document.getElementById("ens-d").value;
+            const a = document.getElementById("ens-a").value;
+            const t = document.getElementById("ens-t").value;
+            
+            const dimensions = [c, i, d, a, t];
+            let category = "BAJO";
+            if (dimensions.includes("Alto")) {
+                category = "ALTO";
+            } else if (dimensions.includes("Medio")) {
+                category = "MEDIO";
+            }
+            
+            // Guardar el nuevo estado en systems.ens.status si está activo
+            if (orgData[currentTenant].systems && orgData[currentTenant].systems.ens) {
+                if (orgData[currentTenant].systems.ens.active) {
+                    orgData[currentTenant].systems.ens.status = "Nivel " + (category.charAt(0).toUpperCase() + category.slice(1).toLowerCase());
+                }
+            }
+            
+            recalculateCategory();
+            
+            // Renderizar de nuevo las tarjetas para reflejar el cambio en la tarjeta de ENS
+            renderNormativeCards(orgData[currentTenant]);
+            
+            localStorage.setItem('sig_organizations', JSON.stringify(orgData));
+        }
+
+        // Controladores del Modal de Nueva/Editar Organización
+        function openOrgModal() {
+            isEditingMode = false;
+            document.getElementById("modal-org-title").innerHTML = `
+                <span class="material-symbols-outlined text-secondary">add_business</span>
+                Alta de Organización
+            `;
+            document.getElementById("modal-org-submit-btn").innerText = "Registrar Organización";
+            
+            // Habilitar ID
+            const orgIdInput = document.getElementById("org-id");
+            orgIdInput.disabled = false;
+            orgIdInput.classList.remove("opacity-50");
+            
+            document.getElementById("form-org").reset();
+            renderModalSystemsTable(null);
+            document.getElementById("modal-org").classList.remove("hidden");
+        }
+
+        function openEditOrgModal() {
+            const data = orgData[currentTenant];
+            if (!data) return;
+
+            isEditingMode = true;
+            document.getElementById("modal-org-title").innerHTML = `
+                <span class="material-symbols-outlined text-secondary">edit_note</span>
+                Configurar Organización: ${data.name}
+            `;
+            document.getElementById("modal-org-submit-btn").innerText = "Guardar Cambios";
+            
+            // Rellenar ID y deshabilitar para evitar cambios de clave primaria
+            const orgIdInput = document.getElementById("org-id");
+            orgIdInput.value = currentTenant;
+            orgIdInput.disabled = true;
+            orgIdInput.classList.add("opacity-50");
+            
+            // Rellenar nombre y cumplimiento
+            document.getElementById("org-name").value = data.name;
+            document.getElementById("org-compliance").value = data.compliance;
+            
+            renderModalSystemsTable(data);
+            document.getElementById("modal-org").classList.remove("hidden");
+        }
+
+        function closeOrgModal() {
+            document.getElementById("modal-org").classList.add("hidden");
+        }
+
+        function renderModalSystemsTable(tenantData) {
+            const tbody = document.getElementById("modal-systems-table");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            availableNorms.forEach(norm => {
+                let active = true;
+                let status = "En Proceso";
+                
+                if (tenantData && tenantData.systems && tenantData.systems[norm.id]) {
+                    active = tenantData.systems[norm.id].active;
+                    status = tenantData.systems[norm.id].status;
+                } else if (!tenantData) {
+                    if (norm.id === 'ens') {
+                        status = "Nivel Bajo";
+                    }
+                }
+
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-surface-container-low transition-colors";
+                
+                let optionsHtml = "";
+                if (norm.id === 'ens') {
+                    optionsHtml = `
+                        <option value="En Proceso" ${status === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                        <option value="Nivel Bajo" ${status === 'Nivel Bajo' ? 'selected' : ''}>Nivel Bajo</option>
+                        <option value="Nivel Medio" ${status === 'Nivel Medio' ? 'selected' : ''}>Nivel Medio</option>
+                        <option value="Nivel Alto" ${status === 'Nivel Alto' ? 'selected' : ''}>Nivel Alto</option>
+                    `;
+                } else {
+                    optionsHtml = `
+                        <option value="En Proceso" ${status === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                        <option value="Certificado" ${status === 'Certificado' ? 'selected' : ''}>Certificado</option>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-2 border-b border-outline-variant">
+                        <div class="font-bold text-primary font-sans">${norm.code}</div>
+                        <div class="text-[10px] text-on-surface-variant font-sans">${norm.name}</div>
+                    </td>
+                    <td class="p-2 border-b border-outline-variant text-center">
+                        <input type="checkbox" id="modal-sys-${norm.id}-active" ${active ? 'checked' : ''} onchange="toggleModalRowActive('${norm.id}')" class="rounded border-outline-variant text-secondary focus:ring-secondary cursor-pointer" />
+                    </td>
+                    <td class="p-2 border-b border-outline-variant">
+                        <select id="modal-sys-${norm.id}-status" ${!active ? 'disabled' : ''} class="w-full text-xs bg-background border border-outline-variant rounded p-1 outline-none font-semibold text-primary transition-all ${!active ? 'opacity-50' : ''}">
+                            ${optionsHtml}
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleModalRowActive(id) {
+            const activeCheckbox = document.getElementById(`modal-sys-${id}-active`);
+            const statusSelect = document.getElementById(`modal-sys-${id}-status`);
+            if (activeCheckbox && statusSelect) {
+                statusSelect.disabled = !activeCheckbox.checked;
+                if (!activeCheckbox.checked) {
+                    statusSelect.classList.add("opacity-50");
+                } else {
+                    statusSelect.classList.remove("opacity-50");
+                }
+            }
+        }
+
+        function renderNormativeCards(data) {
+            const container = document.getElementById("normativas-cards-container");
+            if (!container) return;
+            container.innerHTML = "";
+
+            availableNorms.forEach(norm => {
+                const score = data.scores[norm.id] || 0;
+                const systemInfo = data.systems && data.systems[norm.id] ? data.systems[norm.id] : { active: true, status: "En Proceso" };
+                const active = systemInfo.active;
+                const status = systemInfo.status;
+                
+                let badgeText = "";
+                let badgeClass = "";
+                
+                if (!active) {
+                    badgeText = "DESACTIVADO";
+                    badgeClass = "text-outline bg-surface-container border border-outline-variant px-2 py-0.5 rounded-full";
+                } else {
+                    if (norm.isEns) {
+                        if (status === "En Proceso") {
+                            badgeText = "EN PROCESO";
+                            badgeClass = "text-secondary bg-surface-container-low border border-outline-variant px-2 py-0.5 rounded-full";
+                        } else if (status === "Nivel Alto") {
+                            badgeText = "NIVEL ALTO";
+                            badgeClass = "text-error bg-error-container px-2 py-0.5 rounded-full";
+                        } else if (status === "Nivel Medio") {
+                            badgeText = "NIVEL MEDIO";
+                            badgeClass = "text-warning bg-warning-container px-2 py-0.5 rounded-full";
+                        } else {
+                            badgeText = "NIVEL BAJO";
+                            badgeClass = "text-success bg-success-container px-2 py-0.5 rounded-full";
+                        }
+                    } else {
+                        if (status === "Certificado") {
+                            badgeText = "CERTIFICADO";
+                            badgeClass = "text-success bg-success-container px-2 py-0.5 rounded-full";
+                        } else {
+                            badgeText = "EN PROCESO";
+                            badgeClass = "text-secondary bg-surface-container-low border border-outline-variant px-2 py-0.5 rounded-full";
+                        }
+                    }
+                }
+
+                const isInactive = !active;
+                
+                const cardDiv = document.createElement("div");
+                cardDiv.className = `glass-card p-4 rounded-lg flex flex-col justify-between shadow-sm transition-all duration-200 hover:shadow-md ${isInactive ? 'opacity-50 bg-surface-container-low border-outline-variant' : ''}`;
+                
+                cardDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                            ${norm.code}
+                        </span>
+                        <span id="norm-${norm.id}-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeClass}">
+                            ${badgeText}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <h4 class="text-xs font-bold text-primary font-sans">${norm.name}</h4>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-xs text-on-surface-variant font-sans">Cumplimiento</span>
+                            <span class="text-lg font-bold text-primary font-sans"><span id="norm-${norm.id}-val">${isInactive ? '0' : score}</span>%</span>
+                        </div>
+                        <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-1">
+                            <div id="norm-${norm.id}-progress" class="bg-secondary h-full rounded-full transition-all duration-500" style="width: ${isInactive ? 0 : score}%"></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function saveOrganization(event) {
+            event.preventDefault();
+            const orgIdInput = document.getElementById("org-id");
+            const id = orgIdInput.value.trim().toLowerCase();
+            const name = document.getElementById("org-name").value.trim();
+            const compliance = parseInt(document.getElementById("org-compliance").value) || 0;
+            
+            if (!isEditingMode && orgData[id]) {
+                alert("Ya existe una organización con este ID.");
+                return;
+            }
+
+            // Recoger los datos de la tabla de sistemas
+            const systems = {};
+            availableNorms.forEach(norm => {
+                const active = document.getElementById(`modal-sys-${norm.id}-active`).checked;
+                const status = document.getElementById(`modal-sys-${norm.id}-status`).value;
+                systems[norm.id] = { active, status };
+            });
+
+            const now = new Date();
+            const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            if (isEditingMode) {
+                // Editar organización existente
+                orgData[id].name = name;
+                orgData[id].compliance = compliance;
+                orgData[id].systems = systems;
+                
+                // Ajustar scores en función de si están activos
+                availableNorms.forEach(norm => {
+                    if (!systems[norm.id].active) {
+                        orgData[id].scores[norm.id] = 0;
+                    } else if (!orgData[id].scores[norm.id] || orgData[id].scores[norm.id] === 0) {
+                        orgData[id].scores[norm.id] = 10; // Valor inicial si se activa
+                    }
+                });
+                
+                // Agregar actividad de modificación
+                orgData[id].activities.unshift({
+                    icon: "edit_note",
+                    type: "secondary",
+                    title: "Configuración actualizada",
+                    desc: "Se ha modificado el alcance y certificación de los sistemas de gestión.",
+                    date: formattedDate
+                });
+            } else {
+                // Registrar nueva organización
+                const scores = {};
+                availableNorms.forEach(norm => {
+                    scores[norm.id] = systems[norm.id].active ? 10 : 0;
+                });
+
+                orgData[id] = {
+                    name: name,
+                    compliance: compliance,
+                    trend: "+0.0%",
+                    trendUp: true,
+                    capa: { total: 0, criticas: 0, abiertas: 0 },
+                    risks: { total: 0, mitigated: 0, unmitigated: 0 },
+                    audits: { planned: 0, retrasada: 0 },
+                    ens: { c: "Bajo", i: "Bajo", d: "Bajo", a: "Bajo", t: "Bajo" },
+                    scores: scores,
+                    systems: systems,
+                    activities: [
+                        { icon: "info", type: "secondary", title: "Organización de alta", desc: `El sistema ha sido configurado para ${name}.`, date: formattedDate }
+                    ],
+                    alerts: []
+                };
+            }
+
+            // Guardar en la base de datos sincronizada
+            localStorage.setItem('sig_organizations', JSON.stringify(orgData));
+            
+            // Obtener usuario activo
+            const currentUserStr = localStorage.getItem('sig_current_user');
+            let currentUser = null;
+            if (currentUserStr) {
+                try {
+                    currentUser = JSON.parse(currentUserStr);
+                } catch(e) {}
+            }
+            
+            renderTenantSelector(currentUser);
+            closeOrgModal();
+            switchOrganization(id);
+        }
+
+        // Inicializar al cargar el documento
+        document.addEventListener("DOMContentLoaded", () => {
+            initOrganizations();
+        });
+    </script>
+</body>
+</html>

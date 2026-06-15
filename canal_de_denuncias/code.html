@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Canal de Denuncias — SIG 2.0</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e1b4b",
+                        "secondary": "#4338ca",
+                        "accent": "#7c3aed",
+                        "background": "#f8f9fb",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "success": "#137333",
+                        "warning": "#b06000",
+                        "danger": "#c5221f"
+                    },
+                    fontFamily: { sans: ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.2s ease-out; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- Header -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Compliance y Antisoborno</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-purple-50 text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">policy</span>
+                <span>Canal de Denuncias — ISO 37001/37301 · Ley 2/2023</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">US</button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+
+        <!-- Cabecera -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Canal de Denuncias (Whistleblowing)</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Gestión confidencial de denuncias internas. Obligatorio por <strong>Ley 2/2023</strong> de protección del informante y por <strong>ISO 37001 §8.7</strong> e <strong>ISO 37301 §8.3</strong>.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('nueva')" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">add_comment</span>
+                    Registrar Denuncia
+                </button>
+            </div>
+        </div>
+
+        <!-- Banner Legal -->
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-start gap-3">
+            <span class="material-symbols-outlined text-accent mt-0.5 shrink-0">shield_person</span>
+            <div>
+                <p class="text-xs font-bold text-accent">Confidencialidad y Protección del Denunciante garantizadas</p>
+                <p class="text-[11px] text-purple-700 mt-0.5">Las denuncias registradas en este canal son estrictamente confidenciales. Conforme a la Ley 2/2023 y al Reglamento (UE) 2019/1937, queda prohibida cualquier represalia contra el informante. El acceso al contenido completo está restringido al responsable de compliance.</p>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Denuncias</span>
+                    <span class="material-symbols-outlined text-secondary">campaign</span>
+                </div>
+                <span id="kpi-total" class="font-bold text-2xl text-primary">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Registradas en el sistema</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">En Investigación</span>
+                    <span class="material-symbols-outlined text-warning">manage_search</span>
+                </div>
+                <span id="kpi-invest" class="font-bold text-2xl text-warning">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Abiertas y en proceso</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cerradas</span>
+                    <span class="material-symbols-outlined text-success">check_circle</span>
+                </div>
+                <span id="kpi-closed" class="font-bold text-2xl text-success">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Resueltas con conclusión</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Plazo Medio</span>
+                    <span class="material-symbols-outlined text-secondary">timer</span>
+                </div>
+                <span id="kpi-days" class="font-bold text-2xl text-primary">0 días</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Resolución (máx. legal: 90 días)</p>
+            </div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="border-b border-outline-variant">
+            <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+                <button id="btn-tab-lista" onclick="switchTab('lista')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">Registro de Denuncias</button>
+                <button id="btn-tab-nueva" onclick="switchTab('nueva')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Nueva Denuncia</button>
+                <button id="btn-tab-stats" onclick="switchTab('stats')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Estadísticas</button>
+            </nav>
+        </div>
+
+        <!-- SECCIÓN: Lista de Denuncias -->
+        <section id="sec-lista" class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-center bg-surface p-4 border border-outline-variant rounded-xl">
+                <div class="relative w-full sm:w-80">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                    <input type="text" id="search-report" oninput="renderList()" placeholder="Buscar por código o categoría..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <select id="filter-cat" onchange="renderList()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="">Todas las Categorías</option>
+                        <option value="Soborno y Corrupción">Soborno y Corrupción</option>
+                        <option value="Fraude Interno">Fraude Interno</option>
+                        <option value="Acoso Laboral / Sexual">Acoso Laboral / Sexual</option>
+                        <option value="Conflicto de Intereses">Conflicto de Intereses</option>
+                        <option value="Irregularidad Contable">Irregularidad Contable</option>
+                        <option value="Incumplimiento Normativo">Incumplimiento Normativo</option>
+                        <option value="Seguridad de la Información">Seguridad de la Información</option>
+                        <option value="Medio Ambiente">Medio Ambiente</option>
+                        <option value="Otras">Otras</option>
+                    </select>
+                    <select id="filter-status" onchange="renderList()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="">Todos los Estados</option>
+                        <option value="Pendiente de Revisión">Pendiente</option>
+                        <option value="En Investigación">En Investigación</option>
+                        <option value="Cerrada — Fundada">Fundada</option>
+                        <option value="Cerrada — Infundada">Infundada</option>
+                        <option value="Archivada">Archivada</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-32">Código</th>
+                                <th class="p-3 w-36">Fecha</th>
+                                <th class="p-3">Categoría</th>
+                                <th class="p-3 w-28 text-center">Anónima</th>
+                                <th class="p-3 w-36 text-center">Estado</th>
+                                <th class="p-3 w-36 text-center">Responsable</th>
+                                <th class="p-3 w-32 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-reports" class="text-xs text-on-surface divide-y divide-outline-variant">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: Nueva Denuncia -->
+        <section id="sec-nueva" class="hidden">
+            <div class="bg-surface border border-outline-variant rounded-2xl p-6 max-w-2xl mx-auto shadow-sm">
+                <div class="flex items-center gap-3 mb-5 pb-3 border-b border-outline-variant">
+                    <div class="w-10 h-10 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-accent">campaign</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-primary">Registrar Nueva Denuncia</h3>
+                        <p class="text-[11px] text-on-surface-variant">El código de seguimiento es la única referencia para el denunciante. Guardarlo de forma segura.</p>
+                    </div>
+                </div>
+                <form onsubmit="saveReport(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Categoría de la Denuncia *</label>
+                            <select id="r-cat" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                                <option value="">— Seleccionar —</option>
+                                <option>Soborno y Corrupción</option>
+                                <option>Fraude Interno</option>
+                                <option>Acoso Laboral / Sexual</option>
+                                <option>Conflicto de Intereses</option>
+                                <option>Irregularidad Contable</option>
+                                <option>Incumplimiento Normativo</option>
+                                <option>Seguridad de la Información</option>
+                                <option>Medio Ambiente</option>
+                                <option>Otras</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Prioridad *</label>
+                            <select id="r-priority" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                                <option value="Alta">Alta — Requiere acción inmediata</option>
+                                <option value="Media" selected>Media — Gestión estándar (90 días)</option>
+                                <option value="Baja">Baja — Sin urgencia inmediata</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción de los Hechos *</label>
+                        <textarea id="r-desc" required rows="5" placeholder="Describir los hechos con el máximo detalle posible: cuándo, dónde, quiénes involucrados, qué ocurrió..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Área / Departamento Afectado</label>
+                        <input id="r-dept" type="text" placeholder="Ej: Finanzas, Compras, Recursos Humanos..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Responsable Asignado *</label>
+                        <input id="r-responsible" required type="text" placeholder="Ej: Responsable de Compliance / Comité Ético" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-purple-50 border border-purple-200 rounded-xl">
+                        <input type="checkbox" id="r-anonymous" class="mt-0.5 rounded text-secondary" checked>
+                        <div>
+                            <label for="r-anonymous" class="text-xs font-bold text-purple-800 cursor-pointer">Denuncia Anónima</label>
+                            <p class="text-[11px] text-purple-600 mt-0.5">Si se marca, no se registrará ningún dato identificativo del denunciante. El código de seguimiento será la única forma de consultar el estado.</p>
+                        </div>
+                    </div>
+                    <div id="reporter-block" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre del Denunciante</label>
+                            <input id="r-reporter-name" type="text" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Contacto (email / teléfono)</label>
+                            <input id="r-reporter-contact" type="text" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-outline-variant pt-4">
+                        <button type="button" onclick="switchTab('lista')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">Cancelar</button>
+                        <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-6 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">send</span>
+                            Registrar Denuncia
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: Estadísticas -->
+        <section id="sec-stats" class="hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="stats-content">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL Gestión de Denuncia -->
+    <div id="modal-manage" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-surface border border-outline-variant rounded-2xl max-w-xl w-full my-8 p-6 flex flex-col gap-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Gestión de Denuncia</h3>
+                <button onclick="closeManage()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="manage-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const seed = [
+            { id: "DEN-2026-001", date: "2026-03-15", cat: "Soborno y Corrupción", priority: "Alta", desc: "Se ha detectado una posible comisión pagada a un funcionario público durante el proceso de licitación del proyecto X. El importe aproximado sería de 15.000€.", dept: "Compras", responsible: "Comité de Ética y Compliance", anonymous: true, reporterName: "", reporterContact: "", status: "Cerrada — Fundada", notes: "Investigación interna completada. Se han adoptado medidas disciplinarias y se ha procedido a la denuncia ante las autoridades competentes.", closedDate: "2026-05-20" },
+            { id: "DEN-2026-002", date: "2026-04-22", cat: "Acoso Laboral / Sexual", priority: "Alta", desc: "Situación de presunto acoso laboral por parte de un responsable de área hacia un trabajador subordinado. Incluye presiones indebidas y comentarios vejatorios.", dept: "Recursos Humanos", responsible: "Responsable de RRHH / Compliance", anonymous: false, reporterName: "Confidencial", reporterContact: "—", status: "En Investigación", notes: "Se ha iniciado el protocolo de prevención y actuación frente al acoso. Entrevistas en curso.", closedDate: "" },
+            { id: "DEN-2026-003", date: "2026-06-01", cat: "Conflicto de Intereses", priority: "Media", desc: "Un empleado del departamento de compras podría tener participación accionarial no declarada en uno de los proveedores homologados.", dept: "Compras", responsible: "Responsable de Compliance", anonymous: true, reporterName: "", reporterContact: "", status: "Pendiente de Revisión", notes: "", closedDate: "" }
+        ];
+
+        let reports = [];
+        let currentTab = 'lista';
+
+        function init() {
+            const stored = localStorage.getItem('sig_canal_denuncias');
+            reports = stored ? JSON.parse(stored) : [...seed];
+            if (!stored) save();
+
+            document.getElementById('r-anonymous').addEventListener('change', function() {
+                document.getElementById('reporter-block').classList.toggle('hidden', this.checked);
+            });
+
+            render();
+        }
+
+        function save() {
+            localStorage.setItem('sig_canal_denuncias', JSON.stringify(reports));
+        }
+
+        function render() {
+            renderKPIs();
+            renderList();
+            renderStats();
+        }
+
+        function renderKPIs() {
+            const total = reports.length;
+            const invest = reports.filter(r => r.status === 'En Investigación').length;
+            const closed = reports.filter(r => r.status.startsWith('Cerrada')).length;
+            const closedWithDate = reports.filter(r => r.closedDate && r.date);
+            let avgDays = 0;
+            if (closedWithDate.length > 0) {
+                const total_ms = closedWithDate.reduce((acc, r) => acc + (new Date(r.closedDate) - new Date(r.date)), 0);
+                avgDays = Math.round(total_ms / closedWithDate.length / 86400000);
+            }
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-invest').textContent = invest;
+            document.getElementById('kpi-closed').textContent = closed;
+            document.getElementById('kpi-days').textContent = avgDays > 0 ? `${avgDays} días` : '—';
+        }
+
+        function renderList() {
+            const tbody = document.getElementById('tbody-reports');
+            const query = document.getElementById('search-report').value.toLowerCase();
+            const catF = document.getElementById('filter-cat').value;
+            const stF = document.getElementById('filter-status').value;
+            const filtered = reports.filter(r =>
+                (r.id.toLowerCase().includes(query) || r.cat.toLowerCase().includes(query)) &&
+                (!catF || r.cat === catF) &&
+                (!stF || r.status === stF)
+            );
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant">No hay denuncias que coincidan con los filtros.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(r => {
+                const statusMap = {
+                    'Pendiente de Revisión': 'bg-blue-100 text-blue-800 border-blue-200',
+                    'En Investigación': 'bg-amber-100 text-amber-800 border-amber-200 font-bold',
+                    'Cerrada — Fundada': 'bg-red-100 text-red-800 border-red-200 font-bold',
+                    'Cerrada — Infundada': 'bg-gray-100 text-gray-600 border-gray-200',
+                    'Archivada': 'bg-gray-100 text-gray-500 border-gray-200'
+                };
+                const prioMap = {
+                    'Alta': 'text-danger font-bold',
+                    'Media': 'text-warning font-bold',
+                    'Baja': 'text-success'
+                };
+                tbody.innerHTML += `
+                    <tr class="hover:bg-surface-container-low transition-colors fade-in">
+                        <td class="p-3 font-mono font-bold text-xs text-secondary">${r.id}</td>
+                        <td class="p-3 text-xs text-on-surface-variant">${r.date}</td>
+                        <td class="p-3 text-xs font-semibold text-primary">${r.cat}<br><span class="${prioMap[r.priority] || ''} text-[10px]">● ${r.priority}</span></td>
+                        <td class="p-3 text-center">
+                            ${r.anonymous ? '<span class="material-symbols-outlined text-success text-base" title="Anónima">lock</span>' : '<span class="material-symbols-outlined text-on-surface-variant text-base" title="Identificada">person</span>'}
+                        </td>
+                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] border ${statusMap[r.status] || 'bg-gray-100'}">${r.status}</span></td>
+                        <td class="p-3 text-center text-[11px] text-on-surface-variant">${r.responsible}</td>
+                        <td class="p-3 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="openManage('${r.id}')" class="text-secondary hover:text-primary p-1 rounded hover:bg-surface-container-low transition-colors" title="Gestionar">
+                                    <span class="material-symbols-outlined text-[18px]">manage_search</span>
+                                </button>
+                                <button onclick="deleteReport('${r.id}')" class="text-danger hover:text-red-700 p-1 rounded hover:bg-surface-container-low transition-colors" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function renderStats() {
+            const content = document.getElementById('stats-content');
+            const cats = {};
+            const statuses = {};
+            reports.forEach(r => {
+                cats[r.cat] = (cats[r.cat] || 0) + 1;
+                statuses[r.status] = (statuses[r.status] || 0) + 1;
+            });
+
+            const catRows = Object.entries(cats).sort((a,b) => b[1]-a[1]).map(([k,v]) => `
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-on-surface-variant">${k}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-32 bg-surface-container rounded-full h-2">
+                            <div class="bg-secondary h-2 rounded-full" style="width:${Math.round(v/reports.length*100)}%"></div>
+                        </div>
+                        <span class="text-xs font-bold text-primary w-6 text-right">${v}</span>
+                    </div>
+                </div>`).join('');
+
+            const stRows = Object.entries(statuses).map(([k,v]) => `<div class="flex justify-between text-xs"><span class="text-on-surface-variant font-semibold">${k}</span><span class="font-bold text-primary">${v}</span></div>`).join('');
+
+            content.innerHTML = `
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 space-y-4 md:col-span-2">
+                    <h4 class="font-bold text-sm text-primary border-b border-outline-variant pb-2">Denuncias por Categoría</h4>
+                    <div class="space-y-3">${catRows || '<p class="text-xs text-on-surface-variant italic">Sin datos</p>'}</div>
+                </div>
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 space-y-3">
+                    <h4 class="font-bold text-sm text-primary border-b border-outline-variant pb-2">Estado de Denuncias</h4>
+                    <div class="space-y-2">${stRows || '<p class="text-xs text-on-surface-variant italic">Sin datos</p>'}</div>
+                    <div class="pt-2 border-t border-outline-variant">
+                        <p class="text-xs text-on-surface-variant">Total registradas</p>
+                        <p class="text-2xl font-bold text-primary">${reports.length}</p>
+                    </div>
+                </div>`;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            ['lista','nueva','stats'].forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if(btn) btn.className = 'border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all';
+            });
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-tab-${tab}`);
+            if(activeBtn) activeBtn.className = 'border-b-2 border-secondary text-secondary py-2 px-1 transition-all';
+        }
+
+        function openManage(id) {
+            const r = reports.find(x => x.id === id);
+            if (!r) return;
+            const statusOptions = ['Pendiente de Revisión','En Investigación','Cerrada — Fundada','Cerrada — Infundada','Archivada']
+                .map(s => `<option value="${s}" ${r.status === s ? 'selected' : ''}>${s}</option>`).join('');
+            document.getElementById('manage-content').innerHTML = `
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div><span class="font-bold text-on-surface-variant block">Código</span><span class="font-mono font-bold text-secondary">${r.id}</span></div>
+                    <div><span class="font-bold text-on-surface-variant block">Fecha</span><span>${r.date}</span></div>
+                    <div><span class="font-bold text-on-surface-variant block">Categoría</span><span class="font-semibold">${r.cat}</span></div>
+                    <div><span class="font-bold text-on-surface-variant block">Prioridad</span><span class="font-bold ${r.priority === 'Alta' ? 'text-danger' : r.priority === 'Media' ? 'text-warning' : 'text-success'}">${r.priority}</span></div>
+                    <div class="col-span-2"><span class="font-bold text-on-surface-variant block mb-1">Área Afectada</span><span>${r.dept || '—'}</span></div>
+                </div>
+                <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3">
+                    <p class="text-xs font-bold text-primary mb-1">Descripción de los Hechos</p>
+                    <p class="text-xs text-on-surface leading-relaxed">${r.desc}</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado de la Investigación</label>
+                    <select id="manage-status" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        ${statusOptions}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Notas de Investigación / Resolución</label>
+                    <textarea id="manage-notes" rows="4" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none">${r.notes || ''}</textarea>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                    <button onclick="closeManage()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                    <button onclick="saveManage('${r.id}')" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">Guardar Cambios</button>
+                </div>`;
+            document.getElementById('modal-manage').classList.remove('hidden');
+        }
+
+        function saveManage(id) {
+            const idx = reports.findIndex(r => r.id === id);
+            if (idx !== -1) {
+                reports[idx].status = document.getElementById('manage-status').value;
+                reports[idx].notes = document.getElementById('manage-notes').value.trim();
+                if (reports[idx].status.startsWith('Cerrada') && !reports[idx].closedDate) {
+                    reports[idx].closedDate = new Date().toISOString().split('T')[0];
+                }
+                save();
+                render();
+            }
+            closeManage();
+        }
+
+        function closeManage() {
+            document.getElementById('modal-manage').classList.add('hidden');
+        }
+
+        function saveReport(e) {
+            e.preventDefault();
+            const isAnon = document.getElementById('r-anonymous').checked;
+            const id = `DEN-${new Date().getFullYear()}-${String(reports.length + 1).padStart(3,'0')}`;
+            const trackCode = `TRK-${Math.random().toString(36).substr(2,8).toUpperCase()}`;
+            const report = {
+                id, date: new Date().toISOString().split('T')[0],
+                cat: document.getElementById('r-cat').value,
+                priority: document.getElementById('r-priority').value,
+                desc: document.getElementById('r-desc').value.trim(),
+                dept: document.getElementById('r-dept').value.trim(),
+                responsible: document.getElementById('r-responsible').value.trim(),
+                anonymous: isAnon,
+                reporterName: isAnon ? '' : document.getElementById('r-reporter-name').value.trim(),
+                reporterContact: isAnon ? '' : document.getElementById('r-reporter-contact').value.trim(),
+                status: 'Pendiente de Revisión', notes: '', closedDate: '', trackCode
+            };
+            reports.push(report);
+            save();
+            render();
+            alert(`✅ Denuncia registrada correctamente.\n\nCódigo de seguimiento: ${trackCode}\n\nConserve este código para consultar el estado de su denuncia.`);
+            e.target.reset();
+            document.getElementById('r-anonymous').checked = true;
+            document.getElementById('reporter-block').classList.add('hidden');
+            switchTab('lista');
+        }
+
+        function deleteReport(id) {
+            if (confirm(`¿Eliminar definitivamente la denuncia ${id}? Esta acción no se puede deshacer.`)) {
+                reports = reports.filter(r => r.id !== id);
+                save();
+                render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

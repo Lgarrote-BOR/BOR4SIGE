@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Informe Generado - Éxito</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e0e3e5",
+                      "secondary-container": "#316bf3",
+                      "on-primary-container": "#7c839b",
+                      "on-primary-fixed": "#131b2e",
+                      "on-secondary-container": "#fefcff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container-high": "#dce9ff",
+                      "background": "#f8f9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-secondary-fixed": "#00174b",
+                      "primary-container": "#131b2e",
+                      "tertiary": "#000000",
+                      "primary-fixed-dim": "#bec6e0",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container-lowest": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface": "#f8f9ff",
+                      "outline": "#76777d",
+                      "surface-container-highest": "#d3e4fe",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "surface-dim": "#cbdbf5",
+                      "on-background": "#0b1c30",
+                      "on-surface-variant": "#45464d",
+                      "inverse-primary": "#bec6e0",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary-container": "#191c1e",
+                      "inverse-surface": "#213145",
+                      "surface-bright": "#f8f9ff",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "surface-container": "#e5eeff",
+                      "secondary": "#0051d5",
+                      "on-surface": "#0b1c30"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "xs": "4px",
+                      "margin": "24px",
+                      "gutter": "16px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "md": "16px",
+                      "max-width": "1440px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        @keyframes drawCheck {
+            0% {
+                stroke-dashoffset: 100;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        @keyframes scaleUp {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .animate-check {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.6s ease-in-out forwards 0.3s;
+        }
+        .animate-scale-up {
+            animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen text-on-background font-body-md antialiased flex flex-col items-center justify-center p-md">
+<main class="w-full max-w-[600px] animate-scale-up">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl flex flex-col items-center text-center shadow-sm">
+<!-- Success Icon -->
+<div class="w-24 h-24 rounded-full bg-surface-container-low flex items-center justify-center mb-lg relative">
+<div class="absolute inset-0 rounded-full bg-secondary opacity-10 animate-pulse"></div>
+<svg class="w-12 h-12 text-secondary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle class="stroke-secondary-fixed-dim" cx="12" cy="12" r="10" stroke-width="1.5"></circle>
+<path class="animate-check stroke-secondary" d="M8 12.5l3 3 5-6"></path>
+</svg>
+</div>
+<!-- Headers -->
+<h1 class="font-display-lg text-display-lg text-on-surface mb-sm">Informe Generado con Éxito</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl max-w-[400px]">
+                El informe de auditoría SIG ha sido guardado de forma segura en el sistema documental y enviado por correo a las partes interesadas.
+            </p>
+<!-- Details Box -->
+<div class="w-full bg-surface border border-outline-variant rounded-lg p-md mb-xl text-left flex flex-col gap-sm">
+<div class="flex justify-between items-center border-b border-outline-variant pb-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Referencia</span>
+<span class="font-code-sm text-code-sm font-semibold text-primary">AUD-2023-089-FINAL</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant py-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Fecha de Cierre</span>
+<span class="font-body-sm text-body-sm text-on-surface">24 Oct 2023, 14:32</span>
+</div>
+<div class="flex justify-between items-center pt-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Destinatarios</span>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-fixed border border-surface-container-lowest flex items-center justify-center font-label-md text-[10px] text-on-tertiary-fixed">MM</div>
+<div class="w-6 h-6 rounded-full bg-primary-fixed border border-surface-container-lowest flex items-center justify-center font-label-md text-[10px] text-on-primary-fixed">JR</div>
+<div class="w-6 h-6 rounded-full bg-secondary-fixed border border-surface-container-lowest flex items-center justify-center font-label-md text-[10px] text-on-secondary-fixed">+2</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row w-full gap-md">
+<button class="flex-1 bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container-low active:bg-surface-variant transition-colors py-sm px-md rounded-lg font-label-md text-label-md flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Descargar PDF
+                </button>
+<button class="flex-1 bg-secondary text-on-secondary hover:bg-[#0041ab] active:scale-95 transition-all duration-100 py-sm px-md rounded-lg font-label-md text-label-md flex items-center justify-center gap-sm shadow-sm hover:shadow-md">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+                    Volver al Dashboard
+                </button>
+</div>
+<a class="mt-lg font-body-sm text-body-sm text-secondary hover:underline flex items-center gap-xs" href="#">
+                Ver en el repositorio documental
+                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+</main>
+</body></html>

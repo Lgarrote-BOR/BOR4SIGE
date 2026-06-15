@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Catálogo Legal Final - SIG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#003366",       // Azul Marino Profundo
+                        "secondary": "#0060ac",     // Azul Interactivo
+                        "background": "#f8f9fb",    // Gris de fondo
+                        "surface": "#ffffff",       // Blanco
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "success": "#137333",       // Verde Éxito
+                        "warning": "#b06000",       // Ámbar Alerta
+                        "danger": "#c5221f"         // Rojo Peligro
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Catálogo Legal e ISO</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">menu_book</span>
+                <span>Registro Consolidado de Legislación Aplicable</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Cabecera del Módulo -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Catálogo Legal Final</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Inventario oficial de directivas, leyes y decretos aplicables a la organización y registro de conformidad.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="resetToSeed()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">restore</span>
+                    Valores Iniciales
+                </button>
+                <button onclick="openModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Añadir Norma Legal
+                </button>
+            </div>
+        </div>
+
+        <!-- Bento KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Leyes Aplicables</span>
+                    <span class="material-symbols-outlined text-secondary">balance</span>
+                </div>
+                <div>
+                    <span id="kpi-total" class="font-bold text-2xl text-on-surface">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Normativas en el inventario</p>
+                </div>
+            </div>
+            <!-- KPI 2 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Cumplimiento Legal</span>
+                    <span class="material-symbols-outlined text-success">verified</span>
+                </div>
+                <div>
+                    <span id="kpi-pct" class="font-bold text-2xl text-success">0%</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Porcentaje de normas conformes</p>
+                </div>
+            </div>
+            <!-- KPI 3 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">No Conformidades</span>
+                    <span class="material-symbols-outlined text-danger">gavel</span>
+                </div>
+                <div>
+                    <span id="kpi-noconforme" class="font-bold text-2xl text-danger">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Leyes con fallos detectados</p>
+                </div>
+            </div>
+            <!-- KPI 4 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider font-semibold">Evaluadas en 2026</span>
+                    <span class="material-symbols-outlined text-warning">event_available</span>
+                </div>
+                <div>
+                    <span id="kpi-evaluadas" class="font-bold text-2xl text-on-surface">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Revisiones anuales al día</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="search-input" oninput="render()" placeholder="Buscar por ley, ámbito o referencia..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+            
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <select id="filter-ambito" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                    <option value="">Todos los Ámbitos</option>
+                    <option value="Europeo">Europeo</option>
+                    <option value="Nacional">Nacional</option>
+                    <option value="Autonómico">Autonómico</option>
+                    <option value="Local">Local</option>
+                </select>
+                
+                <select id="filter-conformidad" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                    <option value="">Todos los Estados</option>
+                    <option value="Conforme">Conforme</option>
+                    <option value="No Conforme">No Conforme</option>
+                    <option value="En Evaluación">En Evaluación</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla del Catálogo Legal -->
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3 w-44">Referencia Legal</th>
+                            <th class="p-3">Nombre de la Norma</th>
+                            <th class="p-3 w-32 text-center">Ámbito</th>
+                            <th class="p-3 w-40 text-center">Última Evaluación</th>
+                            <th class="p-3 w-40">Evidencia de Cumplimiento</th>
+                            <th class="p-3 w-36 text-center">Dictamen Conformidad</th>
+                            <th class="p-3 w-32 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-legal" class="text-xs text-on-surface divide-y divide-outline-variant">
+                        <!-- Dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL REGISTRAR LEY -->
+    <div id="modal-legal" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-title" class="font-bold text-base text-primary">Registrar Ley / Reglamento</h3>
+                <button onclick="closeModal('modal-legal')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveLaw(event)" class="space-y-4">
+                <input type="hidden" id="law-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Referencia Legal</label>
+                        <input id="law-ref" required type="text" placeholder="Ej: Ley 31/1995" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Ámbito Geográfico</label>
+                        <select id="law-ambito" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Europeo">Europeo</option>
+                            <option value="Nacional">Nacional</option>
+                            <option value="Autonómico">Autonómico</option>
+                            <option value="Local">Local</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre Oficial de la Norma</label>
+                    <input id="law-name" required type="text" placeholder="Ej: Ley de Prevención de Riesgos Laborales" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Frecuencia de Evaluación</label>
+                        <select id="law-freq" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Anual">Anual</option>
+                            <option value="Semestral">Semestral</option>
+                            <option value="Bienal">Bienal (Cada 2 años)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado de Conformidad Inicial</label>
+                        <select id="law-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="En Evaluación">En Evaluación</option>
+                            <option value="Conforme">Conforme</option>
+                            <option value="No Conforme">No Conforme</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-legal')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Norma
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EVALUAR CONFORMIDAD -->
+    <div id="modal-eval" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Evaluación de Conformidad Legal</h3>
+                <button onclick="closeModal('modal-eval')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveLawEvaluation(event)" class="space-y-4">
+                <input type="hidden" id="eval-law-id" value=""/>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Norma Evaluada</label>
+                    <input id="eval-law-ref" type="text" readonly class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-bold text-primary cursor-not-allowed outline-none"/>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha de la Evaluación</label>
+                        <input id="eval-date" required type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Dictamen Final</label>
+                        <select id="eval-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Conforme">Conforme (Cumple todos los requisitos aplicables)</option>
+                            <option value="No Conforme">No Conforme (Desviación detectada / sancionable)</option>
+                            <option value="En Evaluación">En Evaluación (Pendiente de evidencias)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Evidencia Documentada de Cumplimiento</label>
+                    <textarea id="eval-evidence" required rows="2" placeholder="Ej: Registro de inspección de extintores, Certificación LOPD, Acta de inspección del Ministerio..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Observaciones / Desviaciones / Acciones necesarias</label>
+                    <textarea id="eval-obs" rows="2" placeholder="Anotaciones de auditoría legal..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-eval')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar Evaluación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Semilla del catálogo legal
+        const seedLaws = [
+            { id: "LAW-001", ref: "Reglamento (UE) 2016/679", name: "Reglamento General de Protección de Datos (RGPD)", ambito: "Europeo", lastEval: "2026-02-15", status: "Conforme", evidence: "Auditoría externa de privacidad de datos aprobada sin salvedades.", freq: "Anual" },
+            { id: "LAW-002", ref: "Ley 31/1995", name: "Ley de Prevención de Riesgos Laborales (PRL)", ambito: "Nacional", lastEval: "2026-03-20", status: "Conforme", evidence: "Evaluación de riesgos en puestos de trabajo firmada por el SPA.", freq: "Anual" },
+            { id: "LAW-003", ref: "Ley 7/2022", name: "Ley de Residuos y Suelos Contaminados para una Economía Circular", ambito: "Nacional", lastEval: "2026-01-10", status: "Conforme", evidence: "Contrato con gestor autorizado y archivo cronológico de residuos.", freq: "Anual" },
+            { id: "LAW-004", ref: "Real Decreto 311/2022", name: "Esquema Nacional de Seguridad (ENS) en el ámbito de la Administración Electrónica", ambito: "Nacional", lastEval: "2026-05-18", status: "En Evaluación", evidence: "Faltan evidencias de segregación de logs en el SIEM corporativo.", freq: "Anual" }
+        ];
+
+        let laws = [];
+
+        function init() {
+            const data = localStorage.getItem('sig_legal_catalog_final');
+            if (data) {
+                laws = JSON.parse(data);
+            } else {
+                laws = [...seedLaws];
+                saveToLocalStorage();
+            }
+            render();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_legal_catalog_final', JSON.stringify(laws));
+        }
+
+        function resetToSeed() {
+            if (confirm("¿Está seguro de que desea restablecer el inventario de leyes a los valores por defecto?")) {
+                laws = [...seedLaws];
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function renderKPIs() {
+            const total = laws.length;
+            const conforme = laws.filter(l => l.status === "Conforme").length;
+            const noconforme = laws.filter(l => l.status === "No Conforme").length;
+            const pct = total > 0 ? Math.round((conforme / total) * 100) : 0;
+            
+            // Evaluadas en el año en curso (2026)
+            const evaluadas = laws.filter(l => l.lastEval && l.lastEval.startsWith("2026")).length;
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-pct').innerText = `${pct}%`;
+            document.getElementById('kpi-noconforme').innerText = noconforme;
+            document.getElementById('kpi-evaluadas').innerText = evaluadas;
+        }
+
+        function render() {
+            renderKPIs();
+            const tbody = document.getElementById('tbody-legal');
+            const search = document.getElementById('search-input').value.toLowerCase().trim();
+            const ambitoFilter = document.getElementById('filter-ambito').value;
+            const statusFilter = document.getElementById('filter-conformidad').value;
+
+            const filtered = laws.filter(l => {
+                const matchesSearch = l.ref.toLowerCase().includes(search) || l.name.toLowerCase().includes(search) || l.ambito.toLowerCase().includes(search);
+                const matchesAmbito = ambitoFilter === "" || l.ambito === ambitoFilter;
+                const matchesStatus = statusFilter === "" || l.status === statusFilter;
+                return matchesSearch && matchesAmbito && matchesStatus;
+            });
+
+            tbody.innerHTML = "";
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron normas legales registradas.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(l => {
+                let badgeClass = "";
+                if (l.status === "Conforme") badgeClass = "bg-green-100 text-green-800 border-green-200 font-bold";
+                else if (l.status === "En Evaluación") badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
+                else badgeClass = "bg-red-100 text-red-800 border-red-200";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="p-3 font-mono font-bold text-on-surface-variant">${l.ref}</td>
+                        <td class="p-3 font-bold text-primary max-w-sm">${l.name}</td>
+                        <td class="p-3 text-center text-on-surface-variant font-medium">${l.ambito}</td>
+                        <td class="p-3 text-center font-semibold text-on-surface-variant">${l.lastEval || "Sin evaluar"}</td>
+                        <td class="p-3 text-on-surface-variant italic truncate max-w-xs" title="${l.evidence || ''}">${l.evidence || '-- Ninguna registrada --'}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+                                ${l.status}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="openEvalModal('${l.id}')" class="text-secondary hover:text-primary p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Evaluar Conformidad">
+                                    <span class="material-symbols-outlined text-[18px]">fact_check</span>
+                                </button>
+                                <button onclick="editLaw('${l.id}')" class="text-on-surface-variant hover:text-secondary p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Editar">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>
+                                <button onclick="deleteLaw('${l.id}')" class="text-danger hover:text-red-700 p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Registrar Ley / Reglamento";
+            document.getElementById('law-id').value = "";
+            document.getElementById('law-ref').value = "";
+            document.getElementById('law-name').value = "";
+            document.getElementById('modal-legal').classList.remove('hidden');
+        }
+
+        function openEvalModal(id) {
+            const l = laws.find(item => item.id === id);
+            if (l) {
+                document.getElementById('eval-law-id').value = l.id;
+                document.getElementById('eval-law-ref').value = l.ref;
+                document.getElementById('eval-evidence').value = l.evidence || "";
+                document.getElementById('eval-obs').value = "";
+                document.getElementById('eval-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('eval-status').value = l.status;
+                document.getElementById('modal-eval').classList.remove('hidden');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function saveLaw(e) {
+            e.preventDefault();
+            const id = document.getElementById('law-id').value;
+            const ref = document.getElementById('law-ref').value.trim();
+            const name = document.getElementById('law-name').value.trim();
+            const ambito = document.getElementById('law-ambito').value;
+            const freq = document.getElementById('law-freq').value;
+            const status = document.getElementById('law-status').value;
+
+            if (id) {
+                const idx = laws.findIndex(l => l.id === id);
+                if (idx !== -1) {
+                    laws[idx] = { ...laws[idx], ref, name, ambito, freq, status };
+                }
+            } else {
+                let maxSeq = 4;
+                laws.forEach(l => {
+                    const parts = l.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `LAW-${nextSeq}`;
+                laws.push({ id: newId, ref, name, ambito, freq, status, lastEval: "", evidence: "" });
+            }
+
+            saveToLocalStorage();
+            closeModal('modal-legal');
+            render();
+            e.target.reset();
+        }
+
+        function saveLawEvaluation(e) {
+            e.preventDefault();
+            const id = document.getElementById('eval-law-id').value;
+            const date = document.getElementById('eval-date').value;
+            const status = document.getElementById('eval-status').value;
+            const evidence = document.getElementById('eval-evidence').value.trim();
+            const obs = document.getElementById('eval-obs').value.trim();
+
+            const idx = laws.findIndex(l => l.id === id);
+            if (idx !== -1) {
+                laws[idx].lastEval = date;
+                laws[idx].status = status;
+                laws[idx].evidence = evidence;
+                if (obs) {
+                    laws[idx].evidence += " (Nota: " + obs + ")";
+                }
+            }
+
+            saveToLocalStorage();
+            closeModal('modal-eval');
+            render();
+        }
+
+        function editLaw(id) {
+            const l = laws.find(item => item.id === id);
+            if (l) {
+                document.getElementById('modal-title').innerText = `Editar Norma (${l.ref})`;
+                document.getElementById('law-id').value = l.id;
+                document.getElementById('law-ref').value = l.ref;
+                document.getElementById('law-name').value = l.name;
+                document.getElementById('law-ambito').value = l.ambito;
+                document.getElementById('law-freq').value = l.freq || "Anual";
+                document.getElementById('law-status').value = l.status;
+                document.getElementById('modal-legal').classList.remove('hidden');
+            }
+        }
+
+        function deleteLaw(id) {
+            if (confirm(`¿Está seguro de que desea eliminar la norma ${id} del catálogo legal?`)) {
+                laws = laws.filter(item => item.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

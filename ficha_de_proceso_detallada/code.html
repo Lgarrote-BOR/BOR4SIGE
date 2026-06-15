@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Ficha de Proceso Detallada</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#fefcff",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-container": "#e5eeff",
+                        "surface-container-low": "#eff4ff",
+                        "outline": "#76777d",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#565e74",
+                        "on-secondary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#818486",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary": "#0051d5",
+                        "surface-container-high": "#dce9ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#131b2e",
+                        "secondary-container": "#316bf3",
+                        "primary": "#000000",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "background": "#f8f9ff",
+                        "tertiary-container": "#191c1e",
+                        "on-tertiary-fixed-variant": "#444749"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "xl": "32px", "lg": "24px", "max-width": "1440px", "xs": "4px",
+                        "md": "16px", "margin": "24px", "sm": "8px", "base": "4px", "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-lg": ["Inter"],
+                        "headline-md": ["Inter"], "code-sm": ["JetBrains Mono"], "body-md": ["Inter"],
+                        "label-md": ["Inter"], "body-sm": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-hidden flex h-screen">
+    <!-- Navigation Drawer -->
+    <nav class="hidden md:flex flex-col w-[240px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface py-md z-40">
+        <div class="px-margin mb-lg">
+            <div class="flex items-center gap-sm mb-xs">
+                <span class="material-symbols-outlined text-primary font-headline-md text-headline-md">domain</span>
+                <span class="font-headline-md text-headline-md font-bold text-primary">SIG 2.0</span>
+            </div>
+            <div class="flex items-center justify-between p-sm border border-outline-variant rounded bg-surface-container-lowest">
+                <div class="flex flex-col">
+                    <span class="font-label-md text-label-md text-on-surface-variant uppercase">Entorno</span>
+                    <span class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-xs">
+                        <span class="w-2 h-2 rounded-full bg-error block"></span> Producción
+                    </span>
+                </div>
+            </div>
+        </div>
+        <ul class="flex flex-col gap-xs px-sm flex-1 overflow-y-auto">
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150" href="../dashboard_de_gesti_n_sig/code.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-body-md text-body-md">Cuadro de Mando</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary font-semibold bg-surface-container-high transition-colors scale-95 duration-150" href="../mapa_de_procesos_sig/code.html">
+                    <span class="material-symbols-outlined fill">account_tree</span>
+                    <span class="font-body-md text-body-md">Mapa de Procesos</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150 animate-pulse" href="../panel_de_kpis_de_proceso/code.html" id="kpi-panel-link">
+                    <span class="material-symbols-outlined">monitoring</span>
+                    <span class="font-body-md text-body-md">Panel de KPIs</span>
+                </a>
+            </li>
+        </ul>
+        <div class="px-margin mt-auto pt-md border-t border-outline-variant">
+            <a class="flex items-center gap-md text-on-surface-variant hover:text-primary transition-colors w-full p-sm rounded hover:bg-surface-container" href="../mapa_de_procesos_sig/code.html">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="font-body-sm text-body-sm">Volver al Mapa</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- TopAppBar -->
+    <header class="hidden md:flex justify-between items-center px-margin h-[64px] ml-[240px] w-[calc(100%-240px)] fixed top-0 bg-surface-container-lowest border-b border-outline-variant z-30">
+        <div class="flex items-center gap-md">
+            <h1 id="header-process-name" class="font-headline-md text-headline-md font-bold text-primary">Detalle de Proceso</h1>
+            <span id="header-process-code" class="bg-surface-container-high text-secondary px-sm py-xs rounded text-label-md font-label-md ml-sm border border-outline-variant">NUEVO</span>
+        </div>
+        <div class="flex items-center gap-md">
+            <div class="flex items-center gap-sm bg-surface-container rounded-full px-sm py-xs border border-outline-variant">
+                <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                <span class="font-label-md text-label-md text-on-surface-variant">Estado: Activo</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Canvas -->
+    <main class="flex-1 ml-0 md:ml-[240px] mt-0 md:mt-[64px] pb-[80px] md:pb-0 h-[calc(100vh-64px)] overflow-y-auto bg-background p-margin">
+        <div class="max-w-[1440px] mx-auto">
+            
+            <!-- VIEW MODE CANVAS -->
+            <div id="canvas-view" class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+                <!-- Context & Actions (Spans full width) -->
+                <div class="col-span-1 md:col-span-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-md bg-surface-container-lowest p-md rounded border border-outline-variant">
+                    <div>
+                        <h2 id="view-proc-title" class="font-headline-sm text-headline-sm text-on-surface font-bold">Adquisición de Bienes y Servicios</h2>
+                        <p id="view-proc-owner" class="font-body-md text-body-md text-on-surface-variant mt-xs">Propietario: Dirección de Compras | Tipo: Clave</p>
+                    </div>
+                    <div class="flex gap-sm">
+                        <button onclick="setMode('edit')" class="flex items-center gap-xs px-md py-sm bg-secondary text-on-secondary rounded hover:bg-secondary/90 transition-colors font-label-md text-label-md shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">edit</span> Editar Proceso
+                        </button>
+                        <button onclick="window.location.href='../mapa_de_procesos_sig/code.html'" class="flex items-center gap-xs px-md py-sm bg-surface border border-outline-variant text-on-surface rounded hover:bg-surface-container transition-colors font-label-md text-label-md">
+                            Volver al Mapa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Left Column: Flow & Details -->
+                <div class="col-span-1 md:col-span-8 flex flex-col gap-lg">
+                    <!-- Secuencia de Actividades -->
+                    <section class="bg-surface-container-lowest border border-outline-variant rounded p-lg">
+                        <div class="flex items-center gap-sm mb-md border-b border-outline-variant pb-sm">
+                            <span class="material-symbols-outlined text-primary">format_list_numbered</span>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Secuencia de Actividades (Flujo de Proceso)</h3>
+                        </div>
+                        <div id="view-activities-flow" class="space-y-md relative before:absolute before:inset-0 before:ml-[19px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant before:to-transparent">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </section>
+
+                    <!-- Entradas y Salidas -->
+                    <section class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <!-- Inputs -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded p-md">
+                            <div class="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
+                                <span class="material-symbols-outlined text-on-surface-variant">input</span>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Entradas (Inputs)</h3>
+                            </div>
+                            <ul id="view-inputs-list" class="space-y-sm">
+                                <!-- Dinámico -->
+                            </ul>
+                        </div>
+                        <!-- Outputs -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded p-md">
+                            <div class="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
+                                <span class="material-symbols-outlined text-secondary">output</span>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Salidas (Outputs)</h3>
+                            </div>
+                            <ul id="view-outputs-list" class="space-y-sm">
+                                <!-- Dinámico -->
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: KPIs & Risks -->
+                <div class="col-span-1 md:col-span-4 flex flex-col gap-lg">
+                    <!-- Panel KPIs -->
+                    <section class="bg-surface-container-lowest border border-outline-variant rounded p-md">
+                        <div class="flex items-center justify-between mb-md border-b border-outline-variant pb-xs">
+                            <div class="flex items-center gap-sm">
+                                <span class="material-symbols-outlined text-primary">monitoring</span>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">KPIs e Indicadores</h3>
+                            </div>
+                        </div>
+                        <div id="view-kpis-list" class="space-y-sm">
+                            <!-- Dinámico -->
+                        </div>
+                    </section>
+
+                    <!-- Riesgos Asociados -->
+                    <section class="bg-surface-container-lowest border-l-4 border-error rounded p-md shadow-sm">
+                        <div class="flex items-start gap-md">
+                            <div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined">warning</span>
+                            </div>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs font-bold">Riesgos y Oportunidades</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Riesgos vinculados en la matriz de riesgos del SGI.</p>
+                                <div id="view-risks-container" class="flex flex-wrap gap-xs">
+                                    <!-- Dinámico -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- EDIT MODE FORM -->
+            <form id="canvas-edit" onsubmit="saveProcess(event)" class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg shadow-sm space-y-margin hidden">
+                <h2 id="edit-mode-title" class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-sm mb-md font-bold">Crear Nuevo Proceso</h2>
+                
+                <!-- Section 1: General Info -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+                    <div class="flex flex-col gap-xs">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Código Proceso</label>
+                        <input id="edit-proc-id" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary" placeholder="Ej: PRC-CMP-01" type="text"/>
+                    </div>
+                    <div class="flex flex-col gap-xs md:col-span-2">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Nombre del Proceso</label>
+                        <input id="edit-proc-name" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary" placeholder="Ej: Adquisición de Bienes y Servicios" type="text"/>
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Tipo de Proceso</label>
+                        <select id="edit-proc-type" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Estratégico">Estratégico</option>
+                            <option value="Clave">Clave / Operativo</option>
+                            <option value="Soporte">Soporte</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div class="flex flex-col gap-xs">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Propietario / Responsable</label>
+                        <select id="edit-proc-owner" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <!-- Personal dinámico -->
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Riesgos Asociados (Separados por coma)</label>
+                        <input id="edit-proc-risks" class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary" placeholder="Ej: R-CMP-001, R-CMP-002" type="text"/>
+                    </div>
+                </div>
+
+                <hr class="border-outline-variant" />
+
+                <!-- Section 2: Entradas y Salidas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                    <!-- Entradas -->
+                    <div class="space-y-sm">
+                        <div class="flex justify-between items-center">
+                            <label class="font-label-md text-label-md text-on-surface font-bold">Entradas (Inputs)</label>
+                            <button type="button" onclick="addListRow('inputs')" class="text-secondary hover:text-on-secondary-fixed-variant flex items-center gap-xs font-label-md text-label-md">
+                                <span class="material-symbols-outlined text-[16px]">add</span> Añadir Entrada
+                            </button>
+                        </div>
+                        <div id="edit-inputs-container" class="space-y-xs">
+                            <!-- Filas dinámicas -->
+                        </div>
+                    </div>
+
+                    <!-- Salidas -->
+                    <div class="space-y-sm">
+                        <div class="flex justify-between items-center">
+                            <label class="font-label-md text-label-md text-on-surface font-bold">Salidas (Outputs)</label>
+                            <button type="button" onclick="addListRow('outputs')" class="text-secondary hover:text-on-secondary-fixed-variant flex items-center gap-xs font-label-md text-label-md">
+                                <span class="material-symbols-outlined text-[16px]">add</span> Añadir Salida
+                            </button>
+                        </div>
+                        <div id="edit-outputs-container" class="space-y-xs">
+                            <!-- Filas dinámicas -->
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-outline-variant" />
+
+                <!-- Section 3: Secuencia / Actividades -->
+                <div class="space-y-sm">
+                    <div class="flex justify-between items-center">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Flujo de Actividades del Proceso</label>
+                        <button type="button" onclick="addActivityRow()" class="bg-surface border border-outline-variant text-on-surface px-md py-1 rounded hover:bg-surface-container font-label-md text-label-md flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[16px]">add</span> Añadir Actividad
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto border border-outline-variant rounded">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-label-md font-label-md text-on-surface-variant">
+                                    <th class="p-sm w-16 text-center">Paso</th>
+                                    <th class="p-sm w-64">Título de la Actividad</th>
+                                    <th class="p-sm">Descripción del Flujo</th>
+                                    <th class="p-sm w-64">Responsable de la Tarea</th>
+                                    <th class="p-sm w-16 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="edit-activities-tbody" class="font-body-sm text-body-sm">
+                                <!-- Actividades dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr class="border-outline-variant" />
+
+                <!-- Section 4: KPIs del Proceso -->
+                <div class="space-y-sm">
+                    <div class="flex justify-between items-center">
+                        <label class="font-label-md text-label-md text-on-surface font-bold">Definición de KPIs del Proceso</label>
+                        <button type="button" onclick="addKpiRow()" class="bg-surface border border-outline-variant text-on-surface px-md py-1 rounded hover:bg-surface-container font-label-md text-label-md flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[16px]">add</span> Registrar KPI
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto border border-outline-variant rounded">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-label-md font-label-md text-on-surface-variant">
+                                    <th class="p-sm">Nombre del KPI / Indicador</th>
+                                    <th class="p-sm w-32">Meta Requerida</th>
+                                    <th class="p-sm w-32">Unidad</th>
+                                    <th class="p-sm w-32">Rendimiento Inicial (%)</th>
+                                    <th class="p-sm w-16 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="edit-kpis-tbody" class="font-body-sm text-body-sm">
+                                <!-- KPIs dinámicos -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-sm pt-md border-t border-outline-variant">
+                    <button type="button" onclick="cancelEdit()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-surface-container transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-secondary/90 transition-colors shadow-sm">
+                        Guardar Proceso
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </main>
+
+    <script>
+        let procesos = [];
+        let currentProcess = null;
+        let processId = null;
+
+        // Iniciar Datos
+        function init() {
+            const stored = localStorage.getItem('sig_procesos');
+            if (stored) {
+                procesos = JSON.parse(stored);
+            }
+            
+            // Cargar Personal para selectores
+            populateOwnerSelects();
+
+            // Buscar parámetro de URL
+            const params = new URLSearchParams(window.location.search);
+            processId = params.get('id');
+
+            if (processId) {
+                currentProcess = procesos.find(p => p.id === processId);
+            }
+
+            if (currentProcess) {
+                setMode('view');
+                renderViewMode();
+                document.getElementById('kpi-panel-link').href = `../panel_de_kpis_de_proceso/code.html?id=${encodeURIComponent(processId)}`;
+            } else {
+                setMode('edit');
+                setupNewProcessForm();
+                document.getElementById('kpi-panel-link').classList.add('hidden');
+            }
+        }
+
+        function populateOwnerSelects() {
+            const ownerSelect = document.getElementById('edit-proc-owner');
+            ownerSelect.innerHTML = '<option value="">-- Seleccione Propietario --</option>';
+            const storedPers = localStorage.getItem('sig_personal');
+            if (storedPers) {
+                const pers = JSON.parse(storedPers);
+                pers.forEach(p => {
+                    ownerSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.dept})</option>`;
+                });
+            } else {
+                ownerSelect.innerHTML += '<option value="Ana García">Ana García (Calidad)</option>';
+                ownerSelect.innerHTML += '<option value="Carlos Gómez">Carlos Gómez (Dirección)</option>';
+                ownerSelect.innerHTML += '<option value="Juan Martínez">Juan Martínez (Operaciones)</option>';
+                ownerSelect.innerHTML += '<option value="Laura Gómez">Laura Gómez (Ventas)</option>';
+                ownerSelect.innerHTML += '<option value="Carlos Ruiz">Carlos Ruiz (IT/I+D)</option>';
+            }
+        }
+
+        // Alternar modo
+        function setMode(mode) {
+            const canvasView = document.getElementById('canvas-view');
+            const canvasEdit = document.getElementById('canvas-edit');
+
+            if (mode === 'view') {
+                canvasView.classList.remove('hidden');
+                canvasEdit.classList.add('hidden');
+            } else {
+                canvasView.classList.add('hidden');
+                canvasEdit.classList.remove('hidden');
+                
+                if (currentProcess) {
+                    fillEditForm();
+                }
+            }
+        }
+
+        // Modo Vista
+        function renderViewMode() {
+            document.getElementById('header-process-name').innerText = currentProcess.name;
+            document.getElementById('header-process-code').innerText = currentProcess.id;
+
+            document.getElementById('view-proc-title').innerText = currentProcess.name;
+            document.getElementById('view-proc-owner').innerText = `Propietario: ${currentProcess.owner} | Tipo: ${currentProcess.type}`;
+
+            // Render Inputs
+            const inputsList = document.getElementById('view-inputs-list');
+            inputsList.innerHTML = "";
+            const inputs = Array.isArray(currentProcess.inputs) ? currentProcess.inputs : (currentProcess.inputs ? currentProcess.inputs.split(',') : []);
+            if (inputs.length === 0 || inputs[0] === "") {
+                inputsList.innerHTML = '<li class="text-on-surface-variant text-body-sm">No se han registrado entradas.</li>';
+            } else {
+                inputs.forEach(inp => {
+                    inputsList.innerHTML += `
+                        <li class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-[18px] text-outline mt-0.5">description</span>
+                            <span class="font-body-md text-body-md text-on-surface">${inp.trim()}</span>
+                        </li>
+                    `;
+                });
+            }
+
+            // Render Outputs
+            const outputsList = document.getElementById('view-outputs-list');
+            outputsList.innerHTML = "";
+            const outputs = Array.isArray(currentProcess.outputs) ? currentProcess.outputs : (currentProcess.outputs ? currentProcess.outputs.split(',') : []);
+            if (outputs.length === 0 || outputs[0] === "") {
+                outputsList.innerHTML = '<li class="text-on-surface-variant text-body-sm">No se han registrado salidas.</li>';
+            } else {
+                outputs.forEach(out => {
+                    outputsList.innerHTML += `
+                        <li class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">receipt_long</span>
+                            <span class="font-body-md text-body-md text-on-surface">${out.trim()}</span>
+                        </li>
+                    `;
+                });
+            }
+
+            // Render Activities Flow
+            const flowContainer = document.getElementById('view-activities-flow');
+            flowContainer.innerHTML = "";
+            const activities = currentProcess.activities || [];
+            if (activities.length === 0) {
+                flowContainer.innerHTML = '<p class="text-on-surface-variant text-body-sm text-center py-md">No se han registrado actividades de flujo para este proceso.</p>';
+            } else {
+                activities.forEach((act, idx) => {
+                    const isEven = idx % 2 === 0;
+                    flowContainer.innerHTML += `
+                        <div class="relative flex items-center justify-between md:justify-normal ${isEven ? '' : 'md:odd:flex-row-reverse'} group">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-secondary bg-surface-container-lowest shadow shrink-0 md:order-1 ${isEven ? 'md:group-even:translate-x-1/2' : 'md:group-odd:-translate-x-1/2'}">
+                                <span class="font-label-md text-label-md text-secondary font-bold">${act.step || (idx + 1)}</span>
+                            </div>
+                            <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-md rounded border border-outline-variant bg-surface-container-lowest hover:bg-surface shadow-sm transition-colors">
+                                <h4 class="font-body-lg text-body-lg font-semibold text-on-surface mb-xs">${act.title}</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">${act.desc}</p>
+                                <div class="flex items-center gap-xs mt-sm pt-sm border-t border-outline-variant">
+                                    <span class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
+                                    <span class="font-label-md text-label-md text-on-surface-variant">${act.role}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render KPIs
+            const kpiList = document.getElementById('view-kpis-list');
+            kpiList.innerHTML = "";
+            const kpis = currentProcess.kpis || [];
+            if (kpis.length === 0) {
+                kpiList.innerHTML = '<p class="text-on-surface-variant text-body-sm py-sm text-center">Sin KPIs registrados.</p>';
+            } else {
+                kpis.forEach(k => {
+                    // Obtener la última medición del KPI o el valor inicial
+                    let currentVal = k.compliance || 100;
+                    if (k.values) {
+                        const valKeys = Object.keys(k.values);
+                        if (valKeys.length > 0) {
+                            currentVal = k.values[valKeys[valKeys.length - 1]];
+                        }
+                    }
+
+                    let valColor = "text-[#137333]";
+                    let metaUnit = `${k.meta}${k.unit}`;
+                    
+                    kpiList.innerHTML += `
+                        <div class="bg-surface-container-low p-sm rounded border border-outline-variant">
+                            <p class="font-label-md text-label-md text-on-surface-variant font-bold">${k.name}</p>
+                            <div class="flex items-end justify-between mt-xs">
+                                <p class="font-headline-md text-headline-md font-bold text-on-surface">${currentVal}<span class="text-body-sm font-normal text-on-surface-variant">${k.unit}</span></p>
+                                <span class="text-xs text-on-surface-variant">Meta: ${metaUnit}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render Risks
+            const risksContainer = document.getElementById('view-risks-container');
+            risksContainer.innerHTML = "";
+            const risks = Array.isArray(currentProcess.risks) ? currentProcess.risks : (currentProcess.risks ? currentProcess.risks.split(',') : []);
+            if (risks.length === 0 || risks[0] === "") {
+                risksContainer.innerHTML = '<span class="text-on-surface-variant text-body-sm">Sin riesgos de calidad catalogados.</span>';
+            } else {
+                risks.forEach(r => {
+                    risksContainer.innerHTML += `
+                        <span class="px-2 py-1 bg-error-container text-on-error-container text-xs rounded border border-error/20 font-code-sm font-bold uppercase cursor-pointer hover:bg-error hover:text-white transition-colors" onclick="window.location.href='../evaluaci_n_de_riesgos_calidad_iso_9001/code.html'">
+                            ${r.trim()}
+                        </span>
+                    `;
+                });
+            }
+        }
+
+        // Cancelar edición
+        function cancelEdit() {
+            if (currentProcess) {
+                setMode('view');
+            } else {
+                window.location.href = '../mapa_de_procesos_sig/code.html';
+            }
+        }
+
+        // Setup formulario nuevo proceso
+        function setupNewProcessForm() {
+            document.getElementById('edit-mode-title').innerText = "Crear Nuevo Proceso";
+            document.getElementById('edit-proc-id').readOnly = false;
+            document.getElementById('edit-proc-id').value = "";
+            document.getElementById('edit-proc-name').value = "";
+            document.getElementById('edit-proc-type').value = "Clave";
+            document.getElementById('edit-proc-owner').value = "";
+            document.getElementById('edit-proc-risks').value = "";
+
+            document.getElementById('edit-inputs-container').innerHTML = "";
+            document.getElementById('edit-outputs-container').innerHTML = "";
+            document.getElementById('edit-activities-tbody').innerHTML = "";
+            document.getElementById('edit-kpis-tbody').innerHTML = "";
+
+            // Añadir al menos una fila por defecto
+            addListRow('inputs');
+            addListRow('outputs');
+            addActivityRow();
+            addKpiRow();
+        }
+
+        // Rellenar formulario de edición
+        function fillEditForm() {
+            document.getElementById('edit-mode-title').innerText = `Editar Proceso (${currentProcess.id})`;
+            document.getElementById('edit-proc-id').readOnly = true;
+            document.getElementById('edit-proc-id').value = currentProcess.id;
+            document.getElementById('edit-proc-name').value = currentProcess.name;
+            document.getElementById('edit-proc-type').value = currentProcess.type;
+            document.getElementById('edit-proc-owner').value = currentProcess.owner;
+            
+            const risks = Array.isArray(currentProcess.risks) ? currentProcess.risks.join(', ') : currentProcess.risks;
+            document.getElementById('edit-proc-risks').value = risks || "";
+
+            // Inputs
+            const inputsContainer = document.getElementById('edit-inputs-container');
+            inputsContainer.innerHTML = "";
+            const inputs = Array.isArray(currentProcess.inputs) ? currentProcess.inputs : (currentProcess.inputs ? currentProcess.inputs.split(',') : []);
+            inputs.forEach(inp => addListRow('inputs', inp.trim()));
+
+            // Outputs
+            const outputsContainer = document.getElementById('edit-outputs-container');
+            outputsContainer.innerHTML = "";
+            const outputs = Array.isArray(currentProcess.outputs) ? currentProcess.outputs : (currentProcess.outputs ? currentProcess.outputs.split(',') : []);
+            outputs.forEach(out => addListRow('outputs', out.trim()));
+
+            // Activities
+            const activitiesTbody = document.getElementById('edit-activities-tbody');
+            activitiesTbody.innerHTML = "";
+            const activities = currentProcess.activities || [];
+            activities.forEach(act => addActivityRow(act.title, act.desc, act.role));
+
+            // KPIs
+            const kpisTbody = document.getElementById('edit-kpis-tbody');
+            kpisTbody.innerHTML = "";
+            const kpis = currentProcess.kpis || [];
+            kpis.forEach(k => addKpiRow(k.name, k.meta, k.unit, k.compliance));
+
+            if (inputsContainer.innerHTML === "") addListRow('inputs');
+            if (outputsContainer.innerHTML === "") addListRow('outputs');
+            if (activitiesTbody.innerHTML === "") addActivityRow();
+            if (kpisTbody.innerHTML === "") addKpiRow();
+        }
+
+        // Agregar fila de entrada/salida
+        function addListRow(type, val = "") {
+            const container = document.getElementById(`edit-${type}-container`);
+            const rowId = `${type}_row_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            
+            container.innerHTML += `
+                <div class="flex items-center gap-sm" id="${rowId}">
+                    <input class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-sm text-body-sm text-on-surface focus:ring-secondary focus:border-secondary" type="text" value="${val}" placeholder="Registrar ítem..."/>
+                    <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-error hover:bg-error-container/20 p-1 rounded">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        // Agregar fila de Actividad
+        function addActivityRow(title = "", desc = "", role = "") {
+            const tbody = document.getElementById('edit-activities-tbody');
+            const rowId = `act_row_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+
+            // Generar opciones de responsables
+            let options = '<option value="">-- Asignar Rol --</option>';
+            const storedPers = localStorage.getItem('sig_personal');
+            let people = [];
+            if (storedPers) {
+                people = JSON.parse(storedPers);
+            } else {
+                people = [
+                    { name: "Gerente de Calidad" },
+                    { name: "Técnico de Compras" },
+                    { name: "Director Financiero" },
+                    { name: "Responsable de Área" }
+                ];
+            }
+            people.forEach(p => {
+                const selected = p.name === role ? 'selected' : '';
+                options += `<option value="${p.name}" ${selected}>${p.name}</option>`;
+            });
+
+            tbody.innerHTML += `
+                <tr class="border-b border-outline-variant" id="${rowId}">
+                    <td class="p-sm text-center font-bold text-secondary step-number"></td>
+                    <td class="p-sm">
+                        <input class="w-full bg-surface border border-outline-variant rounded p-sm" type="text" value="${title}" placeholder="Ej: Recepción de Solicitud"/>
+                    </td>
+                    <td class="p-sm">
+                        <input class="w-full bg-surface border border-outline-variant rounded p-sm" type="text" value="${desc}" placeholder="Ej: Analizar cotizaciones del proveedor."/>
+                    </td>
+                    <td class="p-sm">
+                        <select class="w-full bg-surface border border-outline-variant rounded p-sm cursor-pointer">
+                            ${options}
+                        </select>
+                    </td>
+                    <td class="p-sm text-center">
+                        <button type="button" onclick="document.getElementById('${rowId}').remove(); renumberSteps();" class="text-error hover:bg-error-container/20 p-1 rounded">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            renumberSteps();
+        }
+
+        function renumberSteps() {
+            const steps = document.querySelectorAll('#edit-activities-tbody .step-number');
+            steps.forEach((el, idx) => {
+                el.innerText = idx + 1;
+            });
+        }
+
+        // Agregar fila de KPI
+        function addKpiRow(name = "", meta = "", unit = "%", val = "100") {
+            const tbody = document.getElementById('edit-kpis-tbody');
+            const rowId = `kpi_row_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+
+            tbody.innerHTML += `
+                <tr class="border-b border-outline-variant" id="${rowId}">
+                    <td class="p-sm">
+                        <input class="w-full bg-surface border border-outline-variant rounded p-sm" type="text" value="${name}" placeholder="Ej: Eficacia Entregas"/>
+                    </td>
+                    <td class="p-sm">
+                        <input class="w-full bg-surface border border-outline-variant rounded p-sm" type="number" step="0.1" value="${meta}" placeholder="95"/>
+                    </td>
+                    <td class="p-sm">
+                        <input class="w-full bg-surface border border-outline-variant rounded p-sm" type="text" value="${unit}" placeholder="%"/>
+                    </td>
+                    <td class="p-sm">
+                        <input class="w-full bg-surface border border-outline-variant rounded p-sm" type="number" step="0.1" value="${val}" placeholder="100"/>
+                    </td>
+                    <td class="p-sm text-center">
+                        <button type="button" onclick="document.getElementById('${rowId}').remove();" class="text-error hover:bg-error-container/20 p-1 rounded">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Guardar Proceso
+        function saveProcess(event) {
+            event.preventDefault();
+
+            const pId = document.getElementById('edit-proc-id').value.trim();
+            const pName = document.getElementById('edit-proc-name').value.trim();
+            const pType = document.getElementById('edit-proc-type').value;
+            const pOwner = document.getElementById('edit-proc-owner').value;
+            const pRisksRaw = document.getElementById('edit-proc-risks').value;
+
+            // Inputs
+            const inputsList = [];
+            document.querySelectorAll('#edit-inputs-container input').forEach(input => {
+                if (input.value.trim() !== "") inputsList.push(input.value.trim());
+            });
+
+            // Outputs
+            const outputsList = [];
+            document.querySelectorAll('#edit-outputs-container input').forEach(input => {
+                if (input.value.trim() !== "") outputsList.push(input.value.trim());
+            });
+
+            // Activities
+            const activitiesList = [];
+            const actRows = document.querySelectorAll('#edit-activities-tbody tr');
+            actRows.forEach((row, idx) => {
+                const inputs = row.querySelectorAll('input');
+                const title = inputs[0].value.trim();
+                const desc = inputs[1].value.trim();
+                const role = row.querySelector('select').value;
+                if (title !== "") {
+                    activitiesList.push({
+                        step: idx + 1,
+                        title,
+                        desc,
+                        role: role || "Responsable"
+                    });
+                }
+            });
+
+            // KPIs
+            const kpisList = [];
+            const kpiRows = document.querySelectorAll('#edit-kpis-tbody tr');
+            kpiRows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const name = inputs[0].value.trim();
+                const meta = parseFloat(inputs[1].value || 0);
+                const unit = inputs[2].value.trim();
+                const compliance = parseFloat(inputs[3].value || 100);
+
+                if (name !== "") {
+                    kpisList.push({
+                        name,
+                        meta,
+                        unit,
+                        compliance,
+                        values: { "Inicio": compliance }
+                    });
+                }
+            });
+
+            const risksList = pRisksRaw.split(',').map(r => r.trim()).filter(r => r !== "");
+
+            // Calcular cumplimiento promedio inicial del proceso
+            let avgCompliance = 100;
+            if (kpisList.length > 0) {
+                const sum = kpisList.reduce((acc, k) => acc + k.compliance, 0);
+                avgCompliance = Math.round(sum / kpisList.length);
+            }
+
+            const procObj = {
+                id: pId,
+                name: pName,
+                type: pType,
+                owner: pOwner,
+                compliance: avgCompliance,
+                okKpis: kpisList.filter(k => k.compliance >= 85).length,
+                warnKpis: kpisList.filter(k => k.compliance >= 70 && k.compliance < 85).length,
+                critKpis: kpisList.filter(k => k.compliance < 70).length,
+                inputs: inputsList,
+                outputs: outputsList,
+                activities: activitiesList,
+                kpis: kpisList,
+                risks: risksList
+            };
+
+            const idx = procesos.findIndex(p => p.id === pId);
+            if (idx !== -1) {
+                procesos[idx] = procObj;
+            } else {
+                procesos.push(procObj);
+            }
+
+            localStorage.setItem('sig_procesos', JSON.stringify(procesos));
+            
+            // Redirigir a sí mismo con el ID para ver la ficha detallada
+            window.location.href = `../ficha_de_proceso_detallada/code.html?id=${encodeURIComponent(pId)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

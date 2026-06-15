@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Objetivos de Gestión (SIG)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#7c839b",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "on-secondary-fixed": "#00174b",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container-low": "#eff4ff",
+                    "secondary-fixed": "#dbe1ff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "outline-variant": "#c6c6cd",
+                    "on-surface-variant": "#45464d",
+                    "primary": "#000000",
+                    "on-tertiary-fixed": "#191c1e",
+                    "tertiary-fixed": "#e0e3e5",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#191c1e",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#fefcff",
+                    "tertiary": "#000000",
+                    "on-tertiary-container": "#818486",
+                    "inverse-primary": "#bec6e0",
+                    "primary-container": "#131b2e",
+                    "secondary-container": "#316bf3",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#0b1c30",
+                    "on-background": "#0b1c30",
+                    "background": "#f8f9ff",
+                    "surface-tint": "#565e74",
+                    "surface": "#f8f9ff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "secondary": "#0051d5",
+                    "primary-fixed": "#dae2fd",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container": "#e5eeff",
+                    "outline": "#76777d",
+                    "surface-variant": "#d3e4fe",
+                    "on-primary-fixed": "#131b2e",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "base": "4px",
+                    "xs": "4px",
+                    "max-width": "1440px",
+                    "margin": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+          font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline fixed top-0 w-full z-50 transition-colors duration-200">
+<div class="flex items-center justify-between px-md h-16 w-full">
+<div class="flex items-center gap-md">
+<button aria-label="Menu" class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high p-2 rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Gestión SIG</h1>
+</div>
+<button aria-label="Perfil de usuario" class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant focus:outline-none focus:ring-2 focus:ring-secondary">
+<img alt="Perfil de usuario" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr2uXO4-gU8VUC1ddN6TehGp5VroJ1HoQjkrhL2f4Xn5TxoIlrqObMfrm2OjiYkYdSFdKF0H-q6wZ8rVnL5WKcvu8OaCRrameotUJQU5vgqmxpO_ejx9yYG6Z6jIU6Qvw22xDjNANXprGiI6U6SrF8QnhFzt8Ol5QNzKcuRXVddFOZW4Bqc9X06BZpVxIoiBG3RakgoxciP41gBg7k0kEofE4cx0vUpdAWm8UW2tI6FKB2L9TjatbryZOpVb6uaQZJRH9PT0Ll5LM"/>
+</button>
+</div>
+</header>
+<!-- NavigationDrawer (Desktop) -->
+<aside class="hidden md:flex flex-col h-full py-lg bg-surface-container-low dark:bg-surface-container-lowest fixed left-0 top-0 w-60 shadow-lg dark:shadow-none z-40 pt-20">
+<div class="px-md mb-lg">
+<div class="flex items-center gap-md">
+<img alt="Usuario SIG" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs9kUi_8qwfsapw83tchgl4EzCXm30t53iHkvaRYm-_QdpXHh4W2gfAkTe4vjOkd3quCCQwNYA3veSkVOIXARVCMJS6lKgbNgSlsJ7bIdxiXFywEBz6qd8-F5dhv-BpuhG6stuJ39GkjQnXVyCeGHfEn3dhGOCoxkTR8iFj9PCU3wRCElwWSDwmKTZdCPcHp1Kl5g5SQp4yMml2k2tF9uF-zUpNGLy2m3IEdps1rpRcMnyyRRD8gxoqGfJPN_LYsOx1q7B8mJ8SVM"/>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Gestor de Calidad</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Entorno Producción</p>
+</div>
+</div>
+<div class="mt-sm text-xs text-outline font-label-md">v2.4.0</div>
+</div>
+<nav class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-md px-4 py-3 mx-2 my-1 rounded-full text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+                        Incidencias
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-4 py-3 mx-2 my-1 rounded-full text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">task_alt</span>
+                        Acciones Correctivas
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-4 py-3 mx-2 my-1 rounded-full text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+                        Acciones de Mejora
+                    </a>
+</li>
+<li>
+<a aria-current="page" class="flex items-center gap-md px-4 py-3 mx-2 my-1 rounded-full bg-secondary-container text-on-secondary-container hover:bg-surface-container-highest transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined fill-icon">track_changes</span>
+                        Objetivos
+                    </a>
+</li>
+</ul>
+</nav>
+</aside>
+<!-- Main Canvas -->
+<main class="pt-20 pb-24 md:pb-lg md:pl-[264px] px-md md:pr-md max-w-[max-width] mx-auto min-h-screen">
+<!-- Page Header -->
+<div class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-background">Objetivos Estratégicos</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Panel de seguimiento de KPIs operativos y de calidad.</p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-md py-sm rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    Filtrar
+                </button>
+<button class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Nuevo Objetivo
+                </button>
+</div>
+</div>
+<!-- KPI Summary Cards (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-xl">
+<!-- Overall Progress -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Cumplimiento Global</h3>
+<div class="bg-surface-container-low p-1.5 rounded-md">
+<span class="material-symbols-outlined text-secondary text-[20px]">donut_large</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">68%</span>
+<span class="font-body-sm text-body-sm text-primary flex items-center">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+                            4% vs mes ant.
+                        </span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 mt-sm">
+<div class="bg-secondary h-1.5 rounded-full" style="width: 68%"></div>
+</div>
+</div>
+</div>
+<!-- On Track -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Objetivos en Plazo</h3>
+<div class="bg-[#e6f4ea] p-1.5 rounded-md">
+<span class="material-symbols-outlined text-[#137333] text-[20px]">check_circle</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">12</span>
+<span class="font-body-md text-body-md text-on-surface-variant">de 18 activos</span>
+</div>
+</div>
+</div>
+<!-- At Risk -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Objetivos en Riesgo</h3>
+<div class="bg-[#fce8e6] p-1.5 rounded-md">
+<span class="material-symbols-outlined text-[#c5221f] text-[20px]">warning</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">3</span>
+<span class="font-body-md text-body-md text-on-surface-variant">requieren atención</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Detailed Objectives List -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-bright flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Detalle de Objetivos</h3>
+<div class="flex gap-2">
+<span class="bg-surface-container px-2 py-1 rounded text-xs font-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container-high">Q3 2023</span>
+<span class="bg-surface-container px-2 py-1 rounded text-xs font-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container-high">Todos los deptos.</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-bright">
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant font-semibold">ID / Objetivo</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant font-semibold w-48">Avance</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant font-semibold">Responsable</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant font-semibold">Fecha Límite</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant font-semibold text-right">Estado</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="py-md px-md">
+<div class="flex items-center gap-sm">
+<span class="font-code-sm text-code-sm text-outline">OBJ-042</span>
+<span class="font-semibold text-on-surface">Reducción de NCRs en Producción</span>
+</div>
+<div class="text-on-surface-variant text-sm mt-0.5">Meta: Bajar &lt; 5% defectos mensuales</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center justify-between mb-1">
+<span class="text-sm font-semibold">82%</span>
+<span class="text-xs text-on-surface-variant">Meta: 100%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-[#137333] h-1.5 rounded-full" style="width: 82%"></div>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold">MR</div>
+<span>María Ruiz</span>
+</div>
+</td>
+<td class="py-md px-md text-on-surface-variant">
+                                30 Nov 2023
+                            </td>
+<td class="py-md px-md text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#137333]">
+                                    En Plazo
+                                </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="py-md px-md">
+<div class="flex items-center gap-sm">
+<span class="font-code-sm text-code-sm text-outline">OBJ-045</span>
+<span class="font-semibold text-on-surface">Actualización de Manuales ISO 9001</span>
+</div>
+<div class="text-on-surface-variant text-sm mt-0.5">Meta: 100% manuales revisados v2023</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center justify-between mb-1">
+<span class="text-sm font-semibold">35%</span>
+<span class="text-xs text-on-surface-variant">Meta: 100%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-[#f29900] h-1.5 rounded-full" style="width: 35%"></div>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center text-xs font-bold">JL</div>
+<span>Jorge López</span>
+</div>
+</td>
+<td class="py-md px-md text-on-surface-variant">
+                                15 Oct 2023
+                            </td>
+<td class="py-md px-md text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-[#fef7e0] text-[#b06000]">
+                                    Retrasado
+                                </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="py-md px-md">
+<div class="flex items-center gap-sm">
+<span class="font-code-sm text-code-sm text-outline">OBJ-048</span>
+<span class="font-semibold text-on-surface">Auditorías Internas Q3 Completadas</span>
+</div>
+<div class="text-on-surface-variant text-sm mt-0.5">Meta: 5 departamentos auditados</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center justify-between mb-1">
+<span class="text-sm font-semibold">100%</span>
+<span class="text-xs text-on-surface-variant">Meta: 100%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-secondary h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">AP</div>
+<span>Ana Pérez</span>
+</div>
+</td>
+<td class="py-md px-md text-on-surface-variant">
+                                30 Sep 2023
+                            </td>
+<td class="py-md px-md text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-container-highest text-on-surface">
+                                    Completado
+                                </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-md px-md">
+<div class="flex items-center gap-sm">
+<span class="font-code-sm text-code-sm text-outline">OBJ-051</span>
+<span class="font-semibold text-on-surface">Capacitación SST Nuevo Personal</span>
+</div>
+<div class="text-on-surface-variant text-sm mt-0.5">Meta: &gt; 95% asistencia general</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center justify-between mb-1">
+<span class="text-sm font-semibold text-[#c5221f]">15%</span>
+<span class="text-xs text-on-surface-variant">Meta: 95%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-[#c5221f] h-1.5 rounded-full" style="width: 15%"></div>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-error-container text-on-error-container flex items-center justify-center text-xs font-bold">CD</div>
+<span>Carlos Díaz</span>
+</div>
+</td>
+<td class="py-md px-md text-[#c5221f] font-semibold">
+                                05 Oct 2023
+                            </td>
+<td class="py-md px-md text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-[#fce8e6] text-[#c5221f]">
+                                    Crítico
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-md py-sm border-t border-outline-variant bg-surface-bright flex justify-between items-center text-sm text-on-surface-variant">
+<span>Mostrando 4 de 18 objetivos</span>
+<div class="flex gap-1">
+<button aria-label="Anterior" class="p-1 hover:bg-surface-container rounded"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button aria-label="Siguiente" class="p-1 hover:bg-surface-container rounded"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden flex justify-around items-center h-20 px-sm pb-safe bg-surface dark:bg-surface-dim fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline transition-transform duration-150">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high w-full h-full active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-md text-label-md">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high w-full h-full active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1">list_alt</span>
+<span class="font-label-md text-label-md">Incidencias</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high w-full h-full active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1">bolt</span>
+<span class="font-label-md text-label-md">Mejoras</span>
+</a>
+<a aria-current="page" class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:bg-surface-container-high active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined fill-icon mb-1">flag</span>
+<span class="font-label-md text-label-md">Metas</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Registro de Mantenimiento Correctivo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#191c1e",
+                      "surface-tint": "#565e74",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-bright": "#f8f9ff",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-primary-fixed": "#131b2e",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-surface": "#0b1c30",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "outline": "#76777d",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-container": "#316bf3",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#213145",
+                      "inverse-primary": "#bec6e0",
+                      "on-primary-container": "#7c839b",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary-container": "#fefcff",
+                      "surface-dim": "#cbdbf5",
+                      "on-tertiary-container": "#818486",
+                      "surface": "#f8f9ff",
+                      "primary-container": "#131b2e",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-primary": "#ffffff",
+                      "primary": "#000000",
+                      "secondary-fixed": "#dbe1ff",
+                      "primary-fixed": "#dae2fd",
+                      "background": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-surface-variant": "#45464d",
+                      "surface-container": "#e5eeff",
+                      "tertiary": "#000000",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container-low": "#eff4ff",
+                      "secondary": "#0051d5",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "outline-variant": "#c6c6cd",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-secondary-fixed": "#00174b",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "max-width": "1440px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "margin": "24px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "code-sm": ["JetBrains Mono"],
+                      "label-md": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+    <!-- NavigationDrawer -->
+    <aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md z-20">
+        <div class="px-md mb-xl flex items-center justify-between">
+            <h1 class="font-headline-md text-headline-md font-bold text-on-surface">Gestión de Activos</h1>
+        </div>
+        <nav class="flex-1 flex flex-col gap-sm px-sm">
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../inventario_de_equipos_eime/code.html">
+                <span class="material-symbols-outlined" data-icon="factory">factory</span>
+                <span class="font-body-md text-body-md">Inventario de Activos</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../registro_mantenimiento_preventivo/code.html">
+                <span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+                <span class="font-body-md text-body-md">Planes Preventivos</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../registro_mantenimiento_correctivo/code.html">
+                <span class="material-symbols-outlined filled-icon" data-icon="build">build</span>
+                <span class="font-body-md text-body-md">Mantenimiento Correctivo</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out mt-auto" href="../index.html">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                <span class="font-body-md text-body-md">Volver al Panel Central</span>
+            </a>
+        </nav>
+        <div class="px-md mt-lg border-t border-outline-variant pt-md">
+            <div class="flex items-center gap-sm p-sm border border-error rounded-DEFAULT bg-error-container/20">
+                <span class="material-symbols-outlined text-error text-sm">warning</span>
+                <div class="flex flex-col">
+                    <span class="font-label-md text-label-md text-error">Entorno</span>
+                    <span class="font-body-sm text-body-sm text-on-surface">Producción</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-60 flex flex-col min-h-screen">
+        <!-- TopAppBar -->
+        <header class="bg-surface-bright flex justify-between items-center px-lg py-md w-full border-b border-outline-variant z-10 sticky top-0">
+            <div class="flex items-center gap-md">
+                <h2 class="font-headline-md text-headline-md font-bold text-primary">Panel de Control de Activos</h2>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="h-8 w-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm overflow-hidden" title="Gerente de Mantenimiento">
+                    <img alt="Gerente" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt_kh9qBDoRrbsl3zUBROpyFwBHVddrizPFhyf9H_HkL0SGrn-7kdiDu817R9rfHkosQsP2yr0dlFsHDK6MebjVunKQQyl1fYDGgNPcey2ukHLlOMNbApuE3givYV6y5Mb_Slnsggqogar7tXPzDAF-zHkLRkE0PEMvIm5vR2_A39Mg71vASCG1oDwiz4S0Zj5i5YpF2JLv_qs1bb6InIfS1oOyUuDHMXfrcYeUwYNwa_aUzAIxursqOwgJQFAzGcozpHvqGiE00s"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Canvas -->
+        <div class="p-lg flex-1 overflow-y-auto">
+            <div class="max-w-[1440px] mx-auto space-y-lg">
+                <!-- Page Header & Actions -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+                    <div>
+                        <h3 class="font-display-lg text-display-lg text-on-surface">Registro de Mantenimiento Correctivo</h3>
+                        <p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Registre e investigue incidentes de avería para asegurar la continuidad operativa.</p>
+                    </div>
+                    <div class="flex gap-sm">
+                        <button onclick="clearForm()" class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-secondary/90 transition-colors flex items-center gap-sm shadow-sm">
+                            <span class="material-symbols-outlined text-sm" data-icon="add">add</span> Nuevo Registro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bento Grid Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                    <!-- Form Area (Spans 8 cols) -->
+                    <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-lg p-lg shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                        <h4 id="form-title" class="font-headline-sm text-headline-sm text-on-surface mb-md pb-sm border-b border-outline-variant">Registrar Intervención Correctiva</h4>
+                        <form id="corrective-form" onsubmit="saveCorrective(event)" class="space-y-margin">
+                            <input type="hidden" id="edit-id" value=""/>
+                            
+                            <!-- Row 1: Asset & Date -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                                <div class="flex flex-col gap-xs">
+                                    <label class="font-label-md text-label-md text-on-surface" for="corr-asset">Activo Afectado</label>
+                                    <div class="relative">
+                                        <select id="corr-asset" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary appearance-none cursor-pointer">
+                                            <!-- Cargado dinámicamente -->
+                                        </select>
+                                        <span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-xs">
+                                    <label class="font-label-md text-label-md text-on-surface" for="corr-date">Fecha y Hora de Avería</label>
+                                    <input id="corr-date" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary" type="datetime-local"/>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Description -->
+                            <div class="flex flex-col gap-xs">
+                                <label class="font-label-md text-label-md text-on-surface" for="corr-desc">Descripción del Fallo</label>
+                                <textarea id="corr-desc" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary placeholder:text-on-surface-variant/50" placeholder="Describa los síntomas y el modo de fallo observado..." rows="3"></textarea>
+                            </div>
+
+                            <!-- Row 3: Actions -->
+                            <div class="flex flex-col gap-xs">
+                                <label class="font-label-md text-label-md text-on-surface" for="corr-actions">Trabajos / Acciones Realizadas</label>
+                                <textarea id="corr-actions" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary placeholder:text-on-surface-variant/50" placeholder="Detalle los pasos de resolución y reparación..." rows="3"></textarea>
+                            </div>
+
+                            <!-- Row 4: Parts & Downtime -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                                <div class="flex flex-col gap-xs">
+                                    <label class="font-label-md text-label-md text-on-surface" for="corr-parts">Repuestos Utilizados</label>
+                                    <input id="corr-parts" class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary placeholder:text-on-surface-variant/50" placeholder="Ej. Rodamiento SKF 6204, Sello mecánico" type="text"/>
+                                </div>
+                                <div class="flex flex-col gap-xs">
+                                    <label class="font-label-md text-label-md text-on-surface" for="corr-downtime">Tiempo de Parada (Horas)</label>
+                                    <input id="corr-downtime" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary" placeholder="0.0" step="0.1" type="number"/>
+                                </div>
+                            </div>
+
+                            <!-- Row 5: Technician & Cost (New Operational Fields) -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                                <div class="flex flex-col gap-xs">
+                                    <label class="font-label-md text-label-md text-on-surface" for="corr-tech">Técnico Responsable</label>
+                                    <div class="relative">
+                                        <select id="corr-tech" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary appearance-none cursor-pointer">
+                                            <!-- Cargado dinámicamente -->
+                                        </select>
+                                        <span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-xs">
+                                    <label class="font-label-md text-label-md text-on-surface" for="corr-cost">Coste de la Reparación (€)</label>
+                                    <input id="corr-cost" required class="w-full bg-surface border border-outline-variant rounded-DEFAULT p-sm font-body-md text-body-md text-on-surface focus:ring-secondary focus:border-secondary" placeholder="0.00" step="0.01" type="number"/>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-sm pt-md border-t border-outline-variant">
+                                <button type="button" onclick="clearForm()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-surface-container-high transition-colors">Cancelar</button>
+                                <button id="btn-submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-secondary/90 transition-colors" type="submit">Guardar Registro</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Sidebar Stats (Spans 4 cols) -->
+                    <div class="lg:col-span-4 flex flex-col gap-md">
+                        <!-- Mini KPI 1: MTTR -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                            <div class="flex justify-between items-start mb-sm">
+                                <h5 class="font-label-md text-label-md text-on-surface-variant">MTTR Promedio (Horas)</h5>
+                                <span class="material-symbols-outlined text-on-surface-variant" data-icon="timer">timer</span>
+                            </div>
+                            <div class="flex items-end gap-sm">
+                                <span id="kpi-mttr" class="font-display-lg text-display-lg text-on-surface">0.0h</span>
+                                <span id="kpi-mttr-trend" class="font-body-sm text-body-sm text-error bg-error-container/30 px-xs rounded-sm mb-1 flex items-center hidden">
+                                    <span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span> +0.5h
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Mini KPI 2: Total Cost -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                            <div class="flex justify-between items-start mb-sm">
+                                <h5 class="font-label-md text-label-md text-on-surface-variant">Coste Acumulado Correctivo</h5>
+                                <span class="material-symbols-outlined text-on-surface-variant" data-icon="payments">payments</span>
+                            </div>
+                            <div class="flex items-end gap-sm">
+                                <span id="kpi-cost" class="font-display-lg text-display-lg text-on-surface">0,00 €</span>
+                            </div>
+                        </div>
+
+                        <!-- Recent Entries List -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-[0_4px_12px_rgba(15,23,42,0.05)] flex-1 flex flex-col">
+                            <h5 class="font-label-md text-label-md text-on-surface mb-md">Registros Recientes</h5>
+                            <div id="recent-list" class="space-y-sm flex-1 overflow-y-auto max-h-[350px]">
+                                <!-- Cargado dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const seedCorrectives = [
+            { id: "COR-001", eqId: "EIME-CAL-045", date: "2023-10-26T14:30", description: "Fuga en sello mecánico de bomba", actions: "Desmontaje de bomba, sustitución de sello mecánico y prueba de estanqueidad.", parts: "Sello mecánico Viton 2", downtime: 3.5, technician: "Juan Martínez", cost: 180 },
+            { id: "COR-002", eqId: "EIME-MIC-012", date: "2023-10-24T09:15", description: "Atasco de rodamiento en cinta transportadora", actions: "Desbloqueo de rodamiento y lubricación de emergencia.", parts: "Lubricante de teflón", downtime: 1.2, technician: "Laura Gómez", cost: 45 }
+        ];
+
+        let correctives = [];
+
+        function initData() {
+            // Cargar de localStorage
+            const stored = localStorage.getItem('sig_mantenimiento_correctivo');
+            if (stored) {
+                correctives = JSON.parse(stored);
+            } else {
+                correctives = [...seedCorrectives];
+                localStorage.setItem('sig_mantenimiento_correctivo', JSON.stringify(correctives));
+            }
+
+            populateSelects();
+            renderCorrectives();
+            clearForm();
+        }
+
+        function populateSelects() {
+            // Equipos de sig_inventario_equipos
+            const assetSelect = document.getElementById('corr-asset');
+            assetSelect.innerHTML = '<option value="">-- Seleccione un Activo --</option>';
+            const storedEq = localStorage.getItem('sig_inventario_equipos');
+            if (storedEq) {
+                const eqs = JSON.parse(storedEq);
+                eqs.forEach(e => {
+                    assetSelect.innerHTML += `<option value="${e.id}">${e.id} - ${e.name}</option>`;
+                });
+            } else {
+                // Seed de equipos fallback
+                assetSelect.innerHTML += '<option value="EIME-CAL-045">EIME-CAL-045 - Bomba Centrífuga P-102</option>';
+                assetSelect.innerHTML += '<option value="EIME-MIC-012">EIME-MIC-012 - Cinta Transportadora L-1</option>';
+            }
+
+            // Técnicos de sig_personal
+            const techSelect = document.getElementById('corr-tech');
+            techSelect.innerHTML = '<option value="">-- Seleccione Técnico --</option>';
+            const storedPers = localStorage.getItem('sig_personal');
+            if (storedPers) {
+                const pers = JSON.parse(storedPers);
+                pers.forEach(p => {
+                    techSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.dept || 'Mantenimiento'})</option>`;
+                });
+            } else {
+                // Seed de técnicos fallback
+                techSelect.innerHTML += '<option value="Juan Martínez">Juan Martínez (Mantenimiento)</option>';
+                techSelect.innerHTML += '<option value="Laura Gómez">Laura Gómez (Mantenimiento)</option>';
+                techSelect.innerHTML += '<option value="Carlos Ruiz">Carlos Ruiz (Mantenimiento)</option>';
+            }
+        }
+
+        function renderCorrectives() {
+            const listContainer = document.getElementById('recent-list');
+            listContainer.innerHTML = "";
+
+            if (correctives.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-md text-on-surface-variant text-body-sm">
+                        No hay registros guardados.
+                    </div>
+                `;
+                document.getElementById('kpi-mttr').innerText = "0.0h";
+                document.getElementById('kpi-cost').innerText = "0,00 €";
+                return;
+            }
+
+            let totalDowntime = 0;
+            let totalCost = 0;
+
+            correctives.forEach(item => {
+                totalDowntime += parseFloat(item.downtime || 0);
+                totalCost += parseFloat(item.cost || 0);
+
+                listContainer.innerHTML += `
+                    <div class="flex gap-sm p-sm border border-outline-variant rounded-DEFAULT bg-surface hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow cursor-pointer relative group" onclick="editCorrective('${item.id}')">
+                        <div class="w-10 h-10 rounded bg-error-container/20 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+                        </div>
+                        <div class="flex-1 min-w-0 pr-8">
+                            <p class="font-label-md text-label-md text-on-surface truncate font-bold">${item.eqId}</p>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${item.description}</p>
+                            <p class="font-code-sm text-code-sm text-on-surface-variant mt-xs">${formatDateLabel(item.date)} - ${item.downtime}h parada</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); deleteCorrective('${item.id}');" class="absolute right-sm top-1/2 -translate-y-1/2 text-error opacity-0 group-hover:opacity-100 hover:text-red-700 transition-opacity p-1" title="Eliminar">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    </div>
+                `;
+            });
+
+            // Actualizar KPIs
+            const mttr = (totalDowntime / correctives.length).toFixed(1);
+            document.getElementById('kpi-mttr').innerText = `${mttr}h`;
+            document.getElementById('kpi-cost').innerText = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(totalCost);
+        }
+
+        function formatDateLabel(dateTimeStr) {
+            if (!dateTimeStr) return "";
+            try {
+                const date = new Date(dateTimeStr);
+                return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+            } catch (e) {
+                return dateTimeStr;
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('corrective-form').reset();
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-title').innerText = "Registrar Intervención Correctiva";
+            document.getElementById('btn-submit').innerText = "Guardar Registro";
+
+            // Poner fecha/hora actual por defecto
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('corr-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function editCorrective(id) {
+            const item = correctives.find(c => c.id === id);
+            if (item) {
+                document.getElementById('edit-id').value = item.id;
+                document.getElementById('corr-asset').value = item.eqId;
+                document.getElementById('corr-date').value = item.date;
+                document.getElementById('corr-desc').value = item.description;
+                document.getElementById('corr-actions').value = item.actions;
+                document.getElementById('corr-parts').value = item.parts || "";
+                document.getElementById('corr-downtime').value = item.downtime;
+                document.getElementById('corr-tech').value = item.technician || "";
+                document.getElementById('corr-cost').value = item.cost || "";
+
+                document.getElementById('form-title').innerText = `Editar Intervención Correctiva (${item.id})`;
+                document.getElementById('btn-submit').innerText = "Actualizar Registro";
+            }
+        }
+
+        function deleteCorrective(id) {
+            if (confirm(`¿Está seguro de que desea eliminar la acción correctiva ${id}?`)) {
+                correctives = correctives.filter(c => c.id !== id);
+                localStorage.setItem('sig_mantenimiento_correctivo', JSON.stringify(correctives));
+                renderCorrectives();
+                clearForm();
+            }
+        }
+
+        function saveCorrective(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('edit-id').value;
+            const eqId = document.getElementById('corr-asset').value;
+            const date = document.getElementById('corr-date').value;
+            const description = document.getElementById('corr-desc').value.trim();
+            const actions = document.getElementById('corr-actions').value.trim();
+            const parts = document.getElementById('corr-parts').value.trim();
+            const downtime = parseFloat(document.getElementById('corr-downtime').value);
+            const technician = document.getElementById('corr-tech').value;
+            const cost = parseFloat(document.getElementById('corr-cost').value || 0);
+
+            if (editId) {
+                const idx = correctives.findIndex(c => c.id === editId);
+                if (idx !== -1) {
+                    correctives[idx] = {
+                        ...correctives[idx],
+                        eqId,
+                        date,
+                        description,
+                        actions,
+                        parts,
+                        downtime,
+                        technician,
+                        cost
+                    };
+                }
+            } else {
+                let maxSeq = 2;
+                correctives.forEach(item => {
+                    const parts = item.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `COR-${nextSeq}`;
+
+                correctives.push({
+                    id: newId,
+                    eqId,
+                    date,
+                    description,
+                    actions,
+                    parts,
+                    downtime,
+                    technician,
+                    cost
+                });
+            }
+
+            localStorage.setItem('sig_mantenimiento_correctivo', JSON.stringify(correctives));
+            renderCorrectives();
+            clearForm();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initData();
+        });
+    </script>
+</body>
+</html>

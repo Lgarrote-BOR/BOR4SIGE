@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Revisión de Documento - Gestión de Cumplimiento</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#0051d5",
+                      "on-error": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-primary": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-fixed": "#e0e3e5",
+                      "inverse-surface": "#213145",
+                      "primary-fixed-dim": "#bec6e0",
+                      "secondary-container": "#316bf3",
+                      "surface-container": "#e5eeff",
+                      "on-surface-variant": "#45464d",
+                      "on-surface": "#0b1c30",
+                      "surface-variant": "#d3e4fe",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "primary-container": "#131b2e",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#000000",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "secondary-fixed": "#dbe1ff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-low": "#eff4ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error": "#ba1a1a",
+                      "inverse-primary": "#bec6e0",
+                      "on-secondary-fixed": "#00174b",
+                      "on-secondary-container": "#fefcff",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#191c1e",
+                      "primary": "#000000",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#76777d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "outline-variant": "#c6c6cd"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "margin": "24px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "max-width": "1440px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Subtle scrollbar for PDF area */
+        .pdf-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .pdf-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .pdf-scroll::-webkit-scrollbar-thumb {
+            background: #c6c6cd; 
+            border-radius: 4px;
+        }
+        .pdf-scroll::-webkit-scrollbar-thumb:hover {
+            background: #76777d; 
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col lg:flex-row overflow-hidden">
+<!-- NavigationDrawer (Hidden on Mobile, Flex on LG) -->
+<nav aria-label="Sidebar Navigation" class="bg-surface-container-low dark:bg-inverse-surface h-screen w-72 hidden lg:flex flex-col border-r border-outline-variant dark:border-outline z-30 flex-shrink-0">
+<!-- Environment Switcher -->
+<div class="px-md py-lg border-b border-outline-variant flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">SIG Corporativo</h2>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">Gestión Normativa</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Logo Organización" class="w-full h-full object-cover" data-alt="A clean, corporate abstract logo featuring geometric shapes in shades of blue and gray, set against a pristine white background. The design is modern, professional, and minimalist, suited for an enterprise software interface. The overall lighting is bright and even, conveying trust and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSxUQvazw5FHmmbsoCUB4Ei9nd4EJqtV3vH1EFaYvl43yrlI0mSb52U_B-jBKFlEamMYtnEcd0oCt77ugpl9Z-HTpGlNnejOFI1APZBoUXfGe7yUGex1U6f-1x4tydFHsyznG7YMYhzAsm5ZwwOIYzql2J803EO9gbyz4ZyemvdEN5slZsRYgFdSFcTFBQon2xzgIcQqywTdVUpmq05YqfnMg9kV4RS3Cqor9y8wi2sEE5PbQnw2T4AFowqNsgi8nQbmIoRuq7P3Y"/>
+</div>
+</div>
+<div class="flex flex-col h-full py-md overflow-y-auto">
+<!-- Navigation Links -->
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 flex items-center gap-3 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<!-- Active State is Documentos based on the context -->
+<a class="bg-secondary-container text-on-secondary-container font-bold rounded-lg mx-2 px-4 py-3 flex items-center gap-3 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-weight="fill">description</span>
+<span class="font-body-md text-body-md">Documentos</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 flex items-center gap-3 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-body-md text-body-md">Riesgos</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 flex items-center gap-3 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-body-md text-body-md">Auditorías</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 flex items-center gap-3 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-body-md text-body-md">Requisitos</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background w-full sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center px-lg h-16 flex-shrink-0">
+<div class="flex items-center gap-4">
+<button aria-label="Menu" class="lg:hidden text-primary dark:text-primary-fixed hover:bg-surface-container-high p-2 rounded-full transition-all duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-secondary" href="#">Documentos</a>
+<span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+<span>Revisión</span>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed hidden md:block">Gestión de Cumplimiento</h1>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="bg-surface-container-high text-primary px-3 py-1 rounded-full font-label-md text-label-md border border-outline-variant hidden sm:flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                    En Revisión
+                </span>
+<button aria-label="Notificaciones" class="text-primary hover:bg-surface-container-high p-2 rounded-full transition-all duration-200 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Document Review Workspace -->
+<main class="flex-1 flex flex-col xl:flex-row overflow-hidden bg-surface-bright">
+<!-- Left Panel: PDF Viewer (Simulated) -->
+<section class="flex-1 bg-surface-container-lowest border-r border-outline-variant flex flex-col relative">
+<!-- PDF Toolbar -->
+<div class="h-12 border-b border-outline-variant bg-surface-container-low flex items-center justify-between px-md flex-shrink-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface-variant">POL-SEG-001_v2.0.pdf</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded" title="Alejar"><span class="material-symbols-outlined" style="font-size: 20px;">zoom_out</span></button>
+<span class="font-code-sm text-code-sm text-on-surface-variant mx-2">100%</span>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded" title="Acercar"><span class="material-symbols-outlined" style="font-size: 20px;">zoom_in</span></button>
+<div class="w-px h-6 bg-outline-variant mx-2"></div>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded" title="Página Anterior"><span class="material-symbols-outlined" style="font-size: 20px;">arrow_upward</span></button>
+<span class="font-code-sm text-code-sm text-on-surface-variant">1 / 5</span>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded" title="Página Siguiente"><span class="material-symbols-outlined" style="font-size: 20px;">arrow_downward</span></button>
+</div>
+</div>
+<!-- PDF Canvas Area -->
+<div class="flex-1 overflow-auto pdf-scroll bg-surface-container p-lg flex justify-center">
+<!-- Simulated PDF Page -->
+<div class="bg-surface-container-lowest w-full max-w-3xl shadow-sm border border-outline-variant p-xl flex flex-col gap-6" style="min-height: 842px;">
+<!-- Header -->
+<div class="flex justify-between items-start border-b-2 border-primary pb-4">
+<div>
+<h1 class="font-headline-sm text-headline-sm text-primary font-bold">POLÍTICA DE SEGURIDAD DE LA INFORMACIÓN</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Ref: POL-SEG-001 | Versión: 2.0 Draft</p>
+</div>
+<img alt="Company Logo" class="h-10 opacity-80" data-alt="A small, discrete monochrome corporate logo in dark gray against a white background, representing a generic technology or consulting firm. The lighting is flat and neutral, fitting a formal document header." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANxx5BeK05ThI7AQ1Sc9isgDl1ayYagl5LPPVbbsbpEwaS5WIUBIGvdwZg5Myz0NLk1atVmd0iACuqXaWd_dM3XkXa9xZCjeGModSsWKWWU6sXjTsaEGs8g_yrKufOIaOEc9Pn3mvJuFMFB8ujpYHYFcaBM-Gp_YQ0poayV-4wVZkLXK08on9L9lAJKAIyysjoS3SnL64lkmhjFl4MxXKnb12RLAdhYdORgeeqeUUukaFg4-LMc8pWZg8aIYCV_AdvfOihOPCK55c"/>
+</div>
+<!-- Content blocks -->
+<div class="font-body-md text-body-md text-on-surface flex flex-col gap-4">
+<h2 class="font-bold text-lg mt-4">1. Objetivo</h2>
+<p class="leading-relaxed text-justify">Establecer los principios y directrices fundamentales para la protección de los activos de información de la organización, garantizando su confidencialidad, integridad y disponibilidad, en alineación con los requisitos de la norma ISO/IEC 27001:2022.</p>
+<h2 class="font-bold text-lg mt-4">2. Alcance</h2>
+<p class="leading-relaxed text-justify">Esta política aplica a todos los empleados, contratistas, proveedores y terceros que tengan acceso a los sistemas de información, instalaciones o datos de la empresa, independientemente de su ubicación física o lógica.</p>
+<h2 class="font-bold text-lg mt-4">3. Directrices Principales</h2>
+<div class="pl-4 border-l-2 border-secondary-container bg-surface p-3 rounded relative">
+<!-- Highlighted text indicating a comment -->
+<p class="leading-relaxed text-justify relative group cursor-pointer bg-surface-container-high">
+<span class="absolute -left-3 top-1 w-2 h-2 rounded-full bg-secondary"></span>
+                                    3.1. Todos los dispositivos móviles que accedan a la red corporativa deben estar registrados y gestionados a través de la solución MDM (Mobile Device Management) corporativa, sin excepciones.
+                                </p>
+</div>
+<p class="leading-relaxed text-justify mt-2">3.2. Las contraseñas deben cumplir con los requisitos de complejidad definados en el Procedimiento de Control de Acceso (PRO-ACC-002) y ser renovadas cada 90 días.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Review & Action Panel -->
+<section class="w-full xl:w-96 bg-surface-container-lowest border-l border-outline-variant flex flex-col h-full overflow-hidden shrink-0">
+<!-- Panel Header -->
+<div class="p-md border-b border-outline-variant bg-surface flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Panel de Revisión</h3>
+<span class="font-label-md text-label-md text-on-surface-variant">V 2.0 Draft</span>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-outline-variant font-label-md text-label-md text-center bg-surface">
+<button class="flex-1 py-3 border-b-2 border-secondary text-secondary font-bold">Comentarios (1)</button>
+<button class="flex-1 py-3 border-b-2 border-transparent text-on-surface-variant hover:bg-surface-variant">Historial</button>
+<button class="flex-1 py-3 border-b-2 border-transparent text-on-surface-variant hover:bg-surface-variant">Metadatos</button>
+</div>
+<!-- Comments List -->
+<div class="flex-1 overflow-y-auto p-md flex flex-col gap-4 bg-surface-bright">
+<!-- Existing Comment -->
+<div class="bg-surface border border-outline-variant rounded-lg p-sm shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
+                                    AP
+                                </div>
+<span class="font-label-md text-label-md text-on-surface">Ana Pérez</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Hace 2h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 bg-surface-container-low p-2 rounded text-xs border-l-2 border-secondary">
+                            "3.1. Todos los dispositivos móviles..."
+                        </p>
+<p class="font-body-md text-body-md text-on-surface">
+                            ¿Deberíamos incluir una excepción explícita para dispositivos invitados en la red Guest?
+                        </p>
+<div class="flex justify-end gap-2 mt-2">
+<button class="font-label-md text-label-md text-secondary hover:underline">Responder</button>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline">Resolver</button>
+</div>
+</div>
+<!-- Add Comment Area -->
+<div class="mt-4">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-comment">Añadir comentario</label>
+<textarea class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-sm text-body-sm focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors resize-none placeholder:text-outline" id="new-comment" placeholder="Escribe un comentario sobre el texto seleccionado..." rows="3"></textarea>
+<div class="flex justify-end mt-2">
+<button class="bg-secondary-container text-on-secondary-container font-label-md text-label-md px-4 py-2 rounded hover:bg-secondary hover:text-on-secondary transition-colors disabled:opacity-50" disabled="">Comentar</button>
+</div>
+</div>
+</div>
+<!-- Digital Signature & Action Area -->
+<div class="border-t border-outline-variant bg-surface-container-low p-md flex flex-col gap-4">
+<!-- Digital Signature Toggle -->
+<div class="bg-surface border border-outline-variant rounded-lg p-3">
+<label class="flex items-start gap-3 cursor-pointer">
+<div class="flex items-center h-5">
+<input class="w-4 h-4 text-secondary bg-surface-container border-outline-variant rounded focus:ring-secondary focus:ring-2" id="sign-doc" type="checkbox"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Aplicar Firma Digital</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs mt-0.5">Certificado: J. Doe (C=ES, O=Corp)</span>
+</div>
+</label>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-2">
+<button class="w-full bg-secondary text-on-secondary font-label-md text-label-md font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span>
+                            Aprobar Documento
+                        </button>
+<div class="flex gap-2">
+<button class="flex-1 bg-surface border border-error text-error font-label-md text-label-md py-2 px-2 rounded hover:bg-error-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                Rechazar
+                            </button>
+<button class="flex-1 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md py-2 px-2 rounded hover:bg-surface-variant transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 18px;">info</span>
+                                Más Info
+                            </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container dark:bg-surface-container-highest fixed bottom-0 w-full lg:hidden z-50 border-t border-outline-variant shadow-lg flex justify-around items-center h-16 px-md pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-90 duration-100 active:bg-surface-variant p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Dashboard</span>
+</a>
+<!-- Active State for Mobile -->
+<a class="flex flex-col items-center justify-center text-secondary font-bold scale-90 duration-100 active:bg-surface-variant p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-weight="fill">description</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Docs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-90 duration-100 active:bg-surface-variant p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Riesgos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-90 duration-100 active:bg-surface-variant p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Auditorías</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-90 duration-100 active:bg-surface-variant p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Normas</span>
+</a>
+</nav>
+<script>
+        // Simple script to enable comment button when text is entered
+        document.getElementById('new-comment').addEventListener('input', function(e) {
+            const btn = e.target.nextElementSibling.querySelector('button');
+            if(e.target.value.trim().length > 0) {
+                btn.removeAttribute('disabled');
+            } else {
+                btn.setAttribute('disabled', 'true');
+            }
+        });
+    </script>
+</body></html>

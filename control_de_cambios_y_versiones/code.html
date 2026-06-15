@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Subir Documento - Gestión de Cumplimiento</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#0051d5",
+                      "on-error": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-primary": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-fixed": "#e0e3e5",
+                      "inverse-surface": "#213145",
+                      "primary-fixed-dim": "#bec6e0",
+                      "secondary-container": "#316bf3",
+                      "surface-container": "#e5eeff",
+                      "on-surface-variant": "#45464d",
+                      "on-surface": "#0b1c30",
+                      "surface-variant": "#d3e4fe",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "primary-container": "#131b2e",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#000000",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "secondary-fixed": "#dbe1ff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-low": "#eff4ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error": "#ba1a1a",
+                      "inverse-primary": "#bec6e0",
+                      "on-secondary-fixed": "#00174b",
+                      "on-secondary-container": "#fefcff",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#191c1e",
+                      "primary": "#000000",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#76777d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "outline-variant": "#c6c6cd"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "margin": "24px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "max-width": "1440px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "code-sm": ["JetBrains Mono"],
+                      "headline-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { background-color: #F8FAFC; } /* Level 0 Base */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row antialiased">
+<!-- NavigationDrawer (Hidden on Mobile, Flex on LG) -->
+<nav class="bg-surface-container-low dark:bg-inverse-surface h-screen w-72 fixed left-0 top-0 hidden lg:flex flex-col border-r border-outline-variant dark:border-outline z-50">
+<div class="flex flex-col h-full py-md">
+<!-- Header -->
+<div class="px-margin mb-xl">
+<div class="flex items-center gap-sm mb-lg">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">business</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">SIG Corporativo</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gestión Normativa</p>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto">
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 mb-sm flex items-center gap-md transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="bg-secondary-container text-on-secondary-container font-bold rounded-lg mx-2 px-4 py-3 mb-sm flex items-center gap-md transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-md text-label-md">Documentos</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 mb-sm flex items-center gap-md transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-label-md text-label-md">Riesgos</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 mb-sm flex items-center gap-md transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-label-md text-label-md">Auditorías</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg mx-2 px-4 py-3 mb-sm flex items-center gap-md transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-label-md text-label-md">Requisitos</span>
+</a>
+</div>
+<div class="px-margin mt-auto">
+<button class="w-full flex items-center justify-center gap-sm py-2 text-on-surface-variant border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="font-label-md text-label-md">Cerrar Sesión</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col lg:ml-72 w-full min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background w-full sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center px-lg h-16 transition-all duration-200">
+<div class="flex items-center gap-md">
+<button class="lg:hidden text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Gestión de Cumplimiento</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors flex items-center gap-sm">
+<span class="font-label-md text-label-md hidden sm:block">Notificaciones</span>
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+                    JD
+                </div>
+</div>
+</header>
+<!-- Canvas / Form Area -->
+<main class="flex-1 p-md md:p-xl max-w-[1000px] mx-auto w-full">
+<div class="mb-lg">
+<div class="flex items-center gap-sm text-on-surface-variant mb-2">
+<a class="hover:text-primary transition-colors" href="#">Documentos</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-medium">Subir Documento</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-xs">Subir Nuevo Documento</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Complete los metadatos requeridos para ingresar el documento al flujo de aprobación ISO.</p>
+</div>
+<!-- Bento Grid Form Layout -->
+<form class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Main Info Card -->
+<div class="md:col-span-8 glass-panel rounded-xl p-lg flex flex-col gap-lg shadow-sm">
+<div class="flex items-center gap-sm pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-secondary">info</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Información General</h3>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="titulo">Título del Documento <span class="text-error">*</span></label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none text-on-surface font-body-md placeholder-on-surface-variant/50" id="titulo" placeholder="Ej. Procedimiento de Control de Calidad" type="text"/>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-lg">
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="tipo">Tipo de Documento <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 appearance-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none text-on-surface font-body-md" id="tipo">
+<option disabled="" selected="" value="">Seleccione un tipo</option>
+<option value="manual">Manual</option>
+<option value="procedimiento">Procedimiento (Proc)</option>
+<option value="instructivo">Instructivo de Trabajo (IT)</option>
+<option value="formato">Formato/Registro</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface">Estado Inicial</label>
+<div class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 flex items-center gap-2 cursor-not-allowed opacity-70">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-body-md text-body-md text-on-surface">Borrador</span>
+</div>
+</div>
+</div>
+<!-- Toggle for New Version -->
+<div class="mt-sm">
+<label class="flex items-center gap-sm cursor-pointer group">
+<div class="relative">
+<input class="sr-only" id="isNewVersion" onchange="toggleMotivoCambio()" type="checkbox"/>
+<div class="block w-10 h-6 bg-surface-variant rounded-full group-hover:bg-outline-variant transition-colors"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+</div>
+<span class="font-label-md text-label-md text-on-surface select-none">Es una nueva versión de un documento existente</span>
+</label>
+</div>
+<!-- Motivo del Cambio (Hidden by default) -->
+<div class="hidden flex-col gap-sm animate-[fadeIn_0.3s_ease-out]" id="motivoContainer">
+<label class="font-label-md text-label-md text-on-surface" for="documentoBase">Documento Base</label>
+<div class="relative mb-2">
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none text-on-surface font-body-md" id="documentoBase" placeholder="Buscar documento por ID o Título..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<label class="font-label-md text-label-md text-on-surface" for="motivo">Motivo del Cambio <span class="text-error">*</span></label>
+<textarea class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none text-on-surface font-body-md resize-none" id="motivo" placeholder="Describa brevemente los cambios realizados respecto a la versión anterior..." rows="3"></textarea>
+</div>
+</div>
+<!-- Side Panel (File & Workflow) -->
+<div class="md:col-span-4 flex flex-col gap-lg">
+<!-- File Upload Card -->
+<div class="glass-panel rounded-xl p-lg flex flex-col gap-md shadow-sm h-full">
+<div class="flex items-center gap-sm pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-secondary">upload_file</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Archivo</h3>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant rounded-xl p-xl bg-surface hover:bg-surface-container-low hover:border-secondary transition-colors cursor-pointer group text-center min-h-[160px]">
+<span class="material-symbols-outlined text-[48px] text-on-surface-variant group-hover:text-secondary mb-sm transition-colors">cloud_upload</span>
+<p class="font-label-md text-label-md text-on-surface mb-xs">Haga clic o arrastre el archivo aquí</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">PDF, DOCX, XLSX (Max. 50MB)</p>
+<input accept=".pdf,.doc,.docx,.xls,.xlsx" class="hidden" type="file"/>
+</div>
+</div>
+<!-- Workflow Card -->
+<div class="glass-panel rounded-xl p-lg flex flex-col gap-md shadow-sm">
+<div class="flex items-center gap-sm pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-secondary">group</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Flujo de Trabajo</h3>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface">Revisores</label>
+<div class="w-full bg-surface border border-outline-variant rounded-lg p-2 flex flex-wrap gap-2 items-center min-h-[42px]">
+<span class="bg-surface-container-high px-2 py-1 rounded-md font-body-sm text-body-sm flex items-center gap-1">
+                                    Ana Martinez
+                                    <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-error">close</span>
+</span>
+<input class="flex-1 min-w-[80px] bg-transparent outline-none font-body-sm text-on-surface border-none p-0 focus:ring-0" placeholder="Agregar..." type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface">Aprobadores Finales <span class="text-error">*</span></label>
+<div class="w-full bg-surface border border-outline-variant rounded-lg p-2 flex flex-wrap gap-2 items-center min-h-[42px]">
+<input class="flex-1 min-w-[80px] bg-transparent outline-none font-body-sm text-on-surface border-none p-0 focus:ring-0" placeholder="Buscar usuarios..." type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="md:col-span-12 flex items-center justify-end gap-md mt-lg pt-lg border-t border-outline-variant">
+<button class="px-6 py-2 rounded-lg font-label-md text-label-md border border-outline-variant text-on-surface bg-surface hover:bg-surface-variant transition-colors" type="button">
+                        Cancelar
+                    </button>
+<button class="px-6 py-2 rounded-lg font-label-md text-label-md bg-secondary text-white border border-transparent hover:bg-opacity-90 shadow-sm transition-all flex items-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                        Iniciar Flujo
+                    </button>
+</div>
+</form>
+</main>
+</div>
+<!-- BottomNavBar (Visible on Mobile, Hidden on LG) -->
+<nav class="bg-surface-container dark:bg-surface-container-highest fixed bottom-0 w-full lg:hidden z-50 border-t border-outline-variant shadow-lg flex justify-around items-center h-16 px-md pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-variant scale-90 duration-100 rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-[10px]">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-variant scale-90 duration-100 rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-label-md text-[10px]">Docs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-variant scale-90 duration-100 rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-label-md text-[10px]">Riesgos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-variant scale-90 duration-100 rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-label-md text-[10px]">Auditorías</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-variant scale-90 duration-100 rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-label-md text-[10px]">Normas</span>
+</a>
+</nav>
+<style>
+        /* Custom Toggle Switch Styles */
+        input:checked ~ .block {
+            background-color: #0051d5; /* secondary */
+        }
+        input:checked ~ .dot {
+            transform: translateX(100%);
+        }
+    </style>
+<script>
+        function toggleMotivoCambio() {
+            const checkbox = document.getElementById('isNewVersion');
+            const container = document.getElementById('motivoContainer');
+            if (checkbox.checked) {
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+            }
+        }
+    </script>
+</body></html>

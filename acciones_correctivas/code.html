@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Acciones Correctivas - Gestión SIG</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#7c839b",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-secondary-fixed": "#00174b",
+                      "on-primary": "#ffffff",
+                      "surface-container-high": "#dce9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-low": "#eff4ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#213145",
+                      "outline-variant": "#c6c6cd",
+                      "on-surface-variant": "#45464d",
+                      "primary": "#000000",
+                      "on-tertiary-fixed": "#191c1e",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#191c1e",
+                      "on-error-container": "#93000a",
+                      "on-secondary-container": "#fefcff",
+                      "tertiary": "#000000",
+                      "on-tertiary-container": "#818486",
+                      "inverse-primary": "#bec6e0",
+                      "primary-container": "#131b2e",
+                      "secondary-container": "#316bf3",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#0b1c30",
+                      "on-background": "#0b1c30",
+                      "background": "#f8f9ff",
+                      "surface-tint": "#565e74",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "secondary": "#0051d5",
+                      "primary-fixed": "#dae2fd",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container": "#e5eeff",
+                      "outline": "#76777d",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary-fixed": "#131b2e",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "xl": "32px",
+                      "base": "4px",
+                      "xs": "4px",
+                      "max-width": "1440px",
+                      "margin": "24px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline fixed top-0 w-full z-50 transition-colors duration-200 flex items-center justify-between px-md h-16 w-full hidden md:flex">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Gestión SIG</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-label-md cursor-pointer hover:bg-surface-container-high transition-colors" title="Perfil de usuario">
+                US
+            </div>
+</div>
+</header>
+<!-- TopAppBar Mobile -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline fixed top-0 w-full z-50 transition-colors duration-200 flex items-center justify-between px-md h-16 w-full md:hidden">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Gestión SIG</h1>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-label-md cursor-pointer hover:bg-surface-container-high transition-colors" title="Perfil de usuario">
+            US
+        </div>
+</header>
+<div class="flex h-screen pt-16">
+<!-- NavigationDrawer (Desktop) -->
+<nav class="bg-surface-container-low dark:bg-surface-container-lowest shadow-lg dark:shadow-none fixed left-0 top-0 h-full w-60 flex flex-col h-full py-lg pt-24 hidden md:flex z-40">
+<!-- Environment Switcher -->
+<div class="px-md mb-6">
+<div class="border border-outline-variant rounded-lg p-3 bg-surface">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+<span class="material-symbols-outlined filled">admin_panel_settings</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm font-bold text-on-surface text-sm">Gestor de Calidad</p>
+<p class="font-label-md text-label-md text-secondary dark:text-secondary-fixed-dim">Entorno Producción</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full hover:bg-surface-container-highest transition-all scale-95 active:scale-100" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+<span class="font-label-md text-label-md">Incidencias</span>
+</a>
+</li>
+<li>
+<!-- ACTIVE STATE -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-full mx-2 my-1 hover:bg-surface-container-highest transition-all scale-95 active:scale-100" href="#">
+<span class="material-symbols-outlined filled">task_alt</span>
+<span class="font-label-md text-label-md">Acciones Correctivas</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full hover:bg-surface-container-highest transition-all scale-95 active:scale-100" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-md text-label-md">Acciones de Mejora</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full hover:bg-surface-container-highest transition-all scale-95 active:scale-100" href="#">
+<span class="material-symbols-outlined">track_changes</span>
+<span class="font-label-md text-label-md">Objetivos</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="p-4 mt-auto">
+<span class="font-label-md text-label-md text-on-surface-variant opacity-70">v2.4.0</span>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 bg-background md:ml-60 p-md md:p-lg overflow-y-auto pb-24 md:pb-lg">
+<!-- Page Header -->
+<div class="mb-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Acciones Correctivas</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Listado de acciones derivadas de no conformidades (NC).</p>
+</div>
+<button onclick="openModal()" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Nueva Acción
+                </button>
+</div>
+<!-- Analytics / KPI Cards (Bento style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Total Abiertas</p>
+<p id="kpi-total-abiertas" class="font-display-lg text-display-lg text-on-surface">0</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined filled">format_list_bulleted</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Pendiente Eficacia</p>
+<p id="kpi-pendiente-eficacia" class="font-display-lg text-display-lg text-error">0</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined filled">pending_actions</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Cerradas Eficaces (Histórico)</p>
+<p id="kpi-cerradas-eficaces" class="font-display-lg text-display-lg text-[#166534]">0</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-[#dcfce7] flex items-center justify-center text-[#166534]">
+<span class="material-symbols-outlined filled">verified</span>
+</div>
+</div>
+</div>
+<!-- Toolbar (Search & Filters) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-t-xl p-md flex flex-col md:flex-row gap-4 items-center justify-between">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input id="search-input" oninput="filterData()" class="w-full pl-10 pr-4 py-2 bg-surface-bright border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="Buscar por ID, resumen o responsable..." type="text"/>
+</div>
+<div class="flex gap-2 w-full md:w-auto">
+<select id="filter-verification" onchange="filterData()" class="flex-1 md:flex-none bg-surface-bright border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+<option value="">Estado Verificación</option>
+<option value="pendiente">Pendiente</option>
+<option value="eficaz">Eficaz</option>
+<option value="no_eficaz">No Eficaz</option>
+</select>
+<button class="bg-surface border border-outline-variant text-on-surface p-2 rounded-lg hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Limpiar filtros" onclick="clearFilters()">
+<span class="material-symbols-outlined">filter_list_off</span>
+</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container-lowest border-x border-b border-outline-variant rounded-b-xl overflow-x-auto shadow-sm">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface-variant uppercase w-24">ID Acción</th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface-variant uppercase w-28">Origen (NC)</th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface-variant uppercase">Plan de Acción (Resumen)</th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface-variant uppercase w-40">Responsable</th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface-variant uppercase w-32">Verificación</th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface-variant uppercase w-16 text-center">Acción</th>
+</tr>
+</thead>
+<tbody id="table-body" class="divide-y divide-outline-variant">
+<!-- Rows will be injected here dynamically -->
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between mt-4 px-2">
+<p id="pagination-text" class="font-body-sm text-body-sm text-on-surface-variant">Mostrando 0 a 0 de 0 registros</p>
+<div id="pagination-controls" class="flex gap-1">
+<!-- Pagination buttons injected here -->
+</div>
+</div>
+</main>
+</div>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-surface dark:bg-surface-dim fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline flex justify-around items-center h-20 px-sm pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-md text-[10px]">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">list_alt</span>
+<span class="font-label-md text-[10px]">Incidencias</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">bolt</span>
+<span class="font-label-md text-[10px]">Mejoras</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">flag</span>
+<span class="font-label-md text-[10px]">Metas</span>
+</a>
+</nav>
+
+<!-- Modal Nueva Acción -->
+<div id="modal-nueva-accion" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Nueva Acción Correctiva</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-nueva-accion" onsubmit="saveNewAction(event)" class="space-y-4">
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-origen">Origen (No Conformidad)</label>
+                <input required id="new-origen" type="text" placeholder="Ej: NC-105" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-resumen">Plan de Acción (Resumen)</label>
+                <textarea required id="new-resumen" rows="3" placeholder="Descripción breve del plan de acción a ejecutar..." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-responsable">Responsable</label>
+                    <input required id="new-responsable" type="text" placeholder="Ej: Laura M." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-estado">Estado Verificación</label>
+                    <select id="new-estado" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="eficaz">Eficaz</option>
+                        <option value="no_eficaz">No Eficaz</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar Acción
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Datos iniciales semillas (15 registros para permitir probar paginación real)
+    const seedCorrectiveActions = [
+        { id: "AC-2023-041", origen: "NC-104", resumen: "Actualización procedimiento de calibración equipos zona A.", responsable: "Laura M.", estado: "pendiente" },
+        { id: "AC-2023-040", origen: "NC-098", resumen: "Formación extraordinaria en nueva normativa ISO 9001:2015.", responsable: "Carlos J.", estado: "eficaz" },
+        { id: "AC-2023-039", origen: "NC-095", resumen: "Sustitución de válvula de presión en línea de ensamblaje principal.", responsable: "Miguel R.", estado: "no_eficaz" },
+        { id: "AC-2023-038", origen: "NC-092", resumen: "Revisión de matriz de riesgos para proveedores críticos nivel 1.", responsable: "Laura M.", estado: "eficaz" },
+        { id: "AC-2023-037", origen: "NC-089", resumen: "Refuerzo del aislamiento térmico en salas de servidores (ISO 27001).", responsable: "Andrés T.", estado: "eficaz" },
+        { id: "AC-2023-036", origen: "NC-085", resumen: "Implementación del doble factor de autenticación (2FA) en la VPN.", responsable: "Sofia V.", estado: "pendiente" },
+        { id: "AC-2023-035", origen: "NC-081", resumen: "Actualización de planes de contingencia ante fugas ambientales (ISO 14001).", responsable: "Miguel R.", estado: "eficaz" },
+        { id: "AC-2023-034", origen: "NC-079", resumen: "Corrección de señalización de salidas de emergencia en planta 2.", responsable: "Carlos J.", estado: "no_eficaz" },
+        { id: "AC-2023-033", origen: "NC-077", resumen: "Auditoría de cumplimiento legal en gestión de residuos peligrosos.", responsable: "Laura M.", estado: "eficaz" },
+        { id: "AC-2023-032", origen: "NC-074", resumen: "Renovación del certificado SSL en servidores perimetrales.", responsable: "Sofia V.", estado: "eficaz" },
+        { id: "AC-2023-031", origen: "NC-072", resumen: "Simulacro anual de continuidad del negocio y failover de base de datos.", responsable: "Andrés T.", estado: "pendiente" },
+        { id: "AC-2023-030", origen: "NC-070", resumen: "Instalación de rejillas de protección en maquinaria del taller A.", responsable: "Carlos J.", estado: "eficaz" },
+        { id: "AC-2023-029", origen: "NC-067", resumen: "Revisión y firma de cláusulas de confidencialidad NDA con contratistas.", responsable: "Laura M.", estado: "eficaz" },
+        { id: "AC-2023-028", origen: "NC-065", resumen: "Establecimiento de sensores de humedad en almacenes primarios.", responsable: "Miguel R.", estado: "pendiente" }
+    ];
+
+    let actions = [];
+    let currentPage = 1;
+    const rowsPerPage = 5;
+
+    // Inicializar localStorage
+    function initData() {
+        const stored = localStorage.getItem('sig_acciones_correctivas');
+        if (stored) {
+            actions = JSON.parse(stored);
+        } else {
+            actions = [...seedCorrectiveActions];
+            localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+        }
+        updateKPIs();
+        renderTable();
+    }
+
+    // Actualizar tarjetas de KPI superiores
+    function updateKPIs() {
+        const totalAbiertas = actions.filter(a => a.estado === 'pendiente').length;
+        const pendienteEficacia = actions.filter(a => a.estado === 'no_eficaz').length;
+        const cerradasEficaces = actions.filter(a => a.estado === 'eficaz').length;
+
+        document.getElementById('kpi-total-abiertas').innerText = totalAbiertas;
+        document.getElementById('kpi-pendiente-eficacia').innerText = pendienteEficacia;
+        document.getElementById('kpi-cerradas-eficaces').innerText = cerradasEficaces;
+    }
+
+    // Obtener iniciales para el avatar
+    function getInitials(name) {
+        if (!name) return "US";
+        const parts = name.trim().split(" ");
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+
+    // Renderizar la tabla de datos con filtros y paginación
+    function renderTable() {
+        const searchInput = document.getElementById('search-input').value.toLowerCase().trim();
+        const filterVerification = document.getElementById('filter-verification').value;
+        const tbody = document.getElementById('table-body');
+        
+        tbody.innerHTML = '';
+
+        // Filtrar datos
+        const filtered = actions.filter(action => {
+            const matchesSearch = action.id.toLowerCase().includes(searchInput) ||
+                                  action.origen.toLowerCase().includes(searchInput) ||
+                                  action.resumen.toLowerCase().includes(searchInput) ||
+                                  action.responsable.toLowerCase().includes(searchInput);
+            
+            const matchesStatus = filterVerification === "" || action.estado === filterVerification;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        // Paginación
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
+        const paginatedItems = filtered.slice(startIndex, endIndex);
+
+        // Renderizar filas
+        if (paginatedItems.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-8 text-center text-on-surface-variant font-medium">
+                        No se encontraron acciones correctivas con los filtros aplicados.
+                    </td>
+                </tr>
+            `;
+        } else {
+            paginatedItems.forEach((action, idx) => {
+                const bgClass = idx % 2 === 1 ? 'bg-surface-bright/50' : '';
+                
+                let badgeStyle = '';
+                let dotStyle = '';
+                let statusLabel = '';
+
+                if (action.estado === 'pendiente') {
+                    badgeStyle = 'bg-surface-container-high text-on-surface-variant border border-outline-variant';
+                    dotStyle = 'bg-outline';
+                    statusLabel = 'Pendiente';
+                } else if (action.estado === 'eficaz') {
+                    badgeStyle = 'bg-[#dcfce7] text-[#166534] border border-[#bbf7d0]';
+                    dotStyle = 'bg-[#16a34a]';
+                    statusLabel = 'Eficaz';
+                } else {
+                    badgeStyle = 'bg-error-container text-on-error-container border border-[#fecaca]';
+                    dotStyle = 'bg-error';
+                    statusLabel = 'No Eficaz';
+                }
+
+                const initials = getInitials(action.responsable);
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-surface-bright transition-colors cursor-pointer group ${bgClass}">
+                        <td class="py-3 px-4 font-code-sm text-code-sm text-on-surface">${action.id}</td>
+                        <td class="py-3 px-4 font-code-sm text-code-sm text-secondary hover:underline">${action.origen}</td>
+                        <td class="py-3 px-4 font-body-md text-body-md text-on-surface">${action.resumen}</td>
+                        <td class="py-3 px-4 font-body-sm text-body-sm text-on-surface flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-[10px] font-bold">${initials}</div>
+                            ${action.responsable}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeStyle}">
+                                <span class="w-1.5 h-1.5 rounded-full ${dotStyle} mr-1.5"></span>
+                                ${statusLabel}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="toggleVerificationStatus('${action.id}')" class="text-on-surface-variant hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity" title="Cambiar estado de verificación">
+                                <span class="material-symbols-outlined text-sm">published_with_changes</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Renderizar textos de paginación
+        const fromRecord = totalItems === 0 ? 0 : startIndex + 1;
+        document.getElementById('pagination-text').innerText = `Mostrando ${fromRecord} a ${endIndex} de ${totalItems} registros`;
+
+        // Renderizar controles de paginación
+        const controls = document.getElementById('pagination-controls');
+        controls.innerHTML = `
+            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-8 h-8 rounded border border-outline-variant bg-surface flex items-center justify-center text-on-surface-variant disabled:opacity-50 transition-colors hover:bg-surface-container-low">
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+            </button>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === currentPage) {
+                controls.innerHTML += `
+                    <button class="w-8 h-8 rounded bg-secondary text-on-secondary flex items-center justify-center font-label-md text-sm">${i}</button>
+                `;
+            } else {
+                controls.innerHTML += `
+                    <button onclick="changePage(${i})" class="w-8 h-8 rounded border border-outline-variant bg-surface hover:bg-surface-container-low flex items-center justify-center text-on-surface font-label-md text-sm transition-colors">${i}</button>
+                `;
+            }
+        }
+
+        controls.innerHTML += `
+            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-8 h-8 rounded border border-outline-variant bg-surface hover:bg-surface-container-low flex items-center justify-center text-on-surface-variant transition-colors">
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </button>
+        `;
+    }
+
+    // Cambiar página
+    function changePage(page) {
+        currentPage = page;
+        renderTable();
+    }
+
+    // Filtrar al escribir/cambiar select
+    function filterData() {
+        currentPage = 1;
+        renderTable();
+    }
+
+    // Limpiar todos los filtros
+    function clearFilters() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('filter-verification').value = '';
+        currentPage = 1;
+        renderTable();
+    }
+
+    // Cambiar el estado cíclicamente para prueba rápida
+    function toggleVerificationStatus(id) {
+        const actionIdx = actions.findIndex(a => a.id === id);
+        if (actionIdx !== -1) {
+            const curState = actions[actionIdx].estado;
+            let nextState = 'pendiente';
+            if (curState === 'pendiente') nextState = 'eficaz';
+            else if (curState === 'eficaz') nextState = 'no_eficaz';
+            
+            actions[actionIdx].estado = nextState;
+            localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+            updateKPIs();
+            renderTable();
+        }
+    }
+
+    // Control del Modal
+    function openModal() {
+        document.getElementById('modal-nueva-accion').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-nueva-accion').classList.add('hidden');
+        document.getElementById('form-nueva-accion').reset();
+    }
+
+    // Guardar nueva acción correctiva
+    function saveNewAction(event) {
+        event.preventDefault();
+        
+        const origen = document.getElementById('new-origen').value.trim();
+        const resumen = document.getElementById('new-resumen').value.trim();
+        const responsable = document.getElementById('new-responsable').value.trim();
+        const estado = document.getElementById('new-estado').value;
+
+        // Generar nuevo ID secuencial AC-YYYY-XXX
+        const currentYear = new Date().getFullYear();
+        
+        // Buscar el correlativo más alto para el año actual
+        let maxSeq = 41; // Seed máximo inicial
+        actions.forEach(a => {
+            const parts = a.id.split('-');
+            if (parts.length === 3 && parts[1] == currentYear) {
+                const seq = parseInt(parts[2]);
+                if (seq > maxSeq) maxSeq = seq;
+            }
+        });
+        
+        const nextSeq = String(maxSeq + 1).padStart(3, '0');
+        const newId = `AC-${currentYear}-${nextSeq}`;
+
+        const newAction = {
+            id: newId,
+            origen: origen,
+            resumen: resumen,
+            responsable: responsable,
+            estado: estado
+        };
+
+        actions.unshift(newAction); // Insertar al inicio
+        localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+        
+        updateKPIs();
+        currentPage = 1;
+        renderTable();
+        closeModal();
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>

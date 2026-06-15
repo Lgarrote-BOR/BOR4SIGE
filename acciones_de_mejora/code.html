@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Acciones de Mejora - Gestión SIG</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-secondary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-low": "#eff4ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "outline-variant": "#c6c6cd",
+                        "on-surface-variant": "#45464d",
+                        "primary": "#000000",
+                        "on-tertiary-fixed": "#191c1e",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#191c1e",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#fefcff",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#818486",
+                        "inverse-primary": "#bec6e0",
+                        "primary-container": "#131b2e",
+                        "secondary-container": "#316bf3",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#0b1c30",
+                        "on-background": "#0b1c30",
+                        "background": "#f8f9ff",
+                        "surface-tint": "#565e74",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary": "#0051d5",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "outline": "#76777d",
+                        "surface-variant": "#d3e4fe",
+                        "on-primary-fixed": "#131b2e",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "max-width": "1440px",
+                        "margin": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f8f9ff; }
+        /* Tonal Layering */
+        .card-level-1 { background-color: #ffffff; border: 1px solid #c6c6cd; box-shadow: none; }
+        .card-level-2:hover { background-color: #ffffff; box-shadow: 0px 4px 12px rgba(15, 23, 42, 0.05); }
+        .badge-status { @apply font-label-md text-label-md px-2 py-1 rounded-full; }
+        .badge-propuesta { background-color: #eff4ff; color: #0051d5; }
+        .badge-ejecucion { background-color: #ffdad6; color: #93000a; }
+        .badge-implantada { background-color: #dbe1ff; color: #00174b; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background font-body-md text-body-md flex h-screen overflow-hidden">
+<!-- NavigationDrawer (Desktop) -->
+<nav class="hidden md:flex flex-col bg-surface-container-low dark:bg-surface-container-lowest shadow-lg dark:shadow-none fixed left-0 top-0 h-full w-60 z-40 py-lg">
+<!-- Environment Switcher / Profile Header -->
+<div class="px-md mb-xl flex flex-col items-start border-b border-outline-variant pb-md">
+<div class="flex items-center gap-sm mb-md w-full">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-fixed-dim shrink-0">
+<img alt="Usuario SIG" class="w-full h-full object-cover" data-alt="A professional corporate headshot of a quality manager, brightly lit, looking directly at the camera with a confident expression, set against a clean, modern office background in a light mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRMeodL8SFgCCHJmz1CsUcUOzX2QSLeVpHscUSA_sfGpUw6oM4DIY4CcmtkBRtXzL3aQdpmKXZlL7WsBqOWxdC39JTrtJgiPxbCy2I8vwIHc5l8X5NcIQCyeuXBteYhvd0GzZdf1yyou1mKJQEYoyuB2KtPasO9_0lTkutG6S7ZLIju-UWC-1S8OgQuTPW7UQQ-TkspIELlIGsxDwNrghAS6xvqcAS59OG6MAWNJZxwjWx-dxadw2tKVvJFqfZrQMcRkvNF6jE7GU"/>
+</div>
+<div class="flex flex-col overflow-hidden">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Gestor de Calidad</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Usuario SIG</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-DEFAULT p-sm border-l-4 border-error flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Entorno Producción</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">v2.4.0</span>
+</div>
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full px-4 py-3 transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+                Incidencias
+            </a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full px-4 py-3 transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">task_alt</span>
+                Acciones Correctivas
+            </a>
+<!-- Active State -->
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-full mx-2 my-1 px-4 py-3 transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                Acciones de Mejora
+            </a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full px-4 py-3 transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">track_changes</span>
+                Objetivos
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col w-full md:ml-60 h-full relative">
+<!-- TopAppBar (Mobile & Top Bar content) -->
+<header class="bg-surface dark:bg-surface fixed md:static top-0 w-full md:w-auto z-50 border-b border-outline-variant dark:border-outline flex items-center justify-between px-md h-16 transition-colors duration-200">
+<div class="flex items-center gap-md">
+<button class="md:hidden text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high p-2 rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Gestión SIG</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button onclick="openModal()" class="hidden md:flex bg-secondary text-on-secondary hover:bg-secondary/90 transition-colors duration-200 font-label-md text-label-md px-4 py-2 rounded-lg items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Nueva Mejora
+                </button>
+<button class="md:hidden w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">person</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto p-md md:p-lg pt-20 md:pt-lg pb-24 md:pb-lg">
+<!-- Header Section -->
+<div class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-xs">Acciones de Mejora</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Registro de propuestas de optimización y prevención.</p>
+</div>
+<!-- KPI Mini Dashboard -->
+<div class="flex gap-sm">
+<div class="card-level-1 rounded-lg p-sm min-w-[120px] flex flex-col justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Total</span>
+<div class="flex items-baseline gap-xs mt-xs">
+<span id="kpi-total" class="font-headline-md text-headline-md text-on-surface">0</span>
+<span class="material-symbols-outlined text-[16px] text-[#0051d5]">arrow_upward</span>
+</div>
+</div>
+<div class="card-level-1 rounded-lg p-sm min-w-[120px] flex flex-col justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Implantadas</span>
+<div class="flex items-baseline gap-xs mt-xs">
+<span id="kpi-implantadas" class="font-headline-md text-headline-md text-on-surface">0</span>
+<span id="kpi-porcentaje-implantadas" class="font-body-sm text-body-sm text-on-surface-variant">0%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Toolbar (Filters & Search) -->
+<div class="card-level-1 rounded-xl p-sm mb-md flex flex-col md:flex-row gap-sm items-center justify-between">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input id="search-input" oninput="filterData()" class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="Buscar por ID, título o responsable..." type="text"/>
+</div>
+<div class="flex gap-sm w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+<button onclick="clearFilters()" class="bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container-highest px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list_off</span>
+                        Limpiar
+                    </button>
+<select id="filter-status" onchange="filterData()" class="bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-highest px-3 py-1.5 rounded-lg font-label-md text-label-md cursor-pointer transition-colors focus:outline-none focus:ring-0 focus:border-outline-variant">
+    <option value="">Estado: Todos</option>
+    <option value="propuesta">Propuesta</option>
+    <option value="ejecucion">En Ejecución</option>
+    <option value="implantada">Implantada</option>
+</select>
+<select id="filter-priority" onchange="filterData()" class="bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-highest px-3 py-1.5 rounded-lg font-label-md text-label-md cursor-pointer transition-colors focus:outline-none focus:ring-0 focus:border-outline-variant">
+    <option value="">Prioridad: Todas</option>
+    <option value="alta">Prioridad: Alta</option>
+    <option value="media">Prioridad: Media</option>
+    <option value="baja">Prioridad: Baja</option>
+</select>
+</div>
+</div>
+
+<!-- Bento Grid / Cards Layout -->
+<div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md">
+<!-- Cards injected dynamically -->
+</div>
+
+<!-- List View Alternative (for higher density) -->
+<div class="mt-xl">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recientes</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Listado general ordenado por actualización</span>
+</div>
+<div class="card-level-1 rounded-xl overflow-hidden hidden md:block">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-semibold w-24">ID</th>
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-semibold">Título</th>
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-semibold w-32">Estado</th>
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-semibold w-40">Responsable</th>
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-semibold w-32">Prioridad</th>
+</tr>
+</thead>
+<tbody id="table-body" class="font-body-sm text-body-sm">
+<!-- Rows injected dynamically -->
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden bg-surface dark:bg-surface-dim text-primary dark:text-primary-fixed-dim font-label-md text-label-md fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline flex justify-around items-center h-20 px-sm pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 w-16 h-full" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Inicio
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 w-16 h-full" href="#">
+<span class="material-symbols-outlined mb-1">list_alt</span>
+            Incidencias
+        </a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-transform duration-150 h-14" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">bolt</span>
+            Mejoras
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-90 transition-transform duration-150 w-16 h-full" href="#">
+<span class="material-symbols-outlined mb-1">flag</span>
+            Metas
+        </a>
+</nav>
+<!-- Mobile FAB for new action -->
+<button onclick="openModal()" class="md:hidden fixed bottom-24 right-md w-14 h-14 bg-secondary text-on-secondary rounded-xl shadow-lg flex items-center justify-center active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+
+<!-- Modal Nueva Mejora -->
+<div id="modal-nueva-mejora" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Nueva Propuesta de Mejora</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-nueva-mejora" onsubmit="saveNewImprovement(event)" class="space-y-4">
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-titulo">Título de la Mejora</label>
+                <input required id="new-titulo" type="text" placeholder="Ej: Automatización de copias de seguridad" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-descripcion">Descripción / Beneficio esperado</label>
+                <textarea required id="new-descripcion" rows="3" placeholder="Describe la propuesta y cómo optimizará el sistema de gestión..." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-responsable">Responsable</label>
+                    <input required id="new-responsable" type="text" placeholder="Ej: L. Ruiz" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-prioridad">Prioridad</label>
+                    <select id="new-prioridad" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="alta">Alta</option>
+                        <option value="media">Media</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-estado">Estado Inicial</label>
+                    <select id="new-estado" onchange="toggleProgressSlider(this.value)" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="propuesta">Propuesta</option>
+                        <option value="ejecucion">En Ejecución</option>
+                        <option value="implantada">Implantada</option>
+                    </select>
+                </div>
+                <div id="progress-container" class="hidden">
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="new-progreso">Progreso (<span id="progress-val">30</span>%)</label>
+                    <input id="new-progreso" type="range" min="0" max="100" value="30" oninput="document.getElementById('progress-val').innerText = this.value" class="w-full h-2 bg-surface-container rounded-lg appearance-none cursor-pointer accent-secondary mt-3"/>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar Mejora
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Datos iniciales de mejora
+    const seedImprovements = [
+        { id: "AM-2024-042", titulo: "Digitalización de Registros de Control Ambiental", descripcion: "Sustitución de formularios en papel por aplicación móvil para capturar datos en terreno, reduciendo errores y tiempo de procesamiento.", responsable: "L. Ruiz", estado: "ejecucion", prioridad: "alta", progreso: 65, fecha: "05/06/2024" },
+        { id: "AM-2024-089", titulo: "Optimización de Rutas Logísticas Internas", descripcion: "Reorganizar los flujos de materiales entre los almacenes A y B para minimizar cuellos de botella durante picos de producción.", responsable: "M. García", estado: "propuesta", prioridad: "media", progreso: 0, fecha: "02/06/2024" },
+        { id: "AM-2023-112", titulo: "Nuevo Sistema de Filtrado de Partículas en Planta 3", descripcion: "Instalación de filtros HEPA de alta eficiencia en los conductos de ventilación principales para reducir las emisiones en un 40%.", responsable: "A. Rojas", estado: "implantada", progreso: 100, prioridad: "alta", fecha: "12/05/2024" },
+        { id: "AM-2024-055", titulo: "Capacitación Avanzada ISO 9001:2015", descripcion: "Programa intensivo para mandos intermedios enfocado en gestión de riesgos y enfoque a procesos.", responsable: "C. Herrera", estado: "ejecucion", prioridad: "media", progreso: 30, fecha: "15/05/2024" },
+        { id: "AM-2024-090", titulo: "Actualización de Manual de Calidad V4", descripcion: "Revisión integral del manual de calidad para alinearlo con los nuevos objetivos de sostenibilidad de la corporación.", responsable: "L. Ruiz", estado: "propuesta", prioridad: "baja", progreso: 10, fecha: "06/06/2024" },
+        { id: "AM-2024-088", titulo: "Implementación de 5S en Taller Principal", descripcion: "Proyecto piloto para implantar la metodología 5S en la línea de montaje principal para mejorar el orden y la seguridad laboral.", responsable: "P. Gómez", estado: "ejecucion", prioridad: "alta", progreso: 45, fecha: "04/06/2024" },
+        { id: "AM-2023-145", titulo: "Auditoría Interna Automatizada", descripcion: "Desarrollo de un script interno para automatizar la recolección de evidencias digitales de cumplimiento del ENS.", responsable: "M. García", estado: "implantada", prioridad: "alta", progreso: 100, fecha: "10/10/2023" }
+    ];
+
+    let improvements = [];
+
+    // Inicialización de datos
+    function initData() {
+        const stored = localStorage.getItem('sig_acciones_de_mejora');
+        if (stored) {
+            improvements = JSON.parse(stored);
+        } else {
+            improvements = [...seedImprovements];
+            localStorage.setItem('sig_acciones_de_mejora', JSON.stringify(improvements));
+        }
+        updateKPIs();
+        renderData();
+    }
+
+    // Actualizar contadores de Bento KPI
+    function updateKPIs() {
+        const total = improvements.length;
+        const implantadas = improvements.filter(i => i.estado === 'implantada').length;
+        const pct = total === 0 ? 0 : Math.round((implantadas / total) * 100);
+
+        document.getElementById('kpi-total').innerText = total;
+        document.getElementById('kpi-implantadas').innerText = implantadas;
+        document.getElementById('kpi-porcentaje-implantadas').innerText = `${pct}%`;
+    }
+
+    // Obtener iniciales para las tarjetas
+    function getInitials(name) {
+        if (!name) return "US";
+        const clean = name.replace(/^(Sr\.|Sra\.)\s+/i, '');
+        const parts = clean.trim().split(".");
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1].trim()[0]).toUpperCase();
+        }
+        const partsSpace = clean.trim().split(" ");
+        if (partsSpace.length >= 2) {
+            return (partsSpace[0][0] + partsSpace[1][0]).toUpperCase();
+        }
+        return clean.substring(0, 2).toUpperCase();
+    }
+
+    // Renderizar tarjetas (Bento Grid) y tabla inferior
+    function renderData() {
+        const searchInput = document.getElementById('search-input').value.toLowerCase().trim();
+        const filterStatus = document.getElementById('filter-status').value;
+        const filterPriority = document.getElementById('filter-priority').value;
+
+        const cardsGrid = document.getElementById('cards-grid');
+        const tbody = document.getElementById('table-body');
+
+        cardsGrid.innerHTML = '';
+        tbody.innerHTML = '';
+
+        // Filtrar registros
+        const filtered = improvements.filter(item => {
+            const matchesSearch = item.id.toLowerCase().includes(searchInput) ||
+                                  item.titulo.toLowerCase().includes(searchInput) ||
+                                  item.descripcion.toLowerCase().includes(searchInput) ||
+                                  item.responsable.toLowerCase().includes(searchInput);
+
+            const matchesStatus = filterStatus === "" || item.estado === filterStatus;
+            const matchesPriority = filterPriority === "" || item.prioridad === filterPriority;
+
+            return matchesSearch && matchesStatus && matchesPriority;
+        });
+
+        // 1. Renderizar tarjetas (Bento Grid)
+        if (filtered.length === 0) {
+            cardsGrid.innerHTML = `
+                <div class="col-span-full py-8 text-center text-on-surface-variant font-medium card-level-1 rounded-xl">
+                    No se encontraron acciones de mejora con los filtros aplicados.
+                </div>
+            `;
+        } else {
+            filtered.forEach(item => {
+                let badgeClass = 'badge-propuesta';
+                let stateLabel = 'Propuesta';
+                let leftBorderColor = 'bg-[#0051d5]'; // Azul
+
+                if (item.estado === 'ejecucion') {
+                    badgeClass = 'badge-ejecucion';
+                    stateLabel = 'En Ejecución';
+                    leftBorderColor = 'bg-[#93000a]'; // Rojo
+                } else if (item.estado === 'implantada') {
+                    badgeClass = 'badge-implantada';
+                    stateLabel = 'Implantada';
+                    leftBorderColor = 'bg-[#00174b]'; // Navy
+                }
+
+                const initials = getInitials(item.responsable);
+
+                // Footer dinámico de tarjeta según estado
+                let footerContent = '';
+                if (item.estado === 'ejecucion') {
+                    footerContent = `
+                        <div class="mt-auto pt-md border-t border-outline-variant flex flex-col gap-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="font-label-md text-label-md text-on-surface-variant">Progreso</span>
+                                <span class="font-code-sm text-code-sm text-on-surface">${item.progreso}%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-highest rounded-full h-1.5">
+                                <div class="bg-secondary h-1.5 rounded-full" style="width: ${item.progreso}%"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (item.estado === 'implantada') {
+                    footerContent = `
+                        <div class="mt-auto pt-md border-t border-outline-variant">
+                            <div class="flex items-center gap-xs text-on-surface-variant">
+                                <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                <span class="font-body-sm text-body-sm">Cierre: ${item.fecha}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Propuesta
+                    const roi = item.prioridad === 'alta' ? 'Alto' : (item.prioridad === 'media' ? 'Medio' : 'Bajo');
+                    footerContent = `
+                        <div class="mt-auto pt-md border-t border-outline-variant">
+                            <div class="bg-surface-container-low rounded-DEFAULT p-xs flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px] text-[#0051d5]">trending_up</span>
+                                <span class="font-body-sm text-body-sm text-on-surface">Prioridad: ${item.prioridad.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                cardsGrid.innerHTML += `
+                    <div onclick="cycleState('${item.id}')" class="card-level-1 card-level-2 rounded-xl p-md flex flex-col gap-sm transition-all cursor-pointer relative overflow-hidden group min-h-[200px]">
+                        <div class="absolute top-0 left-0 w-1 h-full ${leftBorderColor}"></div>
+                        <div class="flex justify-between items-start">
+                            <span class="font-code-sm text-code-sm text-on-surface-variant">${item.id}</span>
+                            <span class="badge-status ${badgeClass}">${stateLabel}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-xs font-semibold">${item.titulo}</h3>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${item.descripcion}</p>
+                        </div>
+                        ${footerContent}
+                        <div class="flex justify-between items-center mt-sm">
+                            <div class="flex items-center gap-xs">
+                                <div class="w-6 h-6 rounded-full bg-primary-fixed-dim flex items-center justify-center text-[10px] font-bold text-primary-container">${initials}</div>
+                                <span class="font-body-sm text-body-sm text-on-surface-variant">${item.responsable}</span>
+                            </div>
+                            <span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors" title="Haz clic para avanzar estado">change_circle</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // 2. Renderizar tabla de Recientes
+        const sorted = [...filtered].sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5);
+        if (sorted.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-sm text-center text-on-surface-variant">
+                        No hay registros recientes.
+                    </td>
+                </tr>
+            `;
+        } else {
+            sorted.forEach(item => {
+                let badgeClass = 'badge-propuesta';
+                let stateLabel = 'Propuesta';
+
+                if (item.estado === 'ejecucion') {
+                    badgeClass = 'badge-ejecucion';
+                    stateLabel = 'En Ejecución';
+                } else if (item.estado === 'implantada') {
+                    badgeClass = 'badge-implantada';
+                    stateLabel = 'Implantada';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+                        <td class="p-sm font-code-sm text-on-surface-variant group-hover:text-secondary">${item.id}</td>
+                        <td class="p-sm text-on-surface font-medium">${item.titulo}</td>
+                        <td class="p-sm"><span class="badge-status ${badgeClass}">${stateLabel}</span></td>
+                        <td class="p-sm text-on-surface-variant">${item.responsable}</td>
+                        <td class="p-sm text-on-surface-variant uppercase font-semibold text-xs">${item.prioridad}</td>
+                    </tr>
+                `;
+            });
+        }
+    }
+
+    // Filtrado en tiempo real
+    function filterData() {
+        renderData();
+    }
+
+    // Limpiar todos los filtros
+    function clearFilters() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('filter-status').value = '';
+        document.getElementById('filter-priority').value = '';
+        renderData();
+    }
+
+    // Cambiar estado cíclicamente al hacer clic en la tarjeta
+    function cycleState(id) {
+        const idx = improvements.findIndex(i => i.id === id);
+        if (idx !== -1) {
+            const cur = improvements[idx].estado;
+            if (cur === 'propuesta') {
+                improvements[idx].estado = 'ejecucion';
+                improvements[idx].progreso = 25;
+            } else if (cur === 'ejecucion') {
+                improvements[idx].estado = 'implantada';
+                improvements[idx].progreso = 100;
+                improvements[idx].fecha = new Date().toLocaleDateString('es-ES');
+            } else {
+                improvements[idx].estado = 'propuesta';
+                improvements[idx].progreso = 0;
+            }
+            localStorage.setItem('sig_acciones_de_mejora', JSON.stringify(improvements));
+            updateKPIs();
+            renderData();
+        }
+    }
+
+    // Control del Modal
+    function openModal() {
+        document.getElementById('modal-nueva-mejora').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-nueva-mejora').classList.add('hidden');
+        document.getElementById('form-nueva-mejora').reset();
+        document.getElementById('progress-container').classList.add('hidden');
+    }
+
+    // Ocultar/Mostrar barra de progreso según estado
+    function toggleProgressSlider(state) {
+        const container = document.getElementById('progress-container');
+        if (state === 'ejecucion') {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
+    }
+
+    // Guardar nueva mejora
+    function saveNewImprovement(event) {
+        event.preventDefault();
+
+        const titulo = document.getElementById('new-titulo').value.trim();
+        const descripcion = document.getElementById('new-descripcion').value.trim();
+        const responsable = document.getElementById('new-responsable').value.trim();
+        const prioridad = document.getElementById('new-prioridad').value;
+        const estado = document.getElementById('new-estado').value;
+        
+        let progreso = 0;
+        if (estado === 'ejecucion') {
+            progreso = parseInt(document.getElementById('new-progreso').value);
+        } else if (estado === 'implantada') {
+            progreso = 100;
+        }
+
+        // Generar ID correlativo AM-YYYY-XXX
+        const currentYear = new Date().getFullYear();
+        let maxSeq = 90; // Seed máximo inicial
+        improvements.forEach(i => {
+            const parts = i.id.split('-');
+            if (parts.length === 3 && parts[1] == currentYear) {
+                const seq = parseInt(parts[2]);
+                if (seq > maxSeq) maxSeq = seq;
+            }
+        });
+
+        const nextSeq = String(maxSeq + 1).padStart(3, '0');
+        const newId = `AM-${currentYear}-${nextSeq}`;
+
+        const newImprovement = {
+            id: newId,
+            titulo: titulo,
+            descripcion: descripcion,
+            responsable: responsable,
+            estado: estado,
+            prioridad: prioridad,
+            progreso: progreso,
+            fecha: estado === 'implantada' ? new Date().toLocaleDateString('es-ES') : ''
+        };
+
+        improvements.unshift(newImprovement);
+        localStorage.setItem('sig_acciones_de_mejora', JSON.stringify(improvements));
+
+        updateKPIs();
+        renderData();
+        closeModal();
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>

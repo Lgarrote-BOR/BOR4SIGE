@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Evaluación de Riesgos de Seguridad (MAGERIT / ENS)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container": "#e5eeff",
+                      "surface-container-low": "#eff4ff",
+                      "outline": "#76777d",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-surface": "#213145",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#00174b",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary": "#0051d5",
+                      "surface-container-high": "#dce9ff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary-container": "#fefcff",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary": "#000000",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "secondary-container": "#316bf3",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-background": "#0b1c30",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "background": "#f8f9ff",
+                      "tertiary-container": "#191c1e",
+                      "on-tertiary-fixed-variant": "#444749"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px", "lg": "24px", "max-width": "1440px", "xs": "4px",
+                      "md": "16px", "margin": "24px", "sm": "8px", "base": "4px", "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-lg": ["Inter"],
+                      "headline-md": ["Inter"], "code-sm": ["JetBrains Mono"], "body-md": ["Inter"],
+                      "label-md": ["Inter"], "body-sm": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+    <!-- NavigationDrawer -->
+    <aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md z-20">
+        <div class="px-md mb-xl flex items-center justify-between">
+            <h1 class="font-headline-md text-headline-md font-bold text-on-surface">Gestión de Riesgos</h1>
+        </div>
+        <nav class="flex-1 flex flex-col gap-sm px-sm">
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_de_riesgos_calidad_iso_9001/code.html">
+                <span class="material-symbols-outlined" data-icon="shield">shield</span>
+                <span class="font-body-md text-body-md">Riesgos ISO 9001</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_seguridad_magerit/code.html">
+                <span class="material-symbols-outlined fill" data-icon="policy">policy</span>
+                <span class="font-body-md text-body-md">Seguridad (MAGERIT)</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_compliance/code.html">
+                <span class="material-symbols-outlined" data-icon="balance">balance</span>
+                <span class="font-body-md text-body-md">Compliance Penal</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_salud_laboral/code.html">
+                <span class="material-symbols-outlined" data-icon="health_and_safety">health_and_safety</span>
+                <span class="font-body-md text-body-md">Salud Laboral (PRL)</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out mt-auto" href="../index.html">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                <span class="font-body-md text-body-md">Menú Principal</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-60 flex flex-col min-h-screen">
+        <!-- TopAppBar -->
+        <header class="bg-surface-bright flex justify-between items-center px-lg py-md w-full border-b border-outline-variant z-10 sticky top-0">
+            <div class="flex items-center gap-md">
+                <h2 class="font-headline-md text-headline-md font-bold text-primary">Análisis de Riesgos MAGERIT / ENS</h2>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="h-8 w-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm overflow-hidden" title="CISO">
+                    SO
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Canvas -->
+        <div class="p-lg flex-1 overflow-y-auto">
+            <div class="max-w-[1440px] mx-auto space-y-lg">
+                <!-- Page Header & Actions -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+                    <div>
+                        <h3 class="font-display-lg text-display-lg text-on-surface">Valoración de Activos CIDAT</h3>
+                        <p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Valoración de activos de información en las dimensiones ENS (Confidencialidad, Integridad, Disponibilidad, Autenticidad, Trazabilidad) y cálculo de riesgos.</p>
+                    </div>
+                    <div class="flex gap-sm">
+                        <button onclick="openModal()" class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-secondary/90 transition-colors flex items-center gap-sm shadow-sm">
+                            <span class="material-symbols-outlined text-sm" data-icon="add">add</span> Añadir Activo a Magerit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bento KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+                    <!-- KPI 1 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Activos de Información Mapeados</span>
+                            <span class="material-symbols-outlined text-secondary" data-icon="dns">dns</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total" class="font-display-lg text-display-lg text-on-surface">0</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Activos bajo inventario</p>
+                        </div>
+                    </div>
+                    <!-- KPI 2 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Valoración Máxima</span>
+                            <span class="material-symbols-outlined text-error" data-icon="grade">grade</span>
+                        </div>
+                        <div>
+                            <span id="kpi-max-val" class="font-display-lg text-display-lg text-error">0.0</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Máxima dimensión CIDAT</p>
+                        </div>
+                    </div>
+                    <!-- KPI 3 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Riesgo Residual Medio</span>
+                            <span class="material-symbols-outlined text-orange-600" data-icon="lock_open">lock_open</span>
+                        </div>
+                        <div>
+                            <span id="kpi-res-avg" class="font-display-lg text-display-lg text-orange-600">0.0</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Tras aplicar salvaguardas</p>
+                        </div>
+                    </div>
+                    <!-- KPI 4 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Salvaguardas de Seguridad</span>
+                            <span class="material-symbols-outlined text-[#137333]" data-icon="admin_panel_settings">admin_panel_settings</span>
+                        </div>
+                        <div>
+                            <span id="kpi-measures" class="font-display-lg text-display-lg text-[#137333]">0%</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Eficacia promedio de salvaguardas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAGERIT Assets Table -->
+                <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-md border-b border-outline-variant bg-surface-bright flex justify-between items-center">
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Inventario de Activos y Valoración CIDAT</h3>
+                        <div class="flex items-center gap-sm">
+                            <select id="filter-type" onchange="renderMagerit()" class="bg-surface border border-outline-variant rounded px-2 py-1 font-body-sm text-body-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary outline-none cursor-pointer">
+                                <option value="">Todos los Tipos</option>
+                                <option value="Datos / Información">Datos / Información</option>
+                                <option value="Servicios / Software">Servicios / Software</option>
+                                <option value="Hardware / Sistemas">Hardware / Sistemas</option>
+                                <option value="Redes / Comunicaciones">Redes / Comunicaciones</option>
+                            </select>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+                                <input id="search-input" oninput="renderMagerit()" class="pl-[36px] pr-sm py-xs border border-outline-variant rounded bg-surface text-body-sm font-body-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary outline-none w-64" placeholder="Buscar activo..." type="text"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-label-md font-label-md text-on-surface-variant">
+                                    <th class="p-md w-24">ID</th>
+                                    <th class="p-md w-36">Tipo Activo</th>
+                                    <th class="p-md">Nombre del Activo</th>
+                                    <th class="p-md text-center w-14">C</th>
+                                    <th class="p-md text-center w-14">I</th>
+                                    <th class="p-md text-center w-14">D</th>
+                                    <th class="p-md text-center w-14">A</th>
+                                    <th class="p-md text-center w-14">T</th>
+                                    <th class="p-md text-center w-24">Valor Max</th>
+                                    <th class="p-md">Salvaguarda Clave</th>
+                                    <th class="p-md text-center w-20">Eficacia</th>
+                                    <th class="p-md text-center w-28">R. Residual</th>
+                                    <th class="p-md w-24 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="magerit-tbody" class="font-body-sm text-body-sm text-on-surface">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Formulario -->
+    <div id="modal-magerit" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+                <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Añadir Activo Tecnológico</h3>
+                <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-magerit" onsubmit="saveMagerit(event)" class="space-y-4">
+                <input type="hidden" id="edit-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tipo de Activo</label>
+                        <select id="mag-type" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="Datos / Información">Datos / Información</option>
+                            <option value="Servicios / Software">Servicios / Software</option>
+                            <option value="Hardware / Sistemas">Hardware / Sistemas</option>
+                            <option value="Redes / Comunicaciones">Redes / Comunicaciones</option>
+                            <option value="Instalaciones">Instalaciones</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Nombre del Activo</label>
+                        <input id="mag-name" required type="text" placeholder="Ej: Servidor ERP, BD Clientes" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary"/>
+                    </div>
+                </div>
+
+                <!-- CIDAT Scores -->
+                <div class="border border-outline-variant rounded p-sm bg-surface-container-low/50">
+                    <span class="font-label-md text-label-md text-on-surface font-bold">Valoración Dimensiones ENS (1-5)</span>
+                    <div class="grid grid-cols-5 gap-2 mt-xs text-center font-bold">
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Confid.</label>
+                            <select id="mag-c" onchange="calculateMagerit()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Integridad</label>
+                            <select id="mag-i" onchange="calculateMagerit()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Disponib.</label>
+                            <select id="mag-d" onchange="calculateMagerit()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Autentic.</label>
+                            <select id="mag-a" onchange="calculateMagerit()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Trazabil.</label>
+                            <select id="mag-t" onchange="calculateMagerit()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-sm flex justify-between items-center text-xs font-bold text-on-surface">
+                        <span>Valor Máximo del Activo:</span>
+                        <input id="mag-max-val" readonly type="text" value="1" class="w-16 bg-surface border border-outline-variant rounded p-xs text-center font-bold text-xs"/>
+                    </div>
+                </div>
+
+                <!-- Safeguards & Residual -->
+                <div class="border border-outline-variant rounded p-sm bg-surface-container-low/50">
+                    <span class="font-label-md text-label-md text-on-surface font-bold">Mitigación y Salvaguardas</span>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-xs">
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Salvaguarda Clave</label>
+                            <input id="mag-safeguard" required type="text" placeholder="Ej: Doble factor (MFA), Backup offsite" class="w-full bg-surface-bright border border-outline-variant rounded p-xs font-body-sm text-body-sm focus:outline-none focus:border-secondary"/>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Eficacia Salvaguarda</label>
+                            <select id="mag-efficacy" required onchange="calculateMagerit()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs font-body-sm text-body-sm focus:outline-none focus:border-secondary cursor-pointer">
+                                <option value="0.3">30% (Firma simple)</option>
+                                <option value="0.6">60% (Cortafuegos/MFA)</option>
+                                <option value="0.9">90% (Copias cifradas y SOC)</option>
+                                <option value="0.99">99% (Cifrado militar redundado)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-sm flex justify-between items-center text-xs font-bold text-on-surface">
+                        <span>Riesgo Residual Calculado:</span>
+                        <input id="mag-residual" readonly type="text" value="0.70" class="w-20 bg-surface border border-outline-variant rounded p-xs text-center font-bold text-xs"/>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors shadow-sm">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const seedMagerit = [
+            { id: "ACT-001", type: "Datos / Información", name: "BBDD de Clientes (CRM)", c: 5, i: 4, d: 4, a: 3, t: 4, maxVal: 5, safeguard: "Cifrado de datos en reposo y tránsito con control MFA", efficacy: 0.9, residual: 0.5 },
+            { id: "ACT-002", type: "Servicios / Software", name: "Portal Web de Compras", c: 3, i: 4, d: 5, a: 4, t: 3, maxVal: 5, safeguard: "Cortafuegos perimetral (WAF) y balanceador Cloudflare", efficacy: 0.6, residual: 2.0 },
+            { id: "ACT-003", type: "Hardware / Sistemas", name: "Servidor Principal ERP", c: 4, i: 4, d: 4, a: 3, t: 3, maxVal: 4, safeguard: "Copias de seguridad diarias en CPD alternativo offsite", efficacy: 0.9, residual: 0.4 }
+        ];
+
+        let mageritList = [];
+
+        function initData() {
+            const stored = localStorage.getItem('sig_riesgos_magerit');
+            if (stored) {
+                mageritList = JSON.parse(stored);
+            } else {
+                mageritList = [...seedMagerit];
+                localStorage.setItem('sig_riesgos_magerit', JSON.stringify(mageritList));
+            }
+
+            renderMagerit();
+        }
+
+        function renderMagerit() {
+            const tbody = document.getElementById('magerit-tbody');
+            const search = document.getElementById('search-input').value.toLowerCase().trim();
+            const typeFilter = document.getElementById('filter-type').value;
+
+            const filtered = mageritList.filter(r => {
+                const matchesSearch = r.name.toLowerCase().includes(search) || r.id.toLowerCase().includes(search) || r.safeguard.toLowerCase().includes(search);
+                const matchesType = typeFilter === "" || r.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            // KPIs
+            const total = mageritList.length;
+            
+            let maxValOverall = 0;
+            let sumResidual = 0;
+            let sumEfficacy = 0;
+            
+            mageritList.forEach(r => {
+                if (r.maxVal > maxValOverall) maxValOverall = r.maxVal;
+                sumResidual += parseFloat(r.residual || 0);
+                sumEfficacy += parseFloat(r.efficacy || 0);
+            });
+
+            const avgResidual = total > 0 ? (sumResidual / total).toFixed(1) : "0.0";
+            const avgEfficacy = total > 0 ? Math.round((sumEfficacy / total) * 100) : 0;
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-max-val').innerText = maxValOverall.toFixed(1);
+            document.getElementById('kpi-res-avg').innerText = avgResidual;
+            document.getElementById('kpi-measures').innerText = `${avgEfficacy}%`;
+
+            // Render table
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="13" class="p-md text-center text-on-surface-variant">
+                            No se encontraron activos tecnológicos registrados en el análisis Magerit.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach(r => {
+                let badgeVal = "";
+                if (r.maxVal >= 5) badgeVal = "bg-red-100 text-red-950 border-red-200 font-bold";
+                else if (r.maxVal >= 4) badgeVal = "bg-orange-100 text-orange-900 border-orange-200";
+                else if (r.maxVal >= 3) badgeVal = "bg-yellow-100 text-yellow-900 border-yellow-200";
+                else badgeVal = "bg-green-100 text-green-900 border-green-200";
+
+                let badgeRes = "";
+                if (r.residual >= 2.0) badgeRes = "bg-red-100 text-red-900 border-red-200 font-bold";
+                else if (r.residual >= 0.8) badgeRes = "bg-yellow-100 text-yellow-900 border-yellow-200";
+                else badgeRes = "bg-green-100 text-green-900 border-green-200";
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                        <td class="p-md font-code-sm text-code-sm font-bold">${r.id}</td>
+                        <td class="p-md text-xs font-semibold text-on-surface-variant">${r.type}</td>
+                        <td class="p-md font-bold text-xs text-secondary">${r.name}</td>
+                        <td class="p-md text-center font-code-sm">${r.c}</td>
+                        <td class="p-md text-center font-code-sm">${r.i}</td>
+                        <td class="p-md text-center font-code-sm">${r.d}</td>
+                        <td class="p-md text-center font-code-sm">${r.a}</td>
+                        <td class="p-md text-center font-code-sm">${r.t}</td>
+                        <td class="p-md text-center">
+                            <span class="inline-block px-2 py-0.5 text-xs border rounded ${badgeVal}">
+                                ${r.maxVal}
+                            </span>
+                        </td>
+                        <td class="p-md text-xs font-semibold">${r.safeguard}</td>
+                        <td class="p-md text-center font-code-sm font-bold text-xs">${Math.round(r.efficacy * 100)}%</td>
+                        <td class="p-md text-center">
+                            <span class="inline-block px-2 py-0.5 text-xs border rounded ${badgeRes}">
+                                ${r.residual.toFixed(2)}
+                            </span>
+                        </td>
+                        <td class="p-md text-center">
+                            <div class="flex justify-center gap-1">
+                                <button onclick="editMagerit('${r.id}')" class="text-on-surface-variant hover:text-primary transition-colors" title="Editar">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>
+                                <button onclick="deleteMagerit('${r.id}')" class="text-error hover:text-red-700 transition-colors" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function calculateMagerit() {
+            const c = parseInt(document.getElementById('mag-c').value);
+            const i = parseInt(document.getElementById('mag-i').value);
+            const d = parseInt(document.getElementById('mag-d').value);
+            const a = parseInt(document.getElementById('mag-a').value);
+            const t = parseInt(document.getElementById('mag-t').value);
+
+            const maxVal = Math.max(c, i, d, a, t);
+            document.getElementById('mag-max-val').value = maxVal;
+
+            const efficacy = parseFloat(document.getElementById('mag-efficacy').value);
+            const residual = maxVal * (1 - efficacy);
+            document.getElementById('mag-residual').value = residual.toFixed(2);
+        }
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Añadir Activo Tecnológico";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-magerit').reset();
+            calculateMagerit();
+            document.getElementById('modal-magerit').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-magerit').classList.add('hidden');
+        }
+
+        function editMagerit(id) {
+            const r = mageritList.find(item => item.id === id);
+            if (r) {
+                document.getElementById('modal-title').innerText = `Editar Activo (${r.id})`;
+                document.getElementById('edit-id').value = r.id;
+                document.getElementById('mag-type').value = r.type;
+                document.getElementById('mag-name').value = r.name;
+                document.getElementById('mag-c').value = r.c;
+                document.getElementById('mag-i').value = r.i;
+                document.getElementById('mag-d').value = r.d;
+                document.getElementById('mag-a').value = r.a;
+                document.getElementById('mag-t').value = r.t;
+                document.getElementById('mag-safeguard').value = r.safeguard;
+                document.getElementById('mag-efficacy').value = r.efficacy;
+
+                calculateMagerit();
+                document.getElementById('modal-magerit').classList.remove('hidden');
+            }
+        }
+
+        function deleteMagerit(id) {
+            if (confirm(`¿Está seguro de que desea eliminar el activo ${id}?`)) {
+                mageritList = mageritList.filter(item => item.id !== id);
+                localStorage.setItem('sig_riesgos_magerit', JSON.stringify(mageritList));
+                renderMagerit();
+            }
+        }
+
+        function saveMagerit(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('edit-id').value;
+            const type = document.getElementById('mag-type').value;
+            const name = document.getElementById('mag-name').value.trim();
+            const c = parseInt(document.getElementById('mag-c').value);
+            const i = parseInt(document.getElementById('mag-i').value);
+            const d = parseInt(document.getElementById('mag-d').value);
+            const a = parseInt(document.getElementById('mag-a').value);
+            const t = parseInt(document.getElementById('mag-t').value);
+            const maxVal = Math.max(c, i, d, a, t);
+            const safeguard = document.getElementById('mag-safeguard').value.trim();
+            const efficacy = parseFloat(document.getElementById('mag-efficacy').value);
+            const residual = maxVal * (1 - efficacy);
+
+            if (editId) {
+                const idx = mageritList.findIndex(item => item.id === editId);
+                if (idx !== -1) {
+                    mageritList[idx] = {
+                        ...mageritList[idx],
+                        type,
+                        name,
+                        c, i, d, a, t,
+                        maxVal,
+                        safeguard,
+                        efficacy,
+                        residual
+                    };
+                }
+            } else {
+                let maxSeq = 3;
+                mageritList.forEach(item => {
+                    const parts = item.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `ACT-${nextSeq}`;
+
+                mageritList.push({
+                    id: newId,
+                    type,
+                    name,
+                    c, i, d, a, t,
+                    maxVal,
+                    safeguard,
+                    efficacy,
+                    residual
+                });
+            }
+
+            localStorage.setItem('sig_riesgos_magerit', JSON.stringify(mageritList));
+            renderMagerit();
+            closeModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initData();
+        });
+    </script>
+</body>
+</html>

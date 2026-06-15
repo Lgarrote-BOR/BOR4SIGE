@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Evaluación de Riesgos de Calidad (ISO 9001)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container": "#e5eeff",
+                      "surface-container-low": "#eff4ff",
+                      "outline": "#76777d",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-surface": "#213145",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#00174b",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary": "#0051d5",
+                      "surface-container-high": "#dce9ff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary-container": "#fefcff",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary": "#000000",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "secondary-container": "#316bf3",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-background": "#0b1c30",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "background": "#f8f9ff",
+                      "tertiary-container": "#191c1e",
+                      "on-tertiary-fixed-variant": "#444749"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px", "lg": "24px", "max-width": "1440px", "xs": "4px",
+                      "md": "16px", "margin": "24px", "sm": "8px", "base": "4px", "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-lg": ["Inter"],
+                      "headline-md": ["Inter"], "code-sm": ["JetBrains Mono"], "body-md": ["Inter"],
+                      "label-md": ["Inter"], "body-sm": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+    <!-- NavigationDrawer -->
+    <aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md z-20">
+        <div class="px-md mb-xl flex items-center justify-between">
+            <h1 class="font-headline-md text-headline-md font-bold text-on-surface">Gestión de Riesgos</h1>
+        </div>
+        <nav class="flex-1 flex flex-col gap-sm px-sm">
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_de_riesgos_calidad_iso_9001/code.html">
+                <span class="material-symbols-outlined fill" data-icon="shield">shield</span>
+                <span class="font-body-md text-body-md">Riesgos ISO 9001</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_seguridad_magerit/code.html">
+                <span class="material-symbols-outlined" data-icon="policy">policy</span>
+                <span class="font-body-md text-body-md">Seguridad (MAGERIT)</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_compliance/code.html">
+                <span class="material-symbols-outlined" data-icon="balance">balance</span>
+                <span class="font-body-md text-body-md">Compliance Penal</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_salud_laboral/code.html">
+                <span class="material-symbols-outlined" data-icon="health_and_safety">health_and_safety</span>
+                <span class="font-body-md text-body-md">Salud Laboral (PRL)</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out mt-auto" href="../index.html">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                <span class="font-body-md text-body-md">Menú Principal</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-60 flex flex-col min-h-screen">
+        <!-- TopAppBar -->
+        <header class="bg-surface-bright flex justify-between items-center px-lg py-md w-full border-b border-outline-variant z-10 sticky top-0 animate-fade-in">
+            <div class="flex items-center gap-md">
+                <h2 class="font-headline-md text-headline-md font-bold text-primary">Matriz de Riesgos Corporativos</h2>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="h-8 w-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm overflow-hidden" title="Gerente de Calidad">
+                    GC
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Canvas -->
+        <div class="p-lg flex-1 overflow-y-auto">
+            <div class="max-w-[1440px] mx-auto space-y-lg">
+                <!-- Page Header & Actions -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+                    <div>
+                        <h3 class="font-display-lg text-display-lg text-on-surface">Evaluación de Riesgos y Oportunidades (ISO 9001)</h3>
+                        <p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Identifique, evalúe y planifique tratamientos para asegurar el cumplimiento del SGI.</p>
+                    </div>
+                    <div class="flex gap-sm">
+                        <button onclick="openModal()" class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-secondary/90 transition-colors flex items-center gap-sm shadow-sm">
+                            <span class="material-symbols-outlined text-sm" data-icon="add">add</span> Nuevo Riesgo/Oportunidad
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bento Grid Layout: Matrix and KPIs -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                    <!-- Matrix Grid (Spans 7 cols) -->
+                    <div class="lg:col-span-7 bg-surface-container-lowest border border-outline-variant rounded-lg p-lg shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Matriz de Probabilidad e Impacto 5x5</h4>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs mb-sm">Haga clic en las celdas para filtrar los riesgos evaluados.</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <!-- Matrix Header Y Axis -->
+                            <div class="flex w-full max-w-[450px]">
+                                <!-- Y Axis Label (Vertical) -->
+                                <div class="w-10 flex items-center justify-center font-bold text-xs uppercase text-on-surface-variant tracking-wider rotate-[-90deg] translate-x-2">
+                                    Probabilidad
+                                </div>
+                                <!-- Table matrix grid -->
+                                <div class="flex-1 flex flex-col border border-outline-variant rounded overflow-hidden">
+                                    <!-- Row 5 (Prob 5) -->
+                                    <div class="flex h-14 border-b border-outline-variant">
+                                        <div class="w-10 bg-surface-container-low border-r border-outline-variant flex items-center justify-center text-xs font-bold">5</div>
+                                        <div id="cell-5-1" onclick="filterByMatrix(5, 1)" class="flex-1 bg-yellow-100 hover:bg-yellow-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-5-2" onclick="filterByMatrix(5, 2)" class="flex-1 bg-orange-100 hover:bg-orange-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-5-3" onclick="filterByMatrix(5, 3)" class="flex-1 bg-orange-200 hover:bg-orange-300 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-5-4" onclick="filterByMatrix(5, 4)" class="flex-1 bg-red-100 hover:bg-red-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-5-5" onclick="filterByMatrix(5, 5)" class="flex-1 bg-red-200 hover:bg-red-300 transition-colors cursor-pointer flex items-center justify-center font-bold text-xs">0</div>
+                                    </div>
+                                    <!-- Row 4 (Prob 4) -->
+                                    <div class="flex h-14 border-b border-outline-variant">
+                                        <div class="w-10 bg-surface-container-low border-r border-outline-variant flex items-center justify-center text-xs font-bold">4</div>
+                                        <div id="cell-4-1" onclick="filterByMatrix(4, 1)" class="flex-1 bg-green-100 hover:bg-green-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-4-2" onclick="filterByMatrix(4, 2)" class="flex-1 bg-yellow-100 hover:bg-yellow-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-4-3" onclick="filterByMatrix(4, 3)" class="flex-1 bg-orange-100 hover:bg-orange-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-4-4" onclick="filterByMatrix(4, 4)" class="flex-1 bg-red-100 hover:bg-red-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-4-5" onclick="filterByMatrix(4, 5)" class="flex-1 bg-red-200 hover:bg-red-300 transition-colors cursor-pointer flex items-center justify-center font-bold text-xs">0</div>
+                                    </div>
+                                    <!-- Row 3 (Prob 3) -->
+                                    <div class="flex h-14 border-b border-outline-variant">
+                                        <div class="w-10 bg-surface-container-low border-r border-outline-variant flex items-center justify-center text-xs font-bold">3</div>
+                                        <div id="cell-3-1" onclick="filterByMatrix(3, 1)" class="flex-1 bg-green-100 hover:bg-green-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-3-2" onclick="filterByMatrix(3, 2)" class="flex-1 bg-yellow-100 hover:bg-yellow-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-3-3" onclick="filterByMatrix(3, 3)" class="flex-1 bg-yellow-200 hover:bg-yellow-300 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-3-4" onclick="filterByMatrix(3, 4)" class="flex-1 bg-orange-100 hover:bg-orange-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-3-5" onclick="filterByMatrix(3, 5)" class="flex-1 bg-red-100 hover:bg-red-200 transition-colors cursor-pointer flex items-center justify-center font-bold text-xs">0</div>
+                                    </div>
+                                    <!-- Row 2 (Prob 2) -->
+                                    <div class="flex h-14 border-b border-outline-variant">
+                                        <div class="w-10 bg-surface-container-low border-r border-outline-variant flex items-center justify-center text-xs font-bold">2</div>
+                                        <div id="cell-2-1" onclick="filterByMatrix(2, 1)" class="flex-1 bg-green-100 hover:bg-green-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-2-2" onclick="filterByMatrix(2, 2)" class="flex-1 bg-green-200 hover:bg-green-300 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-2-3" onclick="filterByMatrix(2, 3)" class="flex-1 bg-yellow-100 hover:bg-yellow-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-2-4" onclick="filterByMatrix(2, 4)" class="flex-1 bg-yellow-200 hover:bg-yellow-300 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-2-5" onclick="filterByMatrix(2, 5)" class="flex-1 bg-orange-100 hover:bg-orange-200 transition-colors cursor-pointer flex items-center justify-center font-bold text-xs">0</div>
+                                    </div>
+                                    <!-- Row 1 (Prob 1) -->
+                                    <div class="flex h-14">
+                                        <div class="w-10 bg-surface-container-low border-r border-outline-variant flex items-center justify-center text-xs font-bold">1</div>
+                                        <div id="cell-1-1" onclick="filterByMatrix(1, 1)" class="flex-1 bg-green-100 hover:bg-green-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-1-2" onclick="filterByMatrix(1, 2)" class="flex-1 bg-green-100 hover:bg-green-200 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-1-3" onclick="filterByMatrix(1, 3)" class="flex-1 bg-green-200 hover:bg-green-300 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-1-4" onclick="filterByMatrix(1, 4)" class="flex-1 bg-green-200 hover:bg-green-300 transition-colors cursor-pointer border-r border-outline-variant flex items-center justify-center font-bold text-xs">0</div>
+                                        <div id="cell-1-5" onclick="filterByMatrix(1, 5)" class="flex-1 bg-yellow-100 hover:bg-yellow-200 transition-colors cursor-pointer flex items-center justify-center font-bold text-xs">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- X Axis Labels -->
+                            <div class="flex w-full max-w-[450px] mt-xs">
+                                <div class="w-10"></div>
+                                <div class="flex-1 flex text-center font-bold text-xs">
+                                    <div class="flex-1">1</div>
+                                    <div class="flex-1">2</div>
+                                    <div class="flex-1">3</div>
+                                    <div class="flex-1">4</div>
+                                    <div class="flex-1">5</div>
+                                </div>
+                            </div>
+                            <div class="text-center font-bold text-xs uppercase text-on-surface-variant tracking-wider mt-xs">
+                                Impacto / Gravedad
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Stats (Spans 5 cols) -->
+                    <div class="lg:col-span-5 flex flex-col gap-md">
+                        <!-- KPI 1: Total Riesgos -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-sm">
+                            <div class="flex justify-between items-start mb-sm">
+                                <h5 class="font-label-md text-label-md text-on-surface-variant">Riesgos y Oportunidades Identificados</h5>
+                                <span class="material-symbols-outlined text-secondary" data-icon="analytics">analytics</span>
+                            </div>
+                            <div class="flex items-end gap-sm">
+                                <span id="kpi-total" class="font-display-lg text-display-lg text-on-surface">0</span>
+                                <span class="font-body-sm text-body-sm text-on-surface-variant mb-1 flex items-center">
+                                    <span id="kpi-opps" class="font-bold text-secondary mr-1">0</span> Oportunidades
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- KPI 2: Riesgos Críticos -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-sm">
+                            <div class="flex justify-between items-start mb-sm">
+                                <h5 class="font-label-md text-label-md text-on-surface-variant">Riesgos Críticos (Nivel >= 12)</h5>
+                                <span class="material-symbols-outlined text-error" data-icon="gavel">gavel</span>
+                            </div>
+                            <div class="flex items-end gap-sm">
+                                <span id="kpi-crit" class="font-display-lg text-display-lg text-error">0</span>
+                                <span class="font-body-sm text-body-sm text-on-surface-variant mb-1">Requieren acción inmediata</span>
+                            </div>
+                        </div>
+
+                        <!-- KPI 3: Acciones de Control -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-sm">
+                            <div class="flex justify-between items-start mb-sm">
+                                <h5 class="font-label-md text-label-md text-on-surface-variant font-bold">Estado de Mitigación</h5>
+                                <span class="material-symbols-outlined text-[#137333]" data-icon="verified">verified</span>
+                            </div>
+                            <div class="flex items-end gap-sm">
+                                <span id="kpi-mitigated" class="font-display-lg text-display-lg text-[#137333]">0%</span>
+                                <span class="font-body-sm text-body-sm text-on-surface-variant mb-1">Riesgos Mitigados / Cerrados</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risks List Table (Bento Canvas Bottom) -->
+                <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-md border-b border-outline-variant bg-surface-bright flex justify-between items-center">
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Listado de Riesgos y Oportunidades</h3>
+                        <div class="flex items-center gap-sm">
+                            <button onclick="clearFilter()" id="btn-clear-filter" class="hidden text-xs text-secondary hover:underline mr-2">Limpiar Filtro Matriz</button>
+                            <select id="filter-type" onchange="renderRiesgos()" class="bg-surface border border-outline-variant rounded px-2 py-1 font-body-sm text-body-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary outline-none cursor-pointer">
+                                <option value="">Todos los Tipos</option>
+                                <option value="Riesgo">Riesgos</option>
+                                <option value="Oportunidad">Oportunidades</option>
+                            </select>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+                                <input id="search-input" oninput="renderRiesgos()" class="pl-[36px] pr-sm py-xs border border-outline-variant rounded bg-surface text-body-sm font-body-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary outline-none w-64" placeholder="Buscar riesgo o proceso..." type="text"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-label-md font-label-md text-on-surface-variant">
+                                    <th class="p-md w-24">ID</th>
+                                    <th class="p-md w-32 text-center">Tipo</th>
+                                    <th class="p-md">Descripción del Riesgo / Oportunidad</th>
+                                    <th class="p-md w-48">Proceso Asociado</th>
+                                    <th class="p-md w-28 text-center">P x I (Nivel)</th>
+                                    <th class="p-md w-32 text-center">Tratamiento</th>
+                                    <th class="p-md w-28 text-center">Estado</th>
+                                    <th class="p-md w-24 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="riesgos-tbody" class="font-body-sm text-body-sm text-on-surface">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Formulario -->
+    <div id="modal-riesgo" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+                <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Nuevo Riesgo/Oportunidad</h3>
+                <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-riesgo" onsubmit="saveRiesgo(event)" class="space-y-4">
+                <input type="hidden" id="edit-id" value=""/>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tipo de Registro</label>
+                        <select id="risk-type" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="Riesgo">Riesgo (Negativo)</option>
+                            <option value="Oportunidad">Oportunidad (Positivo)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Proceso Vinculado</label>
+                        <select id="risk-process" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <!-- Dinámico -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Descripción del Evento</label>
+                    <textarea id="risk-desc" required placeholder="Ej: Retrasos en la entrega de suministros clave." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary" rows="3"></textarea>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Probabilidad (1-5)</label>
+                        <select id="risk-prob" required onchange="updateCalculatedRisk()" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="1">1 - Muy Baja</option>
+                            <option value="2">2 - Baja</option>
+                            <option value="3">3 - Media</option>
+                            <option value="4">4 - Alta</option>
+                            <option value="5">5 - Muy Alta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Impacto (1-5)</label>
+                        <select id="risk-imp" required onchange="updateCalculatedRisk()" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="1">1 - Trivial</option>
+                            <option value="2">2 - Menor</option>
+                            <option value="3">3 - Moderado</option>
+                            <option value="4">4 - Mayor</option>
+                            <option value="5">5 - Crítico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Riesgo Calculado</label>
+                        <input id="risk-level-calc" readonly type="text" value="1" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md font-bold text-center text-on-surface"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Plan de Tratamiento</label>
+                        <select id="risk-treatment" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="Mitigar">Mitigar / Tratar</option>
+                            <option value="Evitar">Evitar / Eliminar</option>
+                            <option value="Transferir">Transferir / Compartir</option>
+                            <option value="Aceptar">Aceptar / Asumir</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Estado</label>
+                        <select id="risk-status" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="Abierto">Abierto</option>
+                            <option value="Mitigado">Mitigado</option>
+                            <option value="Cerrado">Cerrado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors shadow-sm">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const seedRiesgos = [
+            { id: "R-CAL-001", type: "Riesgo", desc: "Retrasos en el suministro de materias primas críticas para ensamblaje", processId: "PRO-01", prob: 3, imp: 4, level: 12, treatment: "Mitigar", status: "Abierto" },
+            { id: "R-CAL-002", type: "Riesgo", desc: "Falta de perfiles comerciales capacitados en nuevos mercados", processId: "COM-01", prob: 2, imp: 3, level: 6, treatment: "Mitigar", status: "Mitigado" },
+            { id: "O-CAL-003", type: "Oportunidad", desc: "Integración de IA para automatizar el soporte técnico primario", processId: "SOP-02", prob: 4, imp: 4, level: 16, treatment: "Transferir", status: "Mitigado" },
+            { id: "R-CAL-004", type: "Riesgo", desc: "Fuga de información de diseños técnicos sensibles", processId: "DIS-01", prob: 1, imp: 5, level: 5, treatment: "Evitar", status: "Cerrado" }
+        ];
+
+        let riesgos = [];
+        let filterProb = null;
+        let filterImp = null;
+
+        function initData() {
+            const stored = localStorage.getItem('sig_riesgos_iso');
+            if (stored) {
+                riesgos = JSON.parse(stored);
+            } else {
+                riesgos = [...seedRiesgos];
+                localStorage.setItem('sig_riesgos_iso', JSON.stringify(riesgos));
+            }
+
+            populateSelects();
+            renderMatrix();
+            renderRiesgos();
+        }
+
+        function populateSelects() {
+            const procSelect = document.getElementById('risk-process');
+            procSelect.innerHTML = '<option value="">-- Seleccione Proceso --</option>';
+
+            const storedProcs = localStorage.getItem('sig_procesos');
+            if (storedProcs) {
+                const procs = JSON.parse(storedProcs);
+                procs.forEach(p => {
+                    procSelect.innerHTML += `<option value="${p.id}">${p.id} - ${p.name}</option>`;
+                });
+            } else {
+                procSelect.innerHTML += '<option value="PRO-01">PRO-01 - Producción y Ensamble</option>';
+                procSelect.innerHTML += '<option value="COM-01">COM-01 - Comercialización y Ventas</option>';
+                procSelect.innerHTML += '<option value="SOP-02">SOP-02 - Mantenimiento IT</option>';
+                procSelect.innerHTML += '<option value="DIS-01">DIS-01 - Diseño y Desarrollo</option>';
+            }
+        }
+
+        function renderMatrix() {
+            // Inicializar contadores en la matriz
+            for (let p = 1; p <= 5; p++) {
+                for (let i = 1; i <= 5; i++) {
+                    const el = document.getElementById(`cell-${p}-${i}`);
+                    if (el) el.innerText = 0;
+                }
+            }
+
+            // Llenar contadores
+            riesgos.forEach(r => {
+                if (r.type === "Riesgo") {
+                    const el = document.getElementById(`cell-${r.prob}-${r.imp}`);
+                    if (el) {
+                        el.innerText = parseInt(el.innerText) + 1;
+                    }
+                }
+            });
+        }
+
+        function renderRiesgos() {
+            const tbody = document.getElementById('riesgos-tbody');
+            const search = document.getElementById('search-input').value.toLowerCase().trim();
+            const typeFilter = document.getElementById('filter-type').value;
+
+            // Filtrado
+            const filtered = riesgos.filter(r => {
+                const matchesSearch = r.desc.toLowerCase().includes(search) || r.id.toLowerCase().includes(search) || r.processId.toLowerCase().includes(search);
+                const matchesType = typeFilter === "" || r.type === typeFilter;
+                
+                // Filtro por matriz clicada
+                const matchesMatrix = (filterProb === null || r.prob === filterProb) && (filterImp === null || r.imp === filterImp);
+
+                return matchesSearch && matchesType && matchesMatrix;
+            });
+
+            // Recalcular KPIs superiores
+            const total = riesgos.length;
+            const opps = riesgos.filter(r => r.type === "Oportunidad").length;
+            const crits = riesgos.filter(r => r.type === "Riesgo" && r.level >= 12).length;
+            const mitigated = riesgos.filter(r => r.status === "Mitigado" || r.status === "Cerrado").length;
+            const mitigatedRatio = total > 0 ? Math.round((mitigated / total) * 100) : 0;
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-opps').innerText = opps;
+            document.getElementById('kpi-crit').innerText = crits;
+            document.getElementById('kpi-mitigated').innerText = `${mitigatedRatio}%`;
+
+            // Resetear estilos en la matriz
+            for (let p = 1; p <= 5; p++) {
+                for (let i = 1; i <= 5; i++) {
+                    const cell = document.getElementById(`cell-${p}-${i}`);
+                    if (cell) {
+                        cell.classList.remove('ring-4', 'ring-secondary', 'ring-inset');
+                    }
+                }
+            }
+
+            // Si hay filtro de matriz, marcar la celda activa
+            if (filterProb !== null && filterImp !== null) {
+                const activeCell = document.getElementById(`cell-${filterProb}-${filterImp}`);
+                if (activeCell) {
+                    activeCell.classList.add('ring-4', 'ring-secondary', 'ring-inset');
+                }
+                document.getElementById('btn-clear-filter').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-clear-filter').classList.add('hidden');
+            }
+
+            // Pintar tabla
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-md text-center text-on-surface-variant">
+                            No se encontraron registros de riesgos u oportunidades.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach(r => {
+                let levelBadge = "";
+                if (r.type === "Oportunidad") {
+                    levelBadge = `<span class="px-2 py-0.5 bg-[#e0f2fe] text-[#0369a1] font-bold rounded">P:${r.prob}xI:${r.imp} (${r.level})</span>`;
+                } else {
+                    if (r.level >= 12) {
+                        levelBadge = `<span class="px-2 py-0.5 bg-[#fee2e2] text-[#991b1b] font-bold rounded">Alta (${r.level})</span>`;
+                    } else if (r.level >= 6) {
+                        levelBadge = `<span class="px-2 py-0.5 bg-[#fef3c7] text-[#92400e] font-bold rounded">Media (${r.level})</span>`;
+                    } else {
+                        levelBadge = `<span class="px-2 py-0.5 bg-[#dcfce7] text-[#166534] font-bold rounded">Baja (${r.level})</span>`;
+                    }
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                        <td class="p-md font-code-sm text-code-sm font-bold">${r.id}</td>
+                        <td class="p-md text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${r.type === 'Oportunidad' ? 'bg-[#e0f2fe] text-[#0369a1]' : 'bg-[#fef3c7] text-[#92400e]'}">
+                                ${r.type}
+                            </span>
+                        </td>
+                        <td class="p-md font-semibold">${r.desc}</td>
+                        <td class="p-md">
+                            <a href="../ficha_de_proceso_detallada/code.html?id=${encodeURIComponent(r.processId)}" class="text-secondary hover:underline font-bold">${r.processId}</a>
+                        </td>
+                        <td class="p-md text-center">${levelBadge}</td>
+                        <td class="p-md text-center font-bold text-xs">${r.treatment}</td>
+                        <td class="p-md text-center">
+                            <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-bold uppercase ${r.status === 'Abierto' ? 'bg-[#fee2e2] text-[#991b1b]' : r.status === 'Mitigado' ? 'bg-[#fef3c7] text-[#92400e]' : 'bg-[#dcfce7] text-[#166534]'}">
+                                ${r.status}
+                            </span>
+                        </td>
+                        <td class="p-md text-center">
+                            <div class="flex justify-center gap-1">
+                                <button onclick="editRiesgo('${r.id}')" class="text-on-surface-variant hover:text-primary transition-colors" title="Editar">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>
+                                <button onclick="deleteRiesgo('${r.id}')" class="text-error hover:text-red-700 transition-colors" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterByMatrix(prob, imp) {
+            if (filterProb === prob && filterImp === imp) {
+                // Toggle off
+                clearFilter();
+            } else {
+                filterProb = prob;
+                filterImp = imp;
+                renderRiesgos();
+            }
+        }
+
+        function clearFilter() {
+            filterProb = null;
+            filterImp = null;
+            renderRiesgos();
+        }
+
+        function updateCalculatedRisk() {
+            const prob = parseInt(document.getElementById('risk-prob').value);
+            const imp = parseInt(document.getElementById('risk-imp').value);
+            document.getElementById('risk-level-calc').value = prob * imp;
+        }
+
+        // Modales
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Nuevo Riesgo/Oportunidad";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-riesgo').reset();
+            updateCalculatedRisk();
+            document.getElementById('modal-riesgo').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-riesgo').classList.add('hidden');
+        }
+
+        function editRiesgo(id) {
+            const r = riesgos.find(item => item.id === id);
+            if (r) {
+                document.getElementById('modal-title').innerText = `Editar Registro (${r.id})`;
+                document.getElementById('edit-id').value = r.id;
+                document.getElementById('risk-type').value = r.type;
+                document.getElementById('risk-process').value = r.processId;
+                document.getElementById('risk-desc').value = r.desc;
+                document.getElementById('risk-prob').value = r.prob;
+                document.getElementById('risk-imp').value = r.imp;
+                document.getElementById('risk-treatment').value = r.treatment;
+                document.getElementById('risk-status').value = r.status;
+
+                updateCalculatedRisk();
+                document.getElementById('modal-riesgo').classList.remove('hidden');
+            }
+        }
+
+        function deleteRiesgo(id) {
+            if (confirm(`¿Está seguro de que desea eliminar el registro de riesgo ${id}?`)) {
+                riesgos = riesgos.filter(item => item.id !== id);
+                localStorage.setItem('sig_riesgos_iso', JSON.stringify(riesgos));
+                renderMatrix();
+                renderRiesgos();
+            }
+        }
+
+        function saveRiesgo(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('edit-id').value;
+            const type = document.getElementById('risk-type').value;
+            const processId = document.getElementById('risk-process').value;
+            const desc = document.getElementById('risk-desc').value.trim();
+            const prob = parseInt(document.getElementById('risk-prob').value);
+            const imp = parseInt(document.getElementById('risk-imp').value);
+            const level = prob * imp;
+            const treatment = document.getElementById('risk-treatment').value;
+            const status = document.getElementById('risk-status').value;
+
+            if (editId) {
+                const idx = riesgos.findIndex(item => item.id === editId);
+                if (idx !== -1) {
+                    riesgos[idx] = {
+                        ...riesgos[idx],
+                        type,
+                        processId,
+                        desc,
+                        prob,
+                        imp,
+                        level,
+                        treatment,
+                        status
+                    };
+                }
+            } else {
+                let maxSeq = 4;
+                riesgos.forEach(item => {
+                    const parts = item.id.split('-');
+                    if (parts.length === 3) {
+                        const seq = parseInt(parts[2]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const prefix = type === "Oportunidad" ? "O" : "R";
+                const newId = `${prefix}-CAL-${nextSeq}`;
+
+                riesgos.push({
+                    id: newId,
+                    type,
+                    desc,
+                    processId,
+                    prob,
+                    imp,
+                    level,
+                    treatment,
+                    status
+                });
+            }
+
+            localStorage.setItem('sig_riesgos_iso', JSON.stringify(riesgos));
+            renderMatrix();
+            renderRiesgos();
+            closeModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initData();
+        });
+    </script>
+</body>
+</html>

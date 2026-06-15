@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro Central de Análisis de Contexto</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "inverse-primary": "#bec6e0",
+                        "inverse-surface": "#213145",
+                        "on-primary-container": "#7c839b",
+                        "on-tertiary-container": "#818486",
+                        "on-secondary-container": "#fefcff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "tertiary-container": "#191c1e",
+                        "surface-tint": "#565e74",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-container": "#316bf3",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "outline": "#76777d",
+                        "on-error": "#ffffff",
+                        "secondary": "#0051d5",
+                        "error": "#ba1a1a",
+                        "tertiary": "#000000",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "background": "#f8f9ff",
+                        "primary-container": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "primary": "#000000",
+                        "surface-container": "#e5eeff",
+                        "on-background": "#0b1c30",
+                        "on-surface-variant": "#45464d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "max-width": "1440px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin": "24px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        /* Tonal Layering */
+        .card-level-1 { background-color: #ffffff; border: 1px solid #E2E8F0; }
+        .card-level-2:hover { background-color: #ffffff; box-shadow: 0px 4px 12px rgba(15, 23, 42, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased min-h-screen flex flex-col font-body-md text-body-md">
+<!-- TopAppBar -->
+<header class="bg-surface-bright dark:bg-inverse-surface w-full top-0 sticky border-b border-outline-variant dark:border-outline flat no shadows transition-colors duration-200 z-40">
+<div class="flex justify-between items-center px-margin py-sm w-full max-w-[1440px] mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary cursor-pointer hover:bg-surface-container-low dark:hover:bg-on-tertiary-fixed-variant p-2 rounded-full" data-icon="menu">menu</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-inverse-on-surface">SIG Integrated Management</span>
+</div>
+<div class="flex items-center gap-6 hidden md:flex">
+<nav class="flex items-center gap-6">
+<a class="text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low dark:hover:bg-on-tertiary-fixed-variant transition-colors duration-200 px-3 py-2 rounded-md font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>Dashboard
+                    </a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-on-tertiary-fixed-variant transition-colors duration-200 px-3 py-2 rounded-md font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>Contexto
+                    </a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low dark:hover:bg-on-tertiary-fixed-variant transition-colors duration-200 px-3 py-2 rounded-md font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>Procesos
+                    </a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low dark:hover:bg-on-tertiary-fixed-variant transition-colors duration-200 px-3 py-2 rounded-md font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">rule</span>Auditorías
+                    </a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<!-- Multi-tenancy Environment Switcher -->
+<div class="hidden lg:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-lowest text-secondary gap-2">
+<span class="material-symbols-outlined text-[16px]">domain</span>
+<span class="font-label-md text-label-md">Producción</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-headline-sm text-headline-sm cursor-pointer" title="User profile and notifications">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-[1440px] mx-auto px-margin py-xl flex flex-col md:flex-row gap-gutter">
+<!-- Left Rail (Desktop) -->
+<aside class="hidden md:block w-[240px] flex-shrink-0">
+<div class="card-level-1 rounded-xl p-md h-full flex flex-col gap-6 sticky top-[100px]">
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-3 uppercase">Módulos de Contexto</h3>
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-secondary-fixed text-on-secondary-fixed font-body-md text-body-md font-semibold" href="#">
+<span class="material-symbols-outlined text-[20px]">summarize</span>
+                                Registro Central
+                            </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-body-md text-body-md" href="../requisitos_legales/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./requisitos_legales/code.html'); }">
+<span class="material-symbols-outlined text-[20px]">gavel</span>
+                                Requisitos Legales
+                            </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-body-md text-body-md" href="../gesti_n_de_partes_interesadas/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./gesti_n_de_partes_interesadas/code.html'); }">
+<span class="material-symbols-outlined text-[20px]">groups</span>
+                                Partes Interesadas
+                            </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-body-md text-body-md" href="../an_lisis_dafo_estrat_gico/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./an_lisis_dafo_estrat_gico/code.html'); }">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+                                DAFO
+                            </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+                                Riesgos y Oportunidades
+                            </a>
+</li>
+</ul>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-secondary hover:bg-[#003ea8] text-on-secondary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+                        Generar Informe
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Canvas -->
+<div class="flex-grow flex flex-col gap-lg pb-24 md:pb-0">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface">Registro Central de Análisis</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Consolidado de contexto organizacional según ISO 9001:2026</p>
+</div>
+<div class="flex gap-3">
+<button class="md:hidden bg-secondary text-on-secondary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+                        Informe
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Health Index Widget (Spans 4 cols on lg) -->
+<div class="lg:col-span-4 card-level-1 card-level-2 rounded-xl p-lg flex flex-col transition-all">
+<div class="flex justify-between items-start mb-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Índice de Salud</h2>
+<span class="material-symbols-outlined text-on-surface-variant">health_and_safety</span>
+</div>
+<div class="flex-grow flex flex-col items-center justify-center relative">
+<!-- Simulated Circular Progress -->
+<div class="w-32 h-32 rounded-full border-[12px] border-surface-container-low flex items-center justify-center relative">
+<div class="absolute inset-0 rounded-full border-[12px] border-secondary" style="clip-path: polygon(0 0, 100% 0, 100% 85%, 0 85%);"></div>
+<span class="font-display-lg text-display-lg text-on-surface relative z-10">85%</span>
+</div>
+<p class="font-label-md text-label-md text-[#166534] bg-[#DCFCE7] px-3 py-1 rounded-full mt-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +2% vs Q3
+                        </p>
+</div>
+</div>
+<!-- KPIs Overview (Spans 8 cols on lg) -->
+<div class="lg:col-span-8 card-level-1 card-level-2 rounded-xl p-lg flex flex-col transition-all">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Métricas de Control</h2>
+<button class="text-secondary font-label-md text-label-md flex items-center gap-1 hover:underline">
+                             Ver Detalles <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-grow">
+<!-- KPI 1 -->
+<div class="bg-surface p-4 rounded-lg border border-outline-variant flex flex-col justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">gavel</span> Requisitos Legales</span>
+<div class="mt-4 flex items-end justify-between">
+<span class="font-headline-md text-headline-md text-on-surface">42/45</span>
+<span class="text-[#991B1B] bg-[#FEE2E2] px-2 py-0.5 rounded text-[10px] font-bold">3 VENCIDOS</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface p-4 rounded-lg border border-outline-variant flex flex-col justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">groups</span> Partes Interesadas</span>
+<div class="mt-4 flex items-end justify-between">
+<span class="font-headline-md text-headline-md text-on-surface">12</span>
+<span class="text-[#166534] bg-[#DCFCE7] px-2 py-0.5 rounded text-[10px] font-bold">100% ANALIZADO</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface p-4 rounded-lg border border-outline-variant flex flex-col justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">warning</span> Riesgos Altos</span>
+<div class="mt-4 flex items-end justify-between">
+<span class="font-headline-md text-headline-md text-on-surface">4</span>
+<span class="text-[#9A3412] bg-[#FFEDD5] px-2 py-0.5 rounded text-[10px] font-bold">EN TRATAMIENTO</span>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface p-4 rounded-lg border border-outline-variant flex flex-col justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">lightbulb</span> Oportunidades</span>
+<div class="mt-4 flex items-end justify-between">
+<span class="font-headline-md text-headline-md text-on-surface">8</span>
+<span class="text-[#1E40AF] bg-[#DBEAFE] px-2 py-0.5 rounded text-[10px] font-bold">2 ACTIVAS</span>
+</div>
+</div>
+</div>
+</div>
+<!-- DAFO Matrix Summary (Spans full width) -->
+<div class="lg:col-span-12 card-level-1 card-level-2 rounded-xl p-lg transition-all">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Resumen Matriz DAFO</h2>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">open_in_new</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Debilidades -->
+<div class="border border-outline-variant rounded-lg p-4">
+<h3 class="font-label-md text-label-md text-[#991B1B] mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">trending_down</span> DEBILIDADES (Interno)
+                            </h3>
+<ul class="space-y-2 font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#991B1B] rounded-full mt-1.5 flex-shrink-0"></span> Alta rotación en personal técnico clave.</li>
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#991B1B] rounded-full mt-1.5 flex-shrink-0"></span> Sistemas de información heredados (legacy) lentos.</li>
+</ul>
+</div>
+<!-- Fortalezas -->
+<div class="border border-outline-variant rounded-lg p-4">
+<h3 class="font-label-md text-label-md text-[#166534] mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">trending_up</span> FORTALEZAS (Interno)
+                            </h3>
+<ul class="space-y-2 font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#166534] rounded-full mt-1.5 flex-shrink-0"></span> Sólida posición financiera y flujo de caja.</li>
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#166534] rounded-full mt-1.5 flex-shrink-0"></span> Certificaciones de calidad mantenidas por 10 años.</li>
+</ul>
+</div>
+<!-- Amenazas -->
+<div class="border border-outline-variant rounded-lg p-4 bg-surface-bright">
+<h3 class="font-label-md text-label-md text-[#9A3412] mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">warning</span> AMENAZAS (Externo)
+                            </h3>
+<ul class="space-y-2 font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#9A3412] rounded-full mt-1.5 flex-shrink-0"></span> Cambios regulatorios inminentes en sector ambiental.</li>
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#9A3412] rounded-full mt-1.5 flex-shrink-0"></span> Entrada de nuevos competidores con tecnología disruptiva.</li>
+</ul>
+</div>
+<!-- Oportunidades -->
+<div class="border border-outline-variant rounded-lg p-4 bg-surface-bright">
+<h3 class="font-label-md text-label-md text-[#1E40AF] mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span> OPORTUNIDADES (Externo)
+                            </h3>
+<ul class="space-y-2 font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#1E40AF] rounded-full mt-1.5 flex-shrink-0"></span> Subvenciones gubernamentales para digitalización.</li>
+<li class="flex gap-2"><span class="w-1.5 h-1.5 bg-[#1E40AF] rounded-full mt-1.5 flex-shrink-0"></span> Expansión a mercados emergentes en LATAM.</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Recent Activity Table (Spans full width) -->
+<div class="lg:col-span-12 card-level-1 card-level-2 rounded-xl flex flex-col overflow-hidden transition-all">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Últimas Actualizaciones de Contexto</h2>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="pl-9 pr-4 py-1.5 border border-outline-variant rounded-md font-body-sm text-body-sm focus:outline-none focus:border-secondary w-48 sm:w-64 bg-surface" placeholder="Buscar..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest border-b border-outline-variant">
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">ID REF</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant w-full">DESCRIPCIÓN</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">MÓDULO</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">FECHA</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap text-center">ESTADO</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
+<td class="p-4 text-on-surface font-code-sm">RL-2023-089</td>
+<td class="p-4 text-on-surface">Actualización Ley de Protección de Datos (Reglamento UE)</td>
+<td class="p-4 text-on-surface-variant">Req. Legales</td>
+<td class="p-4 text-on-surface-variant">12 Oct 2023</td>
+<td class="p-4 text-center"><span class="inline-block px-2 py-1 rounded bg-[#DCFCE7] text-[#166534] text-[11px] font-bold">VIGENTE</span></td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors bg-[#F8FAFC]">
+<td class="p-4 text-on-surface font-code-sm">PI-2023-012</td>
+<td class="p-4 text-on-surface">Revisión de expectativas de accionistas Q3</td>
+<td class="p-4 text-on-surface-variant">Partes Int.</td>
+<td class="p-4 text-on-surface-variant">05 Oct 2023</td>
+<td class="p-4 text-center"><span class="inline-block px-2 py-1 rounded bg-[#FEF9C3] text-[#854D0E] text-[11px] font-bold">EN REVISIÓN</span></td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
+<td class="p-4 text-on-surface font-code-sm">RS-2023-045</td>
+<td class="p-4 text-on-surface">Interrupción de cadena de suministro por huelga sectorial</td>
+<td class="p-4 text-on-surface-variant">Riesgos</td>
+<td class="p-4 text-on-surface-variant">28 Sep 2023</td>
+<td class="p-4 text-center"><span class="inline-block px-2 py-1 rounded bg-[#FEE2E2] text-[#991B1B] text-[11px] font-bold">CRÍTICO</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-sm fixed bottom-0 w-full z-50 flex justify-around items-center h-16 transition-transform">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container px-4 py-1 hover:text-secondary dark:hover:text-secondary-fixed-dim" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-label-md text-label-md mt-1">Contexto</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container px-4 py-1 hover:text-secondary dark:hover:text-secondary-fixed-dim" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-label-md text-label-md mt-1">Procesos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container px-4 py-1 hover:text-secondary dark:hover:text-secondary-fixed-dim" href="#">
+<span class="material-symbols-outlined" data-icon="rule">rule</span>
+<span class="font-label-md text-label-md mt-1">Auditorías</span>
+</a>
+</nav>
+</body></html>

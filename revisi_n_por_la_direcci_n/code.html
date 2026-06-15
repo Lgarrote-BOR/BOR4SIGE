@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Revisión por la Dirección - SIG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#003366",       // Azul Marino Profundo
+                        "secondary": "#0060ac",     // Azul Interactivo
+                        "background": "#f8f9fb",    // Gris de fondo
+                        "surface": "#ffffff",       // Blanco
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "success": "#137333",       // Verde Éxito
+                        "warning": "#b06000",       // Ámbar Alerta
+                        "danger": "#c5221f"         // Rojo Peligro
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Estrategia y Contexto</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">assignment_turned_in</span>
+                <span>Revisión por la Dirección (ISO 9001 §9.3)</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-6 max-w-5xl mx-auto w-full space-y-6">
+        
+        <!-- Cabecera del Módulo -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <h2 class="font-bold text-2xl text-primary tracking-tight">Revisión por la Dirección</h2>
+                    <span id="label-periodo" class="bg-blue-100 text-blue-800 text-[11px] font-bold px-2 py-0.5 rounded-full">FY24</span>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1">Consolidado Anual del desempeño del Sistema Integrado de Gestión (SGI).</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="resetToSeed()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">restore</span>
+                    Restablecer
+                </button>
+                <button onclick="openConfigModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">settings</span>
+                    Configurar Datos
+                </button>
+            </div>
+        </div>
+
+        <!-- Cuadrícula Principal del Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Columna Izquierda/Central (Desempeño y Objetivos) -->
+            <div class="md:col-span-2 space-y-6">
+                
+                <!-- Tarjeta Desempeño Global -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Desempeño Global del SGI</span>
+                            <div class="flex items-baseline gap-3 mt-1">
+                                <span id="val-desempeno" class="text-4xl font-extrabold text-primary">94.2%</span>
+                                <span id="trend-desempeno" class="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                    <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                    <span>+2.1% vs FY23</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-blue-50 text-secondary rounded-xl">
+                            <span class="material-symbols-outlined text-2xl font-bold">query_stats</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-2">
+                        <div class="w-full bg-surface-container rounded-full h-3">
+                            <div id="bar-desempeno" class="bg-secondary h-3 rounded-full transition-all duration-500" style="width: 94.2%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs font-semibold text-on-surface-variant">
+                            <span>Meta: <strong id="val-meta">90%</strong></span>
+                            <span>Estado: <strong id="val-estado" class="text-success uppercase">Óptimo</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Objetivos Estratégicos -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-xl">flag</span>
+                            <h3 class="font-bold text-base text-primary">Objetivos Estratégicos</h3>
+                        </div>
+                        <button onclick="openGoalModal()" class="text-secondary hover:text-primary flex items-center gap-0.5 text-xs font-bold transition-colors">
+                            <span class="material-symbols-outlined text-base">add</span>
+                            Añadir Objetivo
+                        </button>
+                    </div>
+
+                    <div id="list-objetivos" class="space-y-4">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Tarjeta Resolución de la Dirección -->
+                <div class="bg-surface border-l-4 border-secondary border-t border-r border-b border-outline-variant rounded-r-2xl rounded-l-none p-6 shadow-sm space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-1">
+                            <h3 class="font-bold text-base text-primary">Resolución de la Dirección</h3>
+                            <p class="text-xs text-on-surface-variant font-medium">Dictamen de la alta dirección sobre el estado general del SGI.</p>
+                        </div>
+                        <span id="badge-resolucion" class="bg-green-100 text-success text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-green-200">
+                            <span class="material-symbols-outlined text-sm font-bold">check_circle</span>
+                            <span>Aprobado</span>
+                        </span>
+                    </div>
+
+                    <p id="text-resolucion" class="text-sm text-on-surface-variant leading-relaxed italic font-medium bg-background p-4 rounded-xl border border-outline-variant">
+                        "El Comité de Dirección concluye que el Sistema Integrado de Gestión se mantiene adecuado, conveniente y eficaz para la consecución de los objetivos estratégicos de la organización, habiendo demostrado resiliencia operativa durante el período."
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-outline-variant/60 text-xs font-medium text-on-surface-variant">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">event</span>
+                            <span>Próxima Revisión Formal: <strong id="val-proxima" class="text-primary">15 Octubre, 2025</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2 sm:justify-end">
+                            <span class="material-symbols-outlined text-sm">verified_user</span>
+                            <span>Comité de Dirección Corporativo</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Columna Derecha (Estadísticas y Riesgos) -->
+            <div class="space-y-6">
+                
+                <!-- Tarjeta Auditorías Internas -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Auditorías Internas</span>
+                        <span class="material-symbols-outlined text-secondary font-bold">fact_check</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 border-b border-outline-variant/60 pb-3">
+                        <div>
+                            <span class="text-[10px] text-on-surface-variant font-medium block">Planificadas</span>
+                            <span id="aud-planificadas" class="text-2xl font-bold text-primary">12</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-on-surface-variant font-medium block">Ejecutadas</span>
+                            <span id="aud-ejecutadas" class="text-2xl font-bold text-success">12</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <div class="w-full bg-surface-container rounded-full h-2">
+                            <div id="bar-auditorias" class="bg-success h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-semibold text-on-surface-variant">
+                            <span>Progreso del Plan</span>
+                            <span id="aud-porcentaje">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Acciones Correctivas (CAPA) -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Acciones Correctivas</span>
+                        <span class="material-symbols-outlined text-danger font-bold">report</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 border-b border-outline-variant/60 pb-3">
+                        <div>
+                            <span class="text-[9px] text-on-surface-variant font-medium block">Abiertas</span>
+                            <span id="capa-abiertas" class="text-xl font-bold text-danger">4</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-on-surface-variant font-medium block">Cerradas</span>
+                            <span id="capa-cerradas" class="text-xl font-bold text-on-surface">31</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-on-surface-variant font-medium block">Eficacia</span>
+                            <span id="capa-eficacia" class="text-xl font-bold text-secondary">88%</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-[11px] text-on-surface-variant leading-relaxed">
+                        Control del ciclo de vida CAPA. Eficacia global medida por cierre satisfactorio de desvíos en auditorías.
+                    </p>
+                </div>
+
+                <!-- Tarjeta Riesgos Residuales Críticos -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">shield</span>
+                            <h4 class="font-bold text-sm text-primary">Riesgos Residuales</h4>
+                        </div>
+                        <button onclick="openRiskModal()" class="text-secondary hover:text-primary flex items-center gap-0.5 text-xs font-bold transition-colors">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Nuevo
+                        </button>
+                    </div>
+
+                    <div id="list-riesgos" class="space-y-3">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL DE CONFIGURACIÓN GLOBAL -->
+    <div id="modal-config" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-2xl max-w-xl w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Configurar Datos de la Revisión</h3>
+                <button onclick="closeConfigModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveConfig(event)" class="space-y-4">
+                
+                <!-- Desempeño Global -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Desempeño Global (%)</label>
+                        <input id="input-desempeno" required type="number" step="0.1" min="0" max="100" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Tendencia vs Año Anterior</label>
+                        <input id="input-trend" required type="text" placeholder="Ej: +2.1% vs FY23" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Meta Desempeño (%)</label>
+                        <input id="input-meta" required type="number" min="0" max="100" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <!-- Auditorías -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Auditorías Planificadas</label>
+                        <input id="input-aud-plan" required type="number" min="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Auditorías Ejecutadas</label>
+                        <input id="input-aud-ejec" required type="number" min="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <!-- Acciones Correctivas -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Acciones Abiertas</label>
+                        <input id="input-capa-abiertas" required type="number" min="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Acciones Cerradas</label>
+                        <input id="input-capa-cerradas" required type="number" min="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Eficacia CAPA (%)</label>
+                        <input id="input-capa-eficacia" required type="number" min="0" max="100" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <!-- Resolución -->
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Resolución Oficial de Dirección</label>
+                    <textarea id="input-resolucion" required rows="3" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Próxima Revisión Formal</label>
+                        <input id="input-proxima" required type="text" placeholder="Ej: 15 Octubre, 2025" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado del Sistema</label>
+                        <select id="input-estado-sistema" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="Condicionado">Condicionado</option>
+                            <option value="En Revisión">En Revisión</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeConfigModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AÑADIR/EDITAR OBJETIVO -->
+    <div id="modal-goal" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-2xl max-w-md w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="goal-modal-title" class="font-bold text-base text-primary">Añadir Objetivo Estratégico</h3>
+                <button onclick="closeGoalModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveGoal(event)" class="space-y-4">
+                <input type="hidden" id="goal-id" value=""/>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre del Objetivo</label>
+                    <input id="goal-name" required type="text" placeholder="Ej: Cero incidentes críticos de seguridad" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Progreso Actual (%)</label>
+                    <input id="goal-progress" required type="number" min="0" max="100" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeGoalModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Objetivo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AÑADIR/EDITAR RIESGO -->
+    <div id="modal-risk" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-2xl max-w-md w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="risk-modal-title" class="font-bold text-base text-primary">Añadir Riesgo Residual</h3>
+                <button onclick="closeRiskModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveRisk(event)" class="space-y-4">
+                <input type="hidden" id="risk-id" value=""/>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nivel de Riesgo</label>
+                    <select id="risk-level" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="ALTO">ALTO</option>
+                        <option value="MEDIO">MEDIO</option>
+                        <option value="BAJO">BAJO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre / Identificación del Riesgo</label>
+                    <input id="risk-name" required type="text" placeholder="Ej: Interrupción de Cadena de Suministro" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Acción / Estado de Mitigación</label>
+                    <input id="risk-details" required type="text" placeholder="Ej: Plan de contingencia activado; mitigación al 60%." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeRiskModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Riesgo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Semilla por defecto del mock
+        const defaultData = {
+            periodo: "FY24",
+            desempeno: 94.2,
+            trend: "+2.1% vs FY23",
+            meta: 90,
+            audPlanificadas: 12,
+            audEjecutadas: 12,
+            capaAbiertas: 4,
+            capaCerradas: 31,
+            capaEficacia: 88,
+            resolucion: "El Comité de Dirección concluye que el Sistema Integrado de Gestión se mantiene adecuado, conveniente y eficaz para la consecución de los objetivos estratégicos de la organización, habiendo demostrado resiliencia operativa durante el período.",
+            estadoSistema: "Aprobado",
+            proximaRevision: "15 Octubre, 2025",
+            objetivos: [
+                { id: "g1", name: "Cero incidentes críticos de seguridad", progress: 100 },
+                { id: "g2", name: "Digitalización de registros (Fase 2)", progress: 75 },
+                { id: "g3", name: "Reducción de merma operativa", progress: 40 }
+            ],
+            riesgos: [
+                { id: "r1", level: "ALTO", name: "Interrupción de Cadena de Suministro (Crítica)", details: "Plan de contingencia activado; mitigación al 60%." },
+                { id: "r2", level: "MEDIO", name: "Brecha de Seguridad de Datos (Phishing)", details: "Controles técnicos implementados; requiere refuerzo cultural." }
+            ]
+        };
+
+        let currentData = {};
+
+        function init() {
+            const stored = localStorage.getItem('sig_management_review');
+            if (stored) {
+                currentData = JSON.parse(stored);
+            } else {
+                currentData = JSON.parse(JSON.stringify(defaultData));
+                saveToLocalStorage();
+            }
+            render();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_management_review', JSON.stringify(currentData));
+        }
+
+        function resetToSeed() {
+            if (confirm("¿Está seguro de que desea restablecer los valores de la revisión a los datos por defecto?")) {
+                currentData = JSON.parse(JSON.stringify(defaultData));
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function render() {
+            // Desempeño Global
+            document.getElementById('val-desempeno').innerText = currentData.desempeno + '%';
+            document.getElementById('trend-desempeno').innerHTML = `
+                <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                <span>${currentData.trend}</span>
+            `;
+            document.getElementById('bar-desempeno').style.width = currentData.desempeno + '%';
+            document.getElementById('val-meta').innerText = currentData.meta + '%';
+            
+            const estadoEl = document.getElementById('val-estado');
+            if (currentData.desempeno >= currentData.meta) {
+                estadoEl.innerText = "Óptimo";
+                estadoEl.className = "text-success uppercase";
+            } else if (currentData.desempeno >= currentData.meta - 5) {
+                estadoEl.innerText = "Aceptable";
+                estadoEl.className = "text-warning uppercase";
+            } else {
+                estadoEl.innerText = "Crítico";
+                estadoEl.className = "text-danger uppercase";
+            }
+
+            // Auditorías
+            document.getElementById('aud-planificadas').innerText = currentData.audPlanificadas;
+            document.getElementById('aud-ejecutadas').innerText = currentData.audEjecutadas;
+            const audPct = currentData.audPlanificadas > 0 ? Math.round((currentData.audEjecutadas / currentData.audPlanificadas) * 100) : 0;
+            document.getElementById('aud-porcentaje').innerText = audPct + '%';
+            document.getElementById('bar-auditorias').style.width = Math.min(audPct, 100) + '%';
+
+            // CAPA
+            document.getElementById('capa-abiertas').innerText = currentData.capaAbiertas;
+            document.getElementById('capa-cerradas').innerText = currentData.capaCerradas;
+            document.getElementById('capa-eficacia').innerText = currentData.capaEficacia + '%';
+
+            // Resolución
+            document.getElementById('text-resolucion').innerText = `"${currentData.resolucion}"`;
+            document.getElementById('val-proxima').innerText = currentData.proximaRevision;
+            
+            const badgeRes = document.getElementById('badge-resolucion');
+            badgeRes.innerHTML = "";
+            if (currentData.estadoSistema === "Aprobado") {
+                badgeRes.className = "bg-green-100 text-green-800 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-green-200";
+                badgeRes.innerHTML = `<span class="material-symbols-outlined text-sm font-bold">check_circle</span><span>Aprobado</span>`;
+            } else if (currentData.estadoSistema === "Condicionado") {
+                badgeRes.className = "bg-amber-100 text-amber-800 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-amber-200";
+                badgeRes.innerHTML = `<span class="material-symbols-outlined text-sm font-bold">warning</span><span>Condicionado</span>`;
+            } else {
+                badgeRes.className = "bg-blue-100 text-blue-800 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-blue-200";
+                badgeRes.innerHTML = `<span class="material-symbols-outlined text-sm font-bold">hourglass_empty</span><span>En Revisión</span>`;
+            }
+
+            // Objetivos
+            const listObj = document.getElementById('list-objetivos');
+            listObj.innerHTML = "";
+            if (currentData.objetivos.length === 0) {
+                listObj.innerHTML = `<p class="text-xs text-on-surface-variant italic py-2">No se han definido objetivos estratégicos.</p>`;
+            } else {
+                currentData.objetivos.forEach(g => {
+                    listObj.innerHTML += `
+                        <div class="space-y-1.5 p-3 hover:bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant transition-all">
+                            <div class="flex justify-between items-center text-xs font-bold">
+                                <span class="text-primary">${g.name}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-secondary">${g.progress}%</span>
+                                    <button onclick="editGoal('${g.id}')" class="text-on-surface-variant hover:text-secondary p-0.5 rounded transition-colors" title="Editar">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                    </button>
+                                    <button onclick="deleteGoal('${g.id}')" class="text-danger hover:text-red-700 p-0.5 rounded transition-colors" title="Eliminar">
+                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="w-full bg-surface-container rounded-full h-2">
+                                <div class="bg-secondary h-2 rounded-full transition-all duration-300" style="width: ${g.progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Riesgos
+            const listRie = document.getElementById('list-riesgos');
+            listRie.innerHTML = "";
+            if (currentData.riesgos.length === 0) {
+                listRie.innerHTML = `<p class="text-xs text-on-surface-variant italic py-2">No se han registrado riesgos residuales.</p>`;
+            } else {
+                currentData.riesgos.forEach(r => {
+                    let badgeClass = "bg-slate-100 text-slate-800 border-slate-200";
+                    if (r.level === "ALTO") badgeClass = "bg-red-100 text-red-800 border-red-200 font-bold";
+                    else if (r.level === "MEDIO") badgeClass = "bg-amber-100 text-amber-800 border-amber-200 font-bold";
+
+                    listRie.innerHTML += `
+                        <div class="p-3.5 bg-background border border-outline-variant rounded-xl flex flex-col gap-1.5 hover:shadow-sm transition-shadow relative group">
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded text-[9px] border ${badgeClass}">${r.level}</span>
+                                <div class="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity absolute right-2 top-2">
+                                    <button onclick="editRisk('${r.id}')" class="text-on-surface-variant hover:text-secondary p-0.5 rounded hover:bg-surface-container-low transition-all" title="Editar">
+                                        <span class="material-symbols-outlined text-xs">edit</span>
+                                    </button>
+                                    <button onclick="deleteRisk('${r.id}')" class="text-danger hover:text-red-700 p-0.5 rounded hover:bg-surface-container-low transition-all" title="Eliminar">
+                                        <span class="material-symbols-outlined text-xs">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <h5 class="text-xs font-bold text-primary">${r.name}</h5>
+                            <p class="text-[11px] text-on-surface-variant">${r.details}</p>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // CONTROL CONFIGURACIÓN GLOBAL
+        function openConfigModal() {
+            document.getElementById('input-desempeno').value = currentData.desempeno;
+            document.getElementById('input-trend').value = currentData.trend;
+            document.getElementById('input-meta').value = currentData.meta;
+            document.getElementById('input-aud-plan').value = currentData.audPlanificadas;
+            document.getElementById('input-aud-ejec').value = currentData.audEjecutadas;
+            document.getElementById('input-capa-abiertas').value = currentData.capaAbiertas;
+            document.getElementById('input-capa-cerradas').value = currentData.capaCerradas;
+            document.getElementById('input-capa-eficacia').value = currentData.capaEficacia;
+            document.getElementById('input-resolucion').value = currentData.resolucion;
+            document.getElementById('input-proxima').value = currentData.proximaRevision;
+            document.getElementById('input-estado-sistema').value = currentData.estadoSistema;
+            document.getElementById('modal-config').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('modal-config').classList.add('hidden');
+        }
+
+        function saveConfig(e) {
+            e.preventDefault();
+            currentData.desempeno = parseFloat(document.getElementById('input-desempeno').value);
+            currentData.trend = document.getElementById('input-trend').value.trim();
+            currentData.meta = parseInt(document.getElementById('input-meta').value);
+            currentData.audPlanificadas = parseInt(document.getElementById('input-aud-plan').value);
+            currentData.audEjecutadas = parseInt(document.getElementById('input-aud-ejec').value);
+            currentData.capaAbiertas = parseInt(document.getElementById('input-capa-abiertas').value);
+            currentData.capaCerradas = parseInt(document.getElementById('input-capa-cerradas').value);
+            currentData.capaEficacia = parseInt(document.getElementById('input-capa-eficacia').value);
+            currentData.resolucion = document.getElementById('input-resolucion').value.trim();
+            currentData.proximaRevision = document.getElementById('input-proxima').value.trim();
+            currentData.estadoSistema = document.getElementById('input-estado-sistema').value;
+            
+            saveToLocalStorage();
+            closeConfigModal();
+            render();
+        }
+
+        // GESTIÓN DE OBJETIVOS
+        function openGoalModal() {
+            document.getElementById('goal-modal-title').innerText = "Añadir Objetivo Estratégico";
+            document.getElementById('goal-id').value = "";
+            document.getElementById('goal-name').value = "";
+            document.getElementById('goal-progress').value = "0";
+            document.getElementById('modal-goal').classList.remove('hidden');
+        }
+
+        function closeGoalModal() {
+            document.getElementById('modal-goal').classList.add('hidden');
+        }
+
+        function saveGoal(e) {
+            e.preventDefault();
+            const id = document.getElementById('goal-id').value;
+            const name = document.getElementById('goal-name').value.trim();
+            const progress = parseInt(document.getElementById('goal-progress').value);
+
+            if (id) {
+                const idx = currentData.objetivos.findIndex(g => g.id === id);
+                if (idx !== -1) {
+                    currentData.objetivos[idx] = { id, name, progress };
+                }
+            } else {
+                const newId = 'g' + (Date.now().toString(36) + Math.random().toString(36).substr(2, 5));
+                currentData.objetivos.push({ id: newId, name, progress });
+            }
+
+            saveToLocalStorage();
+            closeGoalModal();
+            render();
+        }
+
+        function editGoal(id) {
+            const g = currentData.objetivos.find(x => x.id === id);
+            if (g) {
+                document.getElementById('goal-modal-title').innerText = "Editar Objetivo";
+                document.getElementById('goal-id').value = g.id;
+                document.getElementById('goal-name').value = g.name;
+                document.getElementById('goal-progress').value = g.progress;
+                document.getElementById('modal-goal').classList.remove('hidden');
+            }
+        }
+
+        function deleteGoal(id) {
+            if (confirm("¿Seguro que desea eliminar este objetivo estratégico?")) {
+                currentData.objetivos = currentData.objetivos.filter(x => x.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        // GESTIÓN DE RIESGOS
+        function openRiskModal() {
+            document.getElementById('risk-modal-title').innerText = "Añadir Riesgo Residual";
+            document.getElementById('risk-id').value = "";
+            document.getElementById('risk-level').value = "ALTO";
+            document.getElementById('risk-name').value = "";
+            document.getElementById('risk-details').value = "";
+            document.getElementById('modal-risk').classList.remove('hidden');
+        }
+
+        function closeRiskModal() {
+            document.getElementById('modal-risk').classList.add('hidden');
+        }
+
+        function saveRisk(e) {
+            e.preventDefault();
+            const id = document.getElementById('risk-id').value;
+            const level = document.getElementById('risk-level').value;
+            const name = document.getElementById('risk-name').value.trim();
+            const details = document.getElementById('risk-details').value.trim();
+
+            if (id) {
+                const idx = currentData.riesgos.findIndex(x => x.id === id);
+                if (idx !== -1) {
+                    currentData.riesgos[idx] = { id, level, name, details };
+                }
+            } else {
+                const newId = 'r' + (Date.now().toString(36) + Math.random().toString(36).substr(2, 5));
+                currentData.riesgos.push({ id: newId, level, name, details });
+            }
+
+            saveToLocalStorage();
+            closeRiskModal();
+            render();
+        }
+
+        function editRisk(id) {
+            const r = currentData.riesgos.find(x => x.id === id);
+            if (r) {
+                document.getElementById('risk-modal-title').innerText = "Editar Riesgo Residual";
+                document.getElementById('risk-id').value = r.id;
+                document.getElementById('risk-level').value = r.level;
+                document.getElementById('risk-name').value = r.name;
+                document.getElementById('risk-details').value = r.details;
+                document.getElementById('modal-risk').classList.remove('hidden');
+            }
+        }
+
+        function deleteRisk(id) {
+            if (confirm("¿Seguro que desea eliminar este riesgo de la revisión?")) {
+                currentData.riesgos = currentData.riesgos.filter(x => x.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Requisitos Legales - Análisis de Contexto SIG</title>
+    <meta name="description" content="Registro y seguimiento de requisitos legales y reglamentarios aplicables al Sistema de Gestión Integrado (SGI)."/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary":                    "#003366",
+                        "secondary":                  "#0060ac",
+                        "background":                 "#f8f9fb",
+                        "surface":                    "#ffffff",
+                        "surface-container-low":      "#f2f4f6",
+                        "surface-container":          "#eceef0",
+                        "surface-container-high":     "#e6e8ea",
+                        "on-surface":                 "#191c1e",
+                        "on-surface-variant":         "#43474f",
+                        "outline":                    "#737780",
+                        "outline-variant":            "#c3c6d1",
+                        "success":                    "#137333",
+                        "success-container":          "#dcfce7",
+                        "warning":                    "#b06000",
+                        "warning-container":          "#fef3c7",
+                        "danger":                     "#c5221f",
+                        "danger-container":           "#ffdad6",
+                        "info":                       "#0060ac",
+                        "info-container":             "#dbeafe"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fb; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Grid de la tabla de requisitos */
+        .req-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr 1fr 0.7fr;
+            gap: 0;
+            align-items: start;
+        }
+        @media (max-width: 1200px) {
+            .req-grid { grid-template-columns: 1fr; }
+        }
+        /* Animación de entrada */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-entry { animation: fadeInUp 0.25s ease forwards; }
+        /* Toggle switch */
+        .toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background-color: #c3c6d1; border-radius: 34px; transition: .3s;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+            background: white; border-radius: 50%; transition: .3s;
+        }
+        input:checked + .slider { background-color: #0060ac; }
+        input:checked + .slider:before { transform: translateX(16px); }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant z-40 flex justify-between items-center px-6 py-3 shrink-0 shadow-sm">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Análisis de Contexto</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">balance</span>
+                <span>Requisitos Legales y Reglamentarios</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">US</button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-6 max-w-[1600px] mx-auto w-full space-y-6">
+
+        <!-- Cabecera del Módulo -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Requisitos Legales y Reglamentarios</h2>
+                <p class="text-sm text-on-surface-variant mt-1">
+                    Identificación, registro y seguimiento de los requisitos legales, reglamentarios y otros requisitos aplicables a la organización,
+                    conforme a ISO 9001:2026 §6.1.2, ISO 14001:2026 §6.1.3, ISO 45001:2018 §6.1.3, ISO 27001:2022 §6.1.3 e ISO 22301:2019 §6.1.
+                </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="exportarCSV()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">download</span>
+                    Exportar CSV
+                </button>
+                <button onclick="abrirModalNuevo()" id="btn-nuevo-req" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Nuevo Requisito
+                </button>
+            </div>
+        </div>
+
+        <!-- KPIs de Resumen -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col gap-2 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Requisitos</span>
+                    <span class="material-symbols-outlined text-secondary text-lg">list_alt</span>
+                </div>
+                <span id="kpi-total" class="font-bold text-2xl text-on-surface">0</span>
+                <p class="text-[11px] text-on-surface-variant">Registrados en el sistema</p>
+            </div>
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col gap-2 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Vigentes</span>
+                    <span class="material-symbols-outlined text-success text-lg">verified</span>
+                </div>
+                <span id="kpi-vigente" class="font-bold text-2xl text-success">0</span>
+                <p class="text-[11px] text-on-surface-variant">De aplicación actual</p>
+            </div>
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col gap-2 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">En Revisión</span>
+                    <span class="material-symbols-outlined text-warning text-lg">pending_actions</span>
+                </div>
+                <span id="kpi-revision" class="font-bold text-2xl text-warning">0</span>
+                <p class="text-[11px] text-on-surface-variant">Pendientes de evaluación</p>
+            </div>
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col gap-2 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Vencidos</span>
+                    <span class="material-symbols-outlined text-danger text-lg">warning</span>
+                </div>
+                <span id="kpi-vencidos" class="font-bold text-2xl text-danger">0</span>
+                <p class="text-[11px] text-on-surface-variant">Revisión próxima o vencida</p>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="search-req" oninput="renderTabla()" placeholder="Buscar por ID, título, ámbito..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap justify-end">
+                <select id="filter-ambito" onchange="renderTabla()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Todos los Ámbitos</option>
+                    <option value="Ambiental">Ambiental</option>
+                    <option value="Calidad">Calidad</option>
+                    <option value="Seguridad de la Información">Seguridad de la Información</option>
+                    <option value="Salud y Seguridad Laboral">Salud y Seguridad Laboral</option>
+                    <option value="Protección de Datos">Protección de Datos</option>
+                    <option value="Compliance / Anticorrupción">Compliance / Anticorrupción</option>
+                    <option value="General">General</option>
+                </select>
+                <select id="filter-estado" onchange="renderTabla()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Cualquier Estado</option>
+                    <option value="Vigente">Vigente</option>
+                    <option value="En Revisión">En Revisión</option>
+                    <option value="Vencido">Vencido</option>
+                    <option value="Derogado">Derogado</option>
+                </select>
+                <select id="filter-tipo" onchange="renderTabla()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Todo Tipo</option>
+                    <option value="Ley">Ley</option>
+                    <option value="Reglamento UE">Reglamento UE</option>
+                    <option value="Real Decreto">Real Decreto</option>
+                    <option value="Decreto">Decreto</option>
+                    <option value="Orden">Orden</option>
+                    <option value="Directiva UE">Directiva UE</option>
+                    <option value="Norma Técnica">Norma Técnica</option>
+                    <option value="Resolución">Resolución</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla de Requisitos -->
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <!-- Cabecera -->
+            <div class="req-grid bg-surface-container border-b border-outline-variant p-3 font-bold text-xs text-primary hidden lg:grid">
+                <div>ID / Referencia</div>
+                <div>Título / Descripción</div>
+                <div>Ámbito y Norma SIG</div>
+                <div>Tipo</div>
+                <div class="text-center">Estado</div>
+                <div>Próx. Revisión</div>
+                <div class="text-center">Acciones</div>
+            </div>
+            <div id="req-container" class="divide-y divide-outline-variant">
+                <!-- Dinámico -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Nuevo / Editar Requisito -->
+    <div id="modal-req" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-req-title" class="text-lg font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">add_circle</span>
+                    Nuevo Requisito Legal
+                </h3>
+                <button onclick="cerrarModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="form-req" onsubmit="guardarRequisito(event)" class="space-y-4">
+                <input type="hidden" id="req-edit-id" value=""/>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-id">ID de Referencia *</label>
+                        <input required id="req-id" type="text" placeholder="Ej: RL-2026-001" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-tipo">Tipo de Norma *</label>
+                        <select required id="req-tipo" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none">
+                            <option value="">-- Seleccionar --</option>
+                            <option>Ley</option>
+                            <option>Reglamento UE</option>
+                            <option>Real Decreto</option>
+                            <option>Decreto</option>
+                            <option>Orden</option>
+                            <option>Directiva UE</option>
+                            <option>Norma Técnica</option>
+                            <option>Resolución</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-titulo">Título / Denominación oficial *</label>
+                    <input required id="req-titulo" type="text" placeholder="Ej: Reglamento (UE) 2016/679 — Protección de Datos de Carácter Personal (RGPD)" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-desc">Descripción del Requisito Aplicable</label>
+                    <textarea id="req-desc" rows="3" placeholder="Describa los apartados o artículos concretos que aplican a la organización y cómo afectan al SGI..." class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all resize-y"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-ambito">Ámbito del SGI *</label>
+                        <select required id="req-ambito" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none">
+                            <option value="">-- Seleccionar --</option>
+                            <option>Calidad</option>
+                            <option>Ambiental</option>
+                            <option>Salud y Seguridad Laboral</option>
+                            <option>Seguridad de la Información</option>
+                            <option>Protección de Datos</option>
+                            <option>Compliance / Anticorrupción</option>
+                            <option>General</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-norma">Normas SIG Relacionadas</label>
+                        <input id="req-norma" type="text" placeholder="Ej: ISO 9001:2026, ISO 27001:2022" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-estado">Estado *</label>
+                        <select required id="req-estado" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none">
+                            <option value="Vigente">Vigente</option>
+                            <option value="En Revisión">En Revisión</option>
+                            <option value="Vencido">Vencido</option>
+                            <option value="Derogado">Derogado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-fecha-rev">Fecha Próxima Revisión</label>
+                        <input id="req-fecha-rev" type="date" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-responsable">Responsable de Seguimiento</label>
+                        <input id="req-responsable" type="text" placeholder="Ej: Departamento Legal / Ana R." class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1" for="req-enlace">Enlace / Referencia Documental</label>
+                        <input id="req-enlace" type="text" placeholder="Ej: BOE-A-2018-16673 / URL oficial" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-4 mt-2">
+                    <button type="button" onclick="cerrarModal()" class="bg-surface border border-outline-variant text-primary text-xs font-bold px-4 py-2 rounded-lg hover:bg-surface-container transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary transition-colors shadow-sm">
+                        Guardar Requisito
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ──────────────────────────────────────────────────────────────
+        // Datos semilla: requisitos legales típicos de un SGI en España
+        // ──────────────────────────────────────────────────────────────
+        const seedRequisitos = [
+            {
+                id: "RL-2026-001",
+                tipo: "Reglamento UE",
+                titulo: "Reglamento (UE) 2016/679 del Parlamento Europeo — RGPD",
+                desc: "Establece las normas relativas a la protección de las personas físicas en lo que respecta al tratamiento de datos personales y a la libre circulación de estos datos. Aplica a todos los procesos que impliquen tratamiento de datos de empleados, clientes y proveedores.",
+                ambito: "Protección de Datos",
+                norma: "ISO 27001:2022, ISO 27701:2019",
+                estado: "Vigente",
+                fechaRev: "2026-12-31",
+                responsable: "DPO / Dpto. Legal",
+                enlace: "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679"
+            },
+            {
+                id: "RL-2026-002",
+                tipo: "Ley",
+                titulo: "Ley Orgánica 3/2018, de 5 de diciembre — LOPDGDD",
+                desc: "Ley Orgánica de Protección de Datos Personales y garantía de los derechos digitales. Desarrolla el RGPD en el contexto español e incorpora derechos digitales reconocidos en el entorno laboral.",
+                ambito: "Protección de Datos",
+                norma: "ISO 27001:2022, ISO 27701:2019",
+                estado: "Vigente",
+                fechaRev: "2026-12-31",
+                responsable: "DPO / Dpto. Legal",
+                enlace: "https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673"
+            },
+            {
+                id: "RL-2026-003",
+                tipo: "Real Decreto",
+                titulo: "Real Decreto Legislativo 2/2015 — Estatuto de los Trabajadores",
+                desc: "Marco laboral básico que regula las relaciones entre empresa y trabajadores: contratación, jornada, descansos, despido, negociación colectiva. Aplica a toda la gestión de personas y recursos humanos.",
+                ambito: "Salud y Seguridad Laboral",
+                norma: "ISO 45001:2018",
+                estado: "Vigente",
+                fechaRev: "2026-06-30",
+                responsable: "RRHH / Asesoría Laboral",
+                enlace: "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430"
+            },
+            {
+                id: "RL-2026-004",
+                tipo: "Ley",
+                titulo: "Ley 31/1995, de 8 de noviembre — Prevención de Riesgos Laborales (LPRL)",
+                desc: "Establece el marco normativo básico en materia de prevención de riesgos laborales. Obliga a realizar evaluaciones de riesgos, planificar la actividad preventiva y garantizar la formación e información de los trabajadores.",
+                ambito: "Salud y Seguridad Laboral",
+                norma: "ISO 45001:2018",
+                estado: "Vigente",
+                fechaRev: "2026-03-31",
+                responsable: "Servicio de Prevención",
+                enlace: "https://www.boe.es/buscar/act.php?id=BOE-A-1995-24292"
+            },
+            {
+                id: "RL-2026-005",
+                tipo: "Real Decreto",
+                titulo: "Real Decreto 311/2022, de 3 de mayo — Esquema Nacional de Seguridad (ENS)",
+                desc: "Regula la seguridad de los sistemas de información de las Administraciones Públicas y entidades que traten datos de interés público. Define los principios básicos, requisitos mínimos y controles de seguridad aplicables.",
+                ambito: "Seguridad de la Información",
+                norma: "ENS RD 311/2022, ISO 27001:2022",
+                estado: "Vigente",
+                fechaRev: "2026-09-30",
+                responsable: "CISO / Responsable de Seguridad",
+                enlace: "https://www.boe.es/buscar/act.php?id=BOE-A-2022-7191"
+            },
+            {
+                id: "RL-2026-006",
+                tipo: "Ley",
+                titulo: "Ley 21/2013, de 9 de diciembre — Evaluación Ambiental",
+                desc: "Regula la evaluación ambiental de los planes, programas y proyectos que puedan tener efectos significativos sobre el medio ambiente. Aplica en el marco de la gestión ambiental de la organización.",
+                ambito: "Ambiental",
+                norma: "ISO 14001:2026",
+                estado: "En Revisión",
+                fechaRev: "2026-07-15",
+                responsable: "Responsable Medioambiental",
+                enlace: "https://www.boe.es/buscar/act.php?id=BOE-A-2013-12913"
+            },
+            {
+                id: "RL-2026-007",
+                tipo: "Reglamento UE",
+                titulo: "Reglamento (UE) 2020/852 — Taxonomía de Finanzas Sostenibles",
+                desc: "Establece el marco para determinar si una actividad económica es medioambientalmente sostenible a efectos de inversión. Relevante para la memoria de sostenibilidad y la estrategia ambiental.",
+                ambito: "Ambiental",
+                norma: "ISO 14001:2026",
+                estado: "En Revisión",
+                fechaRev: "2026-10-01",
+                responsable: "Dirección / Dpto. Legal",
+                enlace: "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32020R0852"
+            },
+            {
+                id: "RL-2026-008",
+                tipo: "Ley",
+                titulo: "Ley 2/2023, de 20 de febrero — Canal de Denuncias (Whistleblowing)",
+                desc: "Transpone la Directiva UE 2019/1937. Obliga a las organizaciones de más de 50 trabajadores a disponer de un canal de denuncias confidencial para comunicar infracciones. Aplica al sistema de compliance.",
+                ambito: "Compliance / Anticorrupción",
+                norma: "ISO 37001:2016, ISO 37301:2021",
+                estado: "Vigente",
+                fechaRev: "2026-12-01",
+                responsable: "Compliance Officer / Asesoría Jurídica",
+                enlace: "https://www.boe.es/buscar/act.php?id=BOE-A-2023-4513"
+            },
+            {
+                id: "RL-2026-009",
+                tipo: "Norma Técnica",
+                titulo: "UNE-EN ISO 9001:2026 — Sistemas de Gestión de la Calidad",
+                desc: "Norma internacional que especifica los requisitos para un sistema de gestión de la calidad. Aplica a todos los procesos y actividades de la organización incluidos en el alcance del SGC.",
+                ambito: "Calidad",
+                norma: "ISO 9001:2026",
+                estado: "Vigente",
+                fechaRev: "2027-01-01",
+                responsable: "Responsable de Calidad",
+                enlace: "https://www.une.org/encuentra-tu-norma/busca-tu-norma/norma/?c=N0071285"
+            },
+            {
+                id: "RL-2026-010",
+                tipo: "Directiva UE",
+                titulo: "Directiva (UE) 2022/2555 — NIS2 (Seguridad de las Redes e Información)",
+                desc: "Amplía el ámbito de aplicación de la Directiva NIS original. Obliga a los operadores de servicios esenciales e importantes a adoptar medidas de gestión de riesgos de ciberseguridad y a notificar incidentes. Pendiente de transposición completa en España.",
+                ambito: "Seguridad de la Información",
+                norma: "ISO 27001:2022, ENS RD 311/2022",
+                estado: "En Revisión",
+                fechaRev: "2026-10-17",
+                responsable: "CISO / Responsable de Seguridad",
+                enlace: "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555"
+            }
+        ];
+
+        let requisitos = [];
+        let editingId = null;
+
+        // ──────────────────────────────────────────────────────────────
+        // Inicialización
+        // ──────────────────────────────────────────────────────────────
+        function init() {
+            const stored = localStorage.getItem('sig_requisitos_legales');
+            if (stored) {
+                try { requisitos = JSON.parse(stored); } catch(e) { requisitos = [...seedRequisitos]; }
+            } else {
+                requisitos = [...seedRequisitos];
+                guardarLS();
+            }
+            renderTabla();
+        }
+
+        function guardarLS() {
+            localStorage.setItem('sig_requisitos_legales', JSON.stringify(requisitos));
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // Renderizar tabla
+        // ──────────────────────────────────────────────────────────────
+        function renderTabla() {
+            actualizarKPIs();
+            const container = document.getElementById('req-container');
+            const search = document.getElementById('search-req').value.toLowerCase().trim();
+            const filtroAmbito = document.getElementById('filter-ambito').value;
+            const filtroEstado = document.getElementById('filter-estado').value;
+            const filtroTipo = document.getElementById('filter-tipo').value;
+
+            const filtrados = requisitos.filter(r => {
+                const matchSearch = r.id.toLowerCase().includes(search) ||
+                    r.titulo.toLowerCase().includes(search) ||
+                    r.ambito.toLowerCase().includes(search) ||
+                    (r.responsable || '').toLowerCase().includes(search);
+                const matchAmbito = !filtroAmbito || r.ambito === filtroAmbito;
+                const matchEstado = !filtroEstado || r.estado === filtroEstado;
+                const matchTipo = !filtroTipo || r.tipo === filtroTipo;
+                return matchSearch && matchAmbito && matchEstado && matchTipo;
+            });
+
+            container.innerHTML = '';
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-on-surface-variant font-medium">
+                        <span class="material-symbols-outlined text-4xl block mb-2 opacity-40">search_off</span>
+                        No se encontraron requisitos con los filtros aplicados.
+                    </div>`;
+                return;
+            }
+
+            filtrados.forEach((r, i) => {
+                const estadoInfo = getEstadoInfo(r.estado);
+                const vencida = esFechaVencida(r.fechaRev);
+
+                const div = document.createElement('div');
+                div.className = `req-grid p-4 hover:bg-surface-container-low transition-colors items-start animate-entry`;
+                div.style.animationDelay = `${i * 0.03}s`;
+                div.innerHTML = `
+                    <!-- ID + Tipo -->
+                    <div class="flex flex-col gap-1 min-w-0">
+                        <span class="font-mono text-[10px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-bold w-fit">${r.id}</span>
+                        <span class="text-[10px] text-on-surface-variant mt-1 px-1.5 py-0.5 bg-surface-container rounded border border-outline-variant w-fit">${r.tipo}</span>
+                    </div>
+
+                    <!-- Título + Descripción -->
+                    <div class="flex flex-col gap-1 min-w-0">
+                        <span class="font-bold text-xs text-primary leading-snug">${r.titulo}</span>
+                        <span class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-3 mt-0.5">${r.desc || '—'}</span>
+                        ${r.enlace ? `<a href="${r.enlace}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-secondary hover:underline flex items-center gap-1 mt-1 w-fit"><span class="material-symbols-outlined text-[12px]">open_in_new</span> Ver fuente oficial</a>` : ''}
+                    </div>
+
+                    <!-- Ámbito + Normas SIG -->
+                    <div class="flex flex-col gap-1 min-w-0">
+                        <span class="text-[10px] font-bold text-secondary uppercase tracking-wider">${r.ambito}</span>
+                        ${r.norma ? `<span class="text-[10px] text-on-surface-variant mt-0.5">${r.norma}</span>` : ''}
+                        ${r.responsable ? `<span class="text-[10px] text-outline mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">person</span>${r.responsable}</span>` : ''}
+                    </div>
+
+                    <!-- Tipo -->
+                    <div>
+                        <span class="text-[10px] text-on-surface-variant">${r.tipo}</span>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="flex items-start justify-center pt-0.5">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${estadoInfo.cls}">${r.estado.toUpperCase()}</span>
+                    </div>
+
+                    <!-- Fecha Revisión -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[11px] ${vencida ? 'text-danger font-bold' : 'text-on-surface-variant'} flex items-center gap-1">
+                            ${vencida ? '<span class="material-symbols-outlined text-[13px]">alarm</span>' : ''}
+                            ${r.fechaRev ? formatearFecha(r.fechaRev) : '—'}
+                        </span>
+                        ${vencida ? '<span class="text-[9px] text-danger font-bold">¡REVISIÓN VENCIDA!</span>' : ''}
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="flex items-center justify-center gap-1 pt-0.5">
+                        <button onclick="editarRequisito('${r.id}')" title="Editar" class="p-1 rounded hover:bg-surface-container-high transition-colors text-secondary">
+                            <span class="material-symbols-outlined text-base">edit</span>
+                        </button>
+                        <button onclick="eliminarRequisito('${r.id}')" title="Eliminar" class="p-1 rounded hover:bg-danger-container transition-colors text-danger">
+                            <span class="material-symbols-outlined text-base">delete</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // KPIs
+        // ──────────────────────────────────────────────────────────────
+        function actualizarKPIs() {
+            document.getElementById('kpi-total').innerText = requisitos.length;
+            document.getElementById('kpi-vigente').innerText = requisitos.filter(r => r.estado === 'Vigente').length;
+            document.getElementById('kpi-revision').innerText = requisitos.filter(r => r.estado === 'En Revisión').length;
+            document.getElementById('kpi-vencidos').innerText = requisitos.filter(r => esFechaVencida(r.fechaRev)).length;
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // Helpers
+        // ──────────────────────────────────────────────────────────────
+        function getEstadoInfo(estado) {
+            const mapa = {
+                'Vigente':     { cls: 'text-success bg-success-container' },
+                'En Revisión': { cls: 'text-warning bg-warning-container' },
+                'Vencido':     { cls: 'text-danger bg-danger-container' },
+                'Derogado':    { cls: 'text-outline bg-surface-container border border-outline-variant' }
+            };
+            return mapa[estado] || { cls: 'text-on-surface-variant bg-surface-container' };
+        }
+
+        function esFechaVencida(fecha) {
+            if (!fecha) return false;
+            return new Date(fecha) < new Date();
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) return '—';
+            const [y, m, d] = fecha.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // CRUD
+        // ──────────────────────────────────────────────────────────────
+        function abrirModalNuevo() {
+            editingId = null;
+            document.getElementById('modal-req-title').innerHTML = '<span class="material-symbols-outlined text-secondary">add_circle</span> Nuevo Requisito Legal';
+            document.getElementById('form-req').reset();
+            document.getElementById('req-edit-id').value = '';
+            document.getElementById('modal-req').classList.remove('hidden');
+        }
+
+        function editarRequisito(id) {
+            const r = requisitos.find(x => x.id === id);
+            if (!r) return;
+            editingId = id;
+            document.getElementById('modal-req-title').innerHTML = '<span class="material-symbols-outlined text-secondary">edit</span> Editar Requisito';
+            document.getElementById('req-edit-id').value = id;
+            document.getElementById('req-id').value = r.id;
+            document.getElementById('req-tipo').value = r.tipo;
+            document.getElementById('req-titulo').value = r.titulo;
+            document.getElementById('req-desc').value = r.desc || '';
+            document.getElementById('req-ambito').value = r.ambito;
+            document.getElementById('req-norma').value = r.norma || '';
+            document.getElementById('req-estado').value = r.estado;
+            document.getElementById('req-fecha-rev').value = r.fechaRev || '';
+            document.getElementById('req-responsable').value = r.responsable || '';
+            document.getElementById('req-enlace').value = r.enlace || '';
+            document.getElementById('modal-req').classList.remove('hidden');
+        }
+
+        function guardarRequisito(event) {
+            event.preventDefault();
+            const reqObj = {
+                id:           document.getElementById('req-id').value.trim(),
+                tipo:         document.getElementById('req-tipo').value,
+                titulo:       document.getElementById('req-titulo').value.trim(),
+                desc:         document.getElementById('req-desc').value.trim(),
+                ambito:       document.getElementById('req-ambito').value,
+                norma:        document.getElementById('req-norma').value.trim(),
+                estado:       document.getElementById('req-estado').value,
+                fechaRev:     document.getElementById('req-fecha-rev').value,
+                responsable:  document.getElementById('req-responsable').value.trim(),
+                enlace:       document.getElementById('req-enlace').value.trim()
+            };
+
+            if (editingId) {
+                const idx = requisitos.findIndex(r => r.id === editingId);
+                if (idx !== -1) requisitos[idx] = reqObj;
+            } else {
+                if (requisitos.find(r => r.id === reqObj.id)) {
+                    alert('Ya existe un requisito con ese ID. Use un identificador diferente.');
+                    return;
+                }
+                requisitos.push(reqObj);
+            }
+
+            guardarLS();
+            cerrarModal();
+            renderTabla();
+        }
+
+        function eliminarRequisito(id) {
+            if (!confirm(`¿Confirma que desea eliminar el requisito ${id}? Esta acción no se puede deshacer.`)) return;
+            requisitos = requisitos.filter(r => r.id !== id);
+            guardarLS();
+            renderTabla();
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-req').classList.add('hidden');
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // Exportar CSV
+        // ──────────────────────────────────────────────────────────────
+        function exportarCSV() {
+            const headers = ['ID', 'Tipo', 'Título', 'Ámbito', 'Normas SIG', 'Estado', 'Próx. Revisión', 'Responsable', 'Enlace'];
+            const rows = requisitos.map(r => [
+                r.id, r.tipo, `"${(r.titulo||'').replace(/"/g,'""')}"`, r.ambito,
+                `"${(r.norma||'').replace(/"/g,'""')}"`, r.estado, r.fechaRev || '',
+                `"${(r.responsable||'').replace(/"/g,'""')}"`, r.enlace || ''
+            ].join(','));
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'requisitos_legales_SIG.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Cerrar modal al hacer click fuera del contenido
+        document.getElementById('modal-req').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

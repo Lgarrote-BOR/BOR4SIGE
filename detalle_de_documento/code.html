@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ficha Técnica - Procedimiento de Auditoría Interna</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#0051d5",
+                      "on-error": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-primary": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-fixed": "#e0e3e5",
+                      "inverse-surface": "#213145",
+                      "primary-fixed-dim": "#bec6e0",
+                      "secondary-container": "#316bf3",
+                      "surface-container": "#e5eeff",
+                      "on-surface-variant": "#45464d",
+                      "on-surface": "#0b1c30",
+                      "surface-variant": "#d3e4fe",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "primary-container": "#131b2e",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#000000",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "secondary-fixed": "#dbe1ff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-low": "#eff4ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error": "#ba1a1a",
+                      "inverse-primary": "#bec6e0",
+                      "on-secondary-fixed": "#00174b",
+                      "on-secondary-container": "#fefcff",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#191c1e",
+                      "primary": "#000000",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#76777d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "outline-variant": "#c6c6cd"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "margin": "24px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "max-width": "1440px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for data-heavy views */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8f9ff; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c6c6cd; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #76777d; 
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row antialiased">
+<!-- TopAppBar (Mobile Only - Hidden since this is a specific document view, suppressing global nav for focus, but providing a back button) -->
+<header class="md:hidden flex justify-between items-center px-lg h-16 w-full bg-surface border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:bg-surface-container-high rounded-full p-2 transition-all duration-200">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary truncate">P-CAL-01</h1>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-high rounded-full p-2 transition-all duration-200">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<!-- NavigationDrawer (Desktop Only - Retained as rail for contextual switching) -->
+<nav class="bg-surface-container-low text-secondary border-r border-outline-variant w-72 h-screen sticky top-0 hidden lg:flex flex-col py-md shrink-0">
+<!-- Multi-tenancy / Context Switcher -->
+<div class="px-md mb-lg">
+<div class="flex items-center gap-sm bg-surface-container border border-outline-variant rounded-lg p-3">
+<div class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">
+                    S
+                </div>
+<div>
+<div class="font-headline-sm text-headline-sm text-primary">SIG Corporativo</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Gestión Normativa</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-xs">
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-variant transition-colors rounded-lg mx-2 px-4 py-3 active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container font-bold rounded-lg mx-2 px-4 py-3 active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-body-md text-body-md">Documentos</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-variant transition-colors rounded-lg mx-2 px-4 py-3 active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="font-body-md text-body-md">Riesgos</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-variant transition-colors rounded-lg mx-2 px-4 py-3 active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="fact_check">fact_check</span>
+<span class="font-body-md text-body-md">Auditorías</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-variant transition-colors rounded-lg mx-2 px-4 py-3 active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="rule">rule</span>
+<span class="font-body-md text-body-md">Requisitos</span>
+</a>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col w-full max-w-[1440px] mx-auto overflow-hidden">
+<!-- Desktop Header / Breadcrumbs -->
+<header class="hidden md:flex items-center justify-between px-xl py-lg border-b border-outline-variant bg-surface sticky top-0 z-30">
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Documentos</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Calidad</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-bold">P-CAL-01</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-sm bg-surface border border-outline-variant text-on-surface hover:bg-surface-container px-4 py-2 rounded-lg transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined" data-icon="rate_review">rate_review</span>
+                    Solicitar Revisión
+                </button>
+<button class="flex items-center gap-sm bg-secondary text-on-primary hover:bg-opacity-90 px-4 py-2 rounded-lg transition-colors font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                    Descargar PDF
+                </button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-md md:p-xl space-y-lg">
+<!-- Document Header Profile -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col md:flex-row md:items-start justify-between gap-lg">
+<div class="flex-1">
+<div class="flex items-center gap-md mb-sm">
+<span class="bg-[#e6f4ea] text-[#137333] px-3 py-1 rounded-full font-label-md text-label-md border border-[#ceead6]">Vigente</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant px-2 py-1 bg-surface-container rounded">v4.0</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">P-CAL-01</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary mb-md">Procedimiento de Auditoría Interna</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+                        Establece las directrices y sistemática para la planificación, ejecución, reporte y seguimiento de las auditorías internas del Sistema de Gestión de Calidad, asegurando el cumplimiento con la norma ISO 9001:2015.
+                    </p>
+</div>
+<!-- Quick Meta Stats -->
+<div class="grid grid-cols-2 gap-md md:w-64 shrink-0">
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="font-label-md text-label-md text-on-surface-variant mb-xs">Próxima Revisión</div>
+<div class="font-headline-sm text-headline-sm text-primary">15 Nov 2024</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="font-label-md text-label-md text-on-surface-variant mb-xs">Días Restantes</div>
+<div class="font-headline-sm text-headline-sm text-primary">42</div>
+</div>
+</div>
+</div>
+<!-- Bento Grid Details -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Metadata Panel (Spans 1 column) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg space-y-md">
+<h3 class="font-headline-sm text-headline-sm text-primary border-b border-outline-variant pb-sm mb-md">Metadatos del Documento</h3>
+<div class="space-y-4">
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant">Proceso Asociado</div>
+<div class="font-body-md text-body-md text-on-background mt-1">Gestión de Calidad</div>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant">Clasificación</div>
+<div class="font-body-md text-body-md text-on-background mt-1">Confidencial (Interno)</div>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant">Norma de Referencia</div>
+<div class="font-body-md text-body-md text-on-background mt-1">ISO 9001:2015, Cláusula 9.2</div>
+</div>
+<div class="pt-4 border-t border-outline-variant">
+<div class="font-label-md text-label-md text-on-surface-variant mb-2">Responsables</div>
+<div class="flex items-center gap-3 mt-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm shrink-0">ER</div>
+<div>
+<div class="font-body-sm text-body-sm font-semibold">Elaborador</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Elena Ramos</div>
+</div>
+</div>
+<div class="flex items-center gap-3 mt-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center font-bold text-sm shrink-0">CM</div>
+<div>
+<div class="font-body-sm text-body-sm font-semibold">Aprobador</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Carlos Mendoza (Dir. Calidad)</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area (Spans 2 columns) -->
+<div class="lg:col-span-2 space-y-lg">
+<!-- Version History Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="p-lg border-b border-outline-variant bg-surface flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary">Historial de Versiones</h3>
+<button class="text-secondary hover:underline font-label-md text-label-md">Ver todas</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant">
+<th class="p-4 font-label-md text-label-md text-on-surface-variant w-24">Versión</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant w-32">Fecha</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant">Resumen de Cambios</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant w-32">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-4 font-code-sm text-code-sm font-bold">v4.0</td>
+<td class="p-4 font-body-sm text-body-sm">15 Nov 2023</td>
+<td class="p-4 font-body-sm text-body-sm text-on-surface-variant">Actualización de plantillas de reporte y definición de hallazgos.</td>
+<td class="p-4">
+<span class="bg-[#e6f4ea] text-[#137333] px-2 py-1 rounded text-xs border border-[#ceead6]">Actual</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-4 font-code-sm text-code-sm">v3.1</td>
+<td class="p-4 font-body-sm text-body-sm">02 Jun 2022</td>
+<td class="p-4 font-body-sm text-body-sm text-on-surface-variant">Corrección tipográfica menor en sección 4.2.</td>
+<td class="p-4">
+<button class="text-secondary hover:underline font-label-md text-label-md">Ver PDF</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-4 font-code-sm text-code-sm">v3.0</td>
+<td class="p-4 font-body-sm text-body-sm">10 Ene 2020</td>
+<td class="p-4 font-body-sm text-body-sm text-on-surface-variant">Alineación completa con ISO 9001:2015.</td>
+<td class="p-4">
+<button class="text-secondary hover:underline font-label-md text-label-md">Ver PDF</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Distribution List -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md">Lista de Distribución</h3>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-2 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="group">group</span>
+<span class="font-body-sm text-body-sm">Comité de Calidad</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="person">person</span>
+<span class="font-body-sm text-body-sm">Auditores Internos</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="business">business</span>
+<span class="font-body-sm text-body-sm">Gerencia General</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="engineering">engineering</span>
+<span class="font-body-sm text-body-sm">Jefes de Planta</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only - Suppressed per rules for specific detail view, but included structure if needed for other intents, currently hidden via classes) -->
+<!-- <nav class="fixed bottom-0 w-full lg:hidden z-50 bg-surface-container border-t border-outline-variant shadow-lg flex justify-around items-center h-16 px-md pb-safe"> ... </nav> -->
+</body></html>

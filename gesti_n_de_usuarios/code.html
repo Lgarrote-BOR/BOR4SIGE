@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bor4D SIG - Directorio de Usuarios</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#cbdbf5",
+                      "inverse-surface": "#213145",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "tertiary": "#000000",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "primary-container": "#131b2e",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-secondary-fixed": "#00174b",
+                      "on-secondary-container": "#fefcff",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-container": "#191c1e",
+                      "secondary-container": "#316bf3",
+                      "primary": "#000000",
+                      "on-surface": "#0b1c30",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-tertiary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-secondary": "#ffffff",
+                      "surface": "#f8f9ff",
+                      "on-surface-variant": "#45464d",
+                      "surface-container-high": "#dce9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-container": "#7c839b",
+                      "outline-variant": "#c6c6cd",
+                      "surface-container": "#e5eeff",
+                      "background": "#f8f9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "primary-fixed": "#dae2fd",
+                      "outline": "#76777d",
+                      "on-background": "#0b1c30",
+                      "secondary": "#0051d5",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#818486",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed-variant": "#3f465c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "max-width": "1440px",
+                      "xs": "4px",
+                      "margin": "24px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "xl": "32px",
+                      "gutter": "16px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-full flex flex-col md:flex-row antialiased">
+<!-- Navigation Drawer (Desktop) -->
+<nav class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[240px] bg-surface border-r border-outline-variant py-md z-50">
+<div class="px-md mb-xl flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">SIG</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">SIG Enterprise</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Admin Portal</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-xs px-sm flex-1">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-body-md text-body-md font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-secondary-container text-on-secondary-container font-bold active:scale-95 duration-150 group" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-body-md text-body-md">User Management</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">verified_user</span>
+<span class="font-body-md text-body-md font-medium">Quality Module</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">eco</span>
+<span class="font-body-md text-body-md font-medium">Environment</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">security</span>
+<span class="font-body-md text-body-md font-medium">Security</span>
+</a>
+</div>
+<div class="mt-auto px-sm flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">settings</span>
+<span class="font-body-md text-body-md font-medium">Settings</span>
+</a>
+<div class="px-md py-xs mt-sm">
+<span class="font-label-md text-label-md text-outline">v2.4.0</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col min-h-screen w-full md:pl-[240px]">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center px-lg h-16 bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-40 transition-all duration-200">
+<div class="flex items-center gap-md">
+<button class="md:hidden text-on-surface-variant hover:bg-surface-container-low p-sm rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<img alt="Bor4D Logo" class="h-8 w-auto md:hidden object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkPEqiwk9536gzsx1ZQd_McH_BMjk-pcpdj8qvzixEhgv_Wj2tzn3J5FS72-ItaoJIxtrsaTXAF0JgZzIsttotAbMLsMJRsJzplZjfR8ZgWmWzSZKj2KQLifv9fRS_Usz-Fk9yfsdF8PZyypQUow_aPq--KltaSVc3PmWR2AcLc1q_AKp5u29ZHd1XB06jonX-Mz1wBEEvNctST15bIAjtL-_izFD9KDTPghFBMaOMVp_mhwrYD7MIVZ-4K1aW8Q3Nhcl-24pj3ic"/>
+<h1 class="hidden md:block font-headline-md text-headline-md text-primary">User Management</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center gap-sm px-sm py-xs bg-surface-container border border-outline-variant rounded-full text-on-surface-variant cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="w-2 h-2 rounded-full bg-[#10B981]"></div>
+<span class="font-label-md text-label-md">Producción</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary font-bold overflow-hidden hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-md md:p-xl max-w-max-width mx-auto w-full flex-1 flex flex-col gap-lg">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div>
+<h2 class="md:hidden font-headline-md text-headline-md text-primary mb-xs">Directorio de Usuarios</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Gestione los accesos y roles del personal en el sistema SIG.</p>
+</div>
+<button id="add-user-btn" onclick="openAddUserModal()" class="w-full md:w-auto bg-secondary hover:bg-[#003ea8] text-on-secondary px-lg py-sm rounded-lg font-label-md text-label-md flex items-center justify-center gap-sm transition-colors shadow-sm active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">add</span>
+                    Añadir Usuario
+                </button>
+</div>
+<!-- Filters & Search -->
+<div class="flex flex-col md:flex-row gap-md items-center justify-between bg-surface-container-lowest p-md rounded-xl border border-outline-variant">
+<div class="relative w-full md:max-w-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-[40px] pr-md py-sm bg-surface rounded-lg border border-outline-variant text-body-md font-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="Buscar por nombre, email o rol..." type="text"/>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto overflow-x-auto pb-xs md:pb-0 scrollbar-hide">
+<button class="px-md py-xs rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md whitespace-nowrap transition-colors">Todos (124)</button>
+<button class="px-md py-xs rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md whitespace-nowrap transition-colors">Activos (118)</button>
+<button class="px-md py-xs rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md whitespace-nowrap transition-colors">Inactivos (6)</button>
+<div class="w-px h-6 bg-outline-variant mx-sm hidden md:block"></div>
+<button class="hidden md:flex items-center gap-xs px-sm py-xs text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span class="font-label-md text-label-md">Filtros</span>
+</button>
+</div>
+</div>
+<!-- User List Canvas (Table approach for Enterprise density) -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex-1 flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-lowest">
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant w-12 text-center"></th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant min-w-[200px]">Usuario</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant">Rol del Sistema</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant">Departamento</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant">Estado</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant w-16 text-right">Acciones</th>
+</tr>
+</thead>
+<tbody id="user-table-body" class="divide-y divide-outline-variant">
+</tbody>
+</table>
+</div>
+<div class="mt-auto border-t border-outline-variant p-sm flex items-center justify-between bg-surface-container-lowest">
+<span id="user-count-label" class="font-body-sm text-body-sm text-on-surface-variant px-sm">Mostrando usuarios...</span>
+<div class="flex items-center gap-xs">
+<button class="p-xs text-outline hover:text-primary disabled:opacity-50 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<button class="p-xs text-on-surface-variant hover:text-primary transition-colors rounded"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Nav Bar (Mobile) -->
+<nav class="md:hidden sticky bottom-0 w-full bg-surface-container-lowest border-t border-outline-variant flex justify-around items-center h-[64px] pb-[safe-area-inset-bottom] z-40">
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px] mb-xs">dashboard</span>
+<span class="font-label-md text-[10px] leading-none">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary" href="#">
+<div class="bg-secondary-container px-md py-xs rounded-full mb-xs">
+<span class="material-symbols-outlined text-[20px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">group</span>
+</div>
+<span class="font-label-md text-[10px] leading-none font-bold">Usuarios</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px] mb-xs">assignment_late</span>
+<span class="font-label-md text-[10px] leading-none">Risks</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px] mb-xs">account_tree</span>
+<span class="font-label-md text-[10px] leading-none">Processes</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px] mb-xs">fact_check</span>
+<span class="font-label-md text-[10px] leading-none">Audits</span>
+</a>
+</nav>
+<!-- Floating Action Button (Mobile Overlay) -->
+<button onclick="openAddUserModal()" class="md:hidden fixed bottom-[80px] right-md w-14 h-14 bg-secondary rounded-2xl shadow-lg flex items-center justify-center text-on-secondary hover:bg-[#003ea8] transition-colors z-50 active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+
+<!-- Modal Añadir/Editar Usuario -->
+<div id="modal-user" class="hidden fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-100">
+    <div class="bg-surface rounded-xl border border-outline-variant shadow-2xl w-full max-w-md overflow-hidden">
+        <!-- Header -->
+        <div class="px-6 py-4 bg-primary text-white flex justify-between items-center">
+            <h3 class="font-headline-sm text-sm font-bold flex items-center gap-2" id="modal-user-title">
+                <span class="material-symbols-outlined">person_add</span>
+                Añadir Usuario
+            </h3>
+            <button type="button" onclick="closeUserModal()" class="text-white/80 hover:text-white hover:bg-white/10 p-1 rounded transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <!-- Form -->
+        <form id="form-user" onsubmit="saveUser(event)" class="p-6 space-y-4">
+            <input type="hidden" id="user-id-field">
+            
+            <div>
+                <label for="user-name" class="block text-xs font-bold text-primary mb-1">Nombre Completo</label>
+                <input type="text" id="user-name" required class="w-full bg-background border border-outline-variant rounded-lg text-xs px-3 py-2 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+
+            <div>
+                <label for="user-email" class="block text-xs font-bold text-primary mb-1">Email</label>
+                <input type="email" id="user-email" required class="w-full bg-background border border-outline-variant rounded-lg text-xs px-3 py-2 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="user-role" class="block text-xs font-bold text-primary mb-1">Rol del Sistema</label>
+                    <input type="text" id="user-role" required class="w-full bg-background border border-outline-variant rounded-lg text-xs px-3 py-2 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="e.g. Quality Manager">
+                </div>
+                <div>
+                    <label for="user-dept" class="block text-xs font-bold text-primary mb-1">Departamento</label>
+                    <input type="text" id="user-dept" required class="w-full bg-background border border-outline-variant rounded-lg text-xs px-3 py-2 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="e.g. Calidad">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="user-tenant" class="block text-xs font-bold text-primary mb-1">Organización</label>
+                    <select id="user-tenant" class="w-full bg-background border border-outline-variant rounded-lg text-xs px-3 py-2 focus:outline-none focus:border-secondary focus:ring-0 transition-all">
+                        <!-- Cargar dinámicamente -->
+                    </select>
+                </div>
+                <div>
+                    <label for="user-status" class="block text-xs font-bold text-primary mb-1">Estado</label>
+                    <select id="user-status" class="w-full bg-background border border-outline-variant rounded-lg text-xs px-3 py-2 focus:outline-none focus:border-secondary focus:ring-0 transition-all">
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Privilegio Superadministrador -->
+            <div id="superadmin-privilege-container" class="flex items-center gap-3 p-3 bg-surface-container-low border border-outline-variant rounded-lg">
+                <input type="checkbox" id="user-is-superadmin" class="rounded text-secondary focus:ring-secondary">
+                <div>
+                    <label for="user-is-superadmin" class="block text-xs font-bold text-primary cursor-pointer flex items-center gap-1">
+                        Otorgar Privilegio de Superadministrador ⭐
+                    </label>
+                    <p class="text-[10px] text-on-surface-variant leading-tight">Permite administrar y acceder a todas las organizaciones de la plataforma.</p>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex justify-end gap-2 pt-2 border-t border-outline-variant">
+                <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-outline-variant rounded-lg font-label-md text-xs text-on-surface hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-secondary text-on-secondary rounded-lg font-label-md text-xs hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar Usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</main>
+
+<script>
+    let usersData = [];
+    let orgData = {};
+    let currentUser = null;
+
+    function initPage() {
+        // Cargar usuarios de localStorage
+        const storedUsers = localStorage.getItem('sig_users');
+        if (storedUsers) {
+            try {
+                usersData = JSON.parse(storedUsers);
+            } catch(e) {
+                console.error("Error parseando usuarios:", e);
+                usersData = [];
+            }
+        }
+
+        // Cargar organizaciones para el desplegable del modal
+        const storedOrgs = localStorage.getItem('sig_organizations');
+        if (storedOrgs) {
+            try {
+                orgData = JSON.parse(storedOrgs);
+            } catch(e) {}
+        }
+
+        // Cargar usuario activo para verificar si tiene permisos de superadmin
+        const userStr = localStorage.getItem('sig_current_user');
+        if (userStr) {
+            try {
+                currentUser = typeof userStr === 'string' ? JSON.parse(userStr) : userStr;
+            } catch(e) {}
+        }
+
+        // Si el usuario actual no es superadmin, deshabilitar la capacidad de otorgar el privilegio
+        const superadminCheckbox = document.getElementById("user-is-superadmin");
+        if (superadminCheckbox) {
+            superadminCheckbox.disabled = !(currentUser && currentUser.isSuperadmin);
+        }
+
+        renderUsers();
+        populateOrgDropdown();
+    }
+
+    function populateOrgDropdown() {
+        const select = document.getElementById("user-tenant");
+        if (!select) return;
+        select.innerHTML = "";
+        
+        // Agregar opciones de organizaciones cargadas
+        for (let id in orgData) {
+            const opt = document.createElement("option");
+            opt.value = id;
+            opt.innerText = orgData[id].name;
+            select.appendChild(opt);
+        }
+    }
+
+    function renderUsers() {
+        const tbody = document.getElementById("user-table-body");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        // Si no es superadmin, ocultar el botón superior de añadir usuario
+        const addBtn = document.getElementById("add-user-btn");
+        if (addBtn) {
+            if (currentUser && !currentUser.isSuperadmin) {
+                addBtn.classList.add("hidden");
+            } else {
+                addBtn.classList.remove("hidden");
+            }
+        }
+
+        // Filtrar usuarios: Si no es superadmin, sólo debe ver usuarios de su propia organización
+        let filteredUsers = usersData;
+        if (currentUser && !currentUser.isSuperadmin) {
+            const userTenant = currentUser.tenantId || "alfa";
+            filteredUsers = usersData.filter(u => u.tenantId === userTenant);
+        }
+
+        // Actualizar contador
+        const countLabel = document.getElementById("user-count-label");
+        if (countLabel) {
+            countLabel.innerText = `Mostrando 1-${filteredUsers.length} de ${filteredUsers.length} usuarios`;
+        }
+
+        filteredUsers.forEach(user => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-surface-container-low transition-colors group";
+            
+            const initials = user.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+            
+            // Colores basados en el rol o estado
+            let avatarColor = "bg-[#E0E7FF] text-[#4338CA]";
+            if (user.isSuperadmin) {
+                avatarColor = "bg-amber-100 text-amber-900 border border-amber-300";
+            } else if (user.status === "Inactivo") {
+                avatarColor = "bg-surface-container-high text-outline";
+            }
+
+            // Badge de rol
+            let roleBadge = user.role;
+            if (user.isSuperadmin) {
+                roleBadge = `<span class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded text-[10px]">⭐ SUPERADMIN</span>`;
+            }
+
+            tr.innerHTML = `
+                <td class="px-md py-md text-center">
+                    <div class="w-10 h-10 rounded-full font-bold flex items-center justify-center mx-auto text-xs ${avatarColor}">
+                        ${initials}
+                    </div>
+                </td>
+                <td class="px-md py-md">
+                    <div class="font-body-md text-body-md font-semibold text-primary flex items-center gap-2">
+                        ${user.name} 
+                    </div>
+                    <div class="font-code-sm text-code-sm text-on-surface-variant">${user.email}</div>
+                </td>
+                <td class="px-md py-md font-body-md text-body-md text-on-surface">
+                    <div class="flex flex-col gap-0.5">
+                        <span>${roleBadge}</span>
+                        <span class="text-[10px] text-outline-variant font-mono">Org: ${user.tenantId.toUpperCase()}</span>
+                    </div>
+                </td>
+                <td class="px-md py-md font-body-md text-body-md text-on-surface-variant">${user.department}</td>
+                <td class="px-md py-md">
+                    <span class="inline-flex items-center gap-xs px-sm py-[2px] rounded-full ${user.status === 'Activo' ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEE2E2] text-[#991B1B]'} font-label-md text-label-md">
+                        <div class="w-1.5 h-1.5 rounded-full ${user.status === 'Activo' ? 'bg-[#166534]' : 'bg-[#991B1B]'}"></div>
+                        ${user.status}
+                    </span>
+                </td>
+                <td class="px-md py-md text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        ${(currentUser && currentUser.isSuperadmin) ? `
+                            <button onclick="editUser('${user.id}')" class="text-secondary hover:text-primary transition-colors p-1 rounded hover:bg-surface-container-high" title="Editar">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button onclick="deleteUser('${user.id}')" class="text-error hover:text-red-700 transition-colors p-1 rounded hover:bg-surface-container-high" title="Eliminar">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        ` : `
+                            <span class="text-[10px] text-outline font-medium italic">Lectura</span>
+                        `}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function openAddUserModal() {
+        if (currentUser && !currentUser.isSuperadmin) {
+            alert("Acceso denegado: Solo los superadministradores pueden dar de alta nuevos usuarios.");
+            return;
+        }
+        document.getElementById("form-user").reset();
+        document.getElementById("user-id-field").value = "";
+        document.getElementById("modal-user-title").innerHTML = `<span class="material-symbols-outlined">person_add</span> Añadir Usuario`;
+        document.getElementById("modal-user").classList.remove("hidden");
+    }
+
+    function closeUserModal() {
+        document.getElementById("modal-user").classList.add("hidden");
+    }
+
+    function editUser(id) {
+        if (currentUser && !currentUser.isSuperadmin) {
+            alert("Acceso denegado: Solo los superadministradores pueden editar usuarios.");
+            return;
+        }
+        const user = usersData.find(u => u.id === id);
+        if (!user) return;
+
+        document.getElementById("user-id-field").value = user.id;
+        document.getElementById("user-name").value = user.name;
+        document.getElementById("user-email").value = user.email;
+        document.getElementById("user-role").value = user.role;
+        document.getElementById("user-dept").value = user.department;
+        document.getElementById("user-tenant").value = user.tenantId;
+        document.getElementById("user-status").value = user.status;
+        document.getElementById("user-is-superadmin").checked = !!user.isSuperadmin;
+
+        document.getElementById("modal-user-title").innerHTML = `<span class="material-symbols-outlined">edit</span> Editar Usuario`;
+        document.getElementById("modal-user").classList.remove("hidden");
+    }
+
+    function saveUser(event) {
+        event.preventDefault();
+        if (currentUser && !currentUser.isSuperadmin) {
+            alert("Acceso denegado.");
+            return;
+        }
+
+        const id = document.getElementById("user-id-field").value;
+        const name = document.getElementById("user-name").value.trim();
+        const email = document.getElementById("user-email").value.trim();
+        const role = document.getElementById("user-role").value.trim();
+        const department = document.getElementById("user-dept").value.trim();
+        const tenantId = document.getElementById("user-tenant").value;
+        const status = document.getElementById("user-status").value;
+        const isSuperadmin = document.getElementById("user-is-superadmin").checked;
+
+        if (id) {
+            // Editar
+            const idx = usersData.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                usersData[idx] = { id, name, email, role, department, tenantId, status, isSuperadmin };
+            }
+        } else {
+            // Añadir nuevo
+            const newId = name.toLowerCase().replace(/\s+/g, '-');
+            if (usersData.some(u => u.id === newId)) {
+                alert("Ya existe un usuario con este nombre.");
+                return;
+            }
+            usersData.push({ id: newId, name, email, role, department, tenantId, status, isSuperadmin });
+        }
+
+        localStorage.setItem('sig_users', JSON.stringify(usersData));
+        initPage();
+        closeUserModal();
+        
+        // Notificar al parent para refrescar su selector si el usuario actual fue el modificado
+        if (window.parent && typeof window.parent.renderUserProfile === "function") {
+            const curStr = localStorage.getItem('sig_current_user');
+            if (curStr) {
+                const cur = JSON.parse(curStr);
+                if (cur.id === id || (id === "" && name.toLowerCase() === cur.name.toLowerCase())) {
+                    const updatedCur = usersData.find(u => u.name.toLowerCase() === name.toLowerCase());
+                    if (updatedCur) {
+                        localStorage.setItem('sig_current_user', JSON.stringify(updatedCur));
+                    }
+                }
+            }
+            window.parent.renderUserProfile();
+        }
+    }
+
+    function deleteUser(id) {
+        if (currentUser && !currentUser.isSuperadmin) {
+            alert("Acceso denegado.");
+            return;
+        }
+        if (currentUser && currentUser.id === id) {
+            alert("No puedes eliminar al usuario con el que estás simulando la sesión actualmente.");
+            return;
+        }
+        if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+            usersData = usersData.filter(u => u.id !== id);
+            localStorage.setItem('sig_users', JSON.stringify(usersData));
+            initPage();
+            
+            // Refrescar selector en el parent
+            if (window.parent && typeof window.parent.renderUserProfile === "function") {
+                window.parent.renderUserProfile();
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initPage();
+    });
+</script>
+</body></html>

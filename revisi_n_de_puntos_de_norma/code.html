@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lista de Verificación - Auditoría ISO 9001:2015</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#fefcff",
+                        "on-background": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-container": "#818486",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-container-high": "#dce9ff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container-low": "#eff4ff",
+                        "primary": "#000000",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "secondary": "#0051d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#bec6e0",
+                        "outline-variant": "#c6c6cd",
+                        "background": "#f8f9ff",
+                        "tertiary": "#000000",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-container": "#e5eeff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "outline": "#76777d",
+                        "on-surface": "#0b1c30",
+                        "inverse-surface": "#213145",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#191c1e",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin": "24px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "max-width": "1440px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+        .grid-checklist { display: grid; grid-template-columns: 2fr 1fr 3fr 3fr 1fr; gap: 16px; }
+        @media (max-width: 1024px) {
+            .grid-checklist { grid-template-columns: 1fr; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col md:flex-row">
+<!-- Navigation Drawer -->
+<nav class="hidden md:flex flex-col bg-surface-container-low dark:bg-primary-container border-r border-outline-variant w-[240px] fixed left-0 top-0 h-full p-md gap-sm z-20">
+<div class="mb-xl">
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface">MENÚ DE GESTIÓN</h2>
+<div class="mt-sm flex items-center gap-sm p-sm bg-surface-container-high rounded border border-outline-variant">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-on-surface">Entorno Producción</span>
+</div>
+</div>
+<ul class="flex flex-col gap-sm flex-1">
+<li>
+<a class="flex items-center gap-md p-sm rounded font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-secondary-fixed-dim transition-transform duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Panel de Control
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md p-sm rounded-lg font-label-md text-label-md bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary transition-transform duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+                    Auditorías
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md p-sm rounded font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-secondary-fixed-dim transition-transform duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="report_problem">report_problem</span>
+                    Hallazgos
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md p-sm rounded font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-secondary-fixed-dim transition-transform duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+                    Normativa ISO
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md p-sm rounded font-label-md text-label-md text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-secondary-fixed-dim transition-transform duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Configuración
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[240px] min-h-screen">
+<!-- Top App Bar -->
+<header class="bg-surface dark:bg-primary-container border-b border-outline-variant flex items-center justify-between px-margin py-base w-full sticky top-0 z-10">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary dark:text-on-primary" data-icon="security">security</span>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-primary tracking-tight">Sistema de Gestión Integrada (SIG)</h1>
+</div>
+<div class="flex items-center gap-md">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Luis Garrote</span>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-label-md">LG</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-margin bg-background">
+<!-- Context Header -->
+<div class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-background mb-xs">Auditoría Interna - ISO 9001:2015</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Lista de verificación para la revisión de puntos normativos.</p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-surface border border-outline text-on-surface px-md py-sm rounded hover:bg-surface-container-high font-label-md flex items-center gap-xs transition-colors">
+<span class="material-symbols-outlined text-[18px]">history</span>
+                        Añadir auditoría anterior
+                    </button>
+<button class="bg-secondary text-on-secondary px-md py-sm rounded hover:bg-secondary-container font-label-md flex items-center gap-xs transition-colors">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                        Guardar Progreso
+                    </button>
+</div>
+</div>
+<!-- Summary / KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Puntos Evaluados</span>
+<span class="font-headline-md text-headline-md text-on-background">4 / 15</span>
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-xs"><div class="bg-secondary h-1 rounded-full w-1/4"></div></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Cumplimiento</span>
+<span class="font-headline-md text-headline-md text-secondary">85%</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">No Conformidades</span>
+<span class="font-headline-md text-headline-md text-error">0</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Estado General</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-label-md w-fit mt-1">En Proceso</span>
+</div>
+</div>
+<!-- Checklist Filter / Actions -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-t p-sm flex flex-wrap items-center justify-between gap-md border-b-0">
+<div class="flex items-center gap-sm">
+<button class="bg-surface-variant text-on-surface px-sm py-xs rounded font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors text-xs">Añadir todos los puntos</button>
+<button class="bg-error-container text-on-error-container px-sm py-xs rounded font-label-md border border-outline-variant hover:bg-error transition-colors text-xs opacity-80">Eliminar puntos</button>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto">
+<label class="font-label-md text-on-surface-variant whitespace-nowrap">Buscar punto:</label>
+<input class="border border-outline-variant rounded px-sm py-xs font-body-sm w-full md:w-64 focus:ring-secondary focus:border-secondary" placeholder="Ej: 6.2" type="text"/>
+</div>
+</div>
+<!-- Checklist Grid Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-b overflow-hidden shadow-sm">
+<!-- Grid Header -->
+<div class="grid-checklist bg-surface-container-high border-b border-outline-variant p-sm font-label-md text-on-surface hidden md:grid">
+<div>Ítem Normativo</div>
+<div>Valoración</div>
+<div>Memo / Notas</div>
+<div>Evidencia Detectada</div>
+<div>Estado Revisión</div>
+</div>
+<!-- Item 1 -->
+<div class="grid-checklist border-b border-outline-variant p-md hover:bg-surface-container-lowest transition-colors bg-surface-bright">
+<div class="flex flex-col gap-xs">
+<span class="font-label-md text-on-background">6.2. Objetivos de la calidad y planificación</span>
+<span class="font-body-sm text-on-surface-variant text-xs">Planificación para lograrlos</span>
+</div>
+<div>
+<select class="w-full border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border">
+<option>Cumple</option>
+<option>No Cumple</option>
+<option>Observación</option>
+<option>N/A</option>
+</select>
+</div>
+<div>
+<textarea class="w-full border-outline-variant rounded font-body-sm p-2 text-on-surface focus:ring-secondary min-h-[60px] text-sm border resize-y bg-surface" placeholder="Notas de auditoría...">LEJ establece objetivos anuales para reducir sus riesgos y aprovecha sus oportunidades. En 2024, ha realizado un gran impulso en el negocio.</textarea>
+</div>
+<div>
+<textarea class="w-full border-outline-variant rounded font-body-sm p-2 text-on-surface focus:ring-secondary min-h-[60px] text-sm border resize-y bg-surface" placeholder="Evidencias encontradas...">Objetivos 2024-2025: Compras. Mejora del control de stock AM-25-03.</textarea>
+</div>
+<div class="flex items-start justify-between">
+<select class="border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border w-full max-w-[120px]">
+<option>Definitivo</option>
+<option>Borrador</option>
+</select>
+<div class="flex gap-1 ml-2">
+<button class="text-on-surface-variant hover:text-secondary"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="grid-checklist border-b border-outline-variant p-md hover:bg-surface-container-lowest transition-colors bg-white">
+<div class="flex flex-col gap-xs">
+<span class="font-label-md text-on-background">6.3. Planificación de los cambios</span>
+<span class="font-body-sm text-on-surface-variant text-xs">Gestión del cambio</span>
+</div>
+<div>
+<select class="w-full border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border">
+<option>Cumple</option>
+<option>No Cumple</option>
+<option selected="">Observación</option>
+<option>N/A</option>
+</select>
+</div>
+<div>
+<textarea class="w-full border-outline-variant rounded font-body-sm p-2 text-on-surface focus:ring-secondary min-h-[60px] text-sm border resize-y bg-surface" placeholder="Notas de auditoría...">LEJ planifica los cambios del sistema a través de: a) Acciones de mejora. B) Objetivos.</textarea>
+</div>
+<div>
+<textarea class="w-full border-outline-variant rounded font-body-sm p-2 text-on-surface focus:ring-secondary min-h-[60px] text-sm border resize-y bg-surface" placeholder="Evidencias encontradas...">Objetivos y acciones de mejora. Ver objetivo Ofertas pendientesAM-24.</textarea>
+</div>
+<div class="flex items-start justify-between">
+<select class="border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border w-full max-w-[120px]">
+<option>Definitivo</option>
+<option>Borrador</option>
+</select>
+<div class="flex gap-1 ml-2">
+<button class="text-on-surface-variant hover:text-secondary"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="grid-checklist border-b border-outline-variant p-md hover:bg-surface-container-lowest transition-colors bg-surface-bright">
+<div class="flex flex-col gap-xs">
+<span class="font-label-md text-on-background">7.1. Recursos</span>
+<span class="font-body-sm text-on-surface-variant text-xs">Provisión de recursos</span>
+</div>
+<div>
+<select class="w-full border-outline-variant rounded font-body-sm py-1 px-2 text-error focus:ring-error bg-error-container text-sm border-error border">
+<option>Cumple</option>
+<option selected="">No Cumple</option>
+<option>Observación</option>
+<option>N/A</option>
+</select>
+</div>
+<div>
+<textarea class="w-full border-error rounded font-body-sm p-2 text-on-surface focus:ring-error min-h-[60px] text-sm border resize-y bg-surface" placeholder="Notas de auditoría...">Infraestructura: Se verifica el correcto mantenimiento de instalaciones, sin embargo faltan registros recientes.</textarea>
+</div>
+<div>
+<textarea class="w-full border-error rounded font-body-sm p-2 text-on-surface focus:ring-error min-h-[60px] text-sm border resize-y bg-surface" placeholder="Evidencias encontradas...">R-7.1.3-02 Listado de infraestructura. Ficha del equipo Carretilla elevadora. Revisiones trimestrales extintores no hay de 2023.</textarea>
+</div>
+<div class="flex items-start justify-between">
+<select class="border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border w-full max-w-[120px]">
+<option>Definitivo</option>
+<option selected="">Borrador</option>
+</select>
+<div class="flex gap-1 ml-2">
+<button class="text-on-surface-variant hover:text-secondary"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="grid-checklist border-b border-outline-variant p-md hover:bg-surface-container-lowest transition-colors bg-white">
+<div class="flex flex-col gap-xs">
+<span class="font-label-md text-on-background">7.2. Competencia</span>
+<span class="font-body-sm text-on-surface-variant text-xs">Personal y formación</span>
+</div>
+<div>
+<select class="w-full border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border">
+<option selected="">Cumple</option>
+<option>No Cumple</option>
+<option>Observación</option>
+<option>N/A</option>
+</select>
+</div>
+<div>
+<textarea class="w-full border-outline-variant rounded font-body-sm p-2 text-on-surface focus:ring-secondary min-h-[60px] text-sm border resize-y bg-surface" placeholder="Notas de auditoría...">Velando por la competencia, programa de formación anual documentado y ejecutado.</textarea>
+</div>
+<div>
+<textarea class="w-full border-outline-variant rounded font-body-sm p-2 text-on-surface focus:ring-secondary min-h-[60px] text-sm border resize-y bg-surface" placeholder="Evidencias encontradas...">R-7.2-02 Listado de acciones formativas. Curso: F25-01 Adiestramiento.</textarea>
+</div>
+<div class="flex items-start justify-between">
+<select class="border-outline-variant rounded font-body-sm py-1 px-2 text-on-surface focus:ring-secondary bg-surface text-sm border w-full max-w-[120px]">
+<option selected="">Definitivo</option>
+<option>Borrador</option>
+</select>
+<div class="flex gap-1 ml-2">
+<button class="text-on-surface-variant hover:text-secondary"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Context Bottom Info -->
+<div class="mt-lg bg-surface-container-low border border-outline-variant rounded p-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Información de la Auditoría</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Fecha</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded px-sm py-xs font-body-sm text-on-surface" disabled="" type="text" value="07/04/2025"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Auditor</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded px-sm py-xs font-body-sm text-on-surface" disabled="" type="text" value="Guadalupe Fidalgo"/>
+</div>
+<div class="md:col-span-2">
+<label class="block font-label-md text-on-surface-variant mb-xs">Alcance</label>
+<textarea class="w-full bg-surface-container border border-outline-variant rounded px-sm py-xs font-body-sm text-on-surface h-16 resize-none" disabled="">La auditoría llevada a cabo ha tenido por alcance el sistema de gestión según norma UNE-EN ISO 9001:2015.</textarea>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-on-background dark:bg-primary-container border-t border-outline-variant flex justify-between items-center px-lg py-md w-full mt-auto">
+<span class="font-label-md text-label-md uppercase tracking-widest text-on-primary opacity-90 hover:opacity-100">SIG AUDITORÍA</span>
+<span class="font-body-sm text-body-sm text-on-primary opacity-80">© 2024 SIG Auditoría - Sistema de Gestión de Calidad ISO 9001:2015</span>
+<div class="flex gap-md">
+<a class="font-body-sm text-body-sm text-on-primary-fixed-variant hover:text-on-primary transition-colors" href="#">Soporte Técnico</a>
+<a class="font-body-sm text-body-sm text-on-primary-fixed-variant hover:text-on-primary transition-colors" href="#">Manual de Usuario</a>
+<a class="font-body-sm text-body-sm text-on-primary-fixed-variant hover:text-on-primary transition-colors" href="#">Privacidad</a>
+</div>
+</footer>
+</div>
+</body></html>

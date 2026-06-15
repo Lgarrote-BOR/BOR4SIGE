@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Resumen de Resultados - Auditoría SIG</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e0e3e5",
+                      "secondary-container": "#316bf3",
+                      "on-primary-container": "#7c839b",
+                      "on-primary-fixed": "#131b2e",
+                      "on-secondary-container": "#fefcff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container-high": "#dce9ff",
+                      "background": "#f8f9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-secondary-fixed": "#00174b",
+                      "primary-container": "#131b2e",
+                      "tertiary": "#000000",
+                      "primary-fixed-dim": "#bec6e0",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container-lowest": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface": "#f8f9ff",
+                      "outline": "#76777d",
+                      "surface-container-highest": "#d3e4fe",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "surface-dim": "#cbdbf5",
+                      "on-background": "#0b1c30",
+                      "on-surface-variant": "#45464d",
+                      "inverse-primary": "#bec6e0",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary-container": "#191c1e",
+                      "inverse-surface": "#213145",
+                      "surface-bright": "#f8f9ff",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "surface-container": "#e5eeff",
+                      "secondary": "#0051d5",
+                      "on-surface": "#0b1c30"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "xs": "4px",
+                      "margin": "24px",
+                      "gutter": "16px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "md": "16px",
+                      "max-width": "1440px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- NavigationDrawer (SideNav) -->
+<aside class="hidden md:flex h-full w-[240px] fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex-col p-md gap-sm z-20">
+<div class="mb-lg px-sm pt-sm">
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface">Flujo de Auditoría SIG</h2>
+</div>
+<nav class="flex flex-col gap-base">
+<!-- Active Tab: Resumen de Resultados -->
+<a class="flex items-center gap-sm px-md py-sm bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold rounded-lg cursor-pointer active:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span>Resumen de Resultados</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant font-label-md text-label-md font-medium hover:bg-surface-container-highest transition-all cursor-pointer active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span>Conclusiones y Firma</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant font-label-md text-label-md font-medium hover:bg-surface-container-highest transition-all cursor-pointer active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Previsualización</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant font-label-md text-label-md font-medium hover:bg-surface-container-highest transition-all cursor-pointer active:opacity-80 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+<span>Envío y Descarga</span>
+</a>
+</nav>
+<div class="mt-auto">
+<div class="p-sm rounded-lg border border-error bg-surface-lowest">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Entorno</p>
+<div class="flex items-center gap-xs text-error font-body-sm">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>Producción</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[240px] flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface-container-lowest border-b border-outline-variant z-10">
+<div class="flex items-center justify-between px-margin py-sm w-full max-w-max-width mx-auto">
+<div class="flex items-center gap-sm">
+<button class="text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-100 p-xs rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Generación de Informe Final</h1>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-100 p-xs rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<div class="p-margin max-w-max-width mx-auto w-full flex-1 flex flex-col gap-xl">
+<!-- Page Header -->
+<div>
+<h2 class="font-display-lg text-display-lg text-on-background mb-xs">Resumen de Resultados</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Auditoría Interna ISO 9001:2015 - Ciclo Q3 2023</p>
+</div>
+<!-- KPIs Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- KPI 1: No Conformidades Mayores -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-sm relative overflow-hidden group">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant">No Conformidades Mayores</p>
+<span class="material-symbols-outlined text-error bg-error-container p-xs rounded-full text-[20px]">error</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">2</span>
+<span class="font-body-sm text-body-sm text-error font-medium flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> +1 vs auditoría anterior</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-auto">
+<div class="bg-error h-1 rounded-full w-1/5"></div>
+</div>
+</div>
+<!-- KPI 2: No Conformidades Menores -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant">No Conformidades Menores</p>
+<span class="material-symbols-outlined text-secondary bg-surface-container p-xs rounded-full text-[20px]">warning</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">5</span>
+<span class="font-body-sm text-body-sm text-secondary font-medium flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> -2 vs auditoría anterior</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-auto">
+<div class="bg-secondary h-1 rounded-full w-1/3"></div>
+</div>
+</div>
+<!-- KPI 3: Observaciones -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant">Observaciones</p>
+<span class="material-symbols-outlined text-on-surface-variant bg-surface-container-highest p-xs rounded-full text-[20px]">visibility</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">12</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium flex items-center"><span class="material-symbols-outlined text-[14px]">horizontal_rule</span> Sin cambios</span>
+</div>
+</div>
+<!-- KPI 4: Oportunidades de Mejora -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant">Oportunidades de Mejora</p>
+<span class="material-symbols-outlined text-[#059669] bg-[#D1FAE5] p-xs rounded-full text-[20px]">lightbulb</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-display-lg text-on-surface">8</span>
+<span class="font-body-sm text-body-sm text-[#059669] font-medium flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> +3 vs auditoría anterior</span>
+</div>
+</div>
+</div>
+<!-- Detailed List of Findings -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex-1 flex flex-col">
+<div class="p-md border-b border-outline-variant bg-surface-bright flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Puntos Clave Detectados</h3>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-sm py-xs text-on-surface-variant border border-outline-variant rounded hover:bg-surface-container-highest transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                             Filtrar
+                         </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-md font-label-md text-label-md text-on-surface-variant w-[120px]">ID</th>
+<th class="p-md font-label-md text-label-md text-on-surface-variant w-[150px]">Cláusula ISO</th>
+<th class="p-md font-label-md text-label-md text-on-surface-variant">Descripción del Hallazgo</th>
+<th class="p-md font-label-md text-label-md text-on-surface-variant w-[180px]">Clasificación</th>
+<th class="p-md font-label-md text-label-md text-on-surface-variant w-[150px]">Proceso Afectado</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface divide-y divide-outline-variant">
+<!-- Row 1: NC Mayor -->
+<tr class="hover:bg-surface-container-lowest transition-colors bg-white">
+<td class="p-md font-code-sm text-code-sm text-on-surface-variant">AUD-23-001</td>
+<td class="p-md">7.1.5 Recursos de seguimiento</td>
+<td class="p-md">Falta de evidencia de calibración de los equipos de medición en la línea de producción B durante los últimos 12 meses.</td>
+<td class="p-md">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-error-container text-on-error-container font-label-md text-[10px] uppercase tracking-wider">
+                                        NC Mayor
+                                    </span>
+</td>
+<td class="p-md">Producción</td>
+</tr>
+<!-- Row 2: NC Mayor -->
+<tr class="hover:bg-surface-container-lowest transition-colors bg-surface-bright">
+<td class="p-md font-code-sm text-code-sm text-on-surface-variant">AUD-23-002</td>
+<td class="p-md">8.4 Control de procesos externos</td>
+<td class="p-md">No se han realizado las evaluaciones de desempeño anuales a los 3 proveedores críticos principales.</td>
+<td class="p-md">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-error-container text-on-error-container font-label-md text-[10px] uppercase tracking-wider">
+                                        NC Mayor
+                                    </span>
+</td>
+<td class="p-md">Compras</td>
+</tr>
+<!-- Row 3: NC Menor -->
+<tr class="hover:bg-surface-container-lowest transition-colors bg-white">
+<td class="p-md font-code-sm text-code-sm text-on-surface-variant">AUD-23-005</td>
+<td class="p-md">7.5 Información documentada</td>
+<td class="p-md">El procedimiento de control de calidad PR-CC-02 se encuentra en el área de trabajo en su versión v2.0, siendo la versión vigente la v2.1.</td>
+<td class="p-md">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-surface-container text-secondary font-label-md text-[10px] uppercase tracking-wider border border-secondary/20">
+                                        NC Menor
+                                    </span>
+</td>
+<td class="p-md">Calidad</td>
+</tr>
+<!-- Row 4: Observación -->
+<tr class="hover:bg-surface-container-lowest transition-colors bg-surface-bright">
+<td class="p-md font-code-sm text-code-sm text-on-surface-variant">AUD-23-008</td>
+<td class="p-md">6.2 Objetivos de la calidad</td>
+<td class="p-md">Los objetivos de calidad del departamento de ventas no se han actualizado para reflejar la nueva estrategia comercial del Q3.</td>
+<td class="p-md">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-md text-[10px] uppercase tracking-wider">
+                                        Observación
+                                    </span>
+</td>
+<td class="p-md">Dirección</td>
+</tr>
+<!-- Row 5: Oportunidad de Mejora -->
+<tr class="hover:bg-surface-container-lowest transition-colors bg-white">
+<td class="p-md font-code-sm text-code-sm text-on-surface-variant">AUD-23-012</td>
+<td class="p-md">7.2 Competencia</td>
+<td class="p-md">Se sugiere implementar un sistema de gestión del aprendizaje (LMS) digital para centralizar los registros de capacitación en lugar de usar hojas de cálculo.</td>
+<td class="p-md">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-[#D1FAE5] text-[#059669] font-label-md text-[10px] uppercase tracking-wider">
+                                        Oportunidad Mejora
+                                    </span>
+</td>
+<td class="p-md">RRHH</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex justify-end pt-sm pb-xl">
+<button class="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-lg py-sm rounded-lg font-label-md text-label-md transition-colors flex items-center gap-sm shadow-[0_4px_12px_rgba(37,99,235,0.2)]">
+                    Continuar a Conclusiones
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

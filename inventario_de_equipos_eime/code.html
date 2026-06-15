@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro EIME</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#213145",
+                      "inverse-on-surface": "#eaf1ff",
+                      "background": "#f8f9ff",
+                      "on-primary": "#ffffff",
+                      "surface": "#f8f9ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-secondary-fixed": "#00174b",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#191c1e",
+                      "secondary": "#0051d5",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-primary": "#bec6e0",
+                      "outline": "#76777d",
+                      "tertiary-container": "#191c1e",
+                      "on-secondary-container": "#fefcff",
+                      "on-tertiary-container": "#818486",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "secondary-container": "#316bf3",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#0b1c30",
+                      "surface-tint": "#565e74",
+                      "primary": "#000000",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed": "#dae2fd",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-container-highest": "#d3e4fe",
+                      "tertiary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-error": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#7c839b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "gutter": "16px",
+                      "max-width": "1440px",
+                      "xl": "32px",
+                      "margin": "24px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest border-b border-outline-variant w-full top-0 sticky z-40 flex justify-between items-center px-lg py-md w-full max-w-max-width mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="admin_panel_settings" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">SIG Compliance</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm rounded-full hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate manager wearing a crisp white shirt and a dark blue tie. The background is a soft, blurred modern office environment. The lighting is bright and even, conveying a sense of competence and reliability suitable for an enterprise software avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLMY3bWmdVpoP0M2cae1Tscm3cvH6gXIx6N2dSJApb7oa7uGL_HSWrDsdq6GVo7ZjsOA4hm84V8OzIXuSY2aveIr_tIVUMXADxTbMwGYP6hPWHc_VDyawTUzpqERU_V9fqqFe7mmH-zmmXwN8N9Lz0MLjurmgu9cYea_IjJPiUGIyJH407QdgZiHP9J1ecQPuRS-rvIk1VxxR9b_QwuuYNYRp8GG7B726Bj_hqaXaAz_Akhul5R7X9zY4MGVHRkedtlSas6ATCv4g"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- NavigationDrawer (Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col gap-xs p-md bg-surface border-r border-outline-variant w-[240px] h-full fixed left-0 top-16 z-30 overflow-y-auto">
+<div class="mb-lg pb-md border-b border-outline-variant">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Environment: Production</p>
+<h2 class="font-body-md text-body-md font-semibold text-primary">Quality Director</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">ISO 9001:2015</p>
+</div>
+<a class="flex items-center gap-sm px-md py-sm hover:bg-surface-container transition-all duration-200 ease-in-out rounded-lg text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+<span class="font-label-md text-label-md">Quality Management</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm hover:bg-surface-container transition-all duration-200 ease-in-out rounded-lg text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="gpp_maybe">gpp_maybe</span>
+<span class="font-label-md text-label-md">Risk Registry</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm hover:bg-surface-container transition-all duration-200 ease-in-out rounded-lg text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Document Control</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm bg-secondary-container text-on-secondary-container font-bold rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings_suggest" style="font-variation-settings: 'FILL' 1;">settings_suggest</span>
+<span class="font-label-md text-label-md">Maintenance Ops</span>
+</a>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full md:ml-[240px] pb-24 md:pb-lg overflow-y-auto bg-background">
+<div class="max-w-max-width mx-auto p-gutter md:p-margin">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Registro EIME</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Equipos de Inspección, Medición y Ensayo</p>
+</div><div class="flex flex-col md:flex-row gap-sm w-full md:w-auto items-center mt-4 md:mt-0">
+    <div class="relative w-full md:w-64">
+        <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-sm">search</span>
+        <input id="search-input" oninput="filterData()" type="text" placeholder="Buscar equipo..." class="w-full pl-9 pr-4 py-2 bg-surface border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+    </div>
+    <select id="filter-status" onchange="filterData()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary cursor-pointer w-full md:w-auto">
+        <option value="">Todos los Estados</option>
+        <option value="Operativo">Operativo</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Fuera de Servicio">Fuera de Servicio</option>
+    </select>
+    <button onclick="openModal()" class="flex items-center gap-xs px-md py-sm bg-secondary text-on-secondary rounded-lg hover:opacity-90 transition-opacity shadow-sm w-full md:w-auto justify-center">
+        <span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+        <span class="font-label-md text-label-md">Nuevo Equipo</span>
+    </button>
+</div>
+</div>
+</div>
+<!-- KPI Summary -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-sm md:gap-md mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Total Equipos</p>
+<p id="count-total" class="font-headline-md text-headline-md text-primary">0</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl border-l-4 border-l-[#10B981]">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Operativos</p>
+<p id="count-operativos" class="font-headline-md text-headline-md text-primary">0</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl border-l-4 border-l-[#F59E0B]">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Pendientes</p>
+<p id="count-pendientes" class="font-headline-md text-headline-md text-primary">0</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl border-l-4 border-l-error">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Fuera de Servicio</p>
+<p id="count-fuera" class="font-headline-md text-headline-md text-primary">0</p>
+</div>
+</div>
+<!-- Mobile Card Layout (Active Grid) -->
+<div id="equipments-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Dinámico -->
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest border-t border-outline-variant fixed bottom-0 w-full z-50 shadow-sm flex justify-around items-center w-full h-16 px-gutter">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined mb-xs" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-[10px]">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined mb-xs" data-icon="warning">warning</span>
+<span class="font-label-md text-[10px]">Risks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined mb-xs" data-icon="account_tree">account_tree</span>
+<span class="font-label-md text-[10px]">Processes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full relative" href="#">
+<div class="absolute inset-0 bg-secondary-container opacity-20 rounded-full scale-110"></div>
+<span class="material-symbols-outlined mb-xs relative z-10" data-icon="fact_check" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+<span class="font-label-md text-[10px] relative z-10">Audits</span>
+</a>
+</nav>
+
+<!-- Modal Equipo -->
+<div id="modal-equipo" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Nuevo Equipo EIME</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-equipo" onsubmit="saveEquipment(event)" class="space-y-4">
+            <input type="hidden" id="edit-id" value=""/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-code">Código / ID</label>
+                    <input required id="eq-code" type="text" placeholder="Ej: EIME-CAL-045" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-name">Nombre del Equipo</label>
+                    <input required id="eq-name" type="text" placeholder="Ej: Calibre Digital" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-model">Marca y Modelo</label>
+                    <input required id="eq-model" type="text" placeholder="Ej: Mitutoyo CD-15APX" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-section">Sección / Ubicación</label>
+                    <input required id="eq-section" type="text" placeholder="Ej: Metrología" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-criticidad">Criticidad</label>
+                    <select id="eq-criticidad" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-status">Estado</label>
+                    <select id="eq-status" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                        <option value="Operativo">Operativo</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Fuera de Servicio">Fuera de Servicio</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-lastcal">Última Calibración</label>
+                    <input required id="eq-lastcal" type="text" placeholder="Ej: 12/05/2023" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="eq-nextcal">Próxima Calibración</label>
+                <input required id="eq-nextcal" type="text" placeholder="Ej: 12/05/2024" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const seedEquipments = [
+        { id: "EIME-CAL-045", name: "Calibre Digital", model: "Mitutoyo CD-15APX", lastCal: "12/05/2023", nextCal: "12/05/2024", status: "Operativo", section: "Metrología", criticidad: "Alta" },
+        { id: "EIME-MIC-012", name: "Micrómetro Exterior", model: "Starrett 436.1XRL", lastCal: "20/10/2022", nextCal: "20/10/2023", status: "Pendiente", section: "Mecanizado", criticidad: "Media" },
+        { id: "EIME-MUL-088", name: "Multímetro Digital", model: "Fluke 117", lastCal: "05/02/2021", nextCal: "05/02/2022", status: "Fuera de Servicio", section: "Mantenimiento", criticidad: "Baja" },
+        { id: "EIME-BAL-010", name: "Balanza de Precisión", model: "Ohaus PA214", lastCal: "15/08/2023", nextCal: "15/08/2024", status: "Operativo", section: "Laboratorio", criticidad: "Alta" }
+    ];
+
+    let equipments = [];
+
+    function initData() {
+        const stored = localStorage.getItem('sig_inventario_equipos');
+        if (stored) {
+            equipments = JSON.parse(stored);
+        } else {
+            equipments = [...seedEquipments];
+            localStorage.setItem('sig_inventario_equipos', JSON.stringify(equipments));
+        }
+        renderEquipments();
+    }
+
+    function renderEquipments() {
+        const grid = document.getElementById('equipments-grid');
+        const query = document.getElementById('search-input').value.toLowerCase().trim();
+        const filterStatus = document.getElementById('filter-status').value;
+
+        // Filtrado
+        const filtered = equipments.filter(eq => {
+            const matchesSearch = eq.name.toLowerCase().includes(query) || 
+                                  eq.id.toLowerCase().includes(query) || 
+                                  eq.model.toLowerCase().includes(query) || 
+                                  eq.section.toLowerCase().includes(query);
+            const matchesStatus = filterStatus === "" || eq.status === filterStatus;
+            return matchesSearch && matchesStatus;
+        });
+
+        // Contadores KPIs
+        const total = equipments.length;
+        const operativos = equipments.filter(eq => eq.status === "Operativo").length;
+        const pendientes = equipments.filter(eq => eq.status === "Pendiente").length;
+        const fuera = equipments.filter(eq => eq.status === "Fuera de Servicio").length;
+
+        document.getElementById('count-total').innerText = total;
+        document.getElementById('count-operativos').innerText = operativos;
+        document.getElementById('count-pendientes').innerText = pendientes;
+        document.getElementById('count-fuera').innerText = fuera;
+
+        grid.innerHTML = "";
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full text-center p-lg text-on-surface-variant font-body-md bg-surface-container-lowest border border-outline-variant rounded-xl">
+                    No se encontraron equipos en el inventario que coincidan con los filtros.
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach(eq => {
+            let badgeClass = "";
+            let statusText = eq.status;
+            
+            if (eq.status === "Operativo") {
+                badgeClass = "bg-[#D1FAE5] text-[#065F46]";
+            } else if (eq.status === "Pendiente") {
+                badgeClass = "bg-[#FEF3C7] text-[#92400E]";
+            } else {
+                badgeClass = "bg-error-container text-on-error-container";
+            }
+
+            let nextCalSection = "";
+            if (eq.status === "Fuera de Servicio") {
+                nextCalSection = `
+                    <div class="bg-surface-container-low p-sm rounded-lg flex items-center justify-between border border-surface-variant bg-surface-variant">
+                        <div>
+                            <p class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider">Estado Actual</p>
+                            <p class="font-body-md text-body-md font-semibold text-on-surface-variant">Fuera de servicio temporario</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editEquipment('${eq.id}')" class="p-1 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors" title="Editar">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button onclick="deleteEquipment('${eq.id}')" class="p-1 hover:bg-surface-container-high rounded text-error transition-colors" title="Eliminar">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const isPend = eq.status === "Pendiente";
+                const borderClass = isPend ? "border-[#FCD34D] bg-[#FFFBEB]" : "border-surface-variant";
+                const textClass = isPend ? "text-[#92400E]" : "text-primary";
+                const lblClass = isPend ? "text-[#B45309]" : "text-on-surface-variant";
+
+                nextCalSection = `
+                    <div class="bg-surface-container-low p-sm rounded-lg flex items-center justify-between border ${borderClass}">
+                        <div>
+                            <p class="font-label-md text-[10px] ${lblClass} uppercase tracking-wider">Próxima Calibración</p>
+                            <p class="font-body-md text-body-md font-semibold ${textClass}">${eq.nextCal}</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="goToDetails('${eq.id}')" class="p-1 hover:bg-surface-container-high rounded text-secondary transition-colors" title="Ver Ficha Técnica">
+                                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
+                            <button onclick="editEquipment('${eq.id}')" class="p-1 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors" title="Editar">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button onclick="deleteEquipment('${eq.id}')" class="p-1 hover:bg-surface-container-high rounded text-error transition-colors" title="Eliminar">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            grid.innerHTML += `
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-md hover:shadow-sm transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface">${eq.name}</h3>
+                            <p class="font-code-sm text-code-sm text-on-surface-variant mt-xs">ID: ${eq.id}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full ${badgeClass} font-label-md text-[10px] font-semibold">${statusText}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-sm">
+                        <div>
+                            <p class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider">Marca/Modelo</p>
+                            <p class="font-body-sm text-body-sm text-on-surface">${eq.model}</p>
+                        </div>
+                        <div>
+                            <p class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider">Última Cal.</p>
+                            <p class="font-body-sm text-body-sm text-on-surface">${eq.lastCal}</p>
+                        </div>
+                    </div>
+                    ${nextCalSection}
+                </div>
+            `;
+        });
+    }
+
+    function goToDetails(id) {
+        window.location.href = `../ficha_t_cnica_de_equipo/code.html?id=${encodeURIComponent(id)}`;
+    }
+
+    function filterData() {
+        renderEquipments();
+    }
+
+    // Modal Control
+    function openModal() {
+        document.getElementById('modal-title').innerText = "Nuevo Equipo EIME";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-equipo').reset();
+        
+        // Sugerir ID
+        let maxSeq = 90;
+        equipments.forEach(eq => {
+            const parts = eq.id.split('-');
+            if (parts.length === 3) {
+                const seq = parseInt(parts[2]);
+                if (seq > maxSeq) maxSeq = seq;
+            }
+        });
+        const nextSeq = String(maxSeq + 1).padStart(3, '0');
+        document.getElementById('eq-code').value = `EIME-EQ-${nextSeq}`;
+
+        document.getElementById('modal-equipo').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-equipo').classList.add('hidden');
+        document.getElementById('form-equipo').reset();
+    }
+
+    function editEquipment(id) {
+        const eq = equipments.find(item => item.id === id);
+        if (eq) {
+            document.getElementById('modal-title').innerText = "Editar Equipo EIME";
+            document.getElementById('edit-id').value = eq.id;
+            document.getElementById('eq-code').value = eq.id;
+            document.getElementById('eq-name').value = eq.name;
+            document.getElementById('eq-model').value = eq.model;
+            document.getElementById('eq-section').value = eq.section;
+            document.getElementById('eq-criticidad').value = eq.criticidad || 'Alta';
+            document.getElementById('eq-status').value = eq.status;
+            document.getElementById('eq-lastcal').value = eq.lastCal;
+            document.getElementById('eq-nextcal').value = eq.nextCal;
+
+            document.getElementById('modal-equipo').classList.remove('hidden');
+        }
+    }
+
+    function deleteEquipment(id) {
+        if (confirm(`¿Está seguro de que desea eliminar el equipo ${id}?`)) {
+            equipments = equipments.filter(item => item.id !== id);
+            localStorage.setItem('sig_inventario_equipos', JSON.stringify(equipments));
+            renderEquipments();
+        }
+    }
+
+    function saveEquipment(event) {
+        event.preventDefault();
+
+        const editId = document.getElementById('edit-id').value;
+        const code = document.getElementById('eq-code').value.trim();
+        const name = document.getElementById('eq-name').value.trim();
+        const model = document.getElementById('eq-model').value.trim();
+        const section = document.getElementById('eq-section').value.trim();
+        const criticidad = document.getElementById('eq-criticidad').value;
+        const status = document.getElementById('eq-status').value;
+        const lastCal = document.getElementById('eq-lastcal').value.trim();
+        const nextCal = document.getElementById('eq-nextcal').value.trim();
+
+        if (editId) {
+            const idx = equipments.findIndex(item => item.id === editId);
+            if (idx !== -1) {
+                equipments[idx] = {
+                    id: code,
+                    name,
+                    model,
+                    lastCal,
+                    nextCal,
+                    status,
+                    section,
+                    criticidad
+                };
+            }
+        } else {
+            equipments.push({
+                id: code,
+                name,
+                model,
+                lastCal,
+                nextCal,
+                status,
+                section,
+                criticidad
+            });
+        }
+
+        localStorage.setItem('sig_inventario_equipos', JSON.stringify(equipments));
+        renderEquipments();
+        closeModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>v>
+</body></html>

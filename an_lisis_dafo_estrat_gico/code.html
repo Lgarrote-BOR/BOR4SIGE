@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Matriz DAFO - SIG Integrated Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "inverse-primary": "#bec6e0",
+                        "inverse-surface": "#213145",
+                        "on-primary-container": "#7c839b",
+                        "on-tertiary-container": "#818486",
+                        "on-secondary-container": "#fefcff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "tertiary-container": "#191c1e",
+                        "surface-tint": "#565e74",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-container": "#316bf3",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "outline": "#76777d",
+                        "on-error": "#ffffff",
+                        "secondary": "#0051d5",
+                        "error": "#ba1a1a",
+                        "tertiary": "#000000",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "background": "#f8f9ff",
+                        "primary-container": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "primary": "#000000",
+                        "surface-container": "#e5eeff",
+                        "on-background": "#0b1c30",
+                        "on-surface-variant": "#45464d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "max-width": "1440px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin": "24px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .dafo-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 768px) { .dafo-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col md:flex-row">
+<!-- Desktop Navigation Rail -->
+<aside class="hidden md:flex flex-col w-[240px] bg-surface-container-lowest border-r border-outline-variant h-screen fixed top-0 left-0 z-40">
+<div class="p-margin border-b border-outline-variant">
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">SIG Integrated</h2>
+<div class="mt-4 px-3 py-2 bg-surface-container rounded-lg border border-outline-variant flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface">Producción</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-sm">
+<ul class="flex flex-col gap-1 px-sm">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-secondary-container text-on-secondary-container font-medium transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+<span class="font-body-md text-body-md">Contexto</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-body-md text-body-md">Procesos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-body-md text-body-md">Auditorías</span>
+</a>
+</li>
+</ul>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[240px] flex flex-col min-h-screen pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface-bright text-primary font-headline-sm text-headline-sm w-full top-0 sticky border-b border-outline-variant flat no shadows transition-colors duration-200 flex justify-between items-center px-margin py-sm w-full z-30">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-on-surface hover:bg-surface-container-low rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">SIG Integrated Management</h1>
+</div>
+<div class="flex items-center">
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors duration-200" title="User profile and notifications">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-margin max-w-[max-width] mx-auto w-full flex-1">
+<div class="mb-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-2">Matriz DAFO</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Análisis estratégico del contexto organizacional para ISO 9001:2015</p>
+</div>
+<button onclick="openModal()" class="bg-secondary text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-secondary/90 transition-colors duration-200 shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Nuevo Elemento
+                </button>
+</div>
+<!-- DAFO Grid -->
+<div class="dafo-grid">
+<!-- Debilidades (Weaknesses) - Internal, Negative -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm hover:shadow-md transition-shadow duration-300">
+<div class="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">trending_down</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Debilidades (<span id="count-debilidades">0</span>)</h3>
+</div>
+<span class="px-2 py-1 bg-surface-container text-on-surface-variant font-label-md text-label-md rounded-full">Interno</span>
+</div>
+<ul id="list-debilidades" class="flex flex-col gap-3">
+<!-- Injected dynamically -->
+</ul>
+</section>
+
+<!-- Amenazas (Threats) - External, Negative -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm hover:shadow-md transition-shadow duration-300">
+<div class="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Amenazas (<span id="count-amenazas">0</span>)</h3>
+</div>
+<span class="px-2 py-1 bg-surface-container text-on-surface-variant font-label-md text-label-md rounded-full">Externo</span>
+</div>
+<ul id="list-amenazas" class="flex flex-col gap-3">
+<!-- Injected dynamically -->
+</ul>
+</section>
+
+<!-- Fortalezas (Strengths) - Internal, Positive -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm hover:shadow-md transition-shadow duration-300">
+<div class="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Fortalezas (<span id="count-fortalezas">0</span>)</h3>
+</div>
+<span class="px-2 py-1 bg-surface-container text-on-surface-variant font-label-md text-label-md rounded-full">Interno</span>
+</div>
+<ul id="list-fortalezas" class="flex flex-col gap-3">
+<!-- Injected dynamically -->
+</ul>
+</section>
+
+<!-- Oportunidades (Opportunities) - External, Positive -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm hover:shadow-md transition-shadow duration-300">
+<div class="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Oportunidades (<span id="count-oportunidades">0</span>)</h3>
+</div>
+<span class="px-2 py-1 bg-surface-container text-on-surface-variant font-label-md text-label-md rounded-full">Externo</span>
+</div>
+<ul id="list-oportunidades" class="flex flex-col gap-3">
+<!-- Injected dynamically -->
+</ul>
+</section>
+</div>
+</div>
+</main>
+
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest text-secondary font-label-md text-label-md fixed bottom-0 w-full z-50 border-t border-outline-variant shadow-sm active:scale-95 transition-transform flex justify-around items-center h-16 w-full">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+<span>Contexto</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span>Procesos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span>Auditorías</span>
+</a>
+</nav>
+
+<!-- Modal Elemento DAFO -->
+<div id="modal-dafo" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Nuevo Elemento DAFO</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-dafo" onsubmit="saveDafoItem(event)" class="space-y-4">
+            <input type="hidden" id="edit-id" value=""/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="item-type">Tipo de Análisis</label>
+                    <select id="item-type" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="debilidades">Debilidad</option>
+                        <option value="amenazas">Amenaza</option>
+                        <option value="fortalezas">Fortaleza</option>
+                        <option value="oportunidades">Oportunidad</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="item-impact">Impacto / Relevancia</label>
+                    <select id="item-impact" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="item-title">Título del Elemento</label>
+                <input required id="item-title" type="text" placeholder="Ej: Obsolescencia tecnológica en maquinaria principal" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="item-desc">Descripción detallada</label>
+                <textarea required id="item-desc" rows="3" placeholder="Detalla las implicaciones estratégicas de este factor..." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="item-action">Plan de Acción / Control Vinculado (Opcional)</label>
+                <input id="item-action" type="text" placeholder="Ej: PA-2024-01 (Cumplimiento)" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Datos semilla iniciales del prototipo estático
+    const seedDafo = [
+        { id: "1", type: "debilidades", title: "Obsolescencia tecnológica en planta base", desc: "Equipos de producción con más de 15 años de antigüedad reducen la eficiencia.", impact: "Alta", action: "PA-2023-04 (Renovación)" },
+        { id: "2", type: "debilidades", title: "Alta rotación de personal técnico", desc: "Falta de incentivos y planes de carrera definidos en el departamento operativo.", impact: "Media", action: "" },
+        { id: "3", type: "amenazas", title: "Cambios regulatorios ambientales (UE)", desc: "Nuevas normativas de emisiones requerirán adaptación antes de 2025.", impact: "Alta", action: "PA-2024-01 (Cumplimiento)" },
+        { id: "4", type: "fortalezas", title: "Marca consolidada en el mercado nacional", desc: "Reconocimiento de calidad superior por parte del 85% de los clientes top.", impact: "Alta", action: "" },
+        { id: "5", type: "fortalezas", title: "Sistema de Gestión Integrado maduro", desc: "Procesos auditados y certificados sin no conformidades mayores durante 3 años consecutivos.", impact: "Alta", action: "" },
+        { id: "6", type: "oportunidades", title: "Apertura de mercados emergentes en LATAM", desc: "Tratados comerciales recientes facilitan la exportación de servicios.", impact: "Alta", action: "PA-2024-03 (Expansión)" }
+    ];
+
+    let dafoItems = [];
+
+    // Inicializar localStorage
+    function initData() {
+        const stored = localStorage.getItem('sig_dafo');
+        if (stored) {
+            dafoItems = JSON.parse(stored);
+        } else {
+            dafoItems = [...seedDafo];
+            localStorage.setItem('sig_dafo', JSON.stringify(dafoItems));
+        }
+        renderDAFO();
+    }
+
+    // Renderizar todas las secciones DAFO
+    function renderDAFO() {
+        const types = ['debilidades', 'amenazas', 'fortalezas', 'oportunidades'];
+        
+        types.forEach(type => {
+            const list = document.getElementById(`list-${type}`);
+            const counter = document.getElementById(`count-${type}`);
+            list.innerHTML = '';
+            
+            const filtered = dafoItems.filter(item => item.type === type);
+            counter.innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <li class="p-3 text-center text-xs text-on-surface-variant/70 border border-dashed border-outline-variant rounded-lg">
+                        Sin elementos registrados
+                    </li>
+                `;
+            } else {
+                filtered.forEach((item, idx) => {
+                    const numberLabel = `${type[0].toUpperCase()}${idx + 1}`;
+                    
+                    // Colores visuales en base a si es positivo o negativo
+                    let borderClass = 'bg-secondary'; // Fortalezas/Oportunidades
+                    let badgeClass = 'bg-secondary-container text-on-secondary-container';
+                    
+                    if (type === 'debilidades' || type === 'amenazas') {
+                        borderClass = item.impact === 'Alta' ? 'bg-error' : 'bg-surface-tint';
+                        badgeClass = item.impact === 'Alta' ? 'bg-error-container text-on-error-container' : 'bg-surface-variant text-on-surface-variant';
+                    }
+
+                    // Enlace a acción o advertencia
+                    let actionHtml = '';
+                    if (item.action) {
+                        actionHtml = `
+                            <div class="mt-2 flex items-center gap-2 text-primary font-code-sm text-code-sm">
+                                <span class="material-symbols-outlined text-[14px]">link</span>
+                                ${item.action}
+                            </div>
+                        `;
+                    } else if (type === 'debilidades' || type === 'amenazas') {
+                        actionHtml = `
+                            <div class="mt-2 flex items-center gap-2 text-on-surface-variant/70 font-code-sm text-code-sm">
+                                <span class="material-symbols-outlined text-[14px]">warning</span>
+                                Sin plan de acción vinculado
+                            </div>
+                        `;
+                    }
+
+                    list.innerHTML += `
+                        <li class="p-3 border border-outline-variant rounded-lg bg-surface-bright flex flex-col gap-2 relative overflow-hidden group">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 ${borderClass}"></div>
+                            <div class="flex justify-between items-start">
+                                <span class="font-body-md text-body-md font-semibold text-on-surface pr-8">${numberLabel}: ${item.title}</span>
+                                <span class="px-2 py-0.5 ${badgeClass} font-label-md text-[10px] rounded-full shrink-0">${item.impact}</span>
+                            </div>
+                            ${item.desc ? `<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">${item.desc}</p>` : ''}
+                            ${actionHtml}
+                            
+                            <!-- Acciones flotantes del item -->
+                            <div class="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-bright pl-2 rounded">
+                                <button onclick="editItem('${item.id}')" class="text-on-surface-variant hover:text-secondary p-1 rounded hover:bg-surface-container" title="Editar">
+                                    <span class="material-symbols-outlined text-xs">edit</span>
+                                </button>
+                                <button onclick="deleteItem('${item.id}')" class="text-on-surface-variant hover:text-error p-1 rounded hover:bg-surface-container" title="Eliminar">
+                                    <span class="material-symbols-outlined text-xs">delete</span>
+                                </button>
+                            </div>
+                        </li>
+                    `;
+                });
+            }
+        });
+    }
+
+    // Modal Controls
+    function openModal() {
+        document.getElementById('modal-title').innerText = "Nuevo Elemento DAFO";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-dafo').reset();
+        document.getElementById('modal-dafo').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-dafo').classList.add('hidden');
+        document.getElementById('form-dafo').reset();
+    }
+
+    // Editar elemento
+    function editItem(id) {
+        const item = dafoItems.find(i => i.id === id);
+        if (item) {
+            document.getElementById('modal-title').innerText = "Editar Elemento DAFO";
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('item-type').value = item.type;
+            document.getElementById('item-impact').value = item.impact;
+            document.getElementById('item-title').value = item.title;
+            document.getElementById('item-desc').value = item.desc || "";
+            document.getElementById('item-action').value = item.action || "";
+            document.getElementById('modal-dafo').classList.remove('hidden');
+        }
+    }
+
+    // Eliminar elemento
+    function deleteItem(id) {
+        if (confirm("¿Está seguro de que desea eliminar este elemento DAFO?")) {
+            dafoItems = dafoItems.filter(i => i.id !== id);
+            localStorage.setItem('sig_dafo', JSON.stringify(dafoItems));
+            renderDAFO();
+        }
+    }
+
+    // Guardar o Actualizar elemento DAFO
+    function saveDafoItem(event) {
+        event.preventDefault();
+
+        const editId = document.getElementById('edit-id').value;
+        const type = document.getElementById('item-type').value;
+        const impact = document.getElementById('item-impact').value;
+        const title = document.getElementById('item-title').value.trim();
+        const desc = document.getElementById('item-desc').value.trim();
+        const action = document.getElementById('item-action').value.trim();
+
+        if (editId) {
+            // Actualizar existente
+            const idx = dafoItems.findIndex(i => i.id === editId);
+            if (idx !== -1) {
+                dafoItems[idx] = {
+                    ...dafoItems[idx],
+                    type: type,
+                    impact: impact,
+                    title: title,
+                    desc: desc,
+                    action: action
+                };
+            }
+        } else {
+            // Crear nuevo
+            const newItem = {
+                id: String(Date.now()),
+                type: type,
+                impact: impact,
+                title: title,
+                desc: desc,
+                action: action
+            };
+            dafoItems.push(newItem);
+        }
+
+        localStorage.setItem('sig_dafo', JSON.stringify(dafoItems));
+        renderDAFO();
+        closeModal();
+    }
+
+    // Cargar inicialización al iniciar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>

@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Gestión de Partes Interesadas - SIG 2.0</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: IBM Plex Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#003366",       // Azul Marino Profundo
+                        "secondary": "#0060ac",     // Azul Interactivo
+                        "background": "#f8f9fb",    // Gris de fondo
+                        "surface": "#ffffff",       // Blanco
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "success": "#166534",
+                        "success-container": "#dcfce7",
+                        "warning": "#a16207",
+                        "warning-container": "#fef9c3",
+                        "info-bg": "#e0f2fe",
+                        "info-text": "#0369a1"
+                    },
+                    fontFamily: {
+                        sans: ["IBM Plex Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f2f4f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0060ac;
+        }
+        /* Card hover animation */
+        .stakeholder-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stakeholder-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 51, 102, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+
+    <!-- Header Principal (TopAppBar) -->
+    <header class="bg-surface border-b border-outline-variant w-full top-0 sticky z-40 transition-colors duration-200">
+        <div class="flex justify-between items-center px-6 py-3 w-full max-w-[1440px] mx-auto">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary cursor-pointer hover:bg-surface-container-low p-2 rounded-full md:hidden" onclick="toggleMobileRail()">menu</span>
+                <h1 class="font-bold text-lg text-primary tracking-tight">Sistema de Gestión Integrado (SGI)</h1>
+            </div>
+            <nav class="hidden md:flex items-center gap-4">
+                <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5" href="../dashboard_de_gesti_n_sig/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./dashboard_de_gesti_n_sig/code.html'); }">
+                    <span class="material-symbols-outlined text-[16px]">dashboard</span>Cuadro de Mando
+                </a>
+                <a class="bg-surface-container-high text-primary transition-colors duration-150 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5" href="../registro_de_an_lisis_de_contexto/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./registro_de_an_lisis_de_contexto/code.html'); }">
+                    <span class="material-symbols-outlined text-[16px]">account_tree</span>Contexto
+                </a>
+                <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5" href="../mapa_de_procesos_sig/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./mapa_de_procesos_sig/code.html'); }">
+                    <span class="material-symbols-outlined text-[16px]">account_tree</span>Procesos
+                </a>
+                <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5" href="../gestor_de_auditor_as/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./gestor_de_auditor_as/code.html'); }">
+                    <span class="material-symbols-outlined text-[16px]">rule</span>Auditorías
+                </a>
+            </nav>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow w-full max-w-[1440px] mx-auto px-6 py-6 flex flex-col md:flex-row gap-6">
+        
+        <!-- Rail Lateral Izquierdo (Módulos de Contexto) -->
+        <aside id="sidebar-rail" class="hidden md:block w-[240px] flex-shrink-0">
+            <div class="bg-white border border-outline-variant rounded-xl p-4 flex flex-col gap-6 sticky top-[80px]">
+                <div>
+                    <h3 class="text-[11px] font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Módulos de Contexto</h3>
+                    <ul class="flex flex-col gap-1 text-xs font-semibold">
+                        <li>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="../registro_de_an_lisis_de_contexto/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./registro_de_an_lisis_de_contexto/code.html'); }">
+                                <span class="material-symbols-outlined text-[18px]">summarize</span>
+                                Registro Central
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="../requisitos_legales/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./requisitos_legales/code.html'); }">
+                                <span class="material-symbols-outlined text-[18px]">gavel</span>
+                                Requisitos Legales
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-white transition-colors" href="#" onclick="event.preventDefault();">
+                                <span class="material-symbols-outlined text-[18px]">groups</span>
+                                Partes Interesadas
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="../an_lisis_dafo_estrat_gico/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./an_lisis_dafo_estrat_gico/code.html'); }">
+                                <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                                DAFO
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="../evaluaci_n_de_riesgos_calidad_iso_9001/code.html" onclick="if(window.parent && window.parent.navigateToPath) { event.preventDefault(); window.parent.navigateToPath('./evaluaci_n_de_riesgos_calidad_iso_9001/code.html'); }">
+                                <span class="material-symbols-outlined text-[18px]">warning</span>
+                                Riesgos y Oportunidades
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="border-t border-outline-variant pt-4">
+                    <button onclick="exportData()" class="w-full bg-secondary hover:bg-primary text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">file_download</span>
+                        Exportar JSON
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Canvas de Trabajo -->
+        <div class="flex-grow flex flex-col gap-6">
+            
+            <!-- Cabecera de Página -->
+            <div class="bg-white border border-outline-variant rounded-xl p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-sm">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-2xl">group_work</span>
+                        Gestión de Partes Interesadas
+                    </h2>
+                    <p class="text-xs text-on-surface-variant mt-1">
+                        Requisito Clave ISO 9001:2015. Identificación, análisis de expectativas y planificación periódica de acciones preventivas.
+                    </p>
+                </div>
+                <button onclick="openAddModal()" class="bg-secondary hover:bg-primary text-white text-xs font-bold py-2.5 px-4 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm self-stretch lg:self-auto justify-center">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    Nueva Parte Interesada
+                </button>
+            </div>
+
+            <!-- Panel de Control y Filtros -->
+            <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm flex flex-col gap-4">
+                <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+                    <!-- Buscador -->
+                    <div class="relative w-full md:w-80">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+                        <input type="text" id="search-input" oninput="renderStakeholders()" placeholder="Buscar parte interesada o plan..." class="w-full pl-9 pr-4 py-2 border border-outline-variant rounded-lg text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary bg-background transition-all">
+                    </div>
+                    
+                    <!-- Selectores de Filtro -->
+                    <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                        <div class="flex-1 md:flex-initial">
+                            <select id="filter-type" onchange="renderStakeholders()" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs font-semibold text-primary outline-none focus:border-secondary transition-all">
+                                <option value="Todos">Todos los Grupos</option>
+                                <option value="Clientes">Clientes</option>
+                                <option value="Proveedores">Proveedores / Socios Comerciales</option>
+                                <option value="Personal">Personal / Empleados</option>
+                                <option value="Socios">Socios e Inversores</option>
+                                <option value="Administraciones">Administraciones Públicas</option>
+                                <option value="Comunidad">Comunidad Local</option>
+                                <option value="Competencia">Competencia</option>
+                                <option value="Otro">Otros Stakeholders</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 md:flex-initial">
+                            <select id="filter-influence" onchange="renderStakeholders()" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs font-semibold text-primary outline-none focus:border-secondary transition-all">
+                                <option value="Todos">Influencia (Todas)</option>
+                                <option value="Alta">Influencia Alta</option>
+                                <option value="Media">Influencia Media</option>
+                                <option value="Baja">Influencia Baja</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs Rápidos de Tipo -->
+                <div class="flex gap-2 overflow-x-auto pb-2 border-t border-outline-variant pt-3 scrollbar-thin">
+                    <button onclick="setQuickFilter('Todos')" id="tab-Todos" class="px-3 py-1 rounded-full text-xs font-bold bg-secondary text-white transition-colors whitespace-nowrap">Todos</button>
+                    <button onclick="setQuickFilter('Interno')" id="tab-Interno" class="px-3 py-1 rounded-full text-xs font-semibold bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors whitespace-nowrap">Internas</button>
+                    <button onclick="setQuickFilter('Externo')" id="tab-Externo" class="px-3 py-1 rounded-full text-xs font-semibold bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors whitespace-nowrap">Externas</button>
+                    <button onclick="setQuickFilter('Vencidas')" id="tab-Vencidas" class="px-3 py-1 rounded-full text-xs font-semibold bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors whitespace-nowrap flex items-center gap-1">
+                        Vencimiento Pendiente
+                        <span id="badge-vencidas" class="hidden h-4 w-4 bg-error text-white text-[9px] font-black rounded-full flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid de Tarjetas -->
+            <div id="stakeholders-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20">
+                <!-- Se inyecta dinámicamente -->
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Modal Agregar / Editar -->
+    <div id="stakeholder-modal" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-title" class="text-base font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">group_add</span>
+                    Registrar Parte Interesada
+                </h3>
+                <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container transition-colors flex items-center justify-center">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="stakeholder-form" onsubmit="saveStakeholder(event)" class="space-y-4 text-xs font-medium text-on-surface-variant">
+                <input type="hidden" id="stakeholder-id">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-name">Nombre / Identificador</label>
+                        <input required id="form-name" type="text" placeholder="Ej: Proveedores Críticos IT" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-type">Tipo de Grupo</label>
+                        <select id="form-type" onchange="adjustCategory()" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                            <option value="Clientes">Clientes</option>
+                            <option value="Proveedores">Proveedores / Contratistas</option>
+                            <option value="Personal">Personal / Empleados</option>
+                            <option value="Socios">Socios e Inversores</option>
+                            <option value="Administraciones">Administraciones Públicas</option>
+                            <option value="Comunidad">Comunidad Local</option>
+                            <option value="Competencia">Competencia</option>
+                            <option value="Otro">Otro Stakeholder</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-category">Clasificación</label>
+                        <select id="form-category" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                            <option value="Externo">Externo</option>
+                            <option value="Interno">Interno</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-influence">Nivel de Influencia</label>
+                        <select id="form-influence" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                            <option value="Alta">Alta</option>
+                            <option value="Media" selected>Media</option>
+                            <option value="Baja">Baja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-impact">Impacto en el SGI</label>
+                        <select id="form-impact" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                            <option value="Alto">Alto</option>
+                            <option value="Medio" selected>Medio</option>
+                            <option value="Bajo">Bajo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider mb-1">Necesidades y Expectativas (Una por línea)</label>
+                    <textarea required id="form-requirements" rows="3" placeholder="Ej: Calidad consistente en materias primas&#10;Cumplimiento estricto de los plazos de entrega" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-action">Plan de Acción / Tratamiento Preventivo</label>
+                    <input required id="form-action" type="text" placeholder="Ej: Auditorías anuales de homologación y control de calidad" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-periodicity">Periodicidad de Evaluación</label>
+                        <select id="form-periodicity" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                            <option value="3">Cada 3 meses</option>
+                            <option value="6" selected>Cada 6 meses</option>
+                            <option value="12">Cada 12 meses</option>
+                            <option value="24">Cada 24 meses</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider mb-1" for="form-last-eval">Última Evaluación Realizada</label>
+                        <input required id="form-last-eval" type="date" class="w-full bg-background border border-outline-variant rounded-lg px-3 py-2 text-xs text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-4 mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-primary text-xs font-bold px-4 py-2 rounded-lg hover:bg-surface-container transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary hover:bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Detalle e Historial -->
+    <div id="detail-modal" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                <h3 class="text-base font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">info</span>
+                    Detalle de Evaluación de Stakeholder
+                </h3>
+                <button onclick="closeDetailModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container transition-colors flex items-center justify-center">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-xs font-medium text-on-surface-variant">
+                <div class="bg-background p-4 rounded-lg border border-outline-variant">
+                    <h4 id="detail-name" class="text-sm font-bold text-primary">Nombre de la Parte</h4>
+                    <p id="detail-type-category" class="text-[10px] text-on-surface-variant uppercase mt-1">CLIENTES • CLASIFICACIÓN EXTERNA</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-[10px] text-outline block uppercase font-bold">Influencia en la Estrategia</span>
+                        <span id="detail-influence" class="inline-block mt-1">Media</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-outline block uppercase font-bold">Impacto en Requisitos SGI</span>
+                        <span id="detail-impact" class="inline-block mt-1">Alto</span>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-[10px] text-outline block uppercase font-bold">Tratamiento Planificado</span>
+                    <p id="detail-action" class="mt-1 font-semibold text-primary">Plan de CSAT trimestral.</p>
+                </div>
+
+                <div>
+                    <span class="text-[10px] text-outline block uppercase font-bold">Historial de Revisiones</span>
+                    <div class="border border-outline-variant rounded-lg mt-2 overflow-hidden max-h-40 overflow-y-auto">
+                        <table class="w-full text-left text-[11px] border-collapse bg-white">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-primary font-bold">
+                                    <th class="p-2">Fecha</th>
+                                    <th class="p-2">Evaluador</th>
+                                    <th class="p-2">Detalle del Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-history-body" class="divide-y divide-outline-variant">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-4 mt-4">
+                <button onclick="closeDetailModal()" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-secondary transition-colors">
+                    Cerrar Detalle
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema de Alertas (Toast Notifications) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Script de Inicialización y Lógica de Negocio -->
+    <script>
+        // Datos semilla basados en el análisis estratégico e ISO 9001
+        const defaultStakeholders = [
+            {
+                id: "PI-001",
+                name: "Clientes de la Organización",
+                category: "Externo",
+                type: "Clientes",
+                influence: "Alta",
+                impact: "Alto",
+                requirements: [
+                    "Calidad consistente en los productos suministrados y servicios prestados.",
+                    "Cumplimiento estricto de los plazos de entrega acordados en contrato.",
+                    "Atención postventa resolutiva, transparente y rápida."
+                ],
+                actionPlan: "Programa de Medición de Satisfacción (CSAT) trimestral y canal de soporte técnico.",
+                lastEvaluation: "2026-03-10",
+                nextEvaluation: "2026-09-10",
+                periodicity: 6,
+                history: [
+                    { date: "2026-03-10", user: "Ana Rodríguez (QM)", note: "Evaluación periódica satisfactoria. Incremento de necesidades en soporte técnico ágil." }
+                ]
+            },
+            {
+                id: "PI-002",
+                name: "Proveedores y Subcontratistas Clave",
+                category: "Externo",
+                type: "Proveedores",
+                influence: "Alta",
+                impact: "Alto",
+                requirements: [
+                    "Especificaciones y condiciones de compra claras, evitando cambios imprevistos.",
+                    "Cumplimiento garantizado de los plazos de pago y facturación acordados.",
+                    "Relaciones comerciales estables y justas a largo plazo."
+                ],
+                actionPlan: "Homologación obligatoria de proveedores críticos y evaluación anual de desempeño.",
+                lastEvaluation: "2026-01-15",
+                nextEvaluation: "2027-01-15",
+                periodicity: 12,
+                history: [
+                    { date: "2026-01-15", user: "Ana Rodríguez (QM)", note: "Homologación anual finalizada. Se incorporan requisitos específicos de seguridad (IT/LPD)." }
+                ]
+            },
+            {
+                id: "PI-003",
+                name: "Personal de la Organización (Empleados)",
+                category: "Interno",
+                type: "Personal",
+                influence: "Media",
+                impact: "Alto",
+                requirements: [
+                    "Entorno de trabajo seguro, saludable y ergonómico (PRL).",
+                    "Oportunidades reales de formación continua y desarrollo profesional.",
+                    "Comunicación interna abierta y transparente sobre metas corporativas."
+                ],
+                actionPlan: "Encuesta anual de clima laboral y ejecución del Plan de Formación Continuo.",
+                lastEvaluation: "2026-05-20",
+                nextEvaluation: "2026-11-20",
+                periodicity: 6,
+                history: [
+                    { date: "2026-05-20", user: "Elena Montes (RRHH)", note: "Plan de formación del primer semestre ejecutado al 85%. Clima laboral estable." }
+                ]
+            },
+            {
+                id: "PI-004",
+                name: "Accionistas e Inversores",
+                category: "Interno",
+                type: "Socios",
+                influence: "Alta",
+                impact: "Medio",
+                requirements: [
+                    "Sostenibilidad financiera a largo plazo y rentabilidad del capital invertido.",
+                    "Gestión y mitigación de riesgos operativos corporativos.",
+                    "Protección activa y mejora de la reputación corporativa de la marca."
+                ],
+                actionPlan: "Comités de dirección mensuales y reporte de sostenibilidad y finanzas semestral.",
+                lastEvaluation: "2026-06-01",
+                nextEvaluation: "2026-12-01",
+                periodicity: 6,
+                history: [
+                    { date: "2026-06-01", user: "Bor (Superadmin)", note: "Reunión de junta aprobada. Revisión de planes de expansión internacional." }
+                ]
+            },
+            {
+                id: "PI-005",
+                name: "Administraciones Públicas y Organismos Reguladores",
+                category: "Externo",
+                type: "Administrations",
+                influence: "Alta",
+                impact: "Alto",
+                requirements: [
+                    "Cumplimiento absoluto de la legislación (local, nacional y europea) aplicable.",
+                    "Liquidación responsable de tasas, tributos, y gestión de licencias.",
+                    "Disposición absoluta ante inspecciones y auditorías regulatorias."
+                ],
+                actionPlan: "Mantenimiento periódico de la Matriz de Requisitos Legales y auditoría externa anual.",
+                lastEvaluation: "2026-04-10",
+                nextEvaluation: "2027-04-10",
+                periodicity: 12,
+                history: [
+                    { date: "2026-04-10", user: "Ana Rodríguez (QM)", note: "Auditoría legal superada. Licencias ambientales renovadas sin incidentes." }
+                ]
+            },
+            {
+                id: "PI-006",
+                name: "Comunidad Local (Entorno Físico y Social)",
+                category: "Externo",
+                type: "Comunidad",
+                influence: "Media",
+                impact: "Medio",
+                requirements: [
+                    "Impacto ambiental mínimo (reducción de ruidos, olores y vertidos).",
+                    "Fomento de la economía local mediante empleo y subcontratación de proximidad.",
+                    "Canal de comunicación abierto y transparente con vecindarios."
+                ],
+                actionPlan: "Monitoreo mensual de ruidos y vertidos; plan anual de Responsabilidad Social (RSC).",
+                lastEvaluation: "2025-10-15",
+                nextEvaluation: "2026-10-15",
+                periodicity: 12,
+                history: [
+                    { date: "2025-10-15", user: "Ana Rodríguez (QM)", note: "Evaluación de aspectos ambientales e impacto acústico OK. Sin quejas vecinales." }
+                ]
+            },
+            {
+                id: "PI-007",
+                name: "La Competencia (Competidores de Sector)",
+                category: "Externo",
+                type: "Competencia",
+                influence: "Media",
+                impact: "Medio",
+                requirements: [
+                    "Respeto a las reglas de competencia leal y buenas prácticas de mercado.",
+                    "Monitoreo de la evolución del mercado de precios y servicios ofertados.",
+                    "Respeto a patentes, marcas y propiedad intelectual mutua."
+                ],
+                actionPlan: "Análisis estratégico anual de benchmarking competitivo y análisis DAFO externo.",
+                lastEvaluation: "2026-02-18",
+                nextEvaluation: "2027-02-18",
+                periodicity: 12,
+                history: [
+                    { date: "2026-02-18", user: "Bor (Superadmin)", note: "Estudio de mercado integrado en el plan estratégico anual de la organización." }
+                ]
+            }
+        ];
+
+        let stakeholders = [];
+        let currentQuickFilter = "Todos";
+        const activeTenant = localStorage.getItem('sig_active_tenant') || 'alfa';
+        const dbKey = `sig_partes_interesadas_${activeTenant}`;
+
+        // Cargar datos al iniciar
+        function initData() {
+            const stored = localStorage.getItem(dbKey);
+            if (stored) {
+                try {
+                    stakeholders = JSON.parse(stored);
+                } catch(e) {
+                    console.error("Error al parsear datos de localStorage:", e);
+                    stakeholders = [...defaultStakeholders];
+                }
+            } else {
+                stakeholders = [...defaultStakeholders];
+                saveData();
+            }
+            renderStakeholders();
+        }
+
+        // Guardar datos
+        function saveData() {
+            localStorage.setItem(dbKey, JSON.stringify(stakeholders));
+            if (window.parent && typeof window.parent.saveKeyToServer === 'function') {
+                window.parent.saveKeyToServer(dbKey, JSON.stringify(stakeholders));
+            }
+        }
+
+        // Notificaciones Toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `flex items-center gap-3 p-4 rounded-lg shadow-lg text-xs font-bold transition-all duration-300 transform translate-y-2 opacity-0 bg-white border ${
+                type === 'success' ? 'border-success text-success bg-success-container' : 
+                type === 'warning' ? 'border-warning text-warning bg-warning-container' : 
+                'border-error text-error bg-error-container'
+            }`;
+            
+            const icon = type === 'success' ? 'check_circle' : type === 'warning' ? 'warning' : 'error';
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-[18px]">${icon}</span>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Determinar icono del grupo de interés
+        function getIconForType(type) {
+            switch(type) {
+                case 'Clientes': return 'group';
+                case 'Proveedores': return 'local_shipping';
+                case 'Personal': return 'badge';
+                case 'Socios': return 'trending_up';
+                case 'Administraciones': return 'account_balance';
+                case 'Comunidad': return 'public';
+                case 'Competencia': return 'analytics';
+                default: return 'group_work';
+            }
+        }
+
+        // Helper para calcular la diferencia de días a la próxima evaluación
+        function getDaysDiff(nextEvalDateStr) {
+            const nextEval = new Date(nextEvalDateStr);
+            const today = new Date();
+            // Resetear horas para comparación exacta por días
+            nextEval.setHours(0,0,0,0);
+            today.setHours(0,0,0,0);
+            const diffTime = nextEval.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // Renderizado de las tarjetas de partes interesadas
+        function renderStakeholders() {
+            const grid = document.getElementById("stakeholders-grid");
+            const searchVal = document.getElementById("search-input").value.toLowerCase().trim();
+            const filterType = document.getElementById("filter-type").value;
+            const filterInfluence = document.getElementById("filter-influence").value;
+
+            grid.innerHTML = "";
+
+            let countVencidas = 0;
+            const today = new Date().toISOString().split('T')[0];
+
+            let filtered = stakeholders.filter(item => {
+                // Cálculo de vencidos para el badge de tabs
+                const daysDiff = getDaysDiff(item.nextEvaluation);
+                if (daysDiff <= 0) {
+                    countVencidas++;
+                }
+
+                // Filtrar buscador
+                const matchesSearch = item.name.toLowerCase().includes(searchVal) || 
+                                      item.actionPlan.toLowerCase().includes(searchVal) ||
+                                      item.requirements.some(req => req.toLowerCase().includes(searchVal));
+
+                // Filtrar selectores
+                const matchesType = filterType === 'Todos' || item.type === filterType;
+                const matchesInfluence = filterInfluence === 'Todos' || item.influence === filterInfluence;
+
+                // Filtrar tab rápido
+                let matchesQuick = true;
+                if (currentQuickFilter === 'Interno') {
+                    matchesQuick = item.category === 'Interno';
+                } else if (currentQuickFilter === 'Externo') {
+                    matchesQuick = item.category === 'Externo';
+                } else if (currentQuickFilter === 'Vencidas') {
+                    matchesQuick = daysDiff <= 0;
+                }
+
+                return matchesSearch && matchesType && matchesInfluence && matchesQuick;
+            });
+
+            // Actualizar badge de vencimientos en la UI
+            const badgeVencidas = document.getElementById("badge-vencidas");
+            if (countVencidas > 0) {
+                badgeVencidas.innerText = countVencidas;
+                badgeVencidas.classList.remove("hidden");
+            } else {
+                badgeVencidas.classList.add("hidden");
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white border border-outline-variant rounded-xl p-12 text-center text-on-surface-variant flex flex-col items-center justify-center gap-3">
+                        <span class="material-symbols-outlined text-outline text-5xl">group_off</span>
+                        <p class="font-bold text-sm">No se encontraron partes interesadas</p>
+                        <p class="text-[11px] text-outline">Prueba modificando los filtros o añade una nueva parte interesada.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const daysDiff = getDaysDiff(item.nextEvaluation);
+                let statusLabel = "";
+                let statusClass = "";
+                
+                if (daysDiff < 0) {
+                    statusLabel = `VENCIDO (HACE ${Math.abs(daysDiff)} DÍAS)`;
+                    statusClass = "bg-error-container text-error border-error/20";
+                } else if (daysDiff === 0) {
+                    statusLabel = "VENCE HOY";
+                    statusClass = "bg-warning-container text-warning border-warning/20";
+                } else if (daysDiff <= 30) {
+                    statusLabel = `VENCE EN ${daysDiff} DÍAS`;
+                    statusClass = "bg-warning-container text-warning border-warning/20";
+                } else {
+                    statusLabel = `VIGENTE (${daysDiff} DÍAS RESTANTES)`;
+                    statusClass = "bg-success-container text-success border-success/20";
+                }
+
+                const influenceClass = item.influence === 'Alta' ? 'bg-error-container text-error font-bold' : 
+                                       item.influence === 'Media' ? 'bg-warning-container text-warning font-bold' : 
+                                       'bg-info-bg text-info-text font-bold';
+
+                const impactClass = item.impact === 'Alto' ? 'bg-error-container text-error font-bold' : 
+                                    item.impact === 'Medio' ? 'bg-warning-container text-warning font-bold' : 
+                                    'bg-info-bg text-info-text font-bold';
+
+                const card = document.createElement("article");
+                card.className = "stakeholder-card bg-white border border-outline-variant rounded-xl p-5 flex flex-col gap-4 shadow-sm relative";
+                
+                // Generar lista de requisitos
+                const reqListItems = item.requirements.map(req => `
+                    <li class="flex items-start gap-2 text-[11px]">
+                        <span class="material-symbols-outlined text-success text-[15px] mt-0.5">check_circle</span>
+                        <span class="text-on-surface-variant font-medium">${req}</span>
+                    </li>
+                `).join('');
+
+                card.innerHTML = `
+                    <header class="flex justify-between items-start border-b border-outline-variant pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-lg bg-surface-container-high text-primary flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-2xl">${getIconForType(item.type)}</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm text-primary leading-tight">${item.name}</h3>
+                                <span class="text-[9px] uppercase tracking-wider text-on-surface-variant font-bold">${item.type} • ${item.category}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="openEditModal('${item.id}')" title="Editar" class="p-1 hover:bg-surface-container rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button onclick="confirmDelete('${item.id}')" title="Eliminar" class="p-1 hover:bg-error-container rounded-full text-on-surface-variant hover:text-error transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-background p-2 rounded-lg border border-outline-variant">
+                            <span class="text-[9px] text-outline block font-bold uppercase">Nivel de Influencia</span>
+                            <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-[10px] ${influenceClass}">${item.influence}</span>
+                        </div>
+                        <div class="bg-background p-2 rounded-lg border border-outline-variant">
+                            <span class="text-[9px] text-outline block font-bold uppercase">Impacto en el SGI</span>
+                            <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-[10px] ${impactClass}">${item.impact}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-1">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-outline mb-2">Necesidades y Expectativas</h4>
+                        <ul class="space-y-1.5">
+                            ${reqListItems}
+                        </ul>
+                    </div>
+
+                    <div class="mt-2 bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">Plan de Acción / Tratamiento</h4>
+                        <p class="text-[11px] text-on-surface-variant font-medium leading-relaxed">${item.actionPlan}</p>
+                    </div>
+
+                    <div class="mt-auto pt-3 border-t border-outline-variant flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+                        <div class="text-[10px] text-on-surface-variant flex flex-col gap-0.5">
+                            <span class="flex items-center gap-1 font-semibold text-outline">
+                                <span class="material-symbols-outlined text-[12px]">calendar_today</span>
+                                Próxima Eval: <span class="font-mono text-primary font-bold">${item.nextEvaluation}</span>
+                            </span>
+                            <span class="inline-flex items-center px-2 py-0.5 border rounded-full text-[9px] font-black ${statusClass} mt-1 w-max">
+                                ${statusLabel}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1.5 justify-end mt-1 sm:mt-0">
+                            <button onclick="viewDetail('${item.id}')" class="px-2.5 py-1.5 hover:bg-surface-container text-secondary hover:text-primary text-[10px] font-bold rounded-lg border border-outline-variant flex items-center gap-1 transition-colors">
+                                <span class="material-symbols-outlined text-[14px]">history</span>
+                                Historial
+                            </button>
+                            <button onclick="quickReevaluate('${item.id}')" class="px-3 py-1.5 bg-success text-white hover:bg-primary text-[10px] font-bold rounded-lg flex items-center gap-1 transition-colors shadow-sm">
+                                <span class="material-symbols-outlined text-[14px]">task_alt</span>
+                                Reevaluar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Selección rápida de filtro por tabs
+        function setQuickFilter(type) {
+            currentQuickFilter = type;
+            const tabs = ['Todos', 'Interno', 'Externo', 'Vencidas'];
+            tabs.forEach(tab => {
+                const el = document.getElementById(`tab-${tab}`);
+                if (tab === type) {
+                    el.className = "px-3 py-1 rounded-full text-xs font-bold bg-secondary text-white transition-colors whitespace-nowrap";
+                } else {
+                    el.className = "px-3 py-1 rounded-full text-xs font-semibold bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors whitespace-nowrap";
+                }
+            });
+            renderStakeholders();
+        }
+
+        // Ajustar clasificación (interno/externo) automáticamente según tipo
+        function adjustCategory() {
+            const type = document.getElementById("form-type").value;
+            const categorySelect = document.getElementById("form-category");
+            if (type === 'Personal' || type === 'Socios') {
+                categorySelect.value = "Interno";
+            } else {
+                categorySelect.value = "Externo";
+            }
+        }
+
+        // Abrir modal de inserción
+        function openAddModal() {
+            document.getElementById("modal-title").innerHTML = `<span class="material-symbols-outlined text-secondary">group_add</span> Registrar Parte Interesada`;
+            document.getElementById("stakeholder-id").value = "";
+            document.getElementById("stakeholder-form").reset();
+            document.getElementById("form-last-eval").value = new Date().toISOString().split('T')[0];
+            adjustCategory();
+            
+            document.getElementById("stakeholder-modal").classList.remove("hidden");
+        }
+
+        // Abrir modal de edición
+        function openEditModal(id) {
+            const item = stakeholders.find(s => s.id === id);
+            if (!item) return;
+
+            document.getElementById("modal-title").innerHTML = `<span class="material-symbols-outlined text-secondary">edit</span> Editar Parte Interesada`;
+            document.getElementById("stakeholder-id").value = item.id;
+            document.getElementById("form-name").value = item.name;
+            document.getElementById("form-type").value = item.type;
+            document.getElementById("form-category").value = item.category;
+            document.getElementById("form-influence").value = item.influence;
+            document.getElementById("form-impact").value = item.impact;
+            document.getElementById("form-requirements").value = item.requirements.join('\n');
+            document.getElementById("form-action").value = item.actionPlan;
+            document.getElementById("form-periodicity").value = item.periodicity;
+            document.getElementById("form-last-eval").value = item.lastEvaluation;
+
+            document.getElementById("stakeholder-modal").classList.remove("hidden");
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById("stakeholder-modal").classList.add("hidden");
+        }
+
+        // Guardado de formulario
+        function saveStakeholder(e) {
+            e.preventDefault();
+            const id = document.getElementById("stakeholder-id").value;
+            const name = document.getElementById("form-name").value.trim();
+            const type = document.getElementById("form-type").value;
+            const category = document.getElementById("form-category").value;
+            const influence = document.getElementById("form-influence").value;
+            const impact = document.getElementById("form-impact").value;
+            const requirements = document.getElementById("form-requirements").value.split('\n')
+                .map(r => r.trim())
+                .filter(r => r.length > 0);
+            const actionPlan = document.getElementById("form-action").value.trim();
+            const periodicity = parseInt(document.getElementById("form-periodicity").value);
+            const lastEvaluation = document.getElementById("form-last-eval").value;
+
+            // Calcular próxima evaluación basándose en periodicidad
+            const lastEvalDate = new Date(lastEvaluation);
+            lastEvalDate.setMonth(lastEvalDate.getMonth() + periodicity);
+            const nextEvaluation = lastEvalDate.toISOString().split('T')[0];
+
+            if (id) {
+                // Editar existente
+                const index = stakeholders.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    const original = stakeholders[index];
+                    stakeholders[index] = {
+                        ...original,
+                        name, type, category, influence, impact, requirements, actionPlan, periodicity, lastEvaluation, nextEvaluation
+                    };
+                    showToast("Registro actualizado correctamente");
+                }
+            } else {
+                // Crear nuevo
+                const newId = `PI-${String(stakeholders.length + 1).padStart(3, '0')}`;
+                const newStakeholder = {
+                    id: newId,
+                    name, type, category, influence, impact, requirements, actionPlan, periodicity, lastEvaluation, nextEvaluation,
+                    history: [
+                        { date: new Date().toISOString().split('T')[0], user: "Administrador", note: "Alta inicial del registro de la parte interesada." }
+                    ]
+                };
+                stakeholders.push(newStakeholder);
+                showToast("Nueva parte interesada registrada");
+            }
+
+            saveData();
+            renderStakeholders();
+            closeModal();
+        }
+
+        // Eliminar parte interesada
+        function confirmDelete(id) {
+            const item = stakeholders.find(s => s.id === id);
+            if (!item) return;
+
+            if (confirm(`¿Estás seguro de que deseas eliminar el registro de la parte interesada: "${item.name}"?`)) {
+                stakeholders = stakeholders.filter(s => s.id !== id);
+                saveData();
+                renderStakeholders();
+                showToast("Registro eliminado", "error");
+            }
+        }
+
+        // Reevaluación rápida de la parte interesada
+        function quickReevaluate(id) {
+            const item = stakeholders.find(s => s.id === id);
+            if (!item) return;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const nextEvalDate = new Date();
+            nextEvalDate.setMonth(nextEvalDate.getMonth() + item.periodicity);
+            const nextEvalStr = nextEvalDate.toISOString().split('T')[0];
+
+            item.lastEvaluation = todayStr;
+            item.nextEvaluation = nextEvalStr;
+            
+            if (!item.history) item.history = [];
+            item.history.unshift({
+                date: todayStr,
+                user: "Calidad SGI",
+                note: "Reevaluación de requisitos periódica finalizada sin incidencias."
+            });
+
+            saveData();
+            renderStakeholders();
+            showToast(`Evaluación de ${item.name} realizada correctamente`);
+        }
+
+        // Visualizar detalle e historial de evaluación
+        function viewDetail(id) {
+            const item = stakeholders.find(s => s.id === id);
+            if (!item) return;
+
+            document.getElementById("detail-name").innerText = item.name;
+            document.getElementById("detail-type-category").innerText = `${item.type} • Clasificación ${item.category}`;
+            document.getElementById("detail-influence").innerHTML = `<span class="font-bold text-primary">${item.influence}</span>`;
+            document.getElementById("detail-impact").innerHTML = `<span class="font-bold text-primary">${item.impact}</span>`;
+            document.getElementById("detail-action").innerText = item.actionPlan;
+
+            const historyBody = document.getElementById("detail-history-body");
+            historyBody.innerHTML = "";
+
+            if (item.history && item.history.length > 0) {
+                item.history.forEach(log => {
+                    const row = document.createElement("tr");
+                    row.className = "hover:bg-background transition-colors";
+                    row.innerHTML = `
+                        <td class="p-2 border-b border-outline-variant font-mono whitespace-nowrap">${log.date}</td>
+                        <td class="p-2 border-b border-outline-variant font-bold text-primary">${log.user}</td>
+                        <td class="p-2 border-b border-outline-variant text-on-surface-variant">${log.note}</td>
+                    `;
+                    historyBody.appendChild(row);
+                });
+            } else {
+                historyBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="p-4 text-center text-outline">Sin historial de revisiones registradas.</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById("detail-modal").classList.remove("hidden");
+        }
+
+        // Cerrar modal de detalle
+        function closeDetailModal() {
+            document.getElementById("detail-modal").classList.add("hidden");
+        }
+
+        // Exportar a JSON
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stakeholders, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `SGI_Partes_Interesadas_${activeTenant}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Datos exportados a archivo JSON");
+        }
+
+        // Toggle del menú lateral en móviles
+        function toggleMobileRail() {
+            const rail = document.getElementById("sidebar-rail");
+            if (rail.classList.contains("hidden")) {
+                rail.classList.remove("hidden");
+                rail.classList.add("fixed", "left-4", "top-16", "z-40", "w-64");
+            } else {
+                rail.classList.add("hidden");
+                rail.classList.remove("fixed", "left-4", "top-16", "z-40", "w-64");
+            }
+        }
+
+        // Inicialización de la app
+        document.addEventListener("DOMContentLoaded", () => {
+            initData();
+        });
+    </script>
+</body>
+</html>

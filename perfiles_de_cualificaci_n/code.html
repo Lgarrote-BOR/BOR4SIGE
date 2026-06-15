@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Personas - Perfiles de Cualificación</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#fefcff",
+                        "on-background": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-container": "#818486",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-container-high": "#dce9ff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container-low": "#eff4ff",
+                        "primary": "#000000",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "secondary": "#0051d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#bec6e0",
+                        "outline-variant": "#c6c6cd",
+                        "background": "#f8f9ff",
+                        "tertiary": "#000000",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-container": "#e5eeff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "outline": "#76777d",
+                        "on-surface": "#0b1c30",
+                        "inverse-surface": "#213145",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#191c1e",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "base": "4px",
+                        "margin": "24px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "max-width": "1440px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md font-body-md antialiased min-h-screen">
+<!-- NavigationDrawer (Desktop) -->
+<nav class="hidden md:flex flex-col h-full p-md bg-surface border-r border-outline-variant w-[240px] fixed left-0 top-0 z-50">
+<div class="mb-xl flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-sm">
+                GC
+             </div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Gestor de Cumplimiento</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Entorno: Producción <span class="text-xs text-outline ml-1">v2.4.0</span></p>
+</div>
+</div>
+<ul class="flex flex-col gap-sm flex-1">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary font-bold border-r-4 border-secondary bg-surface-container-high transition-colors duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+                    Personas
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+                    Riesgos
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="fact_check">fact_check</span>
+                    Auditorías
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Configuración
+                </a>
+</li>
+</ul>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-40 bg-surface border-b border-outline-variant flex items-center justify-between px-lg h-[64px] ml-0 md:ml-[240px] md:w-[calc(100%-240px)]">
+<div class="flex items-center gap-md">
+<button class="md:hidden text-primary hover:bg-surface-container-low p-2 rounded-full transition-opacity active:opacity-80">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Gestión de Personas</h1>
+</div>
+<div>
+<img alt="Profile Photo" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A small circular avatar image showing a professional corporate headshot of a person in a minimalist office setting. Light mode aesthetic, sharp focus, professional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxW3uNmxKRdnYbrJryUwbjMYkZceiNuI_r4OagGYJbhmKh0l2vqA3CsCWdSTS6fULU-xHxRXHyZ7OGI0dHYXXIV8AVMm4Hb0DRU_nAPIpoyvbc82BE2Y3_WRG9rIPhb49vK64ijVlLJGZnl3crPuL1VYQfWoJKgYrFGdWVDMyB2OxOUwNzNIW9Dusy9ykQD2WSz6MYPcBl18tl6-VuDGFdymYeEINSg5OSQqVs8xPzNnD-OJnB1C4TkvIMAP8brxrYRMydEC-hSMM"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[80px] pb-[100px] md:pb-lg px-md md:px-lg md:ml-[240px] max-w-[1440px] mx-auto flex flex-col gap-lg">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div>
+<h2 class="font-display-lg text-display-lg font-bold text-primary">Perfiles de Cualificación</h2>
+<p class="text-on-surface-variant mt-sm">Directorio maestro de puestos de trabajo, responsabilidades ISO y requisitos competenciales.</p>
+<div class="flex flex-col md:flex-row gap-sm w-full md:w-auto items-center mt-4 md:mt-0">
+    <div class="relative w-full md:w-64">
+        <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-sm">search</span>
+        <input id="search-input" oninput="filterData()" type="text" placeholder="Buscar perfil..." class="w-full pl-9 pr-4 py-2 bg-surface border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+    </div>
+    <select id="filter-dept" onchange="filterData()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary cursor-pointer w-full md:w-auto">
+        <option value="">Todos los Dptos.</option>
+        <option value="Dirección">Dirección</option>
+        <option value="Sistemas">Sistemas</option>
+        <option value="Producción">Producción</option>
+        <option value="Calidad">Calidad</option>
+        <option value="Operaciones">Operaciones</option>
+        <option value="TI">TI</option>
+    </select>
+    <select id="filter-status" onchange="filterData()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary cursor-pointer w-full md:w-auto">
+        <option value="">Todos los Estados</option>
+        <option value="Vigente">Vigente</option>
+        <option value="En Revisión">En Revisión</option>
+    </select>
+    <button onclick="openModal()" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-md text-label-md hover:bg-on-secondary-fixed-variant transition-colors flex items-center gap-2 w-full md:w-auto justify-center">
+        <span class="material-symbols-outlined text-[18px]">add</span> Nuevo Perfil
+    </button>
+</div>
+</div>
+</div>
+<!-- Metric Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-lg flex flex-col gap-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-highest rounded-bl-full opacity-50 -mr-4 -mt-4"></div>
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Perfiles Activos</span>
+<div class="flex items-baseline gap-2">
+<span id="count-activos" class="font-display-lg text-display-lg font-bold text-primary">0</span>
+<span class="text-secondary font-label-md text-label-md">Vigentes</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-lg flex flex-col gap-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-error-container rounded-bl-full opacity-50 -mr-4 -mt-4"></div>
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Revisiones Pendientes</span>
+<div class="flex items-baseline gap-2">
+<span id="count-revision" class="font-display-lg text-display-lg font-bold text-error">0</span>
+<span class="text-on-surface-variant font-label-md text-label-md">En Revisión</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-lg flex flex-col gap-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary-fixed rounded-bl-full opacity-50 -mr-4 -mt-4"></div>
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Nivel Cobertura ISO 9001</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg font-bold text-primary">100%</span>
+<span class="text-outline font-label-md text-label-md">Óptimo</span>
+</div>
+<div class="w-full bg-surface-container h-1 mt-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+<!-- Profiles List -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+<!-- List Header -->
+<div class="bg-surface border-b border-outline-variant px-md py-sm grid grid-cols-12 gap-md items-center hidden md:grid font-label-md text-label-md text-on-surface-variant uppercase">
+<div class="col-span-3">Puesto de Trabajo</div>
+<div class="col-span-2">Dpto.</div>
+<div class="col-span-4">Responsabilidad Clave (ISO)</div>
+<div class="col-span-2">Estado</div>
+<div class="col-span-1 text-right">Acciones</div>
+</div>
+<div id="profiles-container">
+<!-- Renderizado dinámico -->
+</div>
+</div>
+<!-- Pagination (Minimalist) -->
+<div class="flex justify-between items-center text-body-sm text-on-surface-variant">
+<span id="pagination-info">Mostrando 0 a 0 de 0 perfiles</span>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface dark:bg-inverse-surface border-t border-outline-variant shadow-lg flex justify-around items-center h-[80px] px-md">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+            Dashboard
+        </a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+            Personas
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+            Riesgos
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+            Auditorías
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+            Perfil
+        </a>
+</nav>
+
+<!-- Modal Perfil -->
+<div id="modal-perfil" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-2xl w-full p-lg flex flex-col gap-4 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Nuevo Perfil de Cualificación</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-perfil" onsubmit="saveProfile(event)" class="space-y-4">
+            <input type="hidden" id="edit-id" value=""/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-name">Puesto de Trabajo</label>
+                    <input required id="prof-name" type="text" placeholder="Ej: Responsable Calidad" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-dept">Departamento</label>
+                    <select id="prof-dept" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Dirección">Dirección</option>
+                        <option value="Sistemas">Sistemas</option>
+                        <option value="Producción">Producción</option>
+                        <option value="Calidad">Calidad</option>
+                        <option value="Operaciones">Operaciones</option>
+                        <option value="TI">TI</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-desc">Responsabilidad Clave (ISO)</label>
+                <input required id="prof-desc" type="text" placeholder="Ej: Mantenimiento SGC, auditorías internas, no conformidades." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-normas">Normas Asociadas (separadas por comas)</label>
+                    <input id="prof-normas" type="text" placeholder="Ej: ISO 9001:2015, ISO 14001" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-status">Estado</label>
+                    <select id="prof-status" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Vigente">Vigente</option>
+                        <option value="En Revisión">En Revisión</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-competencias">Competencias Requeridas (una por línea)</label>
+                <textarea id="prof-competencias" rows="3" placeholder="Ej: Auditor Interno Certificado&#10;Liderazgo de equipos&#10;Análisis de causa raíz" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-educacion">Educación Formal</label>
+                    <textarea id="prof-educacion" rows="2" placeholder="Ej: Grado Universitario en Ingeniería o Ciencias." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="prof-experiencia">Experiencia / Formación Requerida</label>
+                    <textarea id="prof-experiencia" rows="2" placeholder="Ej: Mínimo 5 años en entornos industriales regulados." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Datos semilla de perfiles de cualificación
+    const seedProfiles = [
+        {
+            id: "PRF-001",
+            name: "Responsable Calidad",
+            dept: "Dirección",
+            description: "Mantenimiento SGC, auditorías internas, no conformidades.",
+            normas: ["ISO 9001:2015", "ISO 14001"],
+            status: "Vigente",
+            competencias: [
+                "Auditor Interno Certificado (IRCA o equivalente).",
+                "Liderazgo de equipos transversales.",
+                "Análisis de causa raíz (Ishikawa, 5 Porqués)."
+            ],
+            educacion: "Grado Universitario en Ingeniería o Ciencias. Máster en Gestión de Calidad.",
+            experiencia: "Mínimo 5 años en entornos industriales regulados, gestionando SGC."
+        },
+        {
+            id: "PRF-014",
+            name: "Técnico IT",
+            dept: "Sistemas",
+            description: "Gestión de infraestructura, copias de seguridad, ciberseguridad básica.",
+            normas: ["ISO 27001"],
+            status: "En Revisión",
+            competencias: [
+                "Administración de servidores Windows/Linux.",
+                "Gestión de firewalls y seguridad perimetral.",
+                "Resolución de incidencias Nivel 1 y 2."
+            ],
+            educacion: "FP de Grado Superior en Sistemas/Informática o equivalente.",
+            experiencia: "2 años de experiencia laboral en puestos similares de TI."
+        },
+        {
+            id: "PRF-045",
+            name: "Operario Producción",
+            dept: "Producción",
+            description: "Ejecución de pautas de control en línea, registro de trazabilidad.",
+            normas: ["ISO 9001:2015"],
+            status: "Vigente",
+            competencias: [
+                "Operación de maquinaria de planta.",
+                "Cumplimiento estricto de pautas de seguridad laboral.",
+                "Registro preciso de partes de producción."
+            ],
+            educacion: "Educación Secundaria Obligatoria o ciclo formativo de grado medio.",
+            experiencia: "Sin experiencia requerida, formación a cargo de la empresa."
+        }
+    ];
+
+    let profiles = [];
+    let expandedId = null;
+
+    function initData() {
+        const stored = localStorage.getItem('sig_perfiles_cualificacion');
+        if (stored) {
+            profiles = JSON.parse(stored);
+        } else {
+            profiles = [...seedProfiles];
+            localStorage.setItem('sig_perfiles_cualificacion', JSON.stringify(profiles));
+        }
+        renderProfiles();
+    }
+
+    function renderProfiles() {
+        const container = document.getElementById('profiles-container');
+        const query = document.getElementById('search-input').value.toLowerCase().trim();
+        const filterDept = document.getElementById('filter-dept').value;
+        const filterStatus = document.getElementById('filter-status').value;
+
+        // Filtrado
+        const filtered = profiles.filter(p => {
+            const matchesSearch = p.name.toLowerCase().includes(query) || 
+                                  p.id.toLowerCase().includes(query) || 
+                                  p.description.toLowerCase().includes(query);
+            const matchesDept = filterDept === "" || p.dept === filterDept;
+            const matchesStatus = filterStatus === "" || p.status === filterStatus;
+            return matchesSearch && matchesDept && matchesStatus;
+        });
+
+        // Contadores
+        const activos = profiles.filter(p => p.status === "Vigente").length;
+        const revision = profiles.filter(p => p.status === "En Revisión").length;
+        document.getElementById('count-activos').innerText = activos;
+        document.getElementById('count-revision').innerText = revision;
+
+        // Paginación info
+        document.getElementById('pagination-info').innerText = `Mostrando ${filtered.length} de ${profiles.length} perfiles`;
+
+        container.innerHTML = "";
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="p-lg text-center text-on-surface-variant font-body-md">
+                    No se encontraron perfiles de cualificación que coincidan con los filtros.
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach(p => {
+            const isExpanded = expandedId === p.id;
+            
+            // Chips de normas
+            const normasHtml = p.normas.map(n => `
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">${n}</span>
+            `).join('');
+
+            // Status chip
+            const statusClass = p.status === "Vigente" 
+                ? "bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0]" 
+                : "bg-surface-container text-on-surface-variant border-outline-variant";
+            const dotClass = p.status === "Vigente" ? "bg-[#059669]" : "bg-outline";
+
+            const statusHtml = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusClass} border">
+                    <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span> ${p.status}
+                </span>
+            `;
+
+            // Expandible de detalles
+            let detailsHtml = "";
+            if (isExpanded) {
+                const competenciasList = p.competencias.map(c => `
+                    <li class="flex items-start gap-2 text-body-sm text-on-surface">
+                        <span class="material-symbols-outlined text-[16px] text-secondary mt-0.5">check_circle</span>
+                        <span>${c}</span>
+                    </li>
+                `).join('');
+
+                detailsHtml = `
+                    <div class="bg-surface-bright border-t border-outline-variant p-md grid grid-cols-1 md:grid-cols-2 gap-lg animation-fade">
+                        <!-- Competencias -->
+                        <div>
+                            <h4 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wide flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">psychology</span> Competencias Requeridas
+                            </h4>
+                            <ul class="space-y-2">
+                                ${competenciasList || '<li class="text-body-sm text-on-surface-variant">Ninguna especificada</li>'}
+                            </ul>
+                        </div>
+                        <!-- Experiencia -->
+                        <div>
+                            <h4 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wide flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">work_history</span> Experiencia / Formación
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="bg-surface p-sm rounded border border-outline-variant">
+                                    <span class="block font-label-md text-label-md text-primary mb-1">Educación Formal</span>
+                                    <span class="text-body-sm text-on-surface-variant">${p.educacion || 'No especificada'}</span>
+                                </div>
+                                <div class="bg-surface p-sm rounded border border-outline-variant">
+                                    <span class="block font-label-md text-label-md text-primary mb-1">Experiencia Previa</span>
+                                    <span class="text-body-sm text-on-surface-variant">${p.experiencia || 'No especificada'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML += `
+                <div class="group border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors duration-200">
+                    <div class="px-md py-md md:py-sm grid grid-cols-1 md:grid-cols-12 gap-y-sm gap-x-md items-start md:items-center">
+                        <div class="col-span-1 md:col-span-3 flex flex-col">
+                            <span class="font-headline-sm text-headline-sm font-semibold text-primary">${p.name}</span>
+                            <span class="text-on-surface-variant font-code-sm text-code-sm">ID: ${p.id}</span>
+                        </div>
+                        <div class="col-span-1 md:col-span-2 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[16px] text-outline">corporate_fare</span>
+                            <span class="text-body-md text-on-surface">${p.dept}</span>
+                        </div>
+                        <div class="col-span-1 md:col-span-4 flex flex-col gap-1">
+                            <span class="text-body-md text-on-surface">${p.description}</span>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                ${normasHtml}
+                            </div>
+                        </div>
+                        <div class="col-span-1 md:col-span-2 flex items-center">
+                            ${statusHtml}
+                        </div>
+                        <div class="col-span-1 md:col-span-1 flex justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="toggleExpand('${p.id}')" class="text-on-surface-variant hover:text-secondary transition-colors" title="Ver Detalles">
+                                <span class="material-symbols-outlined">${isExpanded ? 'visibility_off' : 'visibility'}</span>
+                            </button>
+                            <button onclick="editProfile('${p.id}')" class="text-on-surface-variant hover:text-primary transition-colors" title="Editar">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                            <button onclick="deleteProfile('${p.id}')" class="text-error hover:text-red-700 transition-colors" title="Eliminar">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    ${detailsHtml}
+                </div>
+            `;
+        });
+    }
+
+    function toggleExpand(id) {
+        if (expandedId === id) {
+            expandedId = null;
+        } else {
+            expandedId = id;
+        }
+        renderProfiles();
+    }
+
+    function filterData() {
+        renderProfiles();
+    }
+
+    // Modal perfiles
+    function openModal() {
+        document.getElementById('modal-title').innerText = "Nuevo Perfil de Cualificación";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-perfil').reset();
+        document.getElementById('modal-perfil').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-perfil').classList.add('hidden');
+        document.getElementById('form-perfil').reset();
+    }
+
+    function editProfile(id) {
+        const p = profiles.find(pr => pr.id === id);
+        if (p) {
+            document.getElementById('modal-title').innerText = "Editar Perfil de Cualificación";
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('prof-name').value = p.name;
+            document.getElementById('prof-dept').value = p.dept;
+            document.getElementById('prof-desc').value = p.description;
+            document.getElementById('prof-normas').value = p.normas.join(', ');
+            document.getElementById('prof-status').value = p.status;
+            document.getElementById('prof-competencias').value = p.competencias.join('\n');
+            document.getElementById('prof-educacion').value = p.educacion || '';
+            document.getElementById('prof-experiencia').value = p.experiencia || '';
+            
+            document.getElementById('modal-perfil').classList.remove('hidden');
+        }
+    }
+
+    function deleteProfile(id) {
+        if (confirm("¿Está seguro de que desea eliminar este perfil?")) {
+            profiles = profiles.filter(p => p.id !== id);
+            localStorage.setItem('sig_perfiles_cualificacion', JSON.stringify(profiles));
+            if (expandedId === id) expandedId = null;
+            renderProfiles();
+        }
+    }
+
+    function saveProfile(event) {
+        event.preventDefault();
+        const editId = document.getElementById('edit-id').value;
+        const name = document.getElementById('prof-name').value.trim();
+        const dept = document.getElementById('prof-dept').value;
+        const desc = document.getElementById('prof-desc').value.trim();
+        const normasRaw = document.getElementById('prof-normas').value.trim();
+        const status = document.getElementById('prof-status').value;
+        const compsRaw = document.getElementById('prof-competencias').value.trim();
+        const educacion = document.getElementById('prof-educacion').value.trim();
+        const experiencia = document.getElementById('prof-experiencia').value.trim();
+
+        const normas = normasRaw ? normasRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const competencias = compsRaw ? compsRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
+
+        if (editId) {
+            const idx = profiles.findIndex(p => p.id === editId);
+            if (idx !== -1) {
+                profiles[idx] = {
+                    ...profiles[idx],
+                    name,
+                    dept,
+                    description: desc,
+                    normas,
+                    status,
+                    competencias,
+                    educacion,
+                    experiencia
+                };
+            }
+        } else {
+            // Generar nuevo ID secuencial
+            let maxSeq = 1;
+            profiles.forEach(p => {
+                const parts = p.id.split('-');
+                if (parts.length === 2) {
+                    const seq = parseInt(parts[1]);
+                    if (seq > maxSeq) maxSeq = seq;
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const newId = `PRF-${nextSeq}`;
+
+            profiles.push({
+                id: newId,
+                name,
+                dept,
+                description: desc,
+                normas,
+                status,
+                competencias,
+                educacion,
+                experiencia
+            });
+        }
+
+        localStorage.setItem('sig_perfiles_cualificacion', JSON.stringify(profiles));
+        renderProfiles();
+        closeModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body>
+</html>

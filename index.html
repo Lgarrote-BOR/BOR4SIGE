@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Portal SGI 2.0 - Sistema de Gestión Integrado</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: IBM Plex Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#003366",       // Azul Marino Profundo (Core 2)
+                        "secondary": "#0060ac",     // Azul Interactivo (Core 2)
+                        "background": "#f8f9fb",    // Gris de fondo (Core 2)
+                        "surface": "#ffffff",       // Blanco (Core 2)
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1"
+                    },
+                    fontFamily: {
+                        sans: ["IBM Plex Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar para la barra lateral */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f2f4f6;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c3c6d1;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #737780;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Menú Lateral (Navigation Drawer) - Desktop -->
+    <aside id="sidebar" class="hidden md:flex flex-col bg-surface border-r border-outline-variant w-[280px] shrink-0 h-screen z-30 transition-all duration-300">
+        <!-- Logo y Entorno -->
+        <div class="p-4 border-b border-outline-variant flex flex-col gap-2">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined filled">verified_user</span>
+                </div>
+                <div>
+                    <h2 class="font-bold text-base text-primary tracking-tight leading-none">SIG 2.0</h2>
+                    <span class="text-[10px] text-on-surface-variant font-semibold">SGI & Compliance</span>
+                </div>
+            </div>
+            <div class="mt-1 flex items-center justify-between p-2 bg-surface-container-low rounded border border-outline-variant text-[11px] font-semibold text-primary">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-success"></span>
+                    Producción Activa
+                </span>
+                <span class="text-[9px] bg-outline-variant px-1.5 py-0.5 rounded text-on-surface-variant font-mono">v2.4.0</span>
+            </div>
+            
+            <!-- Selector de Usuario Activo (Simulador) -->
+            <div class="relative mt-1">
+                <button id="profile-menu-btn" onclick="toggleProfileDropdown()" class="w-full flex items-center gap-2.5 p-2 bg-surface-container-low hover:bg-surface-container border border-outline-variant rounded-lg transition-all duration-150 text-left">
+                    <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0" id="user-avatar-initials">US</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-primary truncate leading-tight" id="user-display-name">Cargando...</p>
+                        <p class="text-[9px] text-on-surface-variant truncate leading-none mt-0.5" id="user-display-role">Cargando...</p>
+                    </div>
+                    <span class="material-symbols-outlined text-sm text-on-surface-variant">swap_horiz</span>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="profile-dropdown" class="hidden absolute left-0 right-0 mt-1 bg-surface rounded-lg border border-outline-variant shadow-lg py-1 z-50">
+                    <div class="px-3 py-1.5 border-b border-outline-variant bg-surface-container-low">
+                        <p class="text-[10px] font-bold text-outline uppercase tracking-wider">Simular Persona:</p>
+                    </div>
+                    <div id="simulated-users-list" class="max-h-60 overflow-y-auto py-1">
+                        <!-- Inyectado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscador de Módulos -->
+        <div class="p-3 border-b border-outline-variant">
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="module-search" oninput="filterModules(this.value)" placeholder="Buscar módulo..." class="w-full pl-8 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+        </div>
+
+        <!-- Enlaces de Navegación del Menú Lateral -->
+        <nav id="nav-container" class="flex-1 overflow-y-auto p-2 space-y-3 custom-scrollbar select-none">
+            <!-- Los grupos de navegación se inyectarán dinámicamente mediante JS para facilitar el mantenimiento y la búsqueda -->
+        </nav>
+
+        <!-- Footer del Menú Lateral -->
+        <div class="p-4 border-t border-outline-variant bg-surface-container-low text-[10px] text-on-surface-variant flex justify-between font-medium">
+            <span>© 2026 SIG Auditoría</span>
+            <span>Espacio de Trabajo SIG 2.0</span>
+        </div>
+    </aside>
+
+    <!-- Header Móvil -->
+    <header class="bg-surface border-b border-outline-variant flex items-center justify-between px-4 h-16 w-full md:hidden shrink-0 z-40">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleMobileSidebar()" class="text-primary hover:bg-surface-container-low p-2 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-2xl">menu</span>
+            </button>
+            <h1 class="font-bold text-lg text-primary tracking-tight">SIG 2.0</h1>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
+            US
+        </div>
+    </header>
+
+    <!-- Fondo Oscuro de Barra Lateral en Móvil -->
+    <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-primary/40 backdrop-blur-sm z-20 md:hidden"></div>
+
+    <!-- Área de Contenido Principal -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-background">
+        <!-- Contenedor del Iframe -->
+        <div class="flex-1 w-full h-full relative">
+            <iframe id="content-iframe" class="w-full h-full border-none" title="Lienzo de Módulo"></iframe>
+        </div>
+    </main>
+
+    <!-- Script de Navegación Dinámica -->
+    <script>
+        // Estructura de navegación agrupada para el menú lateral
+        const navGroups = [
+            {
+                title: "Cuadro de Mando",
+                icon: "monitoring",
+                items: [
+                    { name: "Inicio y Dashboard", path: "./dashboard_de_gesti_n_sig/code.html", icon: "space_dashboard" }
+                ]
+            },
+            {
+                title: "Estrategia y Contexto",
+                icon: "explore",
+                items: [
+                    { name: "Análisis de Contexto", path: "./registro_de_an_lisis_de_contexto/code.html", icon: "article" },
+                    { name: "Matriz DAFO", path: "./an_lisis_dafo_estrat_gico/code.html", icon: "grid_view" },
+                    { name: "Partes Interesadas", path: "./gesti_n_de_partes_interesadas/code.html", icon: "group_work" },
+                    { name: "Mapa de Procesos", path: "./mapa_de_procesos_sig/code.html", icon: "account_tree" },
+                    { name: "Ficha de Proceso", path: "./ficha_de_proceso_detallada/code.html", icon: "assignment_ind" },
+                    { name: "Revisión por Dirección", path: "./revisi_n_por_la_direcci_n/code.html", icon: "rate_review" },
+                    { name: "Políticas del SGI", path: "./politicas_del_sgi/code.html", icon: "policy" }
+                ]
+            },
+            {
+                title: "Cumplimiento y ENS",
+                icon: "gavel",
+                items: [
+                    { name: "Requisitos Legales", path: "./requisitos_legales/code.html", icon: "balance" },
+                    { name: "Requisitos Normativos ENS", path: "./requisitos_legales_y_ens/code.html", icon: "policy" },
+                    { name: "Revisión Puntos Norma", path: "./revisi_n_de_puntos_de_norma/code.html", icon: "check_box" },
+                    { name: "Catálogo Requisitos v2", path: "./cat_logo_de_requisitos_es_v2/code.html", icon: "list_alt" },
+                    { name: "Catálogo Legal Final", path: "./cat_logo_legal_es_final/code.html", icon: "menu_book" }
+                ]
+            },
+            {
+                title: "Auditoría e Informes",
+                icon: "assignment",
+                items: [
+                    { name: "Planificación Auditoría", path: "./planificaci_n_de_auditor_a/code.html", icon: "event" },
+                    { name: "Gestor de Auditorías", path: "./gestor_de_auditor_as/code.html", icon: "rule_folder" },
+                    { name: "Auditorías y Acciones", path: "./auditor_as_y_acciones/code.html", icon: "checklist" },
+                    { name: "Registro de Hallazgos", path: "./registro_de_hallazgos/code.html", icon: "priority_high" },
+                    { name: "Previsualizar Informe", path: "./previsualizaci_n_de_informe/code.html", icon: "preview" },
+                    { name: "Resumen Resultados", path: "./resumen_de_resultados/code.html", icon: "analytics" },
+                    { name: "Informe Finalizado", path: "./informe_finalizado/code.html", icon: "task" }
+                ]
+            },
+            {
+                title: "Gestión de Riesgos",
+                icon: "shield_lock",
+                items: [
+                    { name: "Riesgos Seguridad (Magerit)", path: "./evaluaci_n_riesgos_seguridad_magerit/code.html", icon: "security" },
+                    { name: "Riesgos Calidad ISO 9001", path: "./evaluaci_n_de_riesgos_calidad_iso_9001/code.html", icon: "check_circle" },
+                    { name: "Riesgos Compliance", path: "./evaluaci_n_riesgos_compliance/code.html", icon: "gavel" },
+                    { name: "Riesgos Salud Laboral", path: "./evaluaci_n_riesgos_salud_laboral/code.html", icon: "medical_services" },
+                    { name: "Riesgos Cambio Climático", path: "./riesgos_cambio_climatico/code.html", icon: "thermostat" },
+                    { name: "Matriz de Riesgos v2", path: "./matriz_de_riesgos_es_v2/code.html", icon: "table_chart" },
+                    { name: "Tratamiento de Riesgos", path: "./plan_de_acci_n_para_riesgos/code.html", icon: "shield" },
+                    { name: "Continuidad del Negocio (BCP)", path: "./plan_de_continuidad_de_negocio/code.html", icon: "quickreply" }
+                ]
+            },
+            {
+                title: "Calidad y Cliente",
+                icon: "sentiment_satisfied",
+                items: [
+                    { name: "Satisfacción del Cliente", path: "./satisfacci_n_del_cliente/code.html", icon: "sentiment_satisfied" }
+                ]
+            },
+            {
+                title: "Compliance y Ética",
+                icon: "balance",
+                items: [
+                    { name: "Canal de Denuncias", path: "./canal_de_denuncias/code.html", icon: "campaign" }
+                ]
+            },
+            {
+                title: "Seguridad de la Información",
+                icon: "encrypted",
+                items: [
+                    { name: "Incidentes de Seguridad", path: "./incidentes_de_seguridad/code.html", icon: "security" }
+                ]
+            },
+            {
+                title: "Gestión de Servicios TI",
+                icon: "dns",
+                items: [
+                    { name: "Catálogo de Servicios TI", path: "./cat_logo_servicios_ti/code.html", icon: "dns" }
+                ]
+            },
+            {
+                title: "Operaciones y CAPA",
+                icon: "build",
+                items: [
+                    { name: "Incidencias y NC", path: "./incidencias_y_no_conformidades/code.html", icon: "report_problem" },
+                    { name: "Acciones Correctivas (CAPA)", path: "./acciones_correctivas/code.html", icon: "task_alt" },
+                    { name: "Acciones de Mejora", path: "./acciones_de_mejora/code.html", icon: "trending_up" },
+                    { name: "Objetivos de Gestión", path: "./objetivos_de_gesti_n/code.html", icon: "track_changes" },
+                    { name: "KPIs de Proceso", path: "./panel_de_kpis_de_proceso/code.html", icon: "legend_toggle" },
+                    { name: "Ficha de Equipo", path: "./ficha_t_cnica_de_equipo/code.html", icon: "home_repair_service" },
+                    { name: "Equipos EIME", path: "./inventario_de_equipos_eime/code.html", icon: "inventory" },
+                    { name: "Mantenimiento Preventivo", path: "./registro_mantenimiento_preventivo/code.html", icon: "engineering" },
+                    { name: "Mantenimiento Correctivo", path: "./registro_mantenimiento_correctivo/code.html", icon: "handyman" },
+                    { name: "Calibración/Verificación", path: "./registro_de_calibraci_n_y_verificaci_n/code.html", icon: "biotech" },
+                    { name: "Operación Ambiental", path: "./control_de_operaciones_ambientales/code.html", icon: "eco" },
+                    { name: "Aspectos Ambientales", path: "./evaluaci_n_aspectos_ambientales/code.html", icon: "nature" },
+                    { name: "Compras y Proveedores", path: "./compras_y_evaluacion_proveedores/code.html", icon: "shopping_cart" }
+                ]
+            },
+            {
+                title: "Gestión Documental",
+                icon: "folder_open",
+                items: [
+                    { name: "Explorador Documentos", path: "./explorador_de_documentos_sig/code.html", icon: "folder_zip" },
+                    { name: "Gestor Documental SGI", path: "./gesti_n_documental_es/code.html", icon: "snippet_folder" },
+                    { name: "Detalle del Documento", path: "./detalle_de_documento/code.html", icon: "description" },
+                    { name: "Flujo de Aprobación", path: "./flujo_de_aprobaci_n_documental/code.html", icon: "rate_review" }
+                ]
+            },
+            {
+                title: "Personas y SST",
+                icon: "groups",
+                items: [
+                    { name: "Directorio de Personal", path: "./directorio_de_personal/code.html", icon: "person" },
+                    { name: "Perfiles Cualificación", path: "./perfiles_de_cualificaci_n/code.html", icon: "badge" },
+                    { name: "Plan Formación Anual", path: "./plan_de_formaci_n_anual/code.html", icon: "school" },
+                    { name: "Registro Formativo", path: "./registro_de_actividad_formativa/code.html", icon: "model_training" },
+                    { name: "Matriz Responsabilidades", path: "./matriz_de_responsabilidades/code.html", icon: "assignment_ind" },
+                    { name: "Investigación de Accidentes", path: "./investigaci_n_accidentes_sst/code.html", icon: "health_and_safety" },
+                    { name: "Gestión de Usuarios", path: "./gesti_n_de_usuarios/code.html", icon: "manage_accounts" },
+                    { name: "Detalle de Usuario", path: "./detalle_de_usuario/code.html", icon: "contact_page" },
+                    { name: "Roles y Permisos", path: "./roles_y_permisos/code.html", icon: "lock" },
+                    { name: "Nuevo Usuario", path: "./nuevo_usuario/code.html", icon: "person_add" },
+                    { name: "Seguridad y Contraseñas", path: "./seguridad_y_cambio_de_contrase_a/code.html", icon: "password" },
+                    { name: "Recuperar Contraseña", path: "./recuperar_contrase_a/code.html", icon: "lock_open" }
+                ]
+            }
+        ];
+
+        // Inyectar el menú lateral al cargar la página
+        function renderNavigation() {
+            const container = document.getElementById("nav-container");
+            container.innerHTML = "";
+            
+            navGroups.forEach((group, groupIndex) => {
+                const groupDiv = document.createElement("div");
+                groupDiv.className = "space-y-1";
+                groupDiv.setAttribute("data-group", group.title.toLowerCase());
+                
+                // Cabecera del Grupo (Colapsable)
+                const header = document.createElement("div");
+                header.className = "flex items-center justify-between px-3 py-1.5 text-xs font-bold text-primary hover:bg-surface-container-low rounded-lg cursor-pointer transition-colors";
+                header.onclick = () => toggleGroup(groupIndex);
+                header.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">${group.icon}</span>
+                        <span>${group.title}</span>
+                    </div>
+                    <span id="arrow-${groupIndex}" class="material-symbols-outlined text-sm transition-transform duration-200">expand_less</span>
+                `;
+                
+                // Lista de enlaces del grupo
+                const list = document.createElement("ul");
+                list.id = `group-list-${groupIndex}`;
+                list.className = "pl-2 space-y-0.5 mt-0.5 transition-all duration-200 overflow-hidden";
+                
+                group.items.forEach(item => {
+                    const listItem = document.createElement("li");
+                    listItem.className = "nav-item";
+                    listItem.setAttribute("data-name", item.name.toLowerCase());
+                    
+                    const link = document.createElement("a");
+                    link.href = "#";
+                    link.setAttribute("data-path", item.path);
+                    link.onclick = (e) => {
+                        e.preventDefault();
+                        loadPage(item.path, link);
+                    };
+                    link.className = "flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all duration-150 active:scale-[0.98]";
+                    link.innerHTML = `
+                        <span class="material-symbols-outlined text-[15px]">${item.icon}</span>
+                        <span>${item.name}</span>
+                    `;
+                    
+                    listItem.appendChild(link);
+                    list.appendChild(listItem);
+                });
+                
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(list);
+                container.appendChild(groupDiv);
+            });
+            
+            // Marcar por defecto la primera opción (Dashboard) como activa
+            const firstLink = document.querySelector("#group-list-0 a");
+            if (firstLink) {
+                firstLink.classList.add("bg-surface-container-high", "text-primary");
+                firstLink.classList.remove("text-on-surface-variant");
+            }
+        }
+
+        // Permitir la navegación desde los sub-iframes a módulos concretos del padre
+        window.navigateToPath = function(path) {
+            const cleanPath = path.replace(/^\.\//, ''); // normalizar ruta
+            const links = document.querySelectorAll("#nav-container a");
+            for (let link of links) {
+                const linkPath = link.getAttribute("data-path") || '';
+                const cleanLinkPath = linkPath.replace(/^\.\//, '');
+                if (cleanLinkPath === cleanPath) {
+                    loadPage(linkPath, link);
+                    
+                    // Asegurar que el grupo contenedor esté expandido si estaba colapsado
+                    const parentUl = link.closest("ul");
+                    if (parentUl && parentUl.style.maxHeight === "0px") {
+                        const groupIndex = parentUl.id.replace("group-list-", "");
+                        toggleGroup(groupIndex);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        // Colapsar/Expandir grupos
+        function toggleGroup(index) {
+            const list = document.getElementById(`group-list-${index}`);
+            const arrow = document.getElementById(`arrow-${index}`);
+            if (list.style.maxHeight === "0px") {
+                list.style.maxHeight = "500px";
+                arrow.style.transform = "rotate(0deg)";
+            } else {
+                list.style.maxHeight = "0px";
+                arrow.style.transform = "rotate(-180deg)";
+            }
+        }
+
+        // Cargar página en el Iframe
+        function loadPage(path, activeLinkElement) {
+            const iframe = document.getElementById("content-iframe");
+            iframe.src = path;
+
+            // Desmarcar todos los enlaces activos
+            document.querySelectorAll("#nav-container a").forEach(link => {
+                link.classList.remove("bg-surface-container-high", "text-primary");
+                link.classList.add("text-on-surface-variant");
+            });
+
+            // Marcar el enlace actual como activo
+            activeLinkElement.classList.add("bg-surface-container-high", "text-primary");
+            activeLinkElement.classList.remove("text-on-surface-variant");
+
+            // Cerrar menú lateral en pantallas móviles
+            if (window.innerWidth < 768) {
+                toggleMobileSidebar();
+            }
+        }
+
+        // Buscador interactivo en tiempo real
+        function filterModules(query) {
+            const cleanQuery = query.toLowerCase().trim();
+            const groups = document.querySelectorAll("#nav-container > div");
+            
+            groups.forEach(groupDiv => {
+                const listItems = groupDiv.querySelectorAll("li.nav-item");
+                let groupHasMatch = false;
+
+                listItems.forEach(item => {
+                    const name = item.getAttribute("data-name");
+                    if (name.includes(cleanQuery)) {
+                        item.classList.remove("hidden");
+                        groupHasMatch = true;
+                    } else {
+                        item.classList.add("hidden");
+                    }
+                });
+
+                if (groupHasMatch) {
+                    groupDiv.classList.remove("hidden");
+                } else {
+                    groupDiv.classList.add("hidden");
+                }
+            });
+        }
+
+        // Toggle del menú en responsive (Móviles)
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("sidebar-overlay");
+
+            if (sidebar.classList.contains("hidden")) {
+                sidebar.classList.remove("hidden");
+                sidebar.classList.add("fixed", "left-0", "top-0", "bottom-0");
+                overlay.classList.remove("hidden");
+            } else {
+                sidebar.classList.add("hidden");
+                sidebar.classList.remove("fixed", "left-0", "top-0", "bottom-0");
+                overlay.classList.add("hidden");
+            }
+        }
+
+        // API Sync & Local Storage Fallback
+        window.sigDbState = {};
+        window.isServerActive = false;
+
+        window.saveKeyToServer = function(key, value) {
+            if (value === null) {
+                delete window.sigDbState[key];
+            } else {
+                window.sigDbState[key] = value;
+            }
+
+            if (window.isServerActive) {
+                fetch('/api/store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, value })
+                }).catch(err => console.error("Error al guardar en el servidor:", err));
+            } else {
+                // Fallback para mantener sincronizados los iframes en local
+                if (value === null) {
+                    localStorage.removeItem(key);
+                } else {
+                    localStorage.setItem(key, value);
+                }
+            }
+        };
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById("profile-dropdown");
+            dropdown.classList.toggle("hidden");
+        }
+
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener("click", (e) => {
+            const container = document.getElementById("profile-menu-btn");
+            const dropdown = document.getElementById("profile-dropdown");
+            if (container && dropdown && !container.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add("hidden");
+            }
+        });
+
+        function renderUserProfile() {
+            const currentUserStr = window.sigDbState['sig_current_user'];
+            if (!currentUserStr) return;
+
+            let currentUser;
+            try {
+                currentUser = typeof currentUserStr === 'string' ? JSON.parse(currentUserStr) : currentUserStr;
+            } catch(e) {
+                console.error("Error al parsear usuario activo:", e);
+                return;
+            }
+
+            // Actualizar avatar e información
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+            document.getElementById("user-avatar-initials").innerText = initials;
+            document.getElementById("user-display-name").innerText = currentUser.name;
+            document.getElementById("user-display-role").innerText = currentUser.role + (currentUser.isSuperadmin ? " ⭐" : "");
+
+            // Cargar lista de usuarios simulados
+            const usersList = document.getElementById("simulated-users-list");
+            if (!usersList) return;
+            usersList.innerHTML = "";
+
+            const allUsersStr = window.sigDbState['sig_users'];
+            if (allUsersStr) {
+                try {
+                    const allUsers = typeof allUsersStr === 'string' ? JSON.parse(allUsersStr) : allUsersStr;
+                    allUsers.forEach(user => {
+                        const item = document.createElement("button");
+                        item.className = "w-full text-left px-3 py-1.5 hover:bg-surface-container-high flex items-center justify-between transition-colors text-xs";
+                        item.onclick = () => {
+                            switchUser(user);
+                        };
+
+                        const isCurrent = user.id === currentUser.id;
+                        item.innerHTML = `
+                            <div class="text-left min-w-0 flex-1">
+                                <p class="text-xs font-bold truncate ${isCurrent ? 'text-primary' : 'text-on-surface'}">${user.name} ${user.isSuperadmin ? '⭐' : ''}</p>
+                                <p class="text-[9px] text-on-surface-variant truncate">${user.role} (${user.tenantId.toUpperCase()})</p>
+                            </div>
+                            ${isCurrent ? '<span class="material-symbols-outlined text-secondary text-base shrink-0 ml-1">check</span>' : ''}
+                        `;
+                        usersList.appendChild(item);
+                    });
+                } catch(e) {
+                    console.error("Error al parsear lista de usuarios:", e);
+                }
+            }
+        }
+
+        function switchUser(user) {
+            window.saveKeyToServer('sig_current_user', typeof user === 'string' ? user : JSON.stringify(user));
+            
+            // Si el usuario no es superadmin, forzar el tenant de ese usuario
+            if (!user.isSuperadmin) {
+                window.saveKeyToServer('sig_active_tenant', user.tenantId);
+            }
+
+            // Recargar UI
+            renderUserProfile();
+            
+            // Recargar el iframe para que el módulo activo note el cambio de permisos
+            const iframe = document.getElementById("content-iframe");
+            iframe.src = iframe.src;
+
+            // Ocultar dropdown
+            document.getElementById("profile-dropdown").classList.add("hidden");
+        }
+
+        async function initApp() {
+            renderNavigation();
+            const iframe = document.getElementById("content-iframe");
+            
+            try {
+                const response = await fetch('/api/store');
+                if (response.ok) {
+                    window.sigDbState = await response.json();
+                    window.isServerActive = true;
+                    console.log("SGI 2.0 Webapp: Estado cargado desde el servidor.");
+                } else {
+                    throw new Error("El servidor no devolvió un estado válido.");
+                }
+            } catch (err) {
+                console.warn("SGI 2.0 Local: Servidor inactivo. Usando localStorage como fallback:", err);
+                window.sigDbState = {};
+                window.isServerActive = false;
+                
+                // Cargar el localStorage en la memoria compartida de la sesión
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('sig_')) {
+                        window.sigDbState[key] = localStorage.getItem(key);
+                    }
+                }
+            }
+
+            // Inicializar lista de usuarios si no existe
+            if (!window.sigDbState['sig_users']) {
+                const seedUsers = [
+                    { id: "bor", name: "Bor", email: "bor@bor4d.com", role: "Superadministrador", department: "Dirección", tenantId: "alfa", status: "Activo", isSuperadmin: true },
+                    { id: "ana", name: "Ana Rodríguez Silva", email: "a.rodriguez@bor4d.com", role: "Quality Manager", department: "Calidad ISO 9001", tenantId: "alfa", status: "Activo", isSuperadmin: false },
+                    { id: "carlos", name: "Carlos Gómez Pérez", email: "c.gomez@bor4d.com", role: "Auditor Interno", department: "Cumplimiento", tenantId: "beta", status: "Activo", isSuperadmin: false },
+                    { id: "laura", name: "Laura Martínez", email: "l.martinez@bor4d.com", role: "Especialista Medioambiental", department: "Medio Ambiente ISO 14001", tenantId: "alfa", status: "Inactivo", isSuperadmin: false }
+                ];
+                window.saveKeyToServer('sig_users', JSON.stringify(seedUsers));
+            }
+
+            // Inicializar usuario actual si no existe
+            if (!window.sigDbState['sig_current_user']) {
+                let uSeed = JSON.parse(window.sigDbState['sig_users']);
+                window.saveKeyToServer('sig_current_user', JSON.stringify(uSeed[0]));
+            }
+
+            renderUserProfile();
+
+            // Cargar página inicial
+            iframe.src = "./dashboard_de_gesti_n_sig/code.html";
+        }
+
+        // Iniciar
+        document.addEventListener("DOMContentLoaded", () => {
+            initApp();
+        });
+    </script>
+</body>
+</html>

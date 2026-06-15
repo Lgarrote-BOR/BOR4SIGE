@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Plan de Formación Anual - Gestión de Personas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "on-background": "#0b1c30",
+                      "surface-bright": "#f8f9ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-tertiary-container": "#818486",
+                      "surface": "#f8f9ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "surface-container-high": "#dce9ff",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-container-low": "#eff4ff",
+                      "primary": "#000000",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "secondary": "#0051d5",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-surface-variant": "#45464d",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "primary-fixed-dim": "#bec6e0",
+                      "outline-variant": "#c6c6cd",
+                      "background": "#f8f9ff",
+                      "tertiary": "#000000",
+                      "error": "#ba1a1a",
+                      "on-primary-container": "#7c839b",
+                      "secondary-container": "#316bf3",
+                      "on-secondary-fixed": "#00174b",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "surface-container": "#e5eeff",
+                      "surface-container-highest": "#d3e4fe",
+                      "primary-fixed": "#dae2fd",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#131b2e",
+                      "outline": "#76777d",
+                      "on-surface": "#0b1c30",
+                      "inverse-surface": "#213145",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bec6e0",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "tertiary-container": "#191c1e",
+                      "surface-dim": "#cbdbf5",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "surface-variant": "#d3e4fe"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "base": "4px",
+                      "margin": "24px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "max-width": "1440px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md h-screen flex overflow-hidden">
+<!-- Navigation Drawer (SideNav) -->
+<aside class="w-[240px] h-full fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col p-md hidden md:flex z-50">
+<div class="mb-lg px-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Gestor de Cumplimiento</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">v2.4.0 • Entorno: Producción</p>
+</div>
+<nav class="flex-1 space-y-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<!-- Active State: Personas / Formación -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary font-bold border-r-4 border-secondary bg-surface-container-high transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+                Personas
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+                Riesgos
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="fact_check">fact_check</span>
+                Auditorías
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out font-label-md text-label-md mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Configuración
+            </a>
+</nav>
+<div class="mt-auto pt-lg border-t border-outline-variant flex items-center gap-sm px-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-label-md text-label-md">
+                GC
+            </div>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md truncate text-on-surface">Gestor Admin</p>
+<p class="font-body-sm text-body-sm truncate text-on-surface-variant">admin@empresa.com</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col md:ml-[240px] w-full min-w-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full md:w-[calc(100%-240px)] z-40 bg-surface border-b border-outline-variant flex items-center justify-between px-lg h-[64px]">
+<div class="flex items-center gap-md">
+<button class="md:hidden text-outline hover:bg-surface-container-low p-sm rounded-full active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Plan de Formación Anual 2024</h2>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-secondary bg-surface border border-secondary px-md py-xs rounded hover:bg-surface-container-low transition-colors font-label-md text-label-md hidden md:flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Exportar
+                </button>
+<button onclick="openModal()" class="bg-secondary text-on-secondary px-md py-xs rounded hover:opacity-90 transition-opacity font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Nuevo Curso
+                </button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 overflow-y-auto pt-[88px] pb-[100px] md:pb-lg px-md md:px-xl bg-background">
+<div class="max-w-[1440px] mx-auto space-y-lg">
+<!-- KPI Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Cursos Planificados</h3>
+<span class="material-symbols-outlined text-secondary">school</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span id="kpi-total" class="font-display-lg text-display-lg font-bold text-on-surface">0</span>
+<span id="kpi-completado-ratio" class="font-body-sm text-body-sm text-outline">/ 0 (0%)</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full mt-sm overflow-hidden">
+<div id="kpi-progress-bar" class="bg-secondary h-full" style="width: 0%"></div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Ejecución Presupuestaria</h3>
+<span class="material-symbols-outlined text-secondary">payments</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span id="kpi-presupuesto" class="font-display-lg text-display-lg font-bold text-on-surface">0€</span>
+<span class="font-body-sm text-body-sm text-outline">invertido</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full mt-sm overflow-hidden flex">
+<div id="kpi-budget-bar" class="bg-secondary h-full" style="width: 100%"></div>
+</div>
+<p class="font-body-sm text-body-sm text-outline mt-xs">Presupuesto del Plan</p>
+</div>
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col justify-between">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Asistentes Totales</h3>
+<span class="material-symbols-outlined text-secondary">schedule</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span id="kpi-asistentes" class="font-display-lg text-display-lg font-bold text-on-surface">0</span>
+<span class="font-body-sm text-body-sm text-outline">registrados</span>
+</div>
+<div class="flex gap-sm mt-sm">
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-[#10B981]"></span>
+<span id="kpi-assist-desc" class="font-body-sm text-body-sm text-on-surface-variant">Promedio por curso</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Filters & Controls -->
+<section class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col sm:flex-row gap-md items-end sm:items-center justify-between">
+<div class="flex flex-col sm:flex-row gap-md w-full sm:w-auto">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Área Formativa</label>
+<select id="filter-area" onchange="filterData()" class="bg-surface border border-outline-variant rounded px-sm py-xs font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+<option value="">Todas las Áreas</option>
+<option value="Prevención">Prevención</option>
+<option value="Calidad">Calidad</option>
+<option value="Seguridad">Seguridad</option>
+<option value="Habilidades">Habilidades</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Estado</label>
+<select id="filter-status" onchange="filterData()" class="bg-surface border border-outline-variant rounded px-sm py-xs font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+<option value="">Todos los Estados</option>
+<option value="Planificado">Planificado</option>
+<option value="En Curso">En Curso</option>
+<option value="Completado">Completado</option>
+</select>
+</div>
+</div>
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input id="search-input" oninput="filterData()" class="w-full pl-xl pr-sm py-xs bg-surface border border-outline-variant rounded font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary outline-none" placeholder="Buscar curso..." type="text"/>
+</div>
+</section>
+<!-- Course List Table -->
+<section class="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Código</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Curso</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Área</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Fechas</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Asistentes</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Presupuesto</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Estado</th>
+<th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold text-right">Acciones</th>
+</tr>
+</thead>
+<tbody id="course-tbody" class="divide-y divide-outline-variant">
+<!-- Dinámico -->
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t border-outline-variant flex justify-around items-center h-[80px] px-md">
+<button class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-md text-label-md-mobile mt-xs">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+<span class="font-label-md text-label-md-mobile mt-xs">Riesgos</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+<span class="font-label-md text-label-md-mobile mt-xs">Auditorías</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md-mobile mt-xs">Perfil</span>
+</button>
+</nav>
+
+<!-- Modal Curso -->
+<div id="modal-curso" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Nuevo Curso</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-curso" onsubmit="saveCourse(event)" class="space-y-4">
+            <input type="hidden" id="edit-id" value=""/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-code">Código</label>
+                    <input required id="course-code" type="text" placeholder="Ej: PRL-24-01" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-area">Área Formativa</label>
+                    <select id="course-area" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                        <option value="Prevención">Prevención</option>
+                        <option value="Calidad">Calidad</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Habilidades">Habilidades</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-name">Nombre del Curso</label>
+                <input required id="course-name" type="text" placeholder="Ej: Actualización Normativa PRL" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-dates">Fechas / Rango</label>
+                    <input required id="course-dates" type="text" placeholder="Ej: 15 Mar - 20 Mar" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-status">Estado</label>
+                    <select id="course-status" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                        <option value="Planificado">Planificado</option>
+                        <option value="En Curso">En Curso</option>
+                        <option value="Completado">Completado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-assistants">Asistentes</label>
+                    <input required id="course-assistants" type="number" min="0" value="0" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-max-assistants">Máx. Asistentes</label>
+                    <input required id="course-max-assistants" type="number" min="1" value="15" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="course-budget">Presupuesto (€)</label>
+                    <input required id="course-budget" type="number" min="0" value="1000" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const seedCourses = [
+        {
+            id: "PRL-24-01",
+            name: "Actualización Normativa PRL",
+            area: "Prevención",
+            dates: "15 Mar - 20 Mar",
+            assistants: 12,
+            max_assistants: 15,
+            budget: 1200,
+            status: "Completado"
+        },
+        {
+            id: "ISO-24-02",
+            name: "Auditor Interno ISO 9001:2015",
+            area: "Calidad",
+            dates: "10 May - 15 Jun",
+            assistants: 5,
+            max_assistants: 8,
+            budget: 3500,
+            status: "En Curso"
+        },
+        {
+            id: "SEC-24-03",
+            name: "Ciberseguridad Básica para Empleados",
+            area: "Seguridad",
+            dates: "01 Sep - 30 Sep",
+            assistants: 0,
+            max_assistants: 50,
+            budget: 800,
+            status: "Planificado"
+        }
+    ];
+
+    let courses = [];
+
+    function initData() {
+        const stored = localStorage.getItem('sig_plan_formacion');
+        if (stored) {
+            courses = JSON.parse(stored);
+        } else {
+            courses = [...seedCourses];
+            localStorage.setItem('sig_plan_formacion', JSON.stringify(courses));
+        }
+        renderCourses();
+    }
+
+    function renderCourses() {
+        const tbody = document.getElementById('course-tbody');
+        const filterArea = document.getElementById('filter-area').value;
+        const filterStatus = document.getElementById('filter-status').value;
+        const query = document.getElementById('search-input').value.toLowerCase().trim();
+
+        // Filtrado
+        const filtered = courses.filter(c => {
+            const matchesArea = filterArea === "" || c.area === filterArea;
+            const matchesStatus = filterStatus === "" || c.status === filterStatus;
+            const matchesSearch = c.name.toLowerCase().includes(query) || 
+                                  c.id.toLowerCase().includes(query) || 
+                                  c.area.toLowerCase().includes(query);
+            return matchesArea && matchesStatus && matchesSearch;
+        });
+
+        // Calcular KPIs
+        const totalCourses = courses.length;
+        const completedCourses = courses.filter(c => c.status === "Completado").length;
+        const completedRatio = totalCourses > 0 ? Math.round((completedCourses / totalCourses) * 100) : 0;
+        
+        let totalBudget = courses.reduce((acc, curr) => acc + parseFloat(curr.budget || 0), 0);
+        let totalAssistants = courses.reduce((acc, curr) => acc + parseInt(curr.assistants || 0), 0);
+
+        document.getElementById('kpi-total').innerText = totalCourses;
+        document.getElementById('kpi-completado-ratio').innerText = `/ ${completedCourses} completados (${completedRatio}%)`;
+        document.getElementById('kpi-progress-bar').style.width = `${completedRatio}%`;
+        document.getElementById('kpi-presupuesto').innerText = `${totalBudget.toLocaleString('es-ES')}€`;
+        document.getElementById('kpi-asistentes').innerText = totalAssistants;
+
+        tbody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="p-lg text-center text-on-surface-variant font-body-md">
+                        No se encontraron cursos de formación.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        filtered.forEach(c => {
+            let statusBadge = "";
+            if (c.status === "Completado") {
+                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#DEF7EC] text-[#03543F]">Completado</span>`;
+            } else if (c.status === "En Curso") {
+                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#E1EFFE] text-[#1E429F]">En Curso</span>`;
+            } else {
+                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface-variant border border-outline-variant">Planificado</span>`;
+            }
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="p-sm font-code-sm text-code-sm text-on-surface-variant">${c.id}</td>
+                    <td class="p-sm font-body-md text-body-md text-on-surface font-semibold">${c.name}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant">${c.area}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant">${c.dates}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant">${c.assistants} / ${c.max_assistants || 15}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant">${parseFloat(c.budget).toLocaleString('es-ES')}€</td>
+                    <td class="p-sm">${statusBadge}</td>
+                    <td class="p-sm text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="editCourse('${c.id}')" class="text-on-surface-variant hover:text-primary transition-colors" title="Editar">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                            <button onclick="deleteCourse('${c.id}')" class="text-error hover:text-red-700 transition-colors" title="Eliminar">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function filterData() {
+        renderCourses();
+    }
+
+    // Modal Control
+    function openModal() {
+        document.getElementById('modal-title').innerText = "Nuevo Curso";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-curso').reset();
+        
+        // Sugerir un código
+        let maxSeq = 4;
+        courses.forEach(c => {
+            const parts = c.id.split('-');
+            if (parts.length === 3) {
+                const seq = parseInt(parts[2]);
+                if (seq > maxSeq) maxSeq = seq;
+            }
+        });
+        const nextSeq = String(maxSeq + 1).padStart(2, '0');
+        document.getElementById('course-code').value = `FOR-24-${nextSeq}`;
+        
+        document.getElementById('modal-curso').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-curso').classList.add('hidden');
+        document.getElementById('form-curso').reset();
+    }
+
+    function editCourse(id) {
+        const c = courses.find(item => item.id === id);
+        if (c) {
+            document.getElementById('modal-title').innerText = "Editar Curso";
+            document.getElementById('edit-id').value = c.id;
+            document.getElementById('course-code').value = c.id;
+            document.getElementById('course-name').value = c.name;
+            document.getElementById('course-area').value = c.area;
+            document.getElementById('course-dates').value = c.dates;
+            document.getElementById('course-status').value = c.status;
+            document.getElementById('course-assistants').value = c.assistants;
+            document.getElementById('course-max-assistants').value = c.max_assistants || 15;
+            document.getElementById('course-budget').value = c.budget;
+            
+            document.getElementById('modal-curso').classList.remove('hidden');
+        }
+    }
+
+    function deleteCourse(id) {
+        if (confirm("¿Está seguro de que desea eliminar este curso del plan?")) {
+            courses = courses.filter(item => item.id !== id);
+            localStorage.setItem('sig_plan_formacion', JSON.stringify(courses));
+            renderCourses();
+        }
+    }
+
+    function saveCourse(event) {
+        event.preventDefault();
+        const editId = document.getElementById('edit-id').value;
+        const code = document.getElementById('course-code').value.trim();
+        const name = document.getElementById('course-name').value.trim();
+        const area = document.getElementById('course-area').value;
+        const dates = document.getElementById('course-dates').value.trim();
+        const status = document.getElementById('course-status').value;
+        const assistants = parseInt(document.getElementById('course-assistants').value) || 0;
+        const max_assistants = parseInt(document.getElementById('course-max-assistants').value) || 15;
+        const budget = parseFloat(document.getElementById('course-budget').value) || 0;
+
+        if (editId) {
+            const idx = courses.findIndex(item => item.id === editId);
+            if (idx !== -1) {
+                courses[idx] = {
+                    id: code, // Permitir actualizar código
+                    name,
+                    area,
+                    dates,
+                    assistants,
+                    max_assistants,
+                    budget,
+                    status
+                };
+            }
+        } else {
+            courses.push({
+                id: code,
+                name,
+                area,
+                dates,
+                assistants,
+                max_assistants,
+                budget,
+                status
+            });
+        }
+
+        localStorage.setItem('sig_plan_formacion', JSON.stringify(courses));
+        renderCourses();
+        closeModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>

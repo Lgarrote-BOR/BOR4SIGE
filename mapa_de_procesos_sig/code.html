@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Mapa de Procesos - SIG</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#fefcff",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-container": "#e5eeff",
+                        "surface-container-low": "#eff4ff",
+                        "outline": "#76777d",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#565e74",
+                        "on-secondary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#818486",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary": "#0051d5",
+                        "surface-container-high": "#dce9ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#131b2e",
+                        "secondary-container": "#316bf3",
+                        "primary": "#000000",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "background": "#f8f9ff",
+                        "tertiary-container": "#191c1e",
+                        "on-tertiary-fixed-variant": "#444749"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "xl": "32px", "lg": "24px", "max-width": "1440px", "xs": "4px",
+                        "md": "16px", "margin": "24px", "sm": "8px", "base": "4px", "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-lg": ["Inter"],
+                        "headline-md": ["Inter"], "code-sm": ["JetBrains Mono"], "body-md": ["Inter"],
+                        "label-md": ["Inter"], "body-sm": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+    <!-- Navigation Drawer -->
+    <nav class="hidden md:flex w-[240px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface z-50 flex-col py-md">
+        <div class="px-margin mb-lg">
+            <div class="flex items-center gap-sm mb-xs">
+                <span class="material-symbols-outlined text-primary font-headline-md text-headline-md">domain</span>
+                <span class="font-headline-md text-headline-md font-bold text-primary">SIG 2.0</span>
+            </div>
+            <div class="flex items-center justify-between p-sm border border-outline-variant rounded bg-surface-container-lowest">
+                <div class="flex flex-col">
+                    <span class="font-label-md text-label-md text-on-surface-variant uppercase">Entorno</span>
+                    <span class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-xs">
+                        <span class="w-2 h-2 rounded-full bg-error block"></span> Producción
+                    </span>
+                </div>
+            </div>
+        </div>
+        <ul class="flex flex-col gap-xs px-sm flex-1 overflow-y-auto">
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150" href="../dashboard_de_gesti_n_sig/code.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-body-md text-body-md">Cuadro de Mando</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary font-semibold bg-surface-container-high scale-95 duration-150" href="../mapa_de_procesos_sig/code.html">
+                    <span class="material-symbols-outlined fill">account_tree</span>
+                    <span class="font-body-md text-body-md">Mapa de Procesos</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150" href="../directorio_de_personal/code.html">
+                    <span class="material-symbols-outlined">groups</span>
+                    <span class="font-body-md text-body-md">Personal</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150" href="../inventario_de_equipos_eime/code.html">
+                    <span class="material-symbols-outlined">factory</span>
+                    <span class="font-body-md text-body-md">Equipos (EIME)</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150 mt-auto" href="../index.html">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    <span class="font-body-md text-body-md">Menú Principal</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Top App Bar -->
+    <header class="hidden md:flex fixed z-40 bg-surface-container-lowest border-b border-outline-variant justify-between items-center px-margin h-[64px] ml-[240px] w-[calc(100%-240px)]">
+        <div class="flex items-center gap-sm">
+            <h1 class="font-headline-md text-headline-md text-primary">Gestión de Procesos</h1>
+        </div>
+    </header>
+
+    <!-- Main Content Canvas -->
+    <main class="md:ml-[240px] md:pt-[64px] pb-[80px] md:pb-lg px-margin md:px-xl max-w-max-width mx-auto min-h-screen flex flex-col gap-lg w-full">
+        <!-- Page Header & Action Bar -->
+        <div class="pt-lg flex flex-col lg:flex-row lg:items-center justify-between gap-md">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-on-surface">Mapa de Procesos</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-1">Vista general del Sistema Integrado de Gestión (SIG)</p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center gap-sm w-full lg:w-auto">
+                <!-- Search -->
+                <div class="relative w-full sm:w-64">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+                    <input id="process-search" oninput="filterProcesos()" class="w-full pl-10 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded text-body-md font-body-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-shadow" placeholder="Buscar proceso..." type="text"/>
+                </div>
+                <!-- Add Process -->
+                <button onclick="createNewProcess()" class="bg-secondary text-on-secondary px-md py-2 rounded font-label-md text-label-md hover:bg-opacity-90 flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-[16px]">add</span> Nuevo Proceso
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Selector Tabs -->
+        <div class="flex gap-sm border-b border-outline-variant pb-xs">
+            <button id="tab-all" onclick="setFilterType('Todos')" class="px-4 py-2 font-label-md text-label-md border-b-2 border-secondary text-secondary">Todos</button>
+            <button id="tab-est" onclick="setFilterType('Estratégico')" class="px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Estratégicos</button>
+            <button id="tab-op" onclick="setFilterType('Clave')" class="px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Clave / Operativos</button>
+            <button id="tab-sop" onclick="setFilterType('Soporte')" class="px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Soporte</button>
+        </div>
+
+        <!-- Global KPI Summary -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-md border-b border-outline-variant pb-md">
+            <div>
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Total Procesos</span>
+                <div id="kpi-total-proc" class="font-headline-sm text-headline-sm text-on-surface">0</div>
+            </div>
+            <div>
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Desempeño Global</span>
+                <div class="flex items-center gap-xs text-status-good-text font-headline-sm text-headline-sm text-[#137333]">
+                    <span id="kpi-avg-perf">0%</span> <span class="material-symbols-outlined text-sm">trending_up</span>
+                </div>
+            </div>
+            <div>
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Desviaciones</span>
+                <div id="kpi-crit-proc" class="font-headline-sm text-headline-sm text-error">0</div>
+            </div>
+            <div>
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Riesgos Evaluados</span>
+                <div id="kpi-total-risks" class="font-headline-sm text-headline-sm text-on-surface">0</div>
+            </div>
+        </div>
+
+        <!-- Dynamic Process Groups -->
+        <div class="flex flex-col gap-xl">
+            <!-- Strategic Section -->
+            <section id="sect-strategic" class="space-y-md">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-on-surface-variant">explore</span>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface">Procesos Estratégicos</h3>
+                    <div class="h-px bg-outline-variant flex-1 ml-sm"></div>
+                </div>
+                <div id="grid-strategic" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+                    <!-- Dynamic -->
+                </div>
+            </section>
+
+            <!-- Key Section -->
+            <section id="sect-key" class="space-y-md">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-on-surface-variant">settings</span>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface">Procesos Clave</h3>
+                    <div class="h-px bg-outline-variant flex-1 ml-sm"></div>
+                </div>
+                <div id="grid-key" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+                    <!-- Dynamic -->
+                </div>
+            </section>
+
+            <!-- Support Section -->
+            <section id="sect-support" class="space-y-md">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-on-surface-variant">handyman</span>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface">Procesos de Soporte</h3>
+                    <div class="h-px bg-outline-variant flex-1 ml-sm"></div>
+                </div>
+                <div id="grid-support" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+                    <!-- Dynamic -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const seedProcesos = [
+            { id: "EST-01", name: "Planificación Estratégica", type: "Estratégico", compliance: 98, okKpis: 2, warnKpis: 0, critKpis: 0, owner: "Ana García", inputs: "Directrices de dirección, Análisis de contexto", outputs: "Plan estratégico, Objetivos de gestión", risks: ["R-EST-001", "R-EST-002"], activities: [{ step: 1, title: "Análisis de Contexto", desc: "Evaluar DAFO y partes interesadas.", role: "Gerente de Calidad" }] },
+            { id: "EST-02", name: "Gestión de Calidad", type: "Estratégico", compliance: 75, okKpis: 3, warnKpis: 1, critKpis: 0, owner: "Carlos Gómez", inputs: "Informes de auditoría, Feedback de clientes", outputs: "Planes de acción, Informe de revisión", risks: ["R-CAL-003"], activities: [{ step: 1, title: "Auditoría Interna", desc: "Verificar cumplimiento de requisitos.", role: "Gerente de Calidad" }] },
+            { id: "PRO-01", name: "Producción y Ensamble", type: "Clave", compliance: 92, okKpis: 5, warnKpis: 0, critKpis: 0, owner: "Juan Martínez", inputs: "Materia prima, Órdenes de producción", outputs: "Producto terminado", risks: ["R-PRD-004"], activities: [{ step: 1, title: "Preparación de Línea", desc: "Ajustar parámetros mecánicos de máquinas.", role: "Técnico de Compras" }] },
+            { id: "COM-01", name: "Comercialización y Ventas", type: "Clave", compliance: 45, okKpis: 1, warnKpis: 0, critKpis: 2, owner: "Laura Gómez", inputs: "Peticiones de oferta, Leads", outputs: "Contratos firmados, Pedidos", risks: ["R-VNT-005", "R-VNT-006"], activities: [{ step: 1, title: "Prospección Comercial", desc: "Identificación de nuevas oportunidades.", role: "Responsable de Área" }] },
+            { id: "DIS-01", name: "Diseño y Desarrollo", type: "Clave", compliance: 100, okKpis: 4, warnKpis: 0, critKpis: 0, owner: "Carlos Ruiz", inputs: "Requisitos de cliente, Normativa aplicable", outputs: "Planos técnicos, Prototipos", risks: ["R-DSN-007"], activities: [{ step: 1, title: "Conceptualización", desc: "Creación de bocetos y maquetación.", role: "Director Financiero" }] },
+            { id: "SOP-01", name: "Recursos Humanos", type: "Soporte", compliance: 88, okKpis: 3, warnKpis: 0, critKpis: 0, owner: "Ana García", inputs: "Necesidades formativas, Solicitudes de empleo", outputs: "Personal cualificado, Plan de formación", risks: ["R-RRH-008"], activities: [{ step: 1, title: "Contratación", desc: "Selección y acogida de personal.", role: "Responsable de Área" }] },
+            { id: "SOP-02", name: "Mantenimiento IT", type: "Soporte", compliance: 82, okKpis: 2, warnKpis: 1, critKpis: 0, owner: "Carlos Ruiz", inputs: "Peticiones de soporte, Alertas de sistema", outputs: "Sistemas operativos y seguros", risks: ["R-SOP-009"], activities: [{ step: 1, title: "Soporte Técnico", desc: "Resolución de incidencias de software/hardware.", role: "Técnico de Compras" }] }
+        ];
+
+        let procesos = [];
+        let filterType = "Todos";
+
+        function initData() {
+            const stored = localStorage.getItem('sig_procesos');
+            if (stored) {
+                procesos = JSON.parse(stored);
+            } else {
+                procesos = [...seedProcesos];
+                localStorage.setItem('sig_procesos', JSON.stringify(procesos));
+            }
+            renderProcesos();
+        }
+
+        function renderProcesos() {
+            const gridEst = document.getElementById('grid-strategic');
+            const gridKey = document.getElementById('grid-key');
+            const gridSop = document.getElementById('grid-support');
+
+            gridEst.innerHTML = "";
+            gridKey.innerHTML = "";
+            gridSop.innerHTML = "";
+
+            const query = document.getElementById('process-search').value.toLowerCase().trim();
+
+            const filtered = procesos.filter(p => {
+                const matchesTab = filterType === "Todos" || p.type === filterType;
+                const matchesSearch = p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query) || p.owner.toLowerCase().includes(query);
+                return matchesTab && matchesSearch;
+            });
+
+            // Actualizar KPIs globales superiores
+            let totalProc = filtered.length;
+            let sumCompliance = 0;
+            let critCount = 0;
+            let totalRisks = 0;
+
+            filtered.forEach(p => {
+                sumCompliance += parseInt(p.compliance || 0);
+                if (p.compliance < 50 || p.critKpis > 0) critCount++;
+                totalRisks += (p.risks || []).length;
+            });
+
+            const avgPerf = totalProc > 0 ? Math.round(sumCompliance / totalProc) : 100;
+
+            document.getElementById('kpi-total-proc').innerText = totalProc;
+            document.getElementById('kpi-avg-perf').innerText = `${avgPerf}%`;
+            document.getElementById('kpi-crit-proc').innerText = critCount;
+            document.getElementById('kpi-total-risks').innerText = totalRisks;
+
+            // Mostrar/Ocultar secciones según el filtro
+            document.getElementById('sect-strategic').style.display = (filterType === "Todos" || filterType === "Estratégico") ? "block" : "none";
+            document.getElementById('sect-key').style.display = (filterType === "Todos" || filterType === "Clave") ? "block" : "none";
+            document.getElementById('sect-support').style.display = (filterType === "Todos" || filterType === "Soporte") ? "block" : "none";
+
+            filtered.forEach(p => {
+                let badgeClass = "";
+                let bgClass = "border-outline-variant";
+                let textClass = "";
+
+                if (p.compliance >= 85) {
+                    badgeClass = "bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]";
+                    textClass = "text-[#137333]";
+                } else if (p.compliance >= 70) {
+                    badgeClass = "bg-[#FEF7E0] text-[#B06000] border-[#FEEFC3]";
+                    textClass = "text-[#B06000]";
+                } else {
+                    badgeClass = "bg-[#FCE8E6] text-[#C5221F] border-[#FAD2CF]";
+                    bgClass = "border-error/50 shadow-[0_0_0_1px_rgba(186,26,26,0.1)_inset]";
+                    textClass = "text-[#C5221F]";
+                }
+
+                const cardHTML = `
+                    <div class="bg-surface-container-lowest border ${bgClass} rounded flex flex-col hover:shadow-sm transition-shadow group relative">
+                        <div class="p-md border-b border-outline-variant bg-surface-container-low/50 flex justify-between items-start">
+                            <div>
+                                <span class="font-code-sm text-code-sm bg-surface-container px-1.5 py-0.5 rounded text-on-surface border border-outline-variant">${p.id}</span>
+                                <h4 class="font-headline-sm text-headline-sm text-on-surface mt-xs leading-tight font-bold">${p.name}</h4>
+                                <p class="text-xs text-on-surface-variant mt-1">Responsable: ${p.owner}</p>
+                            </div>
+                        </div>
+                        <div class="p-md flex-1 flex flex-col gap-sm">
+                            <div class="flex justify-between items-end">
+                                <span class="font-label-md text-label-md text-on-surface-variant">Cumplimiento KPIs</span>
+                                <span class="font-body-sm text-body-sm ${textClass} font-semibold">${p.compliance}%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                                <div class="h-full ${p.compliance >= 85 ? 'bg-[#137333]' : p.compliance >= 70 ? 'bg-[#B06000]' : 'bg-[#C5221F]'} w-[${p.compliance}%]"></div>
+                            </div>
+                            <div class="flex gap-xs mt-auto pt-sm flex-wrap">
+                                <span class="px-2 py-0.5 bg-[#E6F4EA] text-[#137333] font-code-sm text-[10px] uppercase rounded border border-[#137333]/20">${p.okKpis} Ok</span>
+                                ${p.warnKpis > 0 ? `<span class="px-2 py-0.5 bg-[#FEF7E0] text-[#B06000] font-code-sm text-[10px] uppercase rounded border border-[#B06000]/20">${p.warnKpis} Alerta</span>` : ''}
+                                ${p.critKpis > 0 ? `<span class="px-2 py-0.5 bg-[#FCE8E6] text-[#C5221F] font-code-sm text-[10px] uppercase rounded border border-[#C5221F]/20">${p.critKpis} Crítico</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="p-sm border-t border-outline-variant bg-surface-container-lowest flex gap-1">
+                            <button onclick="viewDetail('${p.id}')" class="flex-1 py-1.5 text-center font-label-md text-label-md text-secondary hover:bg-surface-container transition-colors rounded">Ver Ficha</button>
+                            <button onclick="deleteProcess('${p.id}')" class="px-2 py-1.5 text-error hover:bg-error-container/20 rounded transition-colors" title="Eliminar Proceso">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                if (p.type === "Estratégico") gridEst.innerHTML += cardHTML;
+                else if (p.type === "Clave") gridKey.innerHTML += cardHTML;
+                else if (p.type === "Soporte") gridSop.innerHTML += cardHTML;
+            });
+
+            // Si no hay procesos en alguna sección
+            if (gridEst.innerHTML === "") gridEst.innerHTML = `<p class="col-span-3 text-center py-sm text-on-surface-variant text-body-sm">No hay procesos estratégicos.</p>`;
+            if (gridKey.innerHTML === "") gridKey.innerHTML = `<p class="col-span-3 text-center py-sm text-on-surface-variant text-body-sm">No hay procesos clave.</p>`;
+            if (gridSop.innerHTML === "") gridSop.innerHTML = `<p class="col-span-3 text-center py-sm text-on-surface-variant text-body-sm">No hay procesos de soporte.</p>`;
+        }
+
+        function filterProcesos() {
+            renderProcesos();
+        }
+
+        function setFilterType(type) {
+            filterType = type;
+            const tabs = ["tab-all", "tab-est", "tab-op", "tab-sop"];
+            tabs.forEach(t => {
+                const el = document.getElementById(t);
+                el.className = "px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors";
+            });
+
+            let activeTabId = "tab-all";
+            if (type === "Estratégico") activeTabId = "tab-est";
+            else if (type === "Clave") activeTabId = "tab-op";
+            else if (type === "Soporte") activeTabId = "tab-sop";
+
+            document.getElementById(activeTabId).className = "px-4 py-2 font-label-md text-label-md border-b-2 border-secondary text-secondary font-bold";
+
+            renderProcesos();
+        }
+
+        function viewDetail(id) {
+            window.location.href = `../ficha_de_proceso_detallada/code.html?id=${encodeURIComponent(id)}`;
+        }
+
+        function createNewProcess() {
+            window.location.href = `../ficha_de_proceso_detallada/code.html`;
+        }
+
+        function deleteProcess(id) {
+            if (confirm(`¿Está seguro de que desea eliminar el proceso ${id}?`)) {
+                procesos = procesos.filter(p => p.id !== id);
+                localStorage.setItem('sig_procesos', JSON.stringify(procesos));
+                renderProcesos();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initData();
+        });
+    </script>
+</body>
+</html>

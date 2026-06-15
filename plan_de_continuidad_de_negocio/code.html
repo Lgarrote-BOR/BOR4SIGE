@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro BCP - SIG Compliance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#213145",
+                      "inverse-on-surface": "#eaf1ff",
+                      "background": "#f8f9ff",
+                      "on-primary": "#ffffff",
+                      "surface": "#f8f9ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-secondary-fixed": "#00174b",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#191c1e",
+                      "secondary": "#0051d5",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-primary": "#bec6e0",
+                      "outline": "#76777d",
+                      "tertiary-container": "#191c1e",
+                      "on-secondary-container": "#fefcff",
+                      "on-tertiary-container": "#818486",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "secondary-container": "#316bf3",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#0b1c30",
+                      "surface-tint": "#565e74",
+                      "primary": "#000000",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed": "#dae2fd",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-container-highest": "#d3e4fe",
+                      "tertiary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-error": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#7c839b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "gutter": "16px",
+                      "max-width": "1440px",
+                      "xl": "32px",
+                      "margin": "24px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "code-sm": ["JetBrains Mono"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md text-body-md flex h-screen overflow-hidden antialiased">
+<!-- NavigationDrawer (Desktop) -->
+<nav aria-label="Sidebar" class="bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline w-[240px] h-full fixed left-0 top-0 flex flex-col gap-xs p-md hidden md:flex z-40">
+<!-- Environment Switcher -->
+<div class="mb-lg border border-outline-variant rounded-lg p-sm bg-surface-container-lowest">
+<div class="flex items-center gap-sm mb-xs">
+<img alt="Manager Avatar" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A professional headshot avatar of a corporate Quality Director, neutral background, sharp corporate lighting, representing high-stakes compliance management authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC57bi5k4FZMBoHem287RTP9mR5LJmmOl_8aNZfFr-q0axqtsIzaiRUEQeSj4jwKVYzfljjuMNWltltcLW4IDusPUrPzo9GsbI4iKeyxTjL5KLZSYJtwl1WfUzpKikowew5wAw6ozUyVEWZbuEc79G_I8RrGxuiJMkUKhCzd-V61sjI61Uv_b7GV5w1ZUWWCnWPuH93gYtdVb8B3-tpdwrApSxhCUUUbbmrA2Gi-7aZBP5plp1j0pEsXW3z8uoQ3ioYY-f6uafSFhE"/>
+<div>
+<h3 class="font-label-md text-label-md text-primary truncate">Quality Director</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant truncate">ISO 9001:2015</p>
+</div>
+</div>
+<div class="bg-primary-container text-on-primary-container font-label-md text-label-md py-xs px-sm rounded text-center">
+                Environment: Production
+            </div>
+</div>
+<!-- Navigation Links -->
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low transition-all duration-200 ease-in-out font-label-md text-label-md rounded" href="#">
+<span class="material-symbols-outlined">verified</span>
+            Quality Management
+        </a>
+<a class="flex items-center gap-sm px-sm py-xs bg-secondary-container text-on-secondary-container dark:bg-secondary dark:text-on-secondary font-bold rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined icon-fill">gpp_maybe</span>
+            Risk Registry
+        </a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low transition-all duration-200 ease-in-out font-label-md text-label-md rounded" href="#">
+<span class="material-symbols-outlined">description</span>
+            Document Control
+        </a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low transition-all duration-200 ease-in-out font-label-md text-label-md rounded" href="#">
+<span class="material-symbols-outlined">settings_suggest</span>
+            Maintenance Ops
+        </a>
+</nav>
+<!-- Main Workspace -->
+<div class="flex-1 flex flex-col h-screen overflow-hidden md:ml-[240px]">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant dark:border-outline w-full top-0 sticky z-30">
+<div class="flex justify-between items-center px-lg py-md w-full max-w-max-width mx-auto">
+<div class="flex items-center gap-sm cursor-pointer active:opacity-80 transition-colors">
+<span class="material-symbols-outlined text-secondary dark:text-secondary-fixed">admin_panel_settings</span>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-on-surface tracking-tight">SIG Compliance</h1>
+</div>
+<div>
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer hover:bg-surface-container-high transition-colors" data-alt="A small circular avatar placeholder for a generic system user, simple gray silhouette on a white background, clean and minimal corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDuK0LLR_5Er2kkENXtWpAdNf0toPNO6e7OVLnh1VXp9vWsY4yd_xtALbNTeJ8LHe610Y10tIWSd5oyg8rg2Uw2FWQdo_-lDl_rmsUXmx1UUG9IGRuObeGMgVZDf9u_guu2_2A3y79K_hNJj8r_XBfAAS_RJdfzeu2yZDuQRruwoilvkGm-JvICXx3YWsk6vMWrnTwGisr8vY30HQWIHbULHMGYkA_TWn7V_u3e1xFn2MHTAt5cQcgzAgAuX1YnnSekeJ1V3BU5RA"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="flex-1 overflow-y-auto bg-background p-md md:p-lg pb-24 md:pb-lg">
+<div class="max-w-max-width mx-auto">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-lg gap-md">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<span class="bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md px-2 py-1 rounded-full uppercase tracking-wider">Activo</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">ISO 22301:2019</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary text-balance">Plan de Continuidad de Negocio</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Ref: BCP-HQ-2023-Rev4 | Sede Central</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md rounded hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">download</span> Exportar
+                        </button>
+<button class="px-md py-sm bg-secondary text-on-secondary font-label-md text-label-md rounded hover:bg-secondary-container transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">edit_document</span> Editar Plan
+                        </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-lg">
+<!-- Widget 1: Estado General (Overall Status) -->
+<section class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-sm mb-md text-secondary">
+<span class="material-symbols-outlined icon-fill">radar</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Estado de Actualización</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">Métricas de cumplimiento conforme a las revisiones programadas del framework ISO 22301.</p>
+</div>
+<div class="flex items-end justify-between mb-sm">
+<span class="font-display-lg text-display-lg text-primary">92%</span>
+<span class="font-label-md text-label-md text-secondary mb-1">Conforme</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 mb-md">
+<div class="bg-secondary h-2 rounded-full" style="width: 92%"></div>
+</div>
+<ul class="space-y-xs mt-auto">
+<li class="flex justify-between items-center font-code-sm text-code-sm text-on-surface">
+<span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px] text-outline">calendar_today</span> Última Revisión:</span>
+<span>15 Oct 2023</span>
+</li>
+<li class="flex justify-between items-center font-code-sm text-code-sm text-on-surface">
+<span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px] text-outline">update</span> Próxima Auditoría:</span>
+<span>15 Abr 2024</span>
+</li>
+</ul>
+</section>
+<!-- Widget 2: Análisis de Impacto al Negocio (BIA) -->
+<section class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin flex flex-col">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm text-secondary">
+<span class="material-symbols-outlined icon-fill">analytics</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Análisis de Impacto (BIA)</h3>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-label-md text-label-md px-2 py-1 rounded">Actualizado</span>
+</div>
+<div class="overflow-x-auto mt-4">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant w-1/3">Proceso Crítico</th>
+<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">MTPD (Máximo Tolerable)</th>
+<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">RTO Objetivo</th>
+<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant text-right">Nivel Impacto</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3 font-code-sm">Procesamiento de Pagos Central</td>
+<td class="py-3 px-3">4 Horas</td>
+<td class="py-3 px-3 font-semibold text-secondary">2 Horas</td>
+<td class="py-3 px-3 text-right"><span class="inline-block w-3 h-3 rounded-full bg-error mr-1"></span> Crítico</td>
+</tr>
+<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3 font-code-sm">Infraestructura Cloud Core</td>
+<td class="py-3 px-3">12 Horas</td>
+<td class="py-3 px-3 font-semibold text-secondary">4 Horas</td>
+<td class="py-3 px-3 text-right"><span class="inline-block w-3 h-3 rounded-full bg-error mr-1"></span> Crítico</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3 font-code-sm">Soporte Técnico Nivel 1</td>
+<td class="py-3 px-3">48 Horas</td>
+<td class="py-3 px-3 font-semibold text-secondary">24 Horas</td>
+<td class="py-3 px-3 text-right"><span class="inline-block w-3 h-3 rounded-full bg-secondary-container mr-1"></span> Alto</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Widget 3: Estrategias de Recuperación -->
+<section class="md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin">
+<div class="flex items-center gap-sm mb-lg text-secondary">
+<span class="material-symbols-outlined icon-fill">published_with_changes</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Estrategias de Recuperación</h3>
+</div>
+<div class="space-y-md">
+<div class="border border-outline-variant rounded p-sm flex items-start gap-md">
+<div class="bg-surface-container p-sm rounded text-secondary">
+<span class="material-symbols-outlined">dns</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-primary mb-1">Failover a Sitio Alterno (Cold Site)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Activación del centro de datos secundario en Región B para restaurar servicios core.</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant">check_circle</span>
+</div>
+<div class="border border-outline-variant rounded p-sm flex items-start gap-md">
+<div class="bg-surface-container p-sm rounded text-secondary">
+<span class="material-symbols-outlined">group_work</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-primary mb-1">Trabajo Remoto Distribuido</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Despliegue de VPN corporativa para el 80% de la plantilla operativa en 4h.</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant">check_circle</span>
+</div>
+</div>
+</section>
+<!-- Widget 4: Escenarios de Crisis -->
+<section class="md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin">
+<div class="flex items-center gap-sm mb-lg text-secondary">
+<span class="material-symbols-outlined icon-fill">crisis_alert</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Escenarios de Crisis Evaludos</h3>
+</div>
+<div class="grid grid-cols-1 gap-sm">
+<div class="bg-surface-container-low p-sm rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-error">security</span>
+<span class="font-body-md text-body-md text-on-surface">Ciberataque (Ransomware)</span>
+</div>
+<span class="font-code-sm text-code-sm bg-surface-container text-on-surface-variant px-2 py-1 rounded">Simulado: Hace 2m</span>
+</div>
+<div class="bg-surface-container-low p-sm rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">power_off</span>
+<span class="font-body-md text-body-md text-on-surface">Corte Suministro Eléctrico Prolongado</span>
+</div>
+<span class="font-code-sm text-code-sm bg-surface-container text-on-surface-variant px-2 py-1 rounded">Simulado: Hace 6m</span>
+</div>
+<div class="bg-surface-container-low p-sm rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">flood</span>
+<span class="font-body-md text-body-md text-on-surface">Desastre Natural (Inundación Sede)</span>
+</div>
+<span class="font-code-sm text-code-sm bg-error-container text-on-error-container px-2 py-1 rounded">Requiere Revisión</span>
+</div>
+</div>
+</section>
+<!-- Widget 5: Equipos de Respuesta -->
+<section class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin">
+<div class="flex justify-between items-center mb-lg">
+<div class="flex items-center gap-sm text-secondary">
+<span class="material-symbols-outlined icon-fill">groups</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Equipos de Respuesta a Incidentes</h3>
+</div>
+<button class="text-secondary hover:text-primary transition-colors font-label-md text-label-md">Ver Directorio Completo</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-md">
+<!-- Card 1 -->
+<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
+<div class="relative w-10 h-10">
+<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">MR</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container border-2 border-surface-bright rounded-full"></div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Comité de Crisis</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">M. Rojas (Director)</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
+<div class="relative w-10 h-10">
+<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">LT</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container border-2 border-surface-bright rounded-full"></div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Recuperación IT</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">L. Torres (CISO)</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
+<div class="relative w-10 h-10">
+<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">AP</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-outline border-2 border-surface-bright rounded-full"></div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Comunicaciones</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">A. Pérez (RRPP)</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
+<div class="relative w-10 h-10">
+<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">JL</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container border-2 border-surface-bright rounded-full"></div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Logística</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">J. López (Ops)</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav aria-label="Bottom Navigation" class="bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-gutter md:hidden shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+            Dashboard
+        </a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-bold hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
+<span class="material-symbols-outlined icon-fill mb-1">warning</span>
+            Risks
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
+<span class="material-symbols-outlined mb-1">account_tree</span>
+            Processes
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
+<span class="material-symbols-outlined mb-1">fact_check</span>
+            Audits
+        </a>
+</nav>
+</body></html>

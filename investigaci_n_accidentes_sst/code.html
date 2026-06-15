@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Investigación de Accidentes SST — SIG 2.0</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#431407","secondary":"#ea580c","background":"#fff7ed","surface":"#ffffff","surface-container-low":"#fff7ed","surface-container":"#ffedd5","outline-variant":"#fed7aa","on-surface":"#431407","on-surface-variant":"#7c2d12","success":"#137333","warning":"#b06000","danger":"#c5221f"},fontFamily:{sans:["Inter","sans-serif"]}}}}</script>
+    <style>
+        body{font-family:'Inter',sans-serif;background:#fff7ed;}
+        .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+        .material-symbols-outlined.filled{font-variation-settings:'FILL' 1;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        .fade-up{animation:fadeUp .2s ease-out;}
+        .sst-header{background:linear-gradient(135deg,#431407 0%,#7c2d12 50%,#c2410c 100%);}
+        .no-scrollbar::-webkit-scrollbar{display:none;}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+        .why-step{border-left:3px solid #fed7aa;padding-left:1rem;margin-left:0.5rem;}
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+<header class="sst-header text-white sticky top-0 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+    <div class="flex items-center gap-3">
+        <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors"><span class="material-symbols-outlined">arrow_back</span></a>
+        <div><h1 class="font-bold text-base leading-none">SIG 2.0</h1><span class="text-[10px] text-orange-200 font-semibold">Seguridad y Salud en el Trabajo</span></div>
+    </div>
+    <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center border border-orange-400 rounded-full px-3 py-1 bg-white/10 text-orange-100 gap-1.5 text-xs font-semibold">
+            <span class="material-symbols-outlined text-sm">health_and_safety</span>
+            <span>Investigación Accidentes — ISO 45001:2018 §10.1 / LPRL</span>
+        </div>
+        <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">US</button>
+    </div>
+</header>
+
+<main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+        <div>
+            <h2 class="font-bold text-2xl text-primary tracking-tight flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary filled">health_and_safety</span>
+                Investigación de Accidentes e Incidentes SST
+            </h2>
+            <p class="text-sm text-on-surface-variant mt-1">Registro y análisis de accidentes, incidentes y cuasi-accidentes. Metodología de causas raíz y seguimiento de acciones correctivas. <strong>ISO 45001:2018 §10.1 · LPRL Art.16 · RD 1299/2006</strong>.</p>
+        </div>
+        <button onclick="openModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0">
+            <span class="material-symbols-outlined text-base">add</span>Registrar Accidente / Incidente
+        </button>
+    </div>
+
+    <!-- Banner legal -->
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+        <span class="material-symbols-outlined text-danger mt-0.5 shrink-0">gavel</span>
+        <div>
+            <p class="text-xs font-bold text-danger">Obligaciones Legales — LPRL / ITSS</p>
+            <p class="text-[11px] text-red-700 mt-0.5">Los accidentes de trabajo con baja deben comunicarse a la <strong>Mutua/INSS y ITSS</strong>. Los accidentes graves, muy graves o mortales requieren comunicación urgente a la <strong>ITSS en 24 horas</strong>. El incumplimiento es infracción muy grave (LISOS Art.13).</p>
+        </div>
+    </div>
+
+    <!-- KPIs Accidentabilidad -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">Total</span><span class="material-symbols-outlined text-secondary">list</span></div><span id="kpi-total" class="font-bold text-2xl text-primary">0</span><p class="text-[11px] text-on-surface-variant mt-1">Registros totales</p></div>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-red-700 uppercase">Con Baja</span><span class="material-symbols-outlined text-red-500">local_hospital</span></div><span id="kpi-baja" class="font-bold text-2xl text-red-700">0</span><p class="text-[11px] text-red-600 mt-1">Accidentes con baja</p></div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-amber-700 uppercase">Sin Baja</span><span class="material-symbols-outlined text-amber-500">healing</span></div><span id="kpi-sinbaja" class="font-bold text-2xl text-amber-700">0</span><p class="text-[11px] text-amber-600 mt-1">Accidentes sin baja</p></div>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-blue-700 uppercase">Cuasi-accidentes</span><span class="material-symbols-outlined text-blue-500">warning_amber</span></div><span id="kpi-cuasi" class="font-bold text-2xl text-blue-700">0</span><p class="text-[11px] text-blue-600 mt-1">Near misses</p></div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">Días Perdidos</span><span class="material-symbols-outlined text-secondary">event_busy</span></div><span id="kpi-days" class="font-bold text-2xl text-primary">0</span><p class="text-[11px] text-on-surface-variant mt-1">Jornadas de baja acumuladas</p></div>
+    </div>
+
+    <!-- Índices de Accidentabilidad -->
+    <div class="bg-surface border border-outline-variant rounded-xl p-5">
+        <div class="flex items-center gap-2 mb-4 border-b border-outline-variant pb-3">
+            <span class="material-symbols-outlined text-secondary">analytics</span>
+            <h3 class="font-bold text-sm text-primary">Índices de Accidentabilidad</h3>
+            <span class="text-[10px] text-on-surface-variant ml-auto">Introduce las horas trabajadas del período para calcular los índices</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1">Horas trabajadas en el período</label>
+                <input id="horas-trabajadas" type="number" value="200000" placeholder="200000" oninput="calcIndices()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3 text-center">
+                <p class="text-[10px] font-bold text-on-surface-variant uppercase">IF — Índice de Frecuencia</p>
+                <p id="idx-if" class="font-bold text-xl text-primary mt-1">—</p>
+                <p class="text-[10px] text-on-surface-variant mt-0.5">Acc. con baja × 10⁶ / H.trab.</p>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3 text-center">
+                <p class="text-[10px] font-bold text-on-surface-variant uppercase">IG — Índice de Gravedad</p>
+                <p id="idx-ig" class="font-bold text-xl text-primary mt-1">—</p>
+                <p class="text-[10px] text-on-surface-variant mt-0.5">Días perdidos × 10³ / H.trab.</p>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3 text-center">
+                <p class="text-[10px] font-bold text-on-surface-variant uppercase">ID — Índice de Duración Media</p>
+                <p id="idx-id" class="font-bold text-xl text-primary mt-1">—</p>
+                <p class="text-[10px] text-on-surface-variant mt-0.5">Días perdidos / Acc. con baja</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex flex-col sm:flex-row gap-3 items-center bg-surface p-4 border border-outline-variant rounded-xl">
+        <div class="relative w-full sm:w-80">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+            <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar accidente..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto justify-end">
+            <select id="filter-type" onchange="renderCards()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                <option value="">Todos los Tipos</option>
+                <option>Accidente con baja</option><option>Accidente sin baja</option><option>Cuasi-accidente (near miss)</option><option>Enfermedad profesional</option><option>Accidente in itinere</option>
+            </select>
+            <select id="filter-st" onchange="renderCards()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                <option value="">Todos los Estados</option>
+                <option>Abierto</option><option>En Investigación</option><option>Cerrado</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Tarjetas -->
+    <div id="acc-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+</main>
+
+<!-- MODAL -->
+<div id="modal-acc" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-2xl w-full my-8 p-6 shadow-2xl space-y-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="modal-title" class="font-bold text-base text-primary">Registrar Accidente / Incidente SST</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form onsubmit="saveAcc(event)" class="space-y-4">
+            <input type="hidden" id="acc-id"/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo de Siniestro *</label>
+                    <select id="a-type" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Accidente con baja</option><option>Accidente sin baja</option><option>Cuasi-accidente (near miss)</option><option>Enfermedad profesional</option><option>Accidente in itinere</option><option>Accidente grave / muy grave</option><option>Accidente mortal</option>
+                    </select></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha y Hora *</label>
+                    <input id="a-date" required type="datetime-local" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Trabajador Afectado</label>
+                    <input id="a-worker" type="text" placeholder="Nombre y puesto de trabajo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Área / Lugar del Accidente</label>
+                    <input id="a-area" type="text" placeholder="Ej: Almacén, Línea de producción 3" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+            </div>
+            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción de los Hechos *</label>
+                <textarea id="a-desc" required rows="3" placeholder="Describir qué ocurrió, cómo, en qué circunstancias, agente material causante..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Lesión / Consecuencia</label>
+                    <input id="a-injury" type="text" placeholder="Ej: Fractura dedo índice" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Días de Baja</label>
+                    <input id="a-days" type="number" min="0" value="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado</label>
+                    <select id="a-status" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Abierto</option><option>En Investigación</option><option>Cerrado</option>
+                    </select></div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-2">Análisis de Causa Raíz — Metodología 5 Porqués</label>
+                <div class="space-y-2">
+                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué ocurrió? (1er nivel)</label><input id="why1" type="text" placeholder="Causa directa / inmediata" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (2º nivel)</label><input id="why2" type="text" placeholder="Causa subyacente" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (3er nivel)</label><input id="why3" type="text" placeholder="Causa sistémica" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (4º nivel — opcional)</label><input id="why4" type="text" placeholder="Causa raíz" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                </div>
+            </div>
+            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Acciones Correctivas / Preventivas</label>
+                <textarea id="a-actions" rows="2" placeholder="Medidas adoptadas para evitar la recurrencia: EPI, formación, rediseño del puesto, procedimientos..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Investigador Responsable</label>
+                    <input id="a-investigator" type="text" placeholder="Ej: Técnico PRL / Mando directo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-2">Notificaciones</label>
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-mutua" class="rounded text-secondary"/>Comunicado a Mutua/INSS</label>
+                        <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-itss" class="rounded text-secondary"/>Comunicado a ITSS (obligatorio grave/mortal)</label>
+                        <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-delegado" class="rounded text-secondary"/>Comunicado a Delegado de Prevención</label>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const seed = [
+    {id:'ACC-2026-001',type:'Accidente con baja',date:'2026-03-12T10:20',worker:'Juan García López — Operario Producción',area:'Línea de producción 2 — Zona de carga',desc:'El trabajador sufrió un esguince de tobillo al tropezar con una tarima mal colocada en el pasillo de la línea de producción 2. Llevaba los EPI reglamentarios (calzado de seguridad).',injury:'Esguince de tobillo grado II',days:8,status:'Cerrado',why1:'Tropiezo con tarima mal colocada en el pasillo',why2:'La tarima estaba fuera de su zona de almacenamiento correcta',why3:'No hay marcación en el suelo que delimite correctamente las zonas de paso y almacenamiento',why4:'El plan de organización de espacios de la planta no se ha revisado desde 2023',actions:'Marcación en suelo de zonas de paso y almacenamiento. Formación a todos los operarios. Revisión mensual del orden y limpieza.',investigator:'Técnico de PRL',notif:{mutua:true,itss:false,delegado:true}},
+    {id:'ACC-2026-002',type:'Cuasi-accidente (near miss)',date:'2026-04-28T15:45',worker:'Sin lesionado — Área afectada: taller mantenimiento',area:'Taller de mantenimiento',desc:'Un operario de mantenimiento detectó a tiempo que un condensador eléctrico presentaba signos de deterioro severo que podría haber provocado un cortocircuito durante el siguiente turno. No hubo lesionados.',injury:'Sin lesiones',days:0,status:'Cerrado',why1:'Condensador deteriorado en cuadro eléctrico secundario',why2:'El programa de mantenimiento preventivo no incluía la revisión periódica de este cuadro específico',why3:'El inventario de equipos eléctricos no estaba actualizado',why4:'No existe un procedimiento de revisión del inventario de activos críticos',actions:'Sustitución inmediata del condensador. Revisión completa del programa de mantenimiento preventivo eléctrico. Actualización del inventario de equipos.',investigator:'Responsable de Mantenimiento',notif:{mutua:false,itss:false,delegado:true}}
+];
+
+let accidents = [];
+
+function init() {
+    const stored = localStorage.getItem('sig_accidentes_sst');
+    accidents = stored ? JSON.parse(stored) : [...seed];
+    if (!stored) save();
+    document.getElementById('a-date').value = new Date().toISOString().slice(0,16);
+    render();
+}
+function save() { localStorage.setItem('sig_accidentes_sst', JSON.stringify(accidents)); }
+
+function render() { renderKPIs(); calcIndices(); renderCards(); }
+
+function renderKPIs() {
+    const total = accidents.length;
+    const baja = accidents.filter(a => a.type === 'Accidente con baja' || a.type === 'Accidente in itinere' || a.type === 'Accidente grave / muy grave' || a.type === 'Accidente mortal').length;
+    const sinbaja = accidents.filter(a => a.type === 'Accidente sin baja').length;
+    const cuasi = accidents.filter(a => a.type === 'Cuasi-accidente (near miss)').length;
+    const days = accidents.reduce((acc,a)=>acc+(parseInt(a.days)||0),0);
+    document.getElementById('kpi-total').textContent = total;
+    document.getElementById('kpi-baja').textContent = baja;
+    document.getElementById('kpi-sinbaja').textContent = sinbaja;
+    document.getElementById('kpi-cuasi').textContent = cuasi;
+    document.getElementById('kpi-days').textContent = days;
+}
+
+function calcIndices() {
+    const h = parseFloat(document.getElementById('horas-trabajadas').value)||0;
+    if (!h) { document.getElementById('idx-if').textContent='—'; document.getElementById('idx-ig').textContent='—'; document.getElementById('idx-id').textContent='—'; return; }
+    const baja = accidents.filter(a => a.type.includes('baja')||a.type.includes('grave')||a.type.includes('mortal')).length;
+    const days = accidents.reduce((acc,a)=>acc+(parseInt(a.days)||0),0);
+    document.getElementById('idx-if').textContent = ((baja * 1000000) / h).toFixed(2);
+    document.getElementById('idx-ig').textContent = ((days * 1000) / h).toFixed(2);
+    document.getElementById('idx-id').textContent = baja > 0 ? (days/baja).toFixed(1) : '—';
+}
+
+function renderCards() {
+    const grid = document.getElementById('acc-grid');
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const typeF = document.getElementById('filter-type').value;
+    const stF = document.getElementById('filter-st').value;
+    const filtered = accidents.filter(a =>
+        (a.worker?.toLowerCase().includes(q)||a.desc?.toLowerCase().includes(q)||a.id?.toLowerCase().includes(q)||a.area?.toLowerCase().includes(q)) &&
+        (!typeF||a.type===typeF) && (!stF||a.status===stF)
+    ).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    grid.innerHTML='';
+    if(!filtered.length){grid.innerHTML=`<div class="col-span-3 py-12 text-center text-on-surface-variant font-medium">Sin registros.</div>`;return;}
+    const typeMap = {
+        'Accidente con baja':{bg:'bg-red-50',border:'border-red-200',text:'text-red-800',icon:'local_hospital'},
+        'Accidente sin baja':{bg:'bg-amber-50',border:'border-amber-200',text:'text-amber-800',icon:'healing'},
+        'Cuasi-accidente (near miss)':{bg:'bg-blue-50',border:'border-blue-200',text:'text-blue-800',icon:'warning_amber'},
+        'Enfermedad profesional':{bg:'bg-purple-50',border:'border-purple-200',text:'text-purple-800',icon:'coronavirus'},
+        'Accidente in itinere':{bg:'bg-orange-50',border:'border-orange-200',text:'text-orange-800',icon:'directions_car'},
+        'Accidente grave / muy grave':{bg:'bg-red-50',border:'border-red-300',text:'text-red-900',icon:'emergency'},
+        'Accidente mortal':{bg:'bg-gray-900',border:'border-gray-700',text:'text-white',icon:'sentiment_very_dissatisfied'}
+    };
+    const stCls = {'Abierto':'bg-red-100 text-red-800 border-red-200','En Investigación':'bg-amber-100 text-amber-800 border-amber-200','Cerrado':'bg-green-100 text-green-800 border-green-200'};
+    filtered.forEach(a=>{
+        const t = typeMap[a.type]||{bg:'bg-surface-container',border:'border-outline-variant',text:'text-primary',icon:'report_problem'};
+        const whys = [a.why1,a.why2,a.why3,a.why4].filter(Boolean);
+        grid.innerHTML+=`
+        <div class="bg-surface border border-outline-variant rounded-2xl p-5 flex flex-col gap-3 fade-up hover:shadow-md transition-all">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl ${t.bg} ${t.border} border flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined ${t.text} text-lg">${t.icon}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold ${t.text} ${t.bg} ${t.border} border px-2 py-0.5 rounded-full">${a.type}</span>
+                        <p class="text-[11px] font-mono text-secondary font-bold mt-0.5">${a.id}</p>
+                    </div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] border font-bold ${stCls[a.status]||''}">${a.status}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 text-[11px] text-on-surface-variant">
+                <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">calendar_today</span><span>${a.date?.replace('T',' ')}</span></div>
+                <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">event_busy</span><span>${a.days||0} días de baja</span></div>
+                <div class="flex items-center gap-1 col-span-2"><span class="material-symbols-outlined text-[12px]">person</span><span class="truncate">${a.worker||'No especificado'}</span></div>
+                <div class="flex items-center gap-1 col-span-2"><span class="material-symbols-outlined text-[12px]">location_on</span><span class="truncate">${a.area||'—'}</span></div>
+            </div>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">${a.desc}</p>
+            ${whys.length>0?`<div class="bg-orange-50 border border-orange-200 rounded-lg p-2.5 text-[11px]">
+                <p class="font-bold text-primary mb-1.5">5 Porqués — Causas Raíz</p>
+                ${whys.map((w,i)=>`<div class="flex gap-2 items-start ${i>0?'mt-1':''}">${'⬇'.repeat(i+1)} <span class="text-on-surface-variant">${w}</span></div>`).join('')}
+            </div>`:''}
+            ${a.actions?`<div class="bg-surface-container-low border border-outline-variant rounded-lg p-2.5 text-[11px] text-on-surface-variant line-clamp-2"><span class="font-bold text-primary">Acciones:</span> ${a.actions}</div>`:''}
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-2">
+                <button onclick="editAcc('${a.id}')" class="text-secondary hover:text-primary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">edit</span>Editar</button>
+                <button onclick="deleteAcc('${a.id}')" class="text-danger hover:text-red-700 text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">delete</span></button>
+            </div>
+        </div>`;
+    });
+}
+
+function openModal(data=null){
+    document.getElementById('modal-title').textContent=data?'Editar Siniestro':'Registrar Accidente / Incidente SST';
+    document.getElementById('acc-id').value=data?.id||'';
+    document.getElementById('a-type').value=data?.type||'Accidente con baja';
+    document.getElementById('a-date').value=data?.date||new Date().toISOString().slice(0,16);
+    document.getElementById('a-worker').value=data?.worker||'';
+    document.getElementById('a-area').value=data?.area||'';
+    document.getElementById('a-desc').value=data?.desc||'';
+    document.getElementById('a-injury').value=data?.injury||'';
+    document.getElementById('a-days').value=data?.days||0;
+    document.getElementById('a-status').value=data?.status||'Abierto';
+    document.getElementById('why1').value=data?.why1||'';
+    document.getElementById('why2').value=data?.why2||'';
+    document.getElementById('why3').value=data?.why3||'';
+    document.getElementById('why4').value=data?.why4||'';
+    document.getElementById('a-actions').value=data?.actions||'';
+    document.getElementById('a-investigator').value=data?.investigator||'';
+    document.getElementById('n-mutua').checked=data?.notif?.mutua||false;
+    document.getElementById('n-itss').checked=data?.notif?.itss||false;
+    document.getElementById('n-delegado').checked=data?.notif?.delegado||false;
+    document.getElementById('modal-acc').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal-acc').classList.add('hidden');}
+function saveAcc(e){
+    e.preventDefault();
+    const id=document.getElementById('acc-id').value;
+    const obj={
+        id:id||`ACC-${new Date().getFullYear()}-${String(accidents.length+1).padStart(3,'0')}`,
+        type:document.getElementById('a-type').value,
+        date:document.getElementById('a-date').value,
+        worker:document.getElementById('a-worker').value.trim(),
+        area:document.getElementById('a-area').value.trim(),
+        desc:document.getElementById('a-desc').value.trim(),
+        injury:document.getElementById('a-injury').value.trim(),
+        days:parseInt(document.getElementById('a-days').value)||0,
+        status:document.getElementById('a-status').value,
+        why1:document.getElementById('why1').value.trim(),
+        why2:document.getElementById('why2').value.trim(),
+        why3:document.getElementById('why3').value.trim(),
+        why4:document.getElementById('why4').value.trim(),
+        actions:document.getElementById('a-actions').value.trim(),
+        investigator:document.getElementById('a-investigator').value.trim(),
+        notif:{mutua:document.getElementById('n-mutua').checked,itss:document.getElementById('n-itss').checked,delegado:document.getElementById('n-delegado').checked}
+    };
+    if(id){const idx=accidents.findIndex(a=>a.id===id);if(idx!==-1)accidents[idx]=obj;}else accidents.push(obj);
+    save();closeModal();render();
+}
+function editAcc(id){openModal(accidents.find(a=>a.id===id));}
+function deleteAcc(id){if(confirm('¿Eliminar este registro?')){accidents=accidents.filter(a=>a.id!==id);save();render();}}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

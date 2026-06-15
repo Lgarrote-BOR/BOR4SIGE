@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roles y Permisos - SIG Enterprise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#cbdbf5",
+                        "inverse-surface": "#213145",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "primary-container": "#131b2e",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-fixed": "#00174b",
+                        "on-secondary-container": "#fefcff",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-container": "#191c1e",
+                        "secondary-container": "#316bf3",
+                        "primary": "#000000",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-high": "#dce9ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "surface-container": "#e5eeff",
+                        "background": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "primary-fixed": "#dae2fd",
+                        "outline": "#76777d",
+                        "on-background": "#0b1c30",
+                        "secondary": "#0051d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#818486",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#3f465c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "max-width": "1440px",
+                        "xs": "4px",
+                        "margin": "24px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen flex overflow-hidden selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- NavigationDrawer -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-surface border-r border-outline-variant flex flex-col h-full py-md z-50">
+<!-- Environment Switcher -->
+<div class="px-md mb-lg">
+<button class="w-full flex items-center justify-between p-sm rounded border border-outline-variant hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-label-md text-label-md text-on-surface">Producción</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span>
+</button>
+</div>
+<!-- Header Profile -->
+<div class="px-md mb-xl flex items-center gap-md">
+<img alt="Bor4D Logo" class="h-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkPEqiwk9536gzsx1ZQd_McH_BMjk-pcpdj8qvzixEhgv_Wj2tzn3J5FS72-ItaoJIxtrsaTXAF0JgZzIsttotAbMLsMJRsJzplZjfR8ZgWmWzSZKj2KQLifv9fRS_Usz-Fk9yfsdF8PZyypQUow_aPq--KltaSVc3PmWR2AcLc1q_AKp5u29ZHd1XB06jonX-Mz1wBEEvNctST15bIAjtL-_izFD9KDTPghFBMaOMVp_mhwrYD7MIVZ-4K1aW8Q3Nhcl-24pj3ic"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">SIG Enterprise</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Admin Portal</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-sm space-y-xs overflow-y-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-secondary-container text-on-secondary-container font-bold active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined fill" data-icon="group" data-weight="fill">group</span>
+<span class="font-body-md text-body-md">User Management</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-body-md text-body-md">Quality Module</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="eco">eco</span>
+<span class="font-body-md text-body-md">Environment</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<span class="font-body-md text-body-md">Security</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<!-- Meta Info -->
+<div class="px-md mt-auto pt-md border-t border-outline-variant">
+<span class="font-code-sm text-code-sm text-on-surface-variant">v2.4.0</span>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[240px] flex-1 flex flex-col h-screen bg-background relative overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest fixed top-0 right-0 w-[calc(100%-240px)] z-40 border-b border-outline-variant flex justify-between items-center px-lg h-16 transition-all duration-200">
+<div class="flex items-center gap-md">
+<button class="p-2 -ml-2 rounded-full hover:bg-surface-container-low text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary">User Management</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold font-body-sm text-body-sm border border-outline-variant">
+                    US
+                </div>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 mt-16 p-xl overflow-y-auto">
+<div class="max-w-max-width mx-auto space-y-lg">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-xs">Roles y Permisos</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Gestione el acceso y las capacidades de los usuarios dentro de la plataforma SIG.</p>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container-lowest text-on-surface border border-outline-variant rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                            Exportar Matriz
+                        </button>
+<button class="flex items-center gap-xs px-md py-sm bg-secondary text-on-secondary rounded-lg font-label-md text-label-md hover:bg-secondary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            Nuevo Rol
+                        </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Roles -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-md">
+    <!-- Role Card: Superadministrador -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg flex flex-col relative overflow-hidden group hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+        <div class="flex justify-between items-start mb-md">
+            <div class="p-sm bg-amber-50 rounded-lg text-amber-700 border border-amber-200">
+                <span class="material-symbols-outlined">stars</span>
+            </div>
+            <button class="text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+        </div>
+        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs flex items-center gap-1">Superadministrador</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-md">Acceso global absoluto e independiente a todas las organizaciones de la plataforma SGI.</p>
+        <div class="space-y-xs mb-md border-t border-outline-variant pt-md">
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Usuarios Asignados</span>
+                <span id="superadmin-count" class="font-bold text-on-surface">1</span>
+            </div>
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Nivel de Acceso</span>
+                <span class="text-amber-600 font-bold">100% (Multi-tenant)</span>
+            </div>
+        </div>
+        <button class="w-full py-sm border border-outline-variant rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors mt-auto cursor-not-allowed" disabled>Privilegio Especial</button>
+    </div>
+
+    <!-- Role Card: Administrador -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg flex flex-col relative overflow-hidden group hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 left-0 w-full h-1 bg-error"></div>
+        <div class="flex justify-between items-start mb-md">
+            <div class="p-sm bg-error-container rounded-lg text-on-error-container">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+            </div>
+            <button class="text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+        </div>
+        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Administrador</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-md">Acceso total al sistema, configuración de módulos y gestión de usuarios a nivel global.</p>
+        <div class="space-y-xs mb-md border-t border-outline-variant pt-md">
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Usuarios Asignados</span>
+                <span id="admin-count" class="font-bold text-on-surface">3</span>
+            </div>
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Nivel de Acceso</span>
+                <span class="text-error font-bold">100%</span>
+            </div>
+        </div>
+        <button class="w-full py-sm border border-outline-variant rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors mt-auto">Editar Permisos</button>
+    </div>
+
+    <!-- Role Card: Gestor -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg flex flex-col relative overflow-hidden group hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 left-0 w-full h-1 bg-secondary-container"></div>
+        <div class="flex justify-between items-start mb-md">
+            <div class="p-sm bg-surface-container-highest rounded-lg text-on-secondary-fixed-variant">
+                <span class="material-symbols-outlined">manage_accounts</span>
+            </div>
+            <button class="text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+        </div>
+        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Gestor</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-md">Capacidad para crear, editar y aprobar documentos y registros dentro de sus departamentos asignados.</p>
+        <div class="space-y-xs mb-md border-t border-outline-variant pt-md">
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Usuarios Asignados</span>
+                <span id="gestor-count" class="font-bold text-on-surface">12</span>
+            </div>
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Nivel de Acceso</span>
+                <span class="text-secondary font-bold">75%</span>
+            </div>
+        </div>
+        <button class="w-full py-sm border border-outline-variant rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors mt-auto">Editar Permisos</button>
+    </div>
+
+    <!-- Role Card: Auditor -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg flex flex-col relative overflow-hidden group hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 left-0 w-full h-1 bg-primary-fixed-dim"></div>
+        <div class="flex justify-between items-start mb-md">
+            <div class="p-sm bg-primary-fixed rounded-lg text-on-primary-fixed">
+                <span class="material-symbols-outlined">fact_check</span>
+            </div>
+            <button class="text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+        </div>
+        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Auditor</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-md">Lectura global y capacidad para crear hallazgos, no conformidades y reportes de auditoría.</p>
+        <div class="space-y-xs mb-md border-t border-outline-variant pt-md">
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Usuarios Asignados</span>
+                <span id="auditor-count" class="font-bold text-on-surface">5</span>
+            </div>
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Nivel de Acceso</span>
+                <span class="text-on-surface font-bold">50%</span>
+            </div>
+        </div>
+        <button class="w-full py-sm border border-outline-variant rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors mt-auto">Editar Permisos</button>
+    </div>
+
+    <!-- Role Card: Lector -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg flex flex-col relative overflow-hidden group hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 left-0 w-full h-1 bg-outline-variant"></div>
+        <div class="flex justify-between items-start mb-md">
+            <div class="p-sm bg-surface-container rounded-lg text-on-surface-variant">
+                <span class="material-symbols-outlined">visibility</span>
+            </div>
+            <button class="text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+        </div>
+        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Lector</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-md">Acceso de solo lectura a documentos publicados y políticas del sistema de gestión.</p>
+        <div class="space-y-xs mb-md border-t border-outline-variant pt-md">
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Usuarios Asignados</span>
+                <span id="lector-count" class="font-bold text-on-surface">148</span>
+            </div>
+            <div class="flex items-center justify-between font-code-sm text-code-sm">
+                <span class="text-on-surface-variant">Nivel de Acceso</span>
+                <span class="text-on-surface-variant font-bold">15%</span>
+            </div>
+        </div>
+        <button class="w-full py-sm border border-outline-variant rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors mt-auto">Editar Permisos</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Cargar usuarios de localStorage
+        const storedUsers = localStorage.getItem('sig_users');
+        if (storedUsers) {
+            try {
+                const users = JSON.parse(storedUsers);
+                
+                // Contar y actualizar en tiempo real
+                const superadmins = users.filter(u => u.isSuperadmin).length;
+                const admins = users.filter(u => !u.isSuperadmin && (u.role.toLowerCase().includes("admin") || u.role.toLowerCase().includes("manager"))).length;
+                const gestors = users.filter(u => !u.isSuperadmin && u.role.toLowerCase().includes("gestor")).length;
+                const auditors = users.filter(u => !u.isSuperadmin && u.role.toLowerCase().includes("auditor")).length;
+                const lectors = users.filter(u => !u.isSuperadmin && (u.role.toLowerCase().includes("lector") || u.role.toLowerCase().includes("especialista"))).length;
+
+                document.getElementById("superadmin-count").innerText = superadmins;
+                document.getElementById("admin-count").innerText = admins || 3;
+                document.getElementById("gestor-count").innerText = gestors || 12;
+                document.getElementById("auditor-count").innerText = auditors || 5;
+                document.getElementById("lector-count").innerText = lectors || 148;
+            } catch(e) {
+                console.error("Error al contar usuarios de los roles:", e);
+            }
+        }
+    });
+</script>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro de Actividad Formativa</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#fefcff",
+                        "on-background": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-container": "#818486",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-container-high": "#dce9ff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container-low": "#eff4ff",
+                        "primary": "#000000",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "secondary": "#0051d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#bec6e0",
+                        "outline-variant": "#c6c6cd",
+                        "background": "#f8f9ff",
+                        "tertiary": "#000000",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-container": "#e5eeff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "outline": "#76777d",
+                        "on-surface": "#0b1c30",
+                        "inverse-surface": "#213145",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#191c1e",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "lg": "24px",
+                        "base": "4px",
+                        "margin": "24px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "max-width": "1440px"
+                    },
+                    fontFamily: {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "code-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "display-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased flex flex-col md:flex-row min-h-screen">
+<!-- NavigationDrawer (Desktop) -->
+<nav class="hidden md:flex flex-col bg-surface w-[240px] h-full fixed left-0 top-0 border-r border-outline-variant z-50">
+<div class="p-md border-b border-outline-variant">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">ComplianceOS</span>
+</div>
+<!-- Environment Switcher -->
+<div class="bg-surface-container-low border border-error rounded-lg p-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-error">Entorno</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Producción</span>
+</div>
+<span class="material-symbols-outlined text-error" style="font-size: 18px;">warning</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 p-md gap-xs overflow-y-auto">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<!-- Personas (Active - Semantic match for Training/Formación) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary font-bold border-r-4 border-secondary bg-surface-container-high transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-body-md text-body-md">Personas</span>
+</a>
+<!-- Riesgos (Inactive) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-body-md text-body-md">Riesgos</span>
+</a>
+<!-- Auditorías (Inactive) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-body-md text-body-md">Auditorías</span>
+</a>
+<!-- Configuración (Inactive) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Configuración</span>
+</a>
+</div>
+<div class="p-md border-t border-outline-variant flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden">
+<img alt="Profile Photo" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate compliance manager. The lighting is bright and clear, reflecting a modern light-mode enterprise environment. The manager wears business casual attire. The background is a soft, neutral off-white, ensuring the subject stands out sharply." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkdjQUOS0GTNPTQZcv-xny5npLsTJSZfgSz5LR4eYmdaIZRkVicnOVTwscyohthUfmpED2TXccwkPKn11IKxxtKjH7PKO7LoTVhfZEhQBCpGMXzuNpP0hHF3kSSLlJ_iX518chvNvEAI6XVDtMXqbUELEsP_o9PjmGRK_nK_A1ZH8sF0k8jjxmlivxeknwchBLLgGni_7HnWZN1ltJgpSgDRH0ODZR0e7pYW8TxppIhn9NeJ3xYdm6Dp5IIt1SZvHx8FE0hw0x6Yg"/>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface truncate w-[140px]">Gestor de Cumplimiento</span>
+<span class="font-label-md text-label-md text-on-surface-variant">v2.4.0</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0 md:ml-[240px]">
+<!-- TopAppBar -->
+<header class="bg-surface fixed top-0 z-40 border-b border-outline-variant flex items-center justify-between px-lg h-[64px] w-full max-md:!ml-0 md:ml-[240px] md:w-[calc(100%-240px)]">
+<div class="flex items-center gap-md">
+<button class="md:hidden p-xs text-on-surface-variant hover:bg-surface-container-low rounded-full transition-opacity active:opacity-80">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Gestión de Personas</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-xs text-outline hover:bg-surface-container-low rounded-full transition-opacity active:opacity-80">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="hidden md:flex w-8 h-8 rounded-full bg-surface-variant items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="Profile Photo" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate compliance manager. The lighting is bright and clear, reflecting a modern light-mode enterprise environment. The manager wears business casual attire. The background is a soft, neutral off-white, ensuring the subject stands out sharply." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6vydnNdsaMJagstb7tbbVgp09nmRMn858fXqUx6HcfERiVQKAvx8-2r7p7bjuNKoQjMV-KlKqaeE3rL5oCqSKROD2OUHDFg8O_koc4dFOoHEryElr38xBJ3STPJsoYEX2fux7TSr6C5KGP8i6vYv1XxSipsjoUlQtMPAxhOaz0FXQKrDAIIcN38IpLbneXxRdsA-dwgTBDL3KEKShKQf9oVM6TVG8hVDOFxaqC4d5ZNUVLolh8pnfA52aQXGE7DljqTAHgb36e7I"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-md md:p-xl mt-[64px] mb-[80px] md:mb-0 bg-background max-w-max-width mx-auto w-full">
+    <!-- Vista Listado -->
+    <div id="view-list" class="space-y-lg">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-sm">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-on-background">Registro de Actividades Formativas</h2>
+                <p class="text-on-surface-variant font-body-md">Historial y actas de cursos realizados, asistencia y evaluación de la eficacia.</p>
+            </div>
+            <button onclick="openModal()" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-md text-label-md hover:bg-secondary/90 transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                Registrar Formación
+            </button>
+        </div>
+
+        <!-- Barra de filtros -->
+        <div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col sm:flex-row gap-md items-center justify-between">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                <input id="search-input" oninput="renderRecords()" class="w-full pl-xl pr-sm py-xs bg-surface border border-outline-variant rounded font-body-sm text-body-sm text-on-surface focus:border-secondary outline-none" placeholder="Buscar por código, curso o formador..." type="text"/>
+            </div>
+            <span id="records-count" class="font-label-md text-label-md text-on-surface-variant">0 registros en total</span>
+        </div>
+
+        <!-- Tabla de Registros -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant">
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Código</th>
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Curso</th>
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Fecha</th>
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Formador</th>
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Asistencia</th>
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold">Eficacia</th>
+                            <th class="p-sm font-label-md text-label-md text-on-surface-variant font-semibold text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-tbody" class="divide-y divide-outline-variant font-body-md">
+                        <!-- Dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vista Detalle -->
+    <div id="view-detail" class="space-y-lg hidden animate-fade">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-sm border-b border-outline-variant pb-md">
+            <div>
+                <button onclick="showList()" class="text-secondary font-label-md text-label-md flex items-center gap-xs hover:underline mb-xs">
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span> Volver al listado
+                </button>
+                <nav class="flex items-center text-on-surface-variant mb-xs">
+                    <span class="font-label-md text-label-md uppercase tracking-wider">Personas</span>
+                    <span class="material-symbols-outlined text-[16px] mx-xs">chevron_right</span>
+                    <span class="font-label-md text-label-md uppercase tracking-wider">Formación</span>
+                    <span class="material-symbols-outlined text-[16px] mx-xs">chevron_right</span>
+                    <span id="detail-code-breadcrumb" class="font-label-md text-label-md text-primary font-bold">TR-2023-042</span>
+                </nav>
+                <h2 id="detail-name" class="font-display-lg text-display-lg text-on-background">Sensibilización en Seguridad de la Información (ISO 27001)</h2>
+            </div>
+            <div class="flex items-center gap-sm">
+                <button onclick="window.print()" class="bg-surface border border-outline-variant text-on-surface px-md py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                    Exportar PDF
+                </button>
+                <button onclick="editCurrentRecord()" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-md text-label-md hover:bg-[#0047b3] transition-colors flex items-center gap-xs">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
+                    Editar Registro
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-lg">
+            <!-- Columna Izquierda: Detalles y Asistentes (8 columnas) -->
+            <div class="col-span-1 md:col-span-8 flex flex-col gap-md md:gap-lg">
+                <!-- Detalles de la Convocatoria -->
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg">
+                    <div class="flex justify-between items-start mb-md border-b border-outline-variant pb-md">
+                        <h3 class="font-headline-sm text-headline-sm text-on-background">Detalles de la Convocatoria</h3>
+                        <span class="bg-surface-variant text-on-surface-variant px-sm py-xs rounded-full font-label-md text-label-md flex items-center gap-xs">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                            Completada
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                        <div class="flex flex-col">
+                            <span class="font-label-md text-label-md text-on-surface-variant mb-xs">FECHA DE EJECUCIÓN</span>
+                            <div id="detail-date" class="flex items-center gap-xs text-on-surface font-body-md text-body-md">
+                                <span class="material-symbols-outlined text-outline">calendar_today</span>
+                                24 Octubre 2023, 10:00 - 13:00
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-label-md text-label-md text-on-surface-variant mb-xs">MODALIDAD</span>
+                            <div id="detail-modality" class="flex items-center gap-xs text-on-surface font-body-md text-body-md">
+                                <span class="material-symbols-outlined text-outline">desktop_windows</span>
+                                Presencial / Híbrida
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-label-md text-label-md text-on-surface-variant mb-xs">FORMADOR PRINCIPAL</span>
+                            <div id="detail-trainer" class="flex items-center gap-xs text-on-surface font-body-md text-body-md">
+                                <span class="material-symbols-outlined text-outline">person</span>
+                                Carlos Mendoza (CISO Externo)
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-label-md text-label-md text-on-surface-variant mb-xs">NORMATIVA ASOCIADA</span>
+                            <div id="detail-norm" class="flex items-center gap-xs text-on-surface font-body-md text-body-md">
+                                <span class="material-symbols-outlined text-outline">description</span>
+                                ISO/IEC 27001:2022 (A.7.2.2)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Asistentes -->
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+                    <div class="p-md md:p-lg border-b border-outline-variant bg-surface-container-lowest">
+                        <h3 id="detail-assistants-title" class="font-headline-sm text-headline-sm text-on-background">Registro de Asistentes (0/0)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant">
+                                    <th class="p-sm font-label-md text-label-md text-on-surface-variant w-[45%]">EMPLEADO</th>
+                                    <th class="p-sm font-label-md text-label-md text-on-surface-variant">DEPARTAMENTO</th>
+                                    <th class="p-sm font-label-md text-label-md text-on-surface-variant text-center">ESTADO</th>
+                                    <th class="p-sm font-label-md text-label-md text-on-surface-variant text-center">EVALUACIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-attendees-tbody" class="font-body-md text-body-md">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Evidencias Documentales -->
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg">
+                    <h3 class="font-headline-sm text-headline-sm text-on-background mb-sm">Evidencias Documentales</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Lista de asistencia firmada, material presentado o certificados emitidos.</p>
+                    <div id="detail-files-container" class="grid grid-cols-1 sm:grid-cols-2 gap-md mb-md">
+                        <!-- Archivos dinámicos -->
+                    </div>
+                    <!-- Dropzone simulada -->
+                    <div onclick="addSimulatedFile()" class="border-2 border-dashed border-outline-variant rounded-lg p-lg text-center bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[120px]">
+                        <span class="material-symbols-outlined text-outline mb-sm" style="font-size: 32px;">upload_file</span>
+                        <span class="font-body-md text-body-md text-on-surface font-medium mb-xs">Haga clic aquí para subir y firmar acta digitalmente</span>
+                        <span class="font-label-md text-label-md text-on-surface-variant">PDF, JPG, PNG (Max 10MB)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Eficacia y Trazabilidad (4 columnas) -->
+            <div class="col-span-1 md:col-span-4 flex flex-col gap-md md:gap-lg">
+                <!-- Eficacia -->
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg">
+                    <div class="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
+                        <span class="material-symbols-outlined text-secondary">analytics</span>
+                        <h3 class="font-headline-sm text-headline-sm text-on-background">Eficacia de la Formación</h3>
+                    </div>
+                    <div class="flex flex-col items-center justify-center mb-md pt-sm">
+                        <div class="w-32 h-32 rounded-full border-8 border-surface-container-highest flex items-center justify-center relative">
+                            <div class="flex flex-col items-center text-center">
+                                <span id="detail-effectiveness" class="font-display-lg text-display-lg text-on-background leading-none">0%</span>
+                                <span class="font-label-md text-label-md text-on-surface-variant mt-1">EFICACIA</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="font-body-sm text-body-sm text-on-surface">Nivel de aprovechamiento</span>
+                            <span id="detail-effectiveness-lbl" class="font-code-sm text-code-sm text-on-background font-medium">Bajo</span>
+                        </div>
+                        <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+                            <div id="detail-effectiveness-bar" class="bg-secondary h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-lg pt-md border-t border-outline-variant">
+                        <span class="font-label-md text-label-md text-on-surface-variant block mb-sm">CONCLUSIÓN DEL EVALUADOR</span>
+                        <p id="detail-conclusion" class="font-body-sm text-body-sm text-on-surface italic">"No hay conclusiones registradas."</p>
+                    </div>
+                </div>
+
+                <!-- Trazabilidad ISO -->
+                <div class="bg-surface border border-outline-variant rounded-xl p-md">
+                    <div class="flex items-start gap-sm">
+                        <span class="material-symbols-outlined text-outline mt-1" style="font-size: 20px;">info</span>
+                        <div>
+                            <span class="font-label-md text-label-md text-on-background block mb-xs">TRAZABILIDAD ISO</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">Este registro sirve como evidencia objetiva para el cumplimiento del requisito de concienciación y competencia (ISO 9001:2015 7.2/7.3 e ISO 27001).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</div>
+
+<!-- Modal Registrar Formación -->
+<div id="modal-registro" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-3xl w-full p-lg flex flex-col gap-4 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Registrar Acción Formativa</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-registro" onsubmit="saveRecord(event)" class="space-y-4">
+            <input type="hidden" id="edit-id" value=""/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-course">Curso Planificado</label>
+                    <select id="reg-course" onchange="onCourseSelected()" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                        <!-- Dinámico de plan_formacion -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-code">Código del Registro</label>
+                    <input required id="reg-code" type="text" placeholder="Ej: TR-2024-001" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-date">Fecha y Hora</label>
+                    <input required id="reg-date" type="text" placeholder="Ej: 24 Octubre 2024, 10:00 - 13:00" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-modality">Modalidad</label>
+                    <select id="reg-modality" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                        <option value="Presencial">Presencial</option>
+                        <option value="Online">Online / Teleformación</option>
+                        <option value="Híbrida">Híbrida</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-trainer">Formador / Ponente</label>
+                    <input required id="reg-trainer" type="text" placeholder="Ej: Carlos Mendoza (CISO)" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-norm">Norma de Referencia</label>
+                    <input id="reg-norm" type="text" placeholder="Ej: ISO 9001:2015 o ISO 27001" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+            </div>
+            
+            <!-- Seleccionar Asistentes y Puntuaciones -->
+            <div>
+                <span class="block font-label-md text-label-md text-on-surface-variant mb-2">Selección de Personal y Calificaciones</span>
+                <div class="border border-outline-variant rounded-lg max-h-48 overflow-y-auto divide-y divide-outline-variant bg-surface-bright" id="reg-attendees-list">
+                    <!-- Dinámico de sig_personal -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-effectiveness">Evaluación de la Eficacia (%)</label>
+                    <input required id="reg-effectiveness" type="number" min="0" max="100" value="85" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-conclusion">Conclusiones del Evaluador / Procedimientos</label>
+                    <textarea id="reg-conclusion" rows="2" placeholder="Describa el grado de aprovechamiento..." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary transition-all"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar Registro
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Semillas para inicialización
+    const seedRecords = [
+        {
+            id: "TR-2023-042",
+            courseId: "SEC-24-03",
+            name: "Sensibilización en Seguridad de la Información (ISO 27001)",
+            date: "24 Octubre 2023, 10:00 - 13:00",
+            modality: "Híbrida",
+            trainer: "Carlos Mendoza (CISO Externo)",
+            norm: "ISO/IEC 27001:2022 (A.7.2.2)",
+            effectiveness: 88,
+            conclusion: "El nivel de retención de los asistentes superó el umbral mínimo exigido por el procedimiento PR-HR-04. Se recomienda un refuerzo anual mediante píldoras formativas.",
+            files: [
+                { name: "Firmas_Asistencia_2410.pdf", size: "1.2 MB" }
+            ],
+            attendees: [
+                { id: "EMP-001", name: "Elena Montes", dept: "Calidad", attended: true, score: 95 },
+                { id: "EMP-002", name: "Carlos Ruiz", dept: "Auditorías", attended: false, score: null },
+                { id: "EMP-004", name: "David Gómez", dept: "TI", attended: true, score: 88 }
+            ]
+        }
+    ];
+
+    let records = [];
+    let currentRecordId = null;
+
+    function initData() {
+        // Cargar registros
+        const stored = localStorage.getItem('sig_registro_formativo');
+        if (stored) {
+            records = JSON.parse(stored);
+        } else {
+            records = [...seedRecords];
+            localStorage.setItem('sig_registro_formativo', JSON.stringify(records));
+        }
+
+        renderRecords();
+        populateCoursesSelect();
+        populateAttendeesList();
+    }
+
+    function populateCoursesSelect() {
+        const select = document.getElementById('reg-course');
+        select.innerHTML = '<option value="">-- Seleccione un curso del Plan Anual --</option>';
+        
+        // Obtener del localStorage de plan formación
+        const storedCourses = localStorage.getItem('sig_plan_formacion');
+        if (storedCourses) {
+            const planCourses = JSON.parse(storedCourses);
+            planCourses.forEach(c => {
+                select.innerHTML += `<option value="${c.id}" data-name="${c.name}">${c.id} - ${c.name}</option>`;
+            });
+        }
+        select.innerHTML += '<option value="OTHER">-- Otro (No planificado) --</option>';
+    }
+
+    function onCourseSelected() {
+        const select = document.getElementById('reg-course');
+        const selectedOpt = select.options[select.selectedIndex];
+        if (selectedOpt.value && selectedOpt.value !== "OTHER") {
+            const courseName = selectedOpt.getAttribute('data-name');
+            // Auto rellenar formador o norma si aplica
+            if (selectedOpt.value.startsWith('PRL')) {
+                document.getElementById('reg-norm').value = "Ley 31/1995 de Prevención";
+            } else if (selectedOpt.value.startsWith('ISO')) {
+                document.getElementById('reg-norm').value = "ISO 9001:2015";
+            } else if (selectedOpt.value.startsWith('SEC')) {
+                document.getElementById('reg-norm').value = "ISO/IEC 27001";
+            }
+        }
+    }
+
+    function populateAttendeesList() {
+        const listDiv = document.getElementById('reg-attendees-list');
+        listDiv.innerHTML = "";
+        
+        // Obtener del localStorage de personal
+        const storedPersonal = localStorage.getItem('sig_personal');
+        let employees = [];
+        if (storedPersonal) {
+            employees = JSON.parse(storedPersonal);
+        } else {
+            // Fallback si no hay personal creado
+            employees = [
+                { id: "EMP-001", name: "Elena Montes", dept: "Calidad" },
+                { id: "EMP-002", name: "Carlos Ruiz", dept: "Auditorías" },
+                { id: "EMP-003", name: "Ana Silva", dept: "Operaciones" },
+                { id: "EMP-004", name: "David Gómez", dept: "TI" }
+            ];
+        }
+
+        employees.forEach(emp => {
+            listDiv.innerHTML += `
+                <div class="flex items-center justify-between p-sm hover:bg-surface-container-low transition-colors">
+                    <label class="flex items-center gap-sm cursor-pointer text-body-md text-on-surface font-medium w-1/2">
+                        <input type="checkbox" name="chk-attendee" value="${emp.id}" data-name="${emp.name}" data-dept="${emp.dept}" onchange="toggleAttendeeScoreInput(this, '${emp.id}')" class="rounded border-outline-variant text-secondary focus:ring-secondary cursor-pointer"/>
+                        <span>${emp.name} <span class="text-xs text-on-surface-variant font-normal">(${emp.dept})</span></span>
+                    </label>
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs text-on-surface-variant">Calificación:</span>
+                        <input type="number" id="score-${emp.id}" min="0" max="100" value="90" disabled class="w-16 bg-surface border border-outline-variant rounded px-2 py-0.5 font-code-sm text-code-sm text-center"/>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function toggleAttendeeScoreInput(chk, empId) {
+        const scoreInput = document.getElementById(`score-${empId}`);
+        if (chk.checked) {
+            scoreInput.removeAttribute('disabled');
+        } else {
+            scoreInput.setAttribute('disabled', 'true');
+        }
+    }
+
+    function renderRecords() {
+        const tbody = document.getElementById('records-tbody');
+        const query = document.getElementById('search-input').value.toLowerCase().trim();
+
+        // Filtrado
+        const filtered = records.filter(r => {
+            return r.name.toLowerCase().includes(query) || 
+                   r.id.toLowerCase().includes(query) || 
+                   r.trainer.toLowerCase().includes(query);
+        });
+
+        document.getElementById('records-count').innerText = `${records.length} registros en total`;
+
+        tbody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="p-lg text-center text-on-surface-variant">
+                        No se encontraron registros de actividades formativas.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        filtered.forEach(r => {
+            const countAttended = r.attendees.filter(a => a.attended).length;
+            tbody.innerHTML += `
+                <tr class="hover:bg-surface-container-low transition-colors border-b border-outline-variant last:border-0">
+                    <td class="p-sm font-code-sm text-code-sm text-on-surface-variant font-bold">${r.id}</td>
+                    <td class="p-sm font-body-md text-body-md text-on-surface font-semibold">${r.name}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant">${r.date}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant">${r.trainer}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant text-center">${countAttended} / ${r.attendees.length}</td>
+                    <td class="p-sm font-body-sm text-body-sm text-on-surface-variant text-center">${r.effectiveness}%</td>
+                    <td class="p-sm text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="viewDetail('${r.id}')" class="text-secondary hover:underline text-xs font-semibold flex items-center gap-0.5" title="Ver Acta">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Ver
+                            </button>
+                            <button onclick="deleteRecord('${r.id}')" class="text-error hover:text-red-700 p-0.5 transition-colors" title="Eliminar">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function viewDetail(id) {
+        const r = records.find(item => item.id === id);
+        if (!r) return;
+
+        currentRecordId = id;
+
+        // Rellenar campos de detalle
+        document.getElementById('detail-code-breadcrumb').innerText = r.id;
+        document.getElementById('detail-name').innerText = r.name;
+        document.getElementById('detail-date').innerHTML = `<span class="material-symbols-outlined text-outline">calendar_today</span> ${r.date}`;
+        document.getElementById('detail-modality').innerHTML = `<span class="material-symbols-outlined text-outline">desktop_windows</span> ${r.modality}`;
+        document.getElementById('detail-trainer').innerHTML = `<span class="material-symbols-outlined text-outline">person</span> ${r.trainer}`;
+        document.getElementById('detail-norm').innerHTML = `<span class="material-symbols-outlined text-outline">description</span> ${r.norm || 'No especificada'}`;
+        document.getElementById('detail-conclusion').innerText = r.conclusion ? `"${r.conclusion}"` : '"No hay conclusiones registradas."';
+
+        // Eficacia
+        document.getElementById('detail-effectiveness').innerText = `${r.effectiveness}%`;
+        document.getElementById('detail-effectiveness-bar').style.width = `${r.effectiveness}%`;
+        let lbl = "Bajo";
+        if (r.effectiveness >= 85) lbl = "Excelente (ISO Óptimo)";
+        else if (r.effectiveness >= 70) lbl = "Aceptable";
+        document.getElementById('detail-effectiveness-lbl').innerText = lbl;
+
+        // Asistentes
+        const countAttended = r.attendees.filter(a => a.attended).length;
+        document.getElementById('detail-assistants-title').innerText = `Registro de Asistentes (${countAttended} / ${r.attendees.length})`;
+        
+        const tbody = document.getElementById('detail-attendees-tbody');
+        tbody.innerHTML = "";
+        
+        r.attendees.forEach(a => {
+            const initials = a.name.split(" ").map(n => n[0]).join("").substring(0,2).toUpperCase();
+            const badgeClass = a.attended ? "bg-[#e6f4ea] text-[#137333] border-[#ceead6]" : "bg-[#fce8e6] text-[#c5221f] border-[#fad2cf]";
+            const statusLbl = a.attended ? "Asistió" : "Ausente";
+            const icon = a.attended ? "done" : "close";
+            const scoreLbl = a.attended ? `${a.score}/100` : "-";
+
+            tbody.innerHTML += `
+                <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                    <td class="p-sm flex items-center gap-sm">
+                        <div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs shrink-0 select-none">
+                            ${initials}
+                        </div>
+                        <span class="text-on-background font-medium">${a.name}</span>
+                    </td>
+                    <td class="p-sm text-on-surface-variant">${a.dept}</td>
+                    <td class="p-sm text-center">
+                        <span class="inline-flex items-center gap-xs px-xs py-[2px] rounded-sm ${badgeClass} border font-label-md text-label-md">
+                            <span class="material-symbols-outlined" style="font-size: 12px;">${icon}</span> ${statusLbl}
+                        </span>
+                    </td>
+                    <td class="p-sm text-center text-on-surface font-code-sm text-code-sm">${scoreLbl}</td>
+                </tr>
+            `;
+        });
+
+        // Archivos
+        const filesDiv = document.getElementById('detail-files-container');
+        filesDiv.innerHTML = "";
+        if (r.files && r.files.length > 0) {
+            r.files.forEach((f, idx) => {
+                filesDiv.innerHTML += `
+                    <div class="border border-outline-variant rounded-lg p-sm flex items-center justify-between bg-surface">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 bg-[#fce8e6] text-[#c5221f] rounded flex items-center justify-center">
+                                <span class="material-symbols-outlined">picture_as_pdf</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-body-sm text-body-sm text-on-background font-medium truncate w-[140px]">${f.name}</span>
+                                <span class="font-code-sm text-code-sm text-on-surface-variant">${f.size}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFile(${idx})" class="text-outline hover:text-error transition-colors p-xs" title="Eliminar evidencia">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                        </button>
+                    </div>
+                `;
+            });
+        } else {
+            filesDiv.innerHTML = `
+                <div class="col-span-2 text-center p-sm text-on-surface-variant text-body-sm bg-surface rounded border border-outline-variant border-dashed">
+                    No se han subido actas firmadas o evidencias documentales.
+                </div>
+            `;
+        }
+
+        // Intercambiar vistas
+        document.getElementById('view-list').classList.add('hidden');
+        document.getElementById('view-detail').classList.remove('hidden');
+    }
+
+    function showList() {
+        currentRecordId = null;
+        document.getElementById('view-detail').classList.add('hidden');
+        document.getElementById('view-list').classList.remove('hidden');
+        renderRecords();
+    }
+
+    function addSimulatedFile() {
+        if (!currentRecordId) return;
+        const idx = records.findIndex(r => r.id === currentRecordId);
+        if (idx === -1) return;
+
+        const newFile = {
+            name: `Acta_Firmada_${currentRecordId}.pdf`,
+            size: "1.4 MB"
+        };
+
+        if (!records[idx].files) records[idx].files = [];
+        records[idx].files.push(newFile);
+
+        localStorage.setItem('sig_registro_formativo', JSON.stringify(records));
+        viewDetail(currentRecordId);
+    }
+
+    function removeFile(fileIdx) {
+        if (!currentRecordId) return;
+        const idx = records.findIndex(r => r.id === currentRecordId);
+        if (idx === -1) return;
+
+        records[idx].files.splice(fileIdx, 1);
+        localStorage.setItem('sig_registro_formativo', JSON.stringify(records));
+        viewDetail(currentRecordId);
+    }
+
+    // Modal Control
+    function openModal() {
+        document.getElementById('modal-title').innerText = "Registrar Acción Formativa";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-registro').reset();
+        
+        // Autogenerar código
+        let maxSeq = 42;
+        records.forEach(r => {
+            const parts = r.id.split('-');
+            if (parts.length === 3) {
+                const seq = parseInt(parts[2]);
+                if (seq > maxSeq) maxSeq = seq;
+            }
+        });
+        const nextSeq = String(maxSeq + 1).padStart(3, '0');
+        document.getElementById('reg-code').value = `TR-2024-${nextSeq}`;
+
+        // Reset checkboxes
+        document.querySelectorAll('input[name="chk-attendee"]').forEach(chk => {
+            chk.checked = false;
+            const empId = chk.value;
+            document.getElementById(`score-${empId}`).setAttribute('disabled', 'true');
+        });
+
+        document.getElementById('modal-registro').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-registro').classList.add('hidden');
+        document.getElementById('form-registro').reset();
+    }
+
+    function editCurrentRecord() {
+        if (!currentRecordId) return;
+        const r = records.find(item => item.id === currentRecordId);
+        if (!r) return;
+
+        document.getElementById('modal-title').innerText = "Editar Registro Formativo";
+        document.getElementById('edit-id').value = r.id;
+        document.getElementById('reg-code').value = r.id;
+        document.getElementById('reg-date').value = r.date;
+        document.getElementById('reg-modality').value = r.modality;
+        document.getElementById('reg-trainer').value = r.trainer;
+        document.getElementById('reg-norm').value = r.norm || '';
+        document.getElementById('reg-effectiveness').value = r.effectiveness;
+        document.getElementById('reg-conclusion').value = r.conclusion || '';
+
+        // Select del curso
+        document.getElementById('reg-course').value = r.courseId || '';
+
+        // Rellenar checkboxes y calificaciones
+        document.querySelectorAll('input[name="chk-attendee"]').forEach(chk => {
+            const empId = chk.value;
+            const matchedAttendee = r.attendees.find(a => a.id === empId);
+            const scoreInput = document.getElementById(`score-${empId}`);
+            if (matchedAttendee) {
+                chk.checked = true;
+                scoreInput.removeAttribute('disabled');
+                scoreInput.value = matchedAttendee.score !== null ? matchedAttendee.score : 90;
+            } else {
+                chk.checked = false;
+                scoreInput.setAttribute('disabled', 'true');
+            }
+        });
+
+        document.getElementById('modal-registro').classList.remove('hidden');
+    }
+
+    function deleteRecord(id) {
+        if (confirm(`¿Está seguro de que desea eliminar el registro formativo ${id}?`)) {
+            records = records.filter(item => item.id !== id);
+            localStorage.setItem('sig_registro_formativo', JSON.stringify(records));
+            if (currentRecordId === id) showList();
+            renderRecords();
+        }
+    }
+
+    function saveRecord(event) {
+        event.preventDefault();
+
+        const editId = document.getElementById('edit-id').value;
+        const code = document.getElementById('reg-code').value.trim();
+        const courseSelect = document.getElementById('reg-course');
+        const courseId = courseSelect.value;
+        const courseName = courseId === "OTHER" ? "Curso no planificado" : courseSelect.options[courseSelect.selectedIndex].getAttribute('data-name') || "Curso no planificado";
+        
+        const date = document.getElementById('reg-date').value.trim();
+        const modality = document.getElementById('reg-modality').value;
+        const trainer = document.getElementById('reg-trainer').value.trim();
+        const norm = document.getElementById('reg-norm').value.trim();
+        const effectiveness = parseInt(document.getElementById('reg-effectiveness').value) || 0;
+        const conclusion = document.getElementById('reg-conclusion').value.trim();
+
+        // Obtener asistentes seleccionados
+        const attendees = [];
+        // Primero añadimos los seleccionados
+        document.querySelectorAll('input[name="chk-attendee"]').forEach(chk => {
+            const empId = chk.value;
+            const scoreInput = document.getElementById(`score-${empId}`);
+            
+            // Si está seleccionado, asistió. Si no está seleccionado en el formulario, para los propósitos de este registro,
+            // podemos considerarlo como no participante o ausente. Vamos a registrarlos todos, marcando attended true/false
+            const scoreVal = chk.checked ? parseInt(scoreInput.value) || 0 : null;
+            attendees.push({
+                id: empId,
+                name: chk.getAttribute('data-name'),
+                dept: chk.getAttribute('data-dept'),
+                attended: chk.checked,
+                score: scoreVal
+            });
+        });
+
+        if (editId) {
+            const idx = records.findIndex(item => item.id === editId);
+            if (idx !== -1) {
+                records[idx] = {
+                    ...records[idx],
+                    id: code,
+                    courseId,
+                    name: courseName,
+                    date,
+                    modality,
+                    trainer,
+                    norm,
+                    effectiveness,
+                    conclusion,
+                    attendees
+                };
+            }
+        } else {
+            records.push({
+                id: code,
+                courseId,
+                name: courseName,
+                date,
+                modality,
+                trainer,
+                norm,
+                effectiveness,
+                conclusion,
+                files: [],
+                attendees
+            });
+        }
+
+        // Actualizar el plan_formacion en localStorage si aplica
+        // Si el curso planificado se completa, podemos actualizar su estado en plan_formacion
+        const storedPlan = localStorage.getItem('sig_plan_formacion');
+        if (storedPlan) {
+            const planCourses = JSON.parse(storedPlan);
+            const pIdx = planCourses.findIndex(c => c.id === courseId);
+            if (pIdx !== -1) {
+                // Si completamos esta acción formativa, podemos subir su número de asistentes reales
+                const countReal = attendees.filter(a => a.attended).length;
+                planCourses[pIdx].assistants = countReal;
+                if (effectiveness > 0) {
+                    planCourses[pIdx].status = "Completado";
+                }
+                localStorage.setItem('sig_plan_formacion', JSON.stringify(planCourses));
+            }
+        }
+
+        localStorage.setItem('sig_registro_formativo', JSON.stringify(records));
+        closeModal();
+
+        if (currentRecordId) {
+            viewDetail(code);
+        } else {
+            renderRecords();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>

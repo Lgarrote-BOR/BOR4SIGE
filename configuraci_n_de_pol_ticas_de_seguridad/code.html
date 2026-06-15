@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Políticas de Seguridad - Bor4D</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Guidelines -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#0b1c30",
+                      "on-secondary-container": "#fefcff",
+                      "on-tertiary-container": "#818486",
+                      "surface-bright": "#f8f9ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "surface": "#f8f9ff",
+                      "surface-container-high": "#dce9ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container-low": "#eff4ff",
+                      "primary": "#000000",
+                      "secondary": "#0051d5",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-surface-variant": "#45464d",
+                      "primary-fixed-dim": "#bec6e0",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "outline-variant": "#c6c6cd",
+                      "background": "#f8f9ff",
+                      "on-primary-container": "#7c839b",
+                      "tertiary": "#000000",
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-container": "#316bf3",
+                      "on-secondary-fixed": "#00174b",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container": "#e5eeff",
+                      "primary-fixed": "#dae2fd",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#131b2e",
+                      "outline": "#76777d",
+                      "on-surface": "#0b1c30",
+                      "inverse-surface": "#213145",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bec6e0",
+                      "tertiary-container": "#191c1e",
+                      "surface-dim": "#cbdbf5",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#d3e4fe"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "max-width": "1440px",
+                      "gutter": "16px",
+                      "margin": "24px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono&display=swap');
+        
+        /* Base styles */
+        body {
+            background-color: #F8FAFC;
+            color: #0b1c30;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Toggle Switch Custom Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2563EB;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2563EB;
+        }
+        .toggle-checkbox {
+            right: 0;
+            z-index: 1;
+            border-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .toggle-label {
+            width: 3rem;
+            height: 1.5rem;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(1.5rem);
+        }
+      </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- NavigationDrawer -->
+<nav class="bg-surface border-r border-outline-variant fixed left-0 top-0 h-screen w-[240px] flex flex-col py-md z-50">
+<!-- Brand Header -->
+<div class="px-lg pb-xl border-b border-outline-variant mb-md">
+<img alt="Bor4D Logo" class="h-8 mb-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXB2KtxPKJD8MvkgbPeWTdASHjfGhnic-dO2ytiXVpx7N62wYHaNqZ5pXVZp0G8k66j1hbnyOTnr7Q7Dt9AARxeHGKesu_D-xLnPNzy5lsc6vZ7cvVHgru8ePzntlt7L_yFIiu8qURd2mIGHaXtHN_yhRr4pY1uKWBP3hW2sEGly-b0jzwZ2qL7iABZMescOaMfNglPYl0uTmCmgFFjlih1YjIfD81ydKNZqU1kGr4LeUTyDFC1Afj1u3I-F76d_1MPGAoKipSo8g"/>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">SIG Enterprise</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Admin Portal <span class="text-xs ml-1 bg-surface-container-high px-2 py-1 rounded">v2.4.0</span></p>
+</div>
+<!-- Navigation Links -->
+<ul class="flex flex-col gap-1 px-sm">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-weight="fill">group</span>
+                    User Management
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-weight="fill">verified_user</span>
+                    Quality Module
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-weight="fill">eco</span>
+                    Environment
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-colors active:scale-95 duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-weight="fill">security</span>
+                    Security
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-weight="fill">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-[240px] flex-1 flex flex-col h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest border-b border-outline-variant fixed top-0 right-0 w-[calc(100%-240px)] z-40 flex justify-between items-center px-lg h-16 transition-all duration-200">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors hidden md:block lg:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Políticas de Seguridad</h2>
+</div>
+<div class="flex items-center gap-lg">
+<!-- Environment Switcher -->
+<div class="hidden md:flex items-center gap-2 px-3 py-1.5 border-2 border-error rounded-full bg-error-container bg-opacity-20">
+<span class="material-symbols-outlined text-error text-sm">warning</span>
+<span class="font-label-md text-label-md text-error font-bold uppercase tracking-wide">Production</span>
+</div>
+<!-- Avatar -->
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary font-bold text-sm">
+                    A
+                </div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 overflow-y-auto mt-16 p-margin bg-background">
+<div class="max-w-[1024px] mx-auto">
+<!-- Page Header Description -->
+<div class="mb-xl">
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+                        Configura las reglas de autenticación y complejidad de contraseñas para todos los usuarios del sistema. Los cambios aplicarán en el próximo inicio de sesión.
+                    </p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Column: Password Complexity (Spans 8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- Complexity Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-sm">
+<div class="flex items-center gap-md mb-lg">
+<span class="material-symbols-outlined text-secondary text-2xl">password</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Complejidad de Contraseña</h3>
+</div>
+<div class="space-y-lg">
+<!-- Min Length -->
+<div class="flex items-center justify-between border-b border-outline-variant pb-md">
+<div>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface">Longitud mínima</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Requerimiento de caracteres mínimos permitidos.</p>
+</div>
+<select class="form-select w-32 rounded-lg border-outline-variant text-body-md font-body-md focus:border-secondary focus:ring-secondary">
+<option value="8">8 caracteres</option>
+<option value="10">10 caracteres</option>
+<option selected="" value="12">12 caracteres</option>
+<option value="14">14 caracteres</option>
+<option value="16">16 caracteres</option>
+</select>
+</div>
+<!-- Uppercase -->
+<div class="flex items-center justify-between border-b border-outline-variant pb-md">
+<div>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface">Requerir mayúsculas</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Exigir al menos una letra mayúscula (A-Z).</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="toggle-uppercase" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-uppercase"></label>
+</div>
+</div>
+<!-- Numbers -->
+<div class="flex items-center justify-between border-b border-outline-variant pb-md">
+<div>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface">Requerir números</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Exigir al menos un dígito numérico (0-9).</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="toggle-numbers" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-numbers"></label>
+</div>
+</div>
+<!-- Special Characters -->
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface">Caracteres especiales</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Exigir símbolos (!@#$%^&amp;*).</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="toggle-special" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-special"></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Rotation & MFA (Spans 4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-lg">
+<!-- MFA Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-sm">
+<div class="flex items-center gap-md mb-lg">
+<span class="material-symbols-outlined text-secondary text-2xl">phonelink_lock</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Autenticación (MFA)</h3>
+</div>
+<div class="flex items-center justify-between mb-md">
+<div>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface">Forzar MFA Global</h4>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="toggle-mfa" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-mfa"></label>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                                Requiere que todos los usuarios utilicen un segundo factor de autenticación (App Authenticator o SMS).
+                            </p>
+<div class="mt-md p-sm bg-surface-container-low border border-outline-variant rounded flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary text-sm mt-0.5">info</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Los usuarios activos serán desconectados y deberán configurar MFA en su próximo acceso.</span>
+</div>
+</div>
+<!-- Rotation Policy Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-sm">
+<div class="flex items-center gap-md mb-lg">
+<span class="material-symbols-outlined text-secondary text-2xl">update</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Rotación Obligatoria</h3>
+</div>
+<div class="space-y-md">
+<div>
+<label class="block font-body-md text-body-md font-semibold text-on-surface mb-xs">Frecuencia de expiración</label>
+<select class="form-select w-full rounded-lg border-outline-variant text-body-md font-body-md focus:border-secondary focus:ring-secondary">
+<option value="30">Cada 30 días</option>
+<option value="60">Cada 60 días</option>
+<option selected="" value="90">Cada 90 días</option>
+<option value="180">Cada 180 días</option>
+<option value="never">Nunca (No recomendado)</option>
+</select>
+</div>
+<div class="flex items-center justify-between pt-sm">
+<h4 class="font-body-sm text-body-sm text-on-surface-variant">Impedir reutilización de contraseñas previas</h4>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="toggle-reuse" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-reuse"></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Bar (Sticky Bottom Area) -->
+<div class="mt-xl pt-lg border-t border-outline-variant flex justify-end gap-md pb-xl">
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors shadow-sm">
+                        Descartar Cambios
+                    </button>
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md bg-[#2563EB] text-white hover:bg-opacity-90 transition-colors shadow-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm">save</span>
+                        Guardar Políticas
+                    </button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

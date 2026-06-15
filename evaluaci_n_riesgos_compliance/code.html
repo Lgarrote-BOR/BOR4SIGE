@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Evaluación de Riesgos de Compliance Penal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container": "#e5eeff",
+                      "surface-container-low": "#eff4ff",
+                      "outline": "#76777d",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-surface": "#213145",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#00174b",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary": "#0051d5",
+                      "surface-container-high": "#dce9ff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-primary-container": "#7c839b",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary": "#000000",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "secondary-container": "#316bf3",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-background": "#0b1c30",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "background": "#f8f9ff",
+                      "tertiary-container": "#191c1e",
+                      "on-tertiary-fixed-variant": "#444749"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px", "lg": "24px", "max-width": "1440px", "xs": "4px",
+                      "md": "16px", "margin": "24px", "sm": "8px", "base": "4px", "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-lg": ["Inter"],
+                      "headline-md": ["Inter"], "code-sm": ["JetBrains Mono"], "body-md": ["Inter"],
+                      "label-md": ["Inter"], "body-sm": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        body { background-color: #F8FAFC; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+    <!-- NavigationDrawer -->
+    <aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md z-20">
+        <div class="px-md mb-xl flex items-center justify-between">
+            <h1 class="font-headline-md text-headline-md font-bold text-on-surface">Gestión de Riesgos</h1>
+        </div>
+        <nav class="flex-1 flex flex-col gap-sm px-sm">
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_de_riesgos_calidad_iso_9001/code.html">
+                <span class="material-symbols-outlined" data-icon="shield">shield</span>
+                <span class="font-body-md text-body-md">Riesgos ISO 9001</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_seguridad_magerit/code.html">
+                <span class="material-symbols-outlined" data-icon="policy">policy</span>
+                <span class="font-body-md text-body-md">Seguridad (MAGERIT)</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_compliance/code.html">
+                <span class="material-symbols-outlined fill" data-icon="balance">balance</span>
+                <span class="font-body-md text-body-md">Compliance Penal</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="../evaluaci_n_riesgos_salud_laboral/code.html">
+                <span class="material-symbols-outlined" data-icon="health_and_safety">health_and_safety</span>
+                <span class="font-body-md text-body-md">Salud Laboral (PRL)</span>
+            </a>
+            <a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 ease-in-out mt-auto" href="../index.html">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                <span class="font-body-md text-body-md">Menú Principal</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-60 flex flex-col min-h-screen">
+        <!-- TopAppBar -->
+        <header class="bg-surface-bright flex justify-between items-center px-lg py-md w-full border-b border-outline-variant z-10 sticky top-0">
+            <div class="flex items-center gap-md">
+                <h2 class="font-headline-md text-headline-md font-bold text-primary">Compliance Penal (ISO 37301)</h2>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="h-8 w-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm overflow-hidden" title="Gerente de Compliance">
+                    CP
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Canvas -->
+        <div class="p-lg flex-1 overflow-y-auto">
+            <div class="max-w-[1440px] mx-auto space-y-lg">
+                <!-- Page Header & Actions -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+                    <div>
+                        <h3 class="font-display-lg text-display-lg text-on-surface">Evaluación de Riesgos Penales</h3>
+                        <p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Mapeo de delitos tipificados, asignación de controles internos y mitigación del riesgo residual.</p>
+                    </div>
+                    <div class="flex gap-sm">
+                        <button onclick="openModal()" class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-sm rounded-DEFAULT hover:bg-secondary/90 transition-colors flex items-center gap-sm shadow-sm">
+                            <span class="material-symbols-outlined text-sm" data-icon="add">add</span> Evaluar Nuevo Delito
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bento KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+                    <!-- KPI 1 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Delitos Mapeados</span>
+                            <span class="material-symbols-outlined text-secondary" data-icon="folder_zip">folder_zip</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total" class="font-display-lg text-display-lg text-on-surface">0</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Delitos evaluados</p>
+                        </div>
+                    </div>
+                    <!-- KPI 2 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Riesgo Inherente Alto</span>
+                            <span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+                        </div>
+                        <div>
+                            <span id="kpi-inh-high" class="font-display-lg text-display-lg text-error">0</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Riesgo bruto sin controles</p>
+                        </div>
+                    </div>
+                    <!-- KPI 3 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Riesgo Residual Alto</span>
+                            <span class="material-symbols-outlined text-orange-600" data-icon="gavel">gavel</span>
+                        </div>
+                        <div>
+                            <span id="kpi-res-high" class="font-display-lg text-display-lg text-orange-600">0</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Riesgo tras aplicar controles</p>
+                        </div>
+                    </div>
+                    <!-- KPI 4 -->
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                        <div class="flex items-center justify-between mb-sm">
+                            <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Cobertura de Controles</span>
+                            <span class="material-symbols-outlined text-[#137333]" data-icon="shield">shield</span>
+                        </div>
+                        <div>
+                            <span id="kpi-efficacy" class="font-display-lg text-display-lg text-[#137333]">0%</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Eficacia de mitigación promedio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compliance Table -->
+                <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-md border-b border-outline-variant bg-surface-bright flex justify-between items-center">
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Registro de Riesgos Penales</h3>
+                        <div class="flex items-center gap-sm">
+                            <select id="filter-level" onchange="renderCompliance()" class="bg-surface border border-outline-variant rounded px-2 py-1 font-body-sm text-body-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary outline-none cursor-pointer">
+                                <option value="">Cualquier Riesgo Residual</option>
+                                <option value="Bajo">Bajo (1-4)</option>
+                                <option value="Medio">Medio (5-9)</option>
+                                <option value="Alto">Alto (10-16)</option>
+                            </select>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+                                <input id="search-input" oninput="renderCompliance()" class="pl-[36px] pr-sm py-xs border border-outline-variant rounded bg-surface text-body-sm font-body-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary outline-none w-64" placeholder="Buscar delito o control..." type="text"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-label-md font-label-md text-on-surface-variant">
+                                    <th class="p-md w-24">ID</th>
+                                    <th class="p-md w-48">Delito Tipificado</th>
+                                    <th class="p-md">Descripción / Escenario de Riesgo</th>
+                                    <th class="p-md w-24 text-center">R. Bruto (Inh)</th>
+                                    <th class="p-md w-56">Control Clave Implantado</th>
+                                    <th class="p-md w-28 text-center">Eficacia</th>
+                                    <th class="p-md w-28 text-center">R. Residual</th>
+                                    <th class="p-md w-24 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compliance-tbody" class="font-body-sm text-body-sm text-on-surface">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Formulario -->
+    <div id="modal-compliance" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+                <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Evaluar Delito Compliance</h3>
+                <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-compliance" onsubmit="saveCompliance(event)" class="space-y-4">
+                <input type="hidden" id="edit-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Delito Penal Tipificado</label>
+                        <select id="comp-delict" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="Corrupción / Soborno">Corrupción / Soborno</option>
+                            <option value="Estafa / Fraude">Estafa / Fraude</option>
+                            <option value="Blanqueo de Capitales">Blanqueo de Capitales</option>
+                            <option value="Delitos Informáticos / Daños IT">Delitos Informáticos / Daños IT</option>
+                            <option value="Propiedad Intelectual / Industrial">Propiedad Intelectual / Industrial</option>
+                            <option value="Revelación de Secretos / Datos">Revelación de Secretos / Datos</option>
+                            <option value="Delitos contra la Hacienda Pública">Delitos contra la Hacienda Pública</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Proceso Afectado</label>
+                        <select id="comp-process" required class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary cursor-pointer">
+                            <!-- Dinámico -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Escenario / Riesgo Penal Concreto</label>
+                    <textarea id="comp-desc" required placeholder="Ej: Pago de comisiones a funcionarios para adjudicación de licitaciones." class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md focus:outline-none focus:border-secondary" rows="2"></textarea>
+                </div>
+
+                <!-- Inherent Risk -->
+                <div class="border border-outline-variant rounded p-sm bg-surface-container-low/50">
+                    <span class="font-label-md text-label-md text-on-surface font-bold">1. Evaluación del Riesgo Bruto (Inherente)</span>
+                    <div class="grid grid-cols-3 gap-2 mt-xs">
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Probabilidad (1-4)</label>
+                            <select id="comp-prob-inh" required onchange="calculateResidual()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs font-body-sm text-body-sm focus:outline-none focus:border-secondary cursor-pointer">
+                                <option value="1">1 - Rara vez</option>
+                                <option value="2">2 - Posible</option>
+                                <option value="3">3 - Probable</option>
+                                <option value="4">4 - Muy probable</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Impacto (1-4)</label>
+                            <select id="comp-imp-inh" required onchange="calculateResidual()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs font-body-sm text-body-sm focus:outline-none focus:border-secondary cursor-pointer">
+                                <option value="1">1 - Leve</option>
+                                <option value="2">2 - Moderado</option>
+                                <option value="3">3 - Grave</option>
+                                <option value="4">4 - Crítico</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">R. Inherente</label>
+                            <input id="comp-level-inh" readonly type="text" value="1" class="w-full bg-surface border border-outline-variant rounded p-xs font-bold font-code-sm text-center text-on-surface"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls & residual -->
+                <div class="border border-outline-variant rounded p-sm bg-surface-container-low/50">
+                    <span class="font-label-md text-label-md text-on-surface font-bold">2. Salvaguardas y Mitigación (Riesgo Residual)</span>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-xs">
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Medida de Control / Salvaguarda</label>
+                            <input id="comp-control" required type="text" placeholder="Ej: Canal de denuncias externo, Auditoría anual" class="w-full bg-surface-bright border border-outline-variant rounded p-xs font-body-sm text-body-sm focus:outline-none focus:border-secondary"/>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Eficacia Control</label>
+                            <select id="comp-efficacy" required onchange="calculateResidual()" class="w-full bg-surface-bright border border-outline-variant rounded p-xs font-body-sm text-body-sm focus:outline-none focus:border-secondary cursor-pointer">
+                                <option value="0.2">20% (Baja)</option>
+                                <option value="0.5">50% (Media)</option>
+                                <option value="0.8">80% (Alta)</option>
+                                <option value="0.95">95% (Crítica)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-xs">
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Riesgo Residual Calculado</label>
+                            <input id="comp-level-res" readonly type="text" value="0.8" class="w-full bg-surface border border-outline-variant rounded p-xs font-bold font-code-sm text-center text-on-surface"/>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1">Clasificación Residual</label>
+                            <input id="comp-class-res" readonly type="text" value="Bajo" class="w-full bg-surface border border-outline-variant rounded p-xs font-bold font-code-sm text-center text-on-surface"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors shadow-sm">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const seedCompliance = [
+            { id: "R-CMP-001", delict: "Corrupción / Soborno", desc: "Pago indebido a intermediarios en compras internacionales", processId: "PRO-01", probInh: 3, impInh: 4, levelInh: 12, control: "Auditoría de compras y doble firma directiva", efficacy: 0.8, levelRes: 2.4, classRes: "Bajo" },
+            { id: "R-CMP-002", delict: "Revelación de Secretos / Datos", desc: "Acceso no autorizado a bases de datos de clientes", processId: "SOP-02", probInh: 3, impInh: 3, levelInh: 9, control: "Encriptación de datos y registros logs SOC", efficacy: 0.5, levelRes: 4.5, classRes: "Medio" },
+            { id: "R-CMP-003", delict: "Estafa / Fraude", desc: "Manipulación de facturas de proveedores ficticios", processId: "PRO-01", probInh: 2, impInh: 4, levelInh: 8, control: "Verificación automatizada de IBANes", efficacy: 0.95, levelRes: 0.4, classRes: "Bajo" }
+        ];
+
+        let complianceList = [];
+
+        function initData() {
+            const stored = localStorage.getItem('sig_riesgos_compliance');
+            if (stored) {
+                complianceList = JSON.parse(stored);
+            } else {
+                complianceList = [...seedCompliance];
+                localStorage.setItem('sig_riesgos_compliance', JSON.stringify(complianceList));
+            }
+
+            populateSelects();
+            renderCompliance();
+        }
+
+        function populateSelects() {
+            const procSelect = document.getElementById('comp-process');
+            procSelect.innerHTML = '<option value="">-- Seleccione Proceso --</option>';
+
+            const storedProcs = localStorage.getItem('sig_procesos');
+            if (storedProcs) {
+                const procs = JSON.parse(storedProcs);
+                procs.forEach(p => {
+                    procSelect.innerHTML += `<option value="${p.id}">${p.id} - ${p.name}</option>`;
+                });
+            } else {
+                procSelect.innerHTML += '<option value="PRO-01">PRO-01 - Producción y Ensamble</option>';
+                procSelect.innerHTML += '<option value="SOP-02">SOP-02 - Mantenimiento IT</option>';
+            }
+        }
+
+        function renderCompliance() {
+            const tbody = document.getElementById('compliance-tbody');
+            const search = document.getElementById('search-input').value.toLowerCase().trim();
+            const levelFilter = document.getElementById('filter-level').value;
+
+            const filtered = complianceList.filter(r => {
+                const matchesSearch = r.delict.toLowerCase().includes(search) || r.desc.toLowerCase().includes(search) || r.control.toLowerCase().includes(search);
+                const matchesLevel = levelFilter === "" || r.classRes === levelFilter;
+                return matchesSearch && matchesLevel;
+            });
+
+            // KPIs
+            const total = complianceList.length;
+            const inhHigh = complianceList.filter(r => r.levelInh >= 10).length;
+            const resHigh = complianceList.filter(r => r.levelRes >= 8).length;
+            
+            let totalEfficacy = 0;
+            complianceList.forEach(r => totalEfficacy += parseFloat(r.efficacy || 0));
+            const avgEfficacy = total > 0 ? Math.round((totalEfficacy / total) * 100) : 0;
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-inh-high').innerText = inhHigh;
+            document.getElementById('kpi-res-high').innerText = resHigh;
+            document.getElementById('kpi-efficacy').innerText = `${avgEfficacy}%`;
+
+            // Render table
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-md text-center text-on-surface-variant">
+                            No se encontraron riesgos penales bajo los criterios de búsqueda.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach(r => {
+                let badgeInh = "";
+                if (r.levelInh >= 12) badgeInh = "bg-red-100 text-red-800 border-red-200";
+                else if (r.levelInh >= 6) badgeInh = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                else badgeInh = "bg-green-100 text-green-800 border-green-200";
+
+                let badgeRes = "";
+                if (r.classRes === "Alto") badgeRes = "bg-red-100 text-red-800 border-red-200";
+                else if (r.classRes === "Medio") badgeRes = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                else badgeRes = "bg-green-100 text-green-800 border-green-200";
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                        <td class="p-md font-code-sm text-code-sm font-bold">${r.id}</td>
+                        <td class="p-md font-semibold text-xs">${r.delict}</td>
+                        <td class="p-md">
+                            <p class="font-body-sm text-body-sm">${r.desc}</p>
+                            <p class="text-[10px] text-on-surface-variant font-code-sm mt-1">Proceso: ${r.processId}</p>
+                        </td>
+                        <td class="p-md text-center">
+                            <span class="inline-block px-1.5 py-0.5 text-xs font-bold border rounded ${badgeInh}">
+                                ${r.levelInh}
+                            </span>
+                        </td>
+                        <td class="p-md font-semibold text-xs">${r.control}</td>
+                        <td class="p-md text-center font-code-sm font-bold text-xs">${Math.round(r.efficacy * 100)}%</td>
+                        <td class="p-md text-center">
+                            <span class="inline-block px-2 py-0.5 text-xs font-bold border rounded ${badgeRes}">
+                                ${r.levelRes.toFixed(1)} (${r.classRes})
+                            </span>
+                        </td>
+                        <td class="p-md text-center">
+                            <div class="flex justify-center gap-1">
+                                <button onclick="editCompliance('${r.id}')" class="text-on-surface-variant hover:text-primary transition-colors" title="Editar">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>
+                                <button onclick="deleteCompliance('${r.id}')" class="text-error hover:text-red-700 transition-colors" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function calculateResidual() {
+            const probInh = parseInt(document.getElementById('comp-prob-inh').value);
+            const impInh = parseInt(document.getElementById('comp-imp-inh').value);
+            const levelInh = probInh * impInh;
+            document.getElementById('comp-level-inh').value = levelInh;
+
+            const efficacy = parseFloat(document.getElementById('comp-efficacy').value);
+            const levelRes = levelInh * (1 - efficacy);
+            document.getElementById('comp-level-res').value = levelRes.toFixed(2);
+
+            let classRes = "Bajo";
+            if (levelRes >= 8) classRes = "Alto";
+            else if (levelRes >= 4) classRes = "Medio";
+            
+            document.getElementById('comp-class-res').value = classRes;
+        }
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Evaluar Delito Compliance";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-compliance').reset();
+            calculateResidual();
+            document.getElementById('modal-compliance').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-compliance').classList.add('hidden');
+        }
+
+        function editCompliance(id) {
+            const r = complianceList.find(item => item.id === id);
+            if (r) {
+                document.getElementById('modal-title').innerText = `Editar Evaluación (${r.id})`;
+                document.getElementById('edit-id').value = r.id;
+                document.getElementById('comp-delict').value = r.delict;
+                document.getElementById('comp-process').value = r.processId;
+                document.getElementById('comp-desc').value = r.desc;
+                document.getElementById('comp-prob-inh').value = r.probInh;
+                document.getElementById('comp-imp-inh').value = r.impInh;
+                document.getElementById('comp-control').value = r.control;
+                document.getElementById('comp-efficacy').value = r.efficacy;
+
+                calculateResidual();
+                document.getElementById('modal-compliance').classList.remove('hidden');
+            }
+        }
+
+        function deleteCompliance(id) {
+            if (confirm(`¿Está seguro de que desea eliminar la evaluación de compliance ${id}?`)) {
+                complianceList = complianceList.filter(item => item.id !== id);
+                localStorage.setItem('sig_riesgos_compliance', JSON.stringify(complianceList));
+                renderCompliance();
+            }
+        }
+
+        function saveCompliance(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('edit-id').value;
+            const delict = document.getElementById('comp-delict').value;
+            const processId = document.getElementById('comp-process').value;
+            const desc = document.getElementById('comp-desc').value.trim();
+            const probInh = parseInt(document.getElementById('comp-prob-inh').value);
+            const impInh = parseInt(document.getElementById('comp-imp-inh').value);
+            const levelInh = probInh * impInh;
+            const control = document.getElementById('comp-control').value.trim();
+            const efficacy = parseFloat(document.getElementById('comp-efficacy').value);
+            
+            const levelRes = levelInh * (1 - efficacy);
+            let classRes = "Bajo";
+            if (levelRes >= 8) classRes = "Alto";
+            else if (levelRes >= 4) classRes = "Medio";
+
+            if (editId) {
+                const idx = complianceList.findIndex(item => item.id === editId);
+                if (idx !== -1) {
+                    complianceList[idx] = {
+                        ...complianceList[idx],
+                        delict,
+                        processId,
+                        desc,
+                        probInh,
+                        impInh,
+                        levelInh,
+                        control,
+                        efficacy,
+                        levelRes,
+                        classRes
+                    };
+                }
+            } else {
+                let maxSeq = 3;
+                complianceList.forEach(item => {
+                    const parts = item.id.split('-');
+                    if (parts.length === 3) {
+                        const seq = parseInt(parts[2]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `R-CMP-${nextSeq}`;
+
+                complianceList.push({
+                    id: newId,
+                    delict,
+                    desc,
+                    processId,
+                    probInh,
+                    impInh,
+                    levelInh,
+                    control,
+                    efficacy,
+                    levelRes,
+                    classRes
+                });
+            }
+
+            localStorage.setItem('sig_riesgos_compliance', JSON.stringify(complianceList));
+            renderCompliance();
+            closeModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initData();
+        });
+    </script>
+</body>
+</html>

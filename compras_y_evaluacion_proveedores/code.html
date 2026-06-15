@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Compras y Evaluación de Proveedores - SIG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#003366",       // Azul Marino Profundo
+                        "secondary": "#0060ac",     // Azul Interactivo
+                        "background": "#f8f9fb",    // Gris de fondo
+                        "surface": "#ffffff",       // Blanco
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "success": "#137333",       // Verde Éxito
+                        "warning": "#b06000",       // Ámbar Alerta
+                        "danger": "#c5221f"         // Rojo Peligro
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Ocultar barra de desplazamiento manteniendo funcionalidad */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Sistema de Gestión Integrado</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                <span>Gestión de Compras y Control de Proveedores</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 overflow-y-auto p-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Fila de Cabecera del Módulo -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Compras y Evaluación de Proveedores</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Homologación de proveedores externos, compras activas y controles de calidad de suministros (ISO 9001:2015 §8.4).</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openModal('modal-pedido')" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">receipt_long</span>
+                    Nuevo Pedido
+                </button>
+                <button onclick="openModal('modal-proveedor')" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">person_add</span>
+                    Añadir Proveedor
+                </button>
+            </div>
+        </div>
+
+        <!-- Bento KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Calificación Media</span>
+                    <span class="material-symbols-outlined text-secondary">star</span>
+                </div>
+                <div>
+                    <span id="kpi-calif" class="font-bold text-2xl text-on-surface">0.0 / 5</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Evaluación media de la cadena</p>
+                </div>
+            </div>
+            <!-- KPI 2 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Proveedores Homologados</span>
+                    <span class="material-symbols-outlined text-success">verified</span>
+                </div>
+                <div>
+                    <span id="kpi-homologados" class="font-bold text-2xl text-success">0 / 0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Aptos para suministrar</p>
+                </div>
+            </div>
+            <!-- KPI 3 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Pedidos en Curso</span>
+                    <span class="material-symbols-outlined text-warning">local_shipping</span>
+                </div>
+                <div>
+                    <span id="kpi-pedidos" class="font-bold text-2xl text-on-surface">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Pedidos activos en tránsito</p>
+                </div>
+            </div>
+            <!-- KPI 4 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Evaluaciones Pendientes</span>
+                    <span class="material-symbols-outlined text-danger">event_busy</span>
+                </div>
+                <div>
+                    <span id="kpi-pendientes" class="font-bold text-2xl text-danger">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Vencimiento superior a 12 meses</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas de Navegación del Módulo -->
+        <div class="border-b border-outline-variant">
+            <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+                <button id="btn-tab-proveedores" onclick="switchTab('proveedores')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">
+                    Catálogo de Proveedores
+                </button>
+                <button id="btn-tab-pedidos" onclick="switchTab('pedidos')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                    Pedidos y Compras
+                </button>
+                <button id="btn-tab-evaluaciones" onclick="switchTab('evaluaciones')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                    Historial de Evaluaciones
+                </button>
+            </nav>
+        </div>
+
+        <!-- SECCIÓN 1: CATÁLOGO DE PROVEEDORES -->
+        <section id="sec-proveedores" class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+                <!-- Buscador -->
+                <div class="relative w-full sm:w-80">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                    <input type="text" id="search-prov" oninput="render()" placeholder="Buscar proveedor..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                </div>
+                
+                <!-- Filtros -->
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <select id="filter-estado" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="">Todos los Estados</option>
+                        <option value="Homologado">Homologado</option>
+                        <option value="En Evaluación">En Evaluación</option>
+                        <option value="Suspendido">Suspendido</option>
+                        <option value="No Apto">No Apto</option>
+                    </select>
+                    
+                    <select id="filter-cat" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="">Todas las Categorías</option>
+                        <option value="Materias Primas">Materias Primas</option>
+                        <option value="Componentes / Equipamiento">Componentes / Equipamiento</option>
+                        <option value="Software y TI">Software y TI</option>
+                        <option value="Servicios Profesionales">Servicios Profesionales</option>
+                        <option value="Logística e Instalaciones">Logística e Instalaciones</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de Proveedores -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-16 text-center">ID</th>
+                                <th class="p-3">Empresa</th>
+                                <th class="p-3 w-32">NIF</th>
+                                <th class="p-3 w-48">Categoría</th>
+                                <th class="p-3 w-40 text-center">Estado Homologación</th>
+                                <th class="p-3 w-28 text-center">Última Nota</th>
+                                <th class="p-3 w-36 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-proveedores" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: REGISTRO DE PEDIDOS -->
+        <section id="sec-pedidos" class="space-y-4 hidden">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+                <div class="relative w-full sm:w-80">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                    <input type="text" id="search-pedido" oninput="render()" placeholder="Buscar pedido o proveedor..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                </div>
+                
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <select id="filter-pedido-estado" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="">Todos los Estados</option>
+                        <option value="En Tránsito">En Tránsito</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Retrasado">Retrasado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de Pedidos -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-24">Cód Pedido</th>
+                                <th class="p-3">Proveedor</th>
+                                <th class="p-3">Concepto/Detalle</th>
+                                <th class="p-3 w-32 text-center font-bold">Importe</th>
+                                <th class="p-3 w-32 text-center">Fecha Pedido</th>
+                                <th class="p-3 w-32 text-center">Estado de Entrega</th>
+                                <th class="p-3 w-28 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-pedidos" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: HISTORIAL DE EVALUACIONES -->
+        <section id="sec-evaluaciones" class="space-y-4 hidden">
+            <!-- Tabla de Evaluaciones -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-32">Fecha Eval.</th>
+                                <th class="p-3">Proveedor</th>
+                                <th class="p-3 w-24 text-center">Calidad (Sumin.)</th>
+                                <th class="p-3 w-24 text-center">Plazos</th>
+                                <th class="p-3 w-24 text-center">Soporte</th>
+                                <th class="p-3 w-24 text-center">Ambiental</th>
+                                <th class="p-3 w-24 text-center">Nota Final</th>
+                                <th class="p-3">Observaciones / Desviaciones</th>
+                                <th class="p-3 w-16 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-evaluaciones" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: PROVEEDOR (Crear / Editar) -->
+    <div id="modal-proveedor" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="prov-modal-title" class="font-bold text-base text-primary">Registrar Nuevo Proveedor</h3>
+                <button onclick="closeModal('modal-proveedor')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveProveedor(event)" class="space-y-4">
+                <input type="hidden" id="prov-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre Comercial de la Empresa</label>
+                        <input id="prov-name" required type="text" placeholder="Ej: Tech Services S.L." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">NIF / CIF</label>
+                        <input id="prov-nif" required type="text" placeholder="Ej: B12345678" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Categoría del Suministro</label>
+                        <select id="prov-cat" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Materias Primas">Materias Primas</option>
+                            <option value="Componentes / Equipamiento">Componentes / Equipamiento</option>
+                            <option value="Software y TI">Software y TI</option>
+                            <option value="Servicios Profesionales">Servicios Profesionales</option>
+                            <option value="Logística e Instalaciones">Logística e Instalaciones</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Persona de Contacto</label>
+                        <input id="prov-contact" type="text" placeholder="Ej: Ana Gómez" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Teléfono</label>
+                        <input id="prov-phone" type="tel" placeholder="Ej: +34 912 345 678" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Email de Contacto</label>
+                        <input id="prov-email" type="email" placeholder="Ej: proveedores@tech.com" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado Inicial de Homologación</label>
+                    <select id="prov-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="En Evaluación">En Evaluación (Pendiente de auditoría / entrega inicial)</option>
+                        <option value="Homologado">Homologado (Apto para emitir pedidos)</option>
+                        <option value="Suspendido">Suspendido (Por incidencias graves detectadas)</option>
+                        <option value="No Apto">No Apto (No cumple especificaciones mínimas)</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-proveedor')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Proveedor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: EVALUACIÓN ISO 9001 -->
+    <div id="modal-evaluacion" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Evaluación / Homologación de Proveedor</h3>
+                <button onclick="closeModal('modal-evaluacion')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveEvaluacion(event)" class="space-y-4">
+                <input type="hidden" id="eval-prov-id" value=""/>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Empresa Evaluada</label>
+                    <input id="eval-prov-name" type="text" readonly class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-bold text-primary cursor-not-allowed outline-none"/>
+                </div>
+
+                <!-- Criterios 1-5 estrellas -->
+                <div class="bg-surface-container-low/50 border border-outline-variant rounded-lg p-3 space-y-3">
+                    <span class="block text-xs font-bold text-primary mb-1">Criterios de Evaluación Obligatorios (1 = Muy Deficiente, 5 = Excelente)</span>
+                    
+                    <!-- Criterio 1 -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-on-surface-variant">1. Calidad del Suministro:</label>
+                        <select id="eval-calidad" onchange="calcAvgEval()" class="bg-surface border border-outline-variant rounded p-1 text-xs font-bold text-primary focus:outline-none cursor-pointer w-16 text-center">
+                            <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option>
+                        </select>
+                    </div>
+
+                    <!-- Criterio 2 -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-on-surface-variant">2. Cumplimiento de Plazos (Entregas):</label>
+                        <select id="eval-plazos" onchange="calcAvgEval()" class="bg-surface border border-outline-variant rounded p-1 text-xs font-bold text-primary focus:outline-none cursor-pointer w-16 text-center">
+                            <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option>
+                        </select>
+                    </div>
+
+                    <!-- Criterio 3 -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-on-surface-variant">3. Flexibilidad y Soporte Comercial:</label>
+                        <select id="eval-soporte" onchange="calcAvgEval()" class="bg-surface border border-outline-variant rounded p-1 text-xs font-bold text-primary focus:outline-none cursor-pointer w-16 text-center">
+                            <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option>
+                        </select>
+                    </div>
+
+                    <!-- Criterio 4 -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-on-surface-variant">4. Desempeño Ambiental / ESG:</label>
+                        <select id="eval-ambiental" onchange="calcAvgEval()" class="bg-surface border border-outline-variant rounded p-1 text-xs font-bold text-primary focus:outline-none cursor-pointer w-16 text-center">
+                            <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-surface border border-outline-variant rounded-lg p-3">
+                    <span class="text-xs font-bold text-primary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-secondary">star_half</span>
+                        PUNTUACIÓN MEDIA CALCULADA:
+                    </span>
+                    <input id="eval-avg" readonly type="text" value="5.0" class="w-16 bg-surface-container border border-outline-variant rounded py-1 text-center font-bold text-sm text-primary cursor-not-allowed outline-none"/>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Observaciones / Acciones Correctivas</label>
+                    <textarea id="eval-obs" rows="3" placeholder="Indicar detalles adicionales, no conformidades o desviaciones detectadas..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-evaluacion')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar Evaluación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: PEDIDO (Registrar) -->
+    <div id="modal-pedido" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Registrar Pedido de Compra</h3>
+                <button onclick="closeModal('modal-pedido')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="savePedido(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Proveedor Asignado</label>
+                    <select id="ped-prov-id" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <!-- Cargar dinámicamente -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Concepto / Detalle del Suministro</label>
+                    <input id="ped-concept" required type="text" placeholder="Ej: Adquisición de servidores de desarrollo, 500Kg materia prima" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Importe del Pedido (€)</label>
+                        <input id="ped-amount" required type="number" step="0.01" placeholder="Ej: 14500" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado de Entrega Inicial</label>
+                        <select id="ped-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="En Tránsito">En Tránsito (Emitido y enviado)</option>
+                            <option value="Entregado">Entregado (Validado por operaciones)</option>
+                            <option value="Retrasado">Retrasado (Incidencia en plazo)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-pedido')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar Pedido
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Gestión e Interactividad -->
+    <script>
+        // Datos de semilla para iniciar
+        const seedProveedores = [
+            { id: "PROV-001", name: "Global Logística y Distribución", nif: "B28987412", cat: "Logística e Instalaciones", contact: "Carlos Ramos", phone: "+34 600 112 233", email: "contacto@globallog.es", status: "Homologado", note: 4.8 },
+            { id: "PROV-002", name: "Servidores & Cloud Madrid", nif: "A82741963", cat: "Software y TI", contact: "Elena Torres", phone: "+34 915 556 677", email: "soporte@servcloud.com", status: "Homologado", note: 4.3 },
+            { id: "PROV-003", name: "Químicas del Norte S.A.", nif: "A48159357", cat: "Materias Primas", contact: "Pedro Sánchez", phone: "+34 944 100 200", email: "ventas@quimicnorte.com", status: "En Evaluación", note: 3.5 },
+            { id: "PROV-004", name: "Papelera y Suministros Centro", nif: "B86951347", cat: "Componentes / Equipamiento", contact: "Marta Gil", phone: "+34 918 412 110", email: "ventas@papelcenter.es", status: "Suspendido", note: 2.3 }
+        ];
+
+        const seedPedidos = [
+            { id: "PED-2026-001", provId: "PROV-002", provName: "Servidores & Cloud Madrid", concept: "Renovación Hosting e Infraestructura Virtual", amount: 4890.00, date: "2026-06-01", status: "Entregado" },
+            { id: "PED-2026-002", provId: "PROV-003", provName: "Químicas del Norte S.A.", concept: "Lote de aditivos de purificación", amount: 15400.00, date: "2026-06-08", status: "En Tránsito" },
+            { id: "PED-2026-003", provId: "PROV-004", provName: "Papelera y Suministros Centro", concept: "Suministro mobiliario y papelería corporativa", amount: 1200.00, date: "2026-05-15", status: "Retrasado" }
+        ];
+
+        const seedEvaluaciones = [
+            { date: "2026-05-20", provName: "Global Logística y Distribución", calidad: 5, plazos: 5, soporte: 4, ambiental: 5, avg: 4.8, obs: "Excelente servicio de logística. Cuentan con certificación ISO 14001 activa." },
+            { date: "2026-06-02", provName: "Servidores & Cloud Madrid", calidad: 4, plazos: 4, soporte: 5, ambiental: 4, avg: 4.3, obs: "Soporte técnico ágil durante la migración." },
+            { date: "2026-05-18", provName: "Papelera y Suministros Centro", calidad: 2, plazos: 2, soporte: 3, ambiental: 2, avg: 2.3, obs: "Múltiples retrasos en la entrega y calidad de embalaje deficiente." }
+        ];
+
+        let proveedores = [];
+        let pedidos = [];
+        let evaluaciones = [];
+        let currentTab = 'proveedores';
+
+        // Inicializar datos cargando de localStorage o semilla
+        function init() {
+            const data = localStorage.getItem('sig_compras_proveedores_data');
+            if (data) {
+                const parsed = JSON.parse(data);
+                proveedores = parsed.proveedores || [];
+                pedidos = parsed.pedidos || [];
+                evaluaciones = parsed.evaluaciones || [];
+            } else {
+                proveedores = [...seedProveedores];
+                pedidos = [...seedPedidos];
+                evaluaciones = [...seedEvaluaciones];
+                saveToLocalStorage();
+            }
+            render();
+        }
+
+        // Guardar estado en LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_compras_proveedores_data', JSON.stringify({
+                proveedores,
+                pedidos,
+                evaluaciones
+            }));
+        }
+
+        // Cambiar pestaña activa
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Ocultar todas las secciones
+            document.getElementById('sec-proveedores').classList.add('hidden');
+            document.getElementById('sec-pedidos').classList.add('hidden');
+            document.getElementById('sec-evaluaciones').classList.add('hidden');
+            
+            // Desmarcar todas las pestañas
+            document.getElementById('btn-tab-proveedores').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+            document.getElementById('btn-tab-pedidos').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+            document.getElementById('btn-tab-evaluaciones').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+
+            // Mostrar activa
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-tab-${tab}`).className = "border-b-2 border-secondary text-secondary py-2 px-1 transition-all";
+        }
+
+        // Calcular y mostrar KPIs
+        function renderKPIs() {
+            const totalProvs = proveedores.length;
+            const homologados = proveedores.filter(p => p.status === 'Homologado').length;
+            const activos = pedidos.filter(p => p.status === 'En Tránsito' || p.status === 'Retrasado').length;
+            
+            // Calificación Media
+            let sumNotes = 0;
+            let countNotes = 0;
+            proveedores.forEach(p => {
+                if (p.note) {
+                    sumNotes += parseFloat(p.note);
+                    countNotes++;
+                }
+            });
+            const avg = countNotes > 0 ? (sumNotes / countNotes).toFixed(1) : "0.0";
+            
+            // Evaluaciones Pendientes (Simulamos que los proveedores En Evaluación o los que no tienen notas son pendientes)
+            const pendientes = proveedores.filter(p => p.status === 'En Evaluación' || !p.note).length;
+
+            document.getElementById('kpi-calif').innerText = `${avg} / 5`;
+            document.getElementById('kpi-homologados').innerText = `${homologados} / ${totalProvs}`;
+            document.getElementById('kpi-pedidos').innerText = activos;
+            document.getElementById('kpi-pendientes').innerText = pendientes;
+        }
+
+        // Renderizar vistas según pestaña actual
+        function render() {
+            renderKPIs();
+            
+            if (currentTab === 'proveedores') {
+                const tbody = document.getElementById('tbody-proveedores');
+                const query = document.getElementById('search-prov').value.toLowerCase().trim();
+                const statusFilter = document.getElementById('filter-estado').value;
+                const catFilter = document.getElementById('filter-cat').value;
+                
+                const filtered = proveedores.filter(p => {
+                    const matchesQuery = p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query) || p.nif.toLowerCase().includes(query);
+                    const matchesStatus = statusFilter === "" || p.status === statusFilter;
+                    const matchesCat = catFilter === "" || p.cat === catFilter;
+                    return matchesQuery && matchesStatus && matchesCat;
+                });
+                
+                tbody.innerHTML = "";
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron proveedores.</td></tr>`;
+                    return;
+                }
+                
+                filtered.forEach(p => {
+                    let badgeClass = "";
+                    if (p.status === "Homologado") badgeClass = "bg-green-100 text-green-800 border-green-200 font-bold";
+                    else if (p.status === "En Evaluación") badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
+                    else if (p.status === "Suspendido") badgeClass = "bg-amber-100 text-amber-800 border-amber-200 font-bold";
+                    else badgeClass = "bg-red-100 text-red-800 border-red-200";
+
+                    let noteText = p.note ? `${p.note.toFixed(1)} ⭐` : "Sin Evaluar";
+                    
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 text-center font-semibold text-on-surface-variant">${p.id}</td>
+                            <td class="p-3 font-bold text-primary">
+                                <div>${p.name}</div>
+                                <div class="text-[10px] text-on-surface-variant font-normal">Contacto: ${p.contact || 'N/A'} - Tel: ${p.phone || 'N/A'}</div>
+                            </td>
+                            <td class="p-3 font-mono text-[11px]">${p.nif}</td>
+                            <td class="p-3 text-on-surface-variant font-medium">${p.cat}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+                                    ${p.status}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center font-semibold text-primary">${noteText}</td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick="openEvalModal('${p.id}')" class="text-secondary hover:text-primary transition-colors flex items-center justify-center p-1" title="Realizar Evaluación ISO 9001">
+                                        <span class="material-symbols-outlined text-[18px]">verified_user</span>
+                                    </button>
+                                    <button onclick="editProveedor('${p.id}')" class="text-on-surface-variant hover:text-secondary transition-colors flex items-center justify-center p-1" title="Editar datos">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </button>
+                                    <button onclick="deleteProveedor('${p.id}')" class="text-danger hover:text-red-700 transition-colors flex items-center justify-center p-1" title="Eliminar">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+            } else if (currentTab === 'pedidos') {
+                const tbody = document.getElementById('tbody-pedidos');
+                const query = document.getElementById('search-pedido').value.toLowerCase().trim();
+                const statusFilter = document.getElementById('filter-pedido-estado').value;
+                
+                const filtered = pedidos.filter(p => {
+                    const matchesQuery = p.provName.toLowerCase().includes(query) || p.concept.toLowerCase().includes(query) || p.id.toLowerCase().includes(query);
+                    const matchesStatus = statusFilter === "" || p.status === statusFilter;
+                    return matchesQuery && matchesStatus;
+                });
+                
+                tbody.innerHTML = "";
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron compras/pedidos.</td></tr>`;
+                    return;
+                }
+                
+                filtered.forEach(p => {
+                    let badgeClass = "";
+                    if (p.status === "Entregado") badgeClass = "bg-green-100 text-green-800 border-green-200 font-bold";
+                    else if (p.status === "En Tránsito") badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
+                    else if (p.status === "Retrasado") badgeClass = "bg-amber-100 text-amber-800 border-amber-200 font-bold";
+                    else badgeClass = "bg-red-100 text-red-800 border-red-200";
+
+                    let actionBtn = p.status !== "Entregado" ? 
+                        `<button onclick="entregarPedido('${p.id}')" class="bg-success text-white hover:bg-green-800 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors" title="Confirmar recepción">Entregado</button>` : 
+                        `<span class="text-[10px] text-success font-semibold flex items-center justify-center gap-0.5"><span class="material-symbols-outlined text-xs">done_all</span>Recibido</span>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 font-mono font-bold text-on-surface-variant">${p.id}</td>
+                            <td class="p-3 font-bold text-primary">${p.provName}</td>
+                            <td class="p-3 text-on-surface-variant font-medium">${p.concept}</td>
+                            <td class="p-3 text-center font-bold text-primary">${parseFloat(p.amount).toLocaleString('es-ES', { minimumFractionDigits: 2 })} €</td>
+                            <td class="p-3 text-center text-on-surface-variant">${p.date}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+                                    ${p.status}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                ${actionBtn}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+            } else if (currentTab === 'evaluaciones') {
+                const tbody = document.getElementById('tbody-evaluaciones');
+                tbody.innerHTML = "";
+                
+                if (evaluaciones.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-on-surface-variant font-medium">No se han realizado evaluaciones todavía.</td></tr>`;
+                    return;
+                }
+                
+                // Ordenar por fecha descendente
+                const sorted = [...evaluaciones].sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                sorted.forEach((e, idx) => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 font-semibold text-on-surface-variant text-center">${e.date}</td>
+                            <td class="p-3 font-bold text-primary">${e.provName}</td>
+                            <td class="p-3 text-center font-semibold">${e.calidad} / 5</td>
+                            <td class="p-3 text-center font-semibold">${e.plazos} / 5</td>
+                            <td class="p-3 text-center font-semibold">${e.soporte} / 5</td>
+                            <td class="p-3 text-center font-semibold">${e.ambiental} / 5</td>
+                            <td class="p-3 text-center font-bold text-secondary text-sm bg-surface-container-low/30">${e.avg.toFixed(1)}</td>
+                            <td class="p-3 text-on-surface-variant max-w-xs truncate" title="${e.obs || ''}">${e.obs || '<em>Sin observaciones</em>'}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="deleteEvaluacion(${idx})" class="text-danger hover:text-red-700 transition-colors p-1" title="Eliminar evaluación">
+                                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Modales
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'modal-pedido') {
+                // Rellenar select de proveedores
+                const select = document.getElementById('ped-prov-id');
+                select.innerHTML = "";
+                proveedores.filter(p => p.status === 'Homologado').forEach(p => {
+                    select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+                if (select.children.length === 0) {
+                    select.innerHTML = `<option value="">-- No hay proveedores homologados --</option>`;
+                }
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Guardar/Registrar Proveedor
+        function saveProveedor(e) {
+            e.preventDefault();
+            const id = document.getElementById('prov-id').value;
+            const name = document.getElementById('prov-name').value.trim();
+            const nif = document.getElementById('prov-nif').value.trim();
+            const cat = document.getElementById('prov-cat').value;
+            const contact = document.getElementById('prov-contact').value.trim();
+            const phone = document.getElementById('prov-phone').value.trim();
+            const email = document.getElementById('prov-email').value.trim();
+            const status = document.getElementById('prov-status').value;
+
+            if (id) {
+                // Editar
+                const idx = proveedores.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    proveedores[idx] = { ...proveedores[idx], name, nif, cat, contact, phone, email, status };
+                }
+            } else {
+                // Generar ID
+                let maxSeq = 4;
+                proveedores.forEach(p => {
+                    const parts = p.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `PROV-${nextSeq}`;
+                proveedores.push({ id: newId, name, nif, cat, contact, phone, email, status, note: 0 });
+            }
+
+            saveToLocalStorage();
+            closeModal('modal-proveedor');
+            render();
+            document.getElementById('prov-id').value = "";
+            e.target.reset();
+        }
+
+        function editProveedor(id) {
+            const p = proveedores.find(item => item.id === id);
+            if (p) {
+                document.getElementById('prov-modal-title').innerText = `Editar Proveedor (${p.id})`;
+                document.getElementById('prov-id').value = p.id;
+                document.getElementById('prov-name').value = p.name;
+                document.getElementById('prov-nif').value = p.nif;
+                document.getElementById('prov-cat').value = p.cat;
+                document.getElementById('prov-contact').value = p.contact || '';
+                document.getElementById('prov-phone').value = p.phone || '';
+                document.getElementById('prov-email').value = p.email || '';
+                document.getElementById('prov-status').value = p.status;
+                openModal('modal-proveedor');
+            }
+        }
+
+        function deleteProveedor(id) {
+            if (confirm(`¿Está seguro de que desea eliminar el proveedor ${id}? Se eliminarán también sus pedidos y evaluaciones vinculadas.`)) {
+                const p = proveedores.find(item => item.id === id);
+                proveedores = proveedores.filter(item => item.id !== id);
+                pedidos = pedidos.filter(ped => ped.provId !== id);
+                if (p) {
+                    evaluaciones = evaluaciones.filter(e => e.provName !== p.name);
+                }
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        // Evaluar Proveedor
+        function openEvalModal(id) {
+            const p = proveedores.find(item => item.id === id);
+            if (p) {
+                document.getElementById('eval-prov-id').value = p.id;
+                document.getElementById('eval-prov-name').value = p.name;
+                document.getElementById('eval-obs').value = "";
+                document.getElementById('eval-calidad').value = "5";
+                document.getElementById('eval-plazos').value = "5";
+                document.getElementById('eval-soporte').value = "5";
+                document.getElementById('eval-ambiental').value = "5";
+                calcAvgEval();
+                openModal('modal-evaluacion');
+            }
+        }
+
+        function calcAvgEval() {
+            const c = parseInt(document.getElementById('eval-calidad').value);
+            const p = parseInt(document.getElementById('eval-plazos').value);
+            const s = parseInt(document.getElementById('eval-soporte').value);
+            const a = parseInt(document.getElementById('eval-ambiental').value);
+            const avg = (c + p + s + a) / 4;
+            document.getElementById('eval-avg').value = avg.toFixed(2);
+        }
+
+        function saveEvaluacion(e) {
+            e.preventDefault();
+            const id = document.getElementById('eval-prov-id').value;
+            const name = document.getElementById('eval-prov-name').value;
+            const c = parseInt(document.getElementById('eval-calidad').value);
+            const p = parseInt(document.getElementById('eval-plazos').value);
+            const s = parseInt(document.getElementById('eval-soporte').value);
+            const a = parseInt(document.getElementById('eval-ambiental').value);
+            const avg = parseFloat(document.getElementById('eval-avg').value);
+            const obs = document.getElementById('eval-obs').value.trim();
+            const today = new Date().toISOString().split('T')[0];
+
+            // Registrar en historial
+            evaluaciones.push({
+                date: today,
+                provName: name,
+                calidad: c,
+                plazos: p,
+                soporte: s,
+                ambiental: a,
+                avg: avg,
+                obs: obs
+            });
+
+            // Actualizar nota media del proveedor y su estado según reglas ISO 9001
+            const idx = proveedores.findIndex(item => item.id === id);
+            if (idx !== -1) {
+                proveedores[idx].note = avg;
+                // Homologación según calificación
+                if (avg >= 3.5) {
+                    proveedores[idx].status = "Homologado";
+                } else if (avg >= 2.5) {
+                    proveedores[idx].status = "En Evaluación";
+                } else {
+                    proveedores[idx].status = "Suspendido";
+                }
+            }
+
+            saveToLocalStorage();
+            closeModal('modal-evaluacion');
+            render();
+        }
+
+        function deleteEvaluacion(idx) {
+            if (confirm("¿Seguro que desea eliminar esta evaluación del historial?")) {
+                const sorted = [...evaluaciones].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const target = sorted[idx];
+                // Eliminar del array real
+                evaluaciones = evaluaciones.filter(item => item !== target);
+                
+                // Recalcular nota media del proveedor
+                proveedores.forEach(p => {
+                    const provEvals = evaluaciones.filter(ev => ev.provName === p.name);
+                    if (provEvals.length > 0) {
+                        let sum = 0;
+                        provEvals.forEach(ev => sum += ev.avg);
+                        p.note = sum / provEvals.length;
+                    } else {
+                        p.note = 0;
+                    }
+                });
+
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        // Registrar Pedidos
+        function savePedido(e) {
+            e.preventDefault();
+            const provId = document.getElementById('ped-prov-id').value;
+            const concept = document.getElementById('ped-concept').value.trim();
+            const amount = parseFloat(document.getElementById('ped-amount').value);
+            const status = document.getElementById('ped-status').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (!provId) {
+                alert("Debe seleccionar un proveedor homologado activo.");
+                return;
+            }
+
+            const p = proveedores.find(item => item.id === provId);
+            
+            // Generar ID Pedido
+            let maxSeq = 3;
+            pedidos.forEach(item => {
+                const parts = item.id.split('-');
+                if (parts.length === 3) {
+                    const seq = parseInt(parts[2]);
+                    if (seq > maxSeq) maxSeq = seq;
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const newId = `PED-2026-${nextSeq}`;
+
+            pedidos.push({
+                id: newId,
+                provId: provId,
+                provName: p.name,
+                concept: concept,
+                amount: amount,
+                date: today,
+                status: status
+            });
+
+            saveToLocalStorage();
+            closeModal('modal-pedido');
+            render();
+            e.target.reset();
+        }
+
+        function entregarPedido(id) {
+            const idx = pedidos.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                pedidos[idx].status = "Entregado";
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        // Iniciar al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

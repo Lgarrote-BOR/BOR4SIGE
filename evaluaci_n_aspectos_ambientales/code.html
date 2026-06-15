@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Aspectos Ambientales - SIG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137333",       // Verde Ecológico / Primario Ambiental
+                        "secondary": "#0f9d58",     // Verde Secundario
+                        "background": "#f8f9fb",    // Gris de fondo
+                        "surface": "#ffffff",       // Blanco
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "success": "#137333",       // Verde Éxito
+                        "warning": "#b06000",       // Ámbar Alerta
+                        "danger": "#c5221f"         // Rojo Peligro
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Gestión Ambiental ISO 14001</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-primary rounded-full px-3 py-1 bg-surface-container-low text-primary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">nature</span>
+                <span>Evaluación de Aspectos e Impactos Ambientales</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Cabecera del Módulo -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Aspectos Ambientales</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Identificación y evaluación de aspectos ambientales derivados de las actividades de la organización (ISO 14001 §6.1.2).</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="resetToSeed()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">restore</span>
+                    Valores Iniciales
+                </button>
+                <button onclick="openModal()" class="flex items-center gap-1.5 px-4 py-2 bg-primary text-white hover:bg-green-800 text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">add_circle</span>
+                    Evaluar Aspecto
+                </button>
+            </div>
+        </div>
+
+        <!-- Bento KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Aspectos Mapeados</span>
+                    <span class="material-symbols-outlined text-secondary">view_list</span>
+                </div>
+                <div>
+                    <span id="kpi-total" class="font-bold text-2xl text-on-surface">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Aspectos identificados en la matriz</p>
+                </div>
+            </div>
+            <!-- KPI 2 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Significativos</span>
+                    <span class="material-symbols-outlined text-danger">report</span>
+                </div>
+                <div>
+                    <span id="kpi-significativos" class="font-bold text-2xl text-danger">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Puntuación superior o igual a 12</p>
+                </div>
+            </div>
+            <!-- KPI 3 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Bajo Control</span>
+                    <span class="material-symbols-outlined text-success">verified_user</span>
+                </div>
+                <div>
+                    <span id="kpi-controlados" class="font-bold text-2xl text-success">0%</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Aspectos con control operacional activo</p>
+                </div>
+            </div>
+            <!-- KPI 4 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Umbral Significancia</span>
+                    <span class="material-symbols-outlined text-primary">priority_high</span>
+                </div>
+                <div>
+                    <span class="font-bold text-2xl text-primary">&ge; 12</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Frecuencia &times; Severidad &times; Magnitud</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="search-input" oninput="render()" placeholder="Buscar aspecto, proceso o impacto..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+            </div>
+            
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <select id="filter-significativo" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+                    <option value="">Cualquier Significancia</option>
+                    <option value="Sí">Significativo</option>
+                    <option value="No">No Significativo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla de Aspectos Ambientales -->
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3 w-16 text-center">ID</th>
+                            <th class="p-3 w-40">Proceso</th>
+                            <th class="p-3 w-48">Aspecto Ambiental</th>
+                            <th class="p-3 w-48">Impacto Ambiental</th>
+                            <th class="p-3 w-36 text-center">Criterios (F&times;S&times;M)</th>
+                            <th class="p-3 w-28 text-center">Valoración</th>
+                            <th class="p-3 w-32 text-center">Significativo</th>
+                            <th class="p-3">Control Operacional Existente</th>
+                            <th class="p-3 w-24 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-aspectos" class="text-xs text-on-surface divide-y divide-outline-variant">
+                        <!-- Dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL REGISTRAR ASPECTO -->
+    <div id="modal-aspect" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-title" class="font-bold text-base text-primary">Identificar / Evaluar Aspecto Ambiental</h3>
+                <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveAspect(event)" class="space-y-4">
+                <input type="hidden" id="asp-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Proceso Originario</label>
+                        <select id="asp-proceso" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+                            <option value="Producción / Mecanizado">Producción / Mecanizado</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Logística y Almacén">Logística y Almacén</option>
+                            <option value="Administración / Oficinas">Administración / Oficinas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Aspecto Ambiental</label>
+                        <input id="asp-aspect" required type="text" placeholder="Ej: Consumo de agua, Vertido accidental..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Impacto Ambiental Asociado</label>
+                    <input id="asp-impact" required type="text" placeholder="Ej: Agotamiento de recursos hídricos, Contaminación del suelo..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                </div>
+
+                <!-- Criterios (Frecuencia, Severidad, Magnitud) -->
+                <div class="bg-surface-container-low/50 border border-outline-variant rounded-lg p-3 space-y-3">
+                    <span class="block text-xs font-bold text-primary mb-1">Valoración de Criterios (1 = Muy Bajo, 5 = Muy Alto)</span>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-center font-bold">
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Frecuencia</label>
+                            <select id="asp-freq" onchange="calcSignificance()" class="w-full bg-surface border border-outline-variant rounded p-1 text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer text-center">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Severidad</label>
+                            <select id="asp-sev" onchange="calcSignificance()" class="w-full bg-surface border border-outline-variant rounded p-1 text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer text-center">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-on-surface-variant font-normal mb-1">Magnitud</label>
+                            <select id="asp-mag" onchange="calcSignificance()" class="w-full bg-surface border border-outline-variant rounded p-1 text-xs font-body-sm text-body-sm focus:outline-none cursor-pointer text-center">
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 flex justify-between items-center text-xs font-bold text-primary pt-2 border-t border-outline-variant">
+                        <span>PUNTUACIÓN OBTENIDA:</span>
+                        <input id="asp-score" readonly type="text" value="1" class="w-16 bg-surface border border-outline-variant rounded py-0.5 text-center font-bold text-xs text-primary"/>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Medida de Control Operacional Existente</label>
+                    <textarea id="asp-control" required rows="2" placeholder="Ej: Cubetos de retención, Filtros de gases, Sensores de caudal..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-primary text-white hover:bg-green-800 text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Aspecto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Semilla de Aspectos Ambientales
+        const seedAspects = [
+            { id: "ASP-001", proceso: "Producción / Mecanizado", aspect: "Generación de residuos peligrosos (Lodos y taladrinas)", impact: "Contaminación de suelos y acuíferos en caso de vertido", freq: 3, sev: 3, mag: 2, score: 18, control: "Almacenamiento en depósitos estancos sobre cubetos de retención." },
+            { id: "ASP-002", proceso: "Mantenimiento", aspect: "Consumo de energía eléctrica", impact: "Agotamiento de recursos naturales no renovables", freq: 4, sev: 1, mag: 2, score: 8, control: "Instalación de luminarias LED de bajo consumo y sensores de presencia." },
+            { id: "Logística y Almacén", proceso: "Logística y Almacén", aspect: "Emisiones de gases de combustión (Carretillas elevadoras)", impact: "Contaminación atmosférica y efecto invernadero", freq: 2, sev: 3, mag: 2, score: 12, control: "Mantenimiento preventivo de motores y cambio progresivo a carretillas eléctricas." },
+            { id: "ASP-003", proceso: "Administración / Oficinas", aspect: "Consumo de papel y tóner", impact: "Deforestación y generación de residuos", freq: 3, sev: 1, mag: 1, score: 3, control: "Firma digital integrada para reducir el uso de papel impreso." }
+        ];
+
+        let aspects = [];
+
+        function init() {
+            const stored = localStorage.getItem('sig_ambient_aspects');
+            if (stored) {
+                aspects = JSON.parse(stored);
+            } else {
+                aspects = [...seedAspects];
+                saveToLocalStorage();
+            }
+            render();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_ambient_aspects', JSON.stringify(aspects));
+        }
+
+        function resetToSeed() {
+            if (confirm("¿Está seguro de que desea restablecer la matriz de aspectos ambientales a los valores por defecto?")) {
+                aspects = [...seedAspects];
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function calcSignificance() {
+            const f = parseInt(document.getElementById('asp-freq').value);
+            const s = parseInt(document.getElementById('asp-sev').value);
+            const m = parseInt(document.getElementById('asp-mag').value);
+            document.getElementById('asp-score').value = f * s * m;
+        }
+
+        function renderKPIs() {
+            const total = aspects.length;
+            const significativos = aspects.filter(a => a.score >= 12).length;
+            
+            // Aspectos con medidas de control operacional implementadas
+            const controlados = aspects.filter(a => a.control && a.control.trim() !== "").length;
+            const pct = total > 0 ? Math.round((controlados / total) * 100) : 0;
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-significativos').innerText = significativos;
+            document.getElementById('kpi-controlados').innerText = `${pct}%`;
+        }
+
+        function render() {
+            renderKPIs();
+            const tbody = document.getElementById('tbody-aspectos');
+            const search = document.getElementById('search-input').value.toLowerCase().trim();
+            const sigFilter = document.getElementById('filter-significativo').value;
+
+            const filtered = aspects.filter(a => {
+                const matchesSearch = a.proceso.toLowerCase().includes(search) || a.aspect.toLowerCase().includes(search) || a.impact.toLowerCase().includes(search);
+                const isSig = a.score >= 12 ? "Sí" : "No";
+                const matchesSig = sigFilter === "" || isSig === sigFilter;
+                return matchesSearch && matchesSig;
+            });
+
+            tbody.innerHTML = "";
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron aspectos ambientales en la matriz.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(a => {
+                const isSig = a.score >= 12;
+                const badgeClass = isSig ? "bg-red-100 text-red-800 border-red-200 font-bold" : "bg-green-100 text-green-800 border-green-200";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="p-3 text-center font-mono font-bold text-on-surface-variant">${a.id}</td>
+                        <td class="p-3 font-semibold text-primary text-xs">${a.proceso}</td>
+                        <td class="p-3 font-bold text-on-surface">${a.aspect}</td>
+                        <td class="p-3 text-on-surface-variant font-medium">${a.impact}</td>
+                        <td class="p-3 text-center font-mono font-bold">${a.freq} &times; ${a.sev} &times; ${a.mag}</td>
+                        <td class="p-3 text-center font-bold text-secondary text-sm">${a.score}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+                                ${isSig ? 'Significativo' : 'No Significativo'}
+                            </span>
+                        </td>
+                        <td class="p-3 text-on-surface-variant italic max-w-xs truncate" title="${a.control || ''}">${a.control || '--'}</td>
+                        <td class="p-3 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="editAspect('${a.id}')" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Editar">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>
+                                <button onclick="deleteAspect('${a.id}')" class="text-danger hover:text-red-700 p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Evaluar Aspecto Ambiental";
+            document.getElementById('asp-id').value = "";
+            document.getElementById('asp-aspect').value = "";
+            document.getElementById('asp-impact').value = "";
+            document.getElementById('asp-freq').value = "1";
+            document.getElementById('asp-sev').value = "1";
+            document.getElementById('asp-mag').value = "1";
+            document.getElementById('asp-control').value = "";
+            calcSignificance();
+            document.getElementById('modal-aspect').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-aspect').classList.add('hidden');
+        }
+
+        function saveAspect(e) {
+            e.preventDefault();
+            const id = document.getElementById('asp-id').value;
+            const proceso = document.getElementById('asp-proceso').value;
+            const aspect = document.getElementById('asp-aspect').value.trim();
+            const impact = document.getElementById('asp-impact').value.trim();
+            const freq = parseInt(document.getElementById('asp-freq').value);
+            const sev = parseInt(document.getElementById('asp-sev').value);
+            const mag = parseInt(document.getElementById('asp-mag').value);
+            const score = freq * sev * mag;
+            const control = document.getElementById('asp-control').value.trim();
+
+            if (id) {
+                const idx = aspects.findIndex(a => a.id === id);
+                if (idx !== -1) {
+                    aspects[idx] = { ...aspects[idx], proceso, aspect, impact, freq, sev, mag, score, control };
+                }
+            } else {
+                let maxSeq = 3;
+                aspects.forEach(a => {
+                    const parts = a.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `ASP-${nextSeq}`;
+                aspects.push({ id: newId, proceso, aspect, impact, freq, sev, mag, score, control });
+            }
+
+            saveToLocalStorage();
+            closeModal();
+            render();
+            e.target.reset();
+        }
+
+        function editAspect(id) {
+            const a = aspects.find(item => item.id === id);
+            if (a) {
+                document.getElementById('modal-title').innerText = `Editar Aspecto (${a.id})`;
+                document.getElementById('asp-id').value = a.id;
+                document.getElementById('asp-proceso').value = a.proceso;
+                document.getElementById('asp-aspect').value = a.aspect;
+                document.getElementById('asp-impact').value = a.impact;
+                document.getElementById('asp-freq').value = a.freq;
+                document.getElementById('asp-sev').value = a.sev;
+                document.getElementById('asp-mag').value = a.mag;
+                document.getElementById('asp-control').value = a.control || '';
+                calcSignificance();
+                document.getElementById('modal-aspect').classList.remove('hidden');
+            }
+        }
+
+        function deleteAspect(id) {
+            if (confirm(`¿Está seguro de que desea eliminar el aspecto ${id}?`)) {
+                aspects = aspects.filter(item => item.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

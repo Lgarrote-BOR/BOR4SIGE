@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Satisfacción del Cliente — SIG 2.0</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode:"class",
+            theme: { extend: { colors: {
+                "primary":"#003366","secondary":"#0060ac","background":"#f8f9fb","surface":"#ffffff",
+                "surface-container-low":"#f2f4f6","surface-container":"#eceef0","surface-container-high":"#e6e8ea",
+                "on-surface":"#191c1e","on-surface-variant":"#43474f","outline":"#737780","outline-variant":"#c3c6d1",
+                "success":"#137333","warning":"#b06000","danger":"#c5221f"
+            }, fontFamily:{sans:["Inter","sans-serif"]} } }
+        }
+    </script>
+    <style>
+        body{font-family:'Inter',sans-serif;background-color:#f8f9fb;}
+        .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+        .star-rating{display:flex;flex-direction:row-reverse;gap:4px;}
+        .star-rating input{display:none;}
+        .star-rating label{cursor:pointer;font-size:24px;color:#c3c6d1;transition:color 0.15s;}
+        .star-rating input:checked ~ label,.star-rating label:hover,.star-rating label:hover ~ label{color:#f59e0b;}
+        .no-scrollbar::-webkit-scrollbar{display:none;}
+        .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+        .fade-up{animation:fadeUp 0.22s ease-out;}
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Calidad ISO 9001</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">sentiment_satisfied</span>
+                <span>Satisfacción del Cliente — ISO 9001 §9.1.2</span>
+            </div>
+            <button class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">US</button>
+        </div>
+    </header>
+
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Satisfacción del Cliente</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Medición del grado de satisfacción percibida. Encuestas, reclamaciones y seguimiento de NPS y CSAT. Requisito fundamental <strong>ISO 9001 §9.1.2</strong>.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('nueva')" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">rate_review</span>
+                    Nueva Encuesta
+                </button>
+                <button onclick="switchTab('reclamacion')" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">report_problem</span>
+                    Registrar Reclamación
+                </button>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">NPS</span><span class="material-symbols-outlined text-secondary">trending_up</span></div>
+                <span id="kpi-nps" class="font-bold text-3xl text-primary">—</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Net Promoter Score</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">CSAT</span><span class="material-symbols-outlined text-success">sentiment_very_satisfied</span></div>
+                <span id="kpi-csat" class="font-bold text-3xl text-success">—</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Satisfacción media (1–5 ⭐)</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Encuestas</span><span class="material-symbols-outlined text-secondary">quiz</span></div>
+                <span id="kpi-surveys" class="font-bold text-3xl text-primary">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Respuestas registradas</p>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-sm transition-shadow">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Reclamaciones</span><span class="material-symbols-outlined text-danger">report_problem</span></div>
+                <span id="kpi-claims" class="font-bold text-3xl text-danger">0</span>
+                <p class="text-[11px] text-on-surface-variant mt-1">Registradas (abiertas/cerradas)</p>
+            </div>
+        </div>
+
+        <!-- Distribución NPS visual -->
+        <div class="bg-surface border border-outline-variant rounded-xl p-5">
+            <div class="flex items-center gap-2 mb-4 border-b border-outline-variant pb-3">
+                <span class="material-symbols-outlined text-secondary">bar_chart</span>
+                <h3 class="font-bold text-sm text-primary">Distribución NPS — Promotores / Pasivos / Detractores</h3>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-green-50 border border-green-200 rounded-xl">
+                    <span id="nps-promotores" class="font-bold text-2xl text-green-700">0</span>
+                    <p class="text-xs font-bold text-green-700 mt-1">Promotores</p>
+                    <p class="text-[10px] text-green-600">NPS ≥ 9</p>
+                </div>
+                <div class="text-center p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <span id="nps-pasivos" class="font-bold text-2xl text-amber-700">0</span>
+                    <p class="text-xs font-bold text-amber-700 mt-1">Pasivos</p>
+                    <p class="text-[10px] text-amber-600">NPS 7–8</p>
+                </div>
+                <div class="text-center p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <span id="nps-detractores" class="font-bold text-2xl text-red-700">0</span>
+                    <p class="text-xs font-bold text-red-700 mt-1">Detractores</p>
+                    <p class="text-[10px] text-red-600">NPS ≤ 6</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="border-b border-outline-variant">
+            <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+                <button id="btn-tab-encuestas" onclick="switchTab('encuestas')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">Encuestas</button>
+                <button id="btn-tab-reclamaciones" onclick="switchTab('reclamaciones')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Reclamaciones</button>
+                <button id="btn-tab-nueva" onclick="switchTab('nueva')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Nueva Encuesta</button>
+                <button id="btn-tab-reclamacion" onclick="switchTab('reclamacion')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Nueva Reclamación</button>
+            </nav>
+        </div>
+
+        <!-- Tabla Encuestas -->
+        <section id="sec-encuestas" class="space-y-3">
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-28">Código</th><th class="p-3 w-32">Fecha</th><th class="p-3">Cliente</th><th class="p-3 w-36">Producto/Servicio</th>
+                                <th class="p-3 w-24 text-center">CSAT (⭐)</th><th class="p-3 w-24 text-center">NPS (0–10)</th><th class="p-3">Comentario</th><th class="p-3 w-20 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-surveys" class="text-xs text-on-surface divide-y divide-outline-variant"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabla Reclamaciones -->
+        <section id="sec-reclamaciones" class="hidden space-y-3">
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-28">Código</th><th class="p-3 w-32">Fecha</th><th class="p-3">Cliente</th><th class="p-3">Motivo</th>
+                                <th class="p-3 w-32 text-center">Estado</th><th class="p-3 w-36 text-center">Fecha Cierre</th><th class="p-3 w-20 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-claims" class="text-xs text-on-surface divide-y divide-outline-variant"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulario Nueva Encuesta -->
+        <section id="sec-nueva" class="hidden">
+            <div class="bg-surface border border-outline-variant rounded-2xl p-6 max-w-2xl mx-auto shadow-sm space-y-4">
+                <h3 class="font-bold text-base text-primary border-b border-outline-variant pb-2">Registrar Resultado de Encuesta de Satisfacción</h3>
+                <form onsubmit="saveSurvey(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre del Cliente / Empresa *</label>
+                            <input id="s-client" required type="text" placeholder="Ej: Empresa ABC S.L." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Producto / Servicio Evaluado *</label>
+                            <input id="s-product" required type="text" placeholder="Ej: Servicio de consultoría IT" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Puntuación CSAT (1–5 estrellas) *</label>
+                            <div class="star-rating" id="csat-stars">
+                                <input type="radio" id="star5" name="csat" value="5"><label for="star5">★</label>
+                                <input type="radio" id="star4" name="csat" value="4"><label for="star4">★</label>
+                                <input type="radio" id="star3" name="csat" value="3"><label for="star3">★</label>
+                                <input type="radio" id="star2" name="csat" value="2"><label for="star2">★</label>
+                                <input type="radio" id="star1" name="csat" value="1" checked><label for="star1">★</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Puntuación NPS (0 = No recomendaría, 10 = Recomendaría) *</label>
+                            <div class="flex items-center gap-2">
+                                <input id="s-nps" type="range" min="0" max="10" value="8" oninput="document.getElementById('nps-val').textContent=this.value" class="flex-1 accent-secondary"/>
+                                <span id="nps-val" class="font-bold text-lg text-primary w-6 text-right">8</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-on-surface-variant mt-1"><span>0 — Detractor</span><span>10 — Promotor</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Comentarios / Observaciones del Cliente</label>
+                        <textarea id="s-comment" rows="3" placeholder="Transcribir comentarios relevantes del cliente..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Canal de Recogida</label>
+                        <select id="s-channel" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                            <option>Encuesta online</option><option>Entrevista telefónica</option><option>Visita presencial</option><option>Email</option><option>App/Portal cliente</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-between gap-2 border-t border-outline-variant pt-4">
+                        <button type="button" onclick="switchTab('encuestas')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                        <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-6 py-2 rounded-lg transition-colors shadow-sm">Guardar Encuesta</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Formulario Nueva Reclamación -->
+        <section id="sec-reclamacion" class="hidden">
+            <div class="bg-surface border border-outline-variant rounded-2xl p-6 max-w-2xl mx-auto shadow-sm space-y-4">
+                <h3 class="font-bold text-base text-primary border-b border-outline-variant pb-2">Registrar Reclamación de Cliente</h3>
+                <form onsubmit="saveClaim(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Cliente / Empresa *</label>
+                            <input id="c-client" required type="text" placeholder="Ej: Empresa XYZ" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                        <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha de Recepción *</label>
+                            <input id="c-date" required type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    </div>
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Motivo de la Reclamación *</label>
+                        <input id="c-reason" required type="text" placeholder="Ej: Retraso en entrega, producto defectuoso, facturación incorrecta..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción Detallada</label>
+                        <textarea id="c-desc" rows="3" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Responsable de Gestión *</label>
+                            <input id="c-responsible" required type="text" placeholder="Ej: Responsable Calidad" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                        <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado Inicial</label>
+                            <select id="c-status" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                                <option>Abierta — En análisis</option><option>En Gestión</option><option>Cerrada — Resuelta</option><option>Cerrada — Rechazada</option>
+                            </select></div>
+                    </div>
+                    <div class="flex justify-between gap-2 border-t border-outline-variant pt-4">
+                        <button type="button" onclick="switchTab('reclamaciones')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                        <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-6 py-2 rounded-lg transition-colors shadow-sm">Registrar Reclamación</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const seedSurveys = [
+            {id:"ENC-001",date:"2026-04-10",client:"Industrias Verdes S.A.",product:"Consultoría SGI",csat:5,nps:9,comment:"Servicio excelente, muy profesionales.",channel:"Encuesta online"},
+            {id:"ENC-002",date:"2026-04-28",client:"Distribuciones Norte",product:"Auditoría interna ISO 9001",csat:4,nps:8,comment:"Bien organizado, alguna mejora en plazos.",channel:"Email"},
+            {id:"ENC-003",date:"2026-05-15",client:"Tech Solutions S.L.",product:"Formación en seguridad",csat:3,nps:6,comment:"El contenido es bueno pero el horario fue complicado.",channel:"Entrevista telefónica"},
+            {id:"ENC-004",date:"2026-06-02",client:"Logística Express",product:"Consultoría SGI",csat:5,nps:10,comment:"¡Totalmente recomendables! Han transformado nuestra gestión.",channel:"Visita presencial"}
+        ];
+        const seedClaims = [
+            {id:"REC-001",date:"2026-03-20",client:"Constructora Alba",reason:"Retraso en entrega de informe final",desc:"El informe de auditoría se entregó 5 días después de lo acordado contractualmente.",responsible:"Responsable de Calidad",status:"Cerrada — Resuelta",closedDate:"2026-04-05"},
+            {id:"REC-002",date:"2026-05-28",client:"Farmacéutica del Sur",reason:"Errores en la documentación de formación",desc:"Varios certificados de formación tenían el nombre incorrecto del participante.",responsible:"Coordinador de Calidad",status:"En Gestión",closedDate:""}
+        ];
+
+        let surveys = [], claims = [];
+
+        function init() {
+            const ss = localStorage.getItem('sig_satisfaccion_encuestas');
+            const sc = localStorage.getItem('sig_satisfaccion_reclamaciones');
+            surveys = ss ? JSON.parse(ss) : [...seedSurveys];
+            claims = sc ? JSON.parse(sc) : [...seedClaims];
+            if (!ss) localStorage.setItem('sig_satisfaccion_encuestas', JSON.stringify(surveys));
+            if (!sc) localStorage.setItem('sig_satisfaccion_reclamaciones', JSON.stringify(claims));
+            render();
+        }
+
+        function render() {
+            renderKPIs(); renderSurveys(); renderClaims();
+        }
+
+        function renderKPIs() {
+            const n = surveys.length;
+            const avgCsat = n > 0 ? (surveys.reduce((a,s)=>a+s.csat,0)/n).toFixed(1) : '—';
+            const promoters = surveys.filter(s=>s.nps>=9).length;
+            const detractors = surveys.filter(s=>s.nps<=6).length;
+            const nps = n > 0 ? Math.round(((promoters-detractors)/n)*100) : null;
+            document.getElementById('kpi-nps').textContent = nps !== null ? nps : '—';
+            document.getElementById('kpi-nps').className = `font-bold text-3xl ${nps===null?'text-primary':nps>=50?'text-success':nps>=0?'text-warning':'text-danger'}`;
+            document.getElementById('kpi-csat').textContent = avgCsat !== '—' ? `${avgCsat} ⭐` : '—';
+            document.getElementById('kpi-surveys').textContent = n;
+            document.getElementById('kpi-claims').textContent = claims.length;
+            document.getElementById('nps-promotores').textContent = promoters;
+            document.getElementById('nps-pasivos').textContent = surveys.filter(s=>s.nps>=7&&s.nps<=8).length;
+            document.getElementById('nps-detractores').textContent = detractors;
+        }
+
+        function renderSurveys() {
+            const tbody = document.getElementById('tbody-surveys');
+            tbody.innerHTML = '';
+            if (!surveys.length) { tbody.innerHTML=`<tr><td colspan="8" class="p-4 text-center text-on-surface-variant">Sin encuestas registradas.</td></tr>`; return; }
+            surveys.forEach(s=>{
+                const stars = '⭐'.repeat(s.csat);
+                const npsColor = s.nps>=9?'text-success font-bold':s.nps>=7?'text-warning':s.nps<=6?'text-danger font-bold':'';
+                tbody.innerHTML+=`<tr class="hover:bg-surface-container-low transition-colors fade-up">
+                    <td class="p-3 font-mono text-[11px] text-secondary font-bold">${s.id}</td>
+                    <td class="p-3 text-on-surface-variant">${s.date}</td>
+                    <td class="p-3 font-semibold text-primary">${s.client}</td>
+                    <td class="p-3 text-on-surface-variant">${s.product}</td>
+                    <td class="p-3 text-center">${stars}</td>
+                    <td class="p-3 text-center font-bold text-lg ${npsColor}">${s.nps}</td>
+                    <td class="p-3 text-[11px] text-on-surface-variant max-w-xs truncate" title="${s.comment||''}">${s.comment||'—'}</td>
+                    <td class="p-3 text-center"><button onclick="deleteSurvey('${s.id}')" class="text-danger hover:text-red-700 p-1" title="Eliminar"><span class="material-symbols-outlined text-[16px]">delete</span></button></td>
+                </tr>`;
+            });
+        }
+
+        function renderClaims() {
+            const tbody = document.getElementById('tbody-claims');
+            tbody.innerHTML = '';
+            if (!claims.length) { tbody.innerHTML=`<tr><td colspan="7" class="p-4 text-center text-on-surface-variant">Sin reclamaciones registradas.</td></tr>`; return; }
+            claims.forEach(c=>{
+                const stMap={'Abierta — En análisis':'bg-blue-100 text-blue-800 border-blue-200','En Gestión':'bg-amber-100 text-amber-800 border-amber-200 font-bold','Cerrada — Resuelta':'bg-green-100 text-green-800 border-green-200','Cerrada — Rechazada':'bg-gray-100 text-gray-600 border-gray-200'};
+                tbody.innerHTML+=`<tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="p-3 font-mono text-[11px] text-danger font-bold">${c.id}</td>
+                    <td class="p-3 text-on-surface-variant">${c.date}</td>
+                    <td class="p-3 font-semibold text-primary">${c.client}</td>
+                    <td class="p-3 text-on-surface-variant">${c.reason}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] border ${stMap[c.status]||'bg-gray-100'}">${c.status}</span></td>
+                    <td class="p-3 text-center text-on-surface-variant">${c.closedDate||'—'}</td>
+                    <td class="p-3 text-center"><button onclick="deleteClaim('${c.id}')" class="text-danger hover:text-red-700 p-1"><span class="material-symbols-outlined text-[16px]">delete</span></button></td>
+                </tr>`;
+            });
+        }
+
+        function switchTab(tab) {
+            const all = ['encuestas','reclamaciones','nueva','reclamacion'];
+            all.forEach(t=>{
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                const b = document.getElementById(`btn-tab-${t}`);
+                if(b) b.className='border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all';
+            });
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            const ab = document.getElementById(`btn-tab-${tab}`);
+            if(ab) ab.className='border-b-2 border-secondary text-secondary py-2 px-1 transition-all';
+        }
+
+        function saveSurvey(e) {
+            e.preventDefault();
+            const csat = parseInt(document.querySelector('input[name="csat"]:checked')?.value || 3);
+            const s = {id:`ENC-${String(surveys.length+1).padStart(3,'0')}`,date:new Date().toISOString().split('T')[0],client:document.getElementById('s-client').value.trim(),product:document.getElementById('s-product').value.trim(),csat,nps:parseInt(document.getElementById('s-nps').value),comment:document.getElementById('s-comment').value.trim(),channel:document.getElementById('s-channel').value};
+            surveys.push(s); localStorage.setItem('sig_satisfaccion_encuestas',JSON.stringify(surveys));
+            render(); e.target.reset(); switchTab('encuestas');
+        }
+
+        function saveClaim(e) {
+            e.preventDefault();
+            const c = {id:`REC-${String(claims.length+1).padStart(3,'0')}`,date:document.getElementById('c-date').value,client:document.getElementById('c-client').value.trim(),reason:document.getElementById('c-reason').value.trim(),desc:document.getElementById('c-desc').value.trim(),responsible:document.getElementById('c-responsible').value.trim(),status:document.getElementById('c-status').value,closedDate:''};
+            claims.push(c); localStorage.setItem('sig_satisfaccion_reclamaciones',JSON.stringify(claims));
+            render(); e.target.reset(); switchTab('reclamaciones');
+        }
+
+        function deleteSurvey(id){ if(confirm('¿Eliminar esta encuesta?')){ surveys=surveys.filter(s=>s.id!==id); localStorage.setItem('sig_satisfaccion_encuestas',JSON.stringify(surveys)); render(); } }
+        function deleteClaim(id){ if(confirm('¿Eliminar esta reclamación?')){ claims=claims.filter(c=>c.id!==id); localStorage.setItem('sig_satisfaccion_reclamaciones',JSON.stringify(claims)); render(); } }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

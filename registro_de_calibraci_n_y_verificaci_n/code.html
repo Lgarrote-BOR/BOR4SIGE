@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro de Verificación y Calibración</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#213145",
+                        "inverse-on-surface": "#eaf1ff",
+                        "background": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-secondary-fixed": "#00174b",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#191c1e",
+                        "secondary": "#0051d5",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-primary": "#bec6e0",
+                        "outline": "#76777d",
+                        "tertiary-container": "#191c1e",
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-container": "#818486",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "secondary-container": "#316bf3",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "surface-tint": "#565e74",
+                        "primary": "#000000",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container": "#e5eeff",
+                        "surface-dim": "#cbdbf5",
+                        "primary-fixed": "#dae2fd",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#131b2e",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary": "#000000",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#7c839b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "gutter": "16px",
+                        "max-width": "1440px",
+                        "xl": "32px",
+                        "margin": "24px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- NavigationDrawer (Desktop) -->
+<aside class="w-[240px] h-full fixed left-0 top-0 hidden md:flex flex-col gap-xs p-md border-r border-outline-variant bg-surface">
+<div class="mb-lg">
+<h1 class="font-headline-sm text-headline-sm text-primary font-bold">SIG Compliance</h1>
+</div>
+<div class="mb-md p-md rounded-lg bg-surface-container-low border border-outline-variant">
+<div class="flex items-center gap-md">
+<img alt="Manager Avatar" class="w-10 h-10 rounded-full" data-alt="A professional headshot of a quality director in a bright, modern corporate setting. The lighting is soft and even, reflecting a calm, authoritative presence suitable for an enterprise environment. High quality, crisp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6CpNcsUz-bhHUElM17Zfcdn1E6cqvVr82zmArUfw54PsOBDwofpT3u_hkYmQ5BkexI6qIOC1ZL-vqjRE-hI1n20wfuorakvpekVBJ84MyJJWt9Ctjo32PtQxr8IJxfnhYI7Aiwujy-VlHS9kRVl4A0cl6jxZ0ss6EZBv34-eaxBqa_JOdqxRFOmE3cRZhQ6-R-w4xgQVrcJd240etKXvWILO0ZH6w_XcoIAUfMcY0F1aPBzs3NXDUSOFy2suN01IRtlgM0c-0K18"/>
+<div>
+<p class="font-label-md text-label-md text-primary">Quality Director</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Environment: Production</p>
+</div>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-sm">ISO 9001:2015</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md rounded-lg" href="#">
+<span class="material-symbols-outlined">verified</span>
+                Quality Management
+            </a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md rounded-lg" href="#">
+<span class="material-symbols-outlined">gpp_maybe</span>
+                Risk Registry
+            </a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-container transition-all duration-200 ease-in-out font-label-md text-label-md rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span>
+                Document Control
+            </a>
+<a class="flex items-center gap-md p-sm bg-secondary-container text-on-secondary-container font-bold transition-all duration-200 ease-in-out font-label-md text-label-md rounded-lg" href="#">
+<span class="material-symbols-outlined">settings_suggest</span>
+                Maintenance Ops
+            </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 md:ml-[240px] flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-lg py-md max-w-max-width mx-auto z-40">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary md:hidden">menu</span>
+<span class="material-symbols-outlined text-secondary hidden md:block">admin_panel_settings</span>
+<h2 class="font-headline-md text-headline-md text-secondary font-semibold">SIG Compliance</h2>
+</div>
+<div class="flex items-center gap-md cursor-pointer active:opacity-80 transition-colors hover:bg-surface-container-high p-sm rounded-full">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full" data-alt="A professional headshot of a quality director in a bright, modern corporate setting. The lighting is soft and even, reflecting a calm, authoritative presence suitable for an enterprise environment. High quality, crisp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8v_FkVnCy_TY1X5jPIlwHICJCfbe-8ywJ0GTaNHzwtSSaLlKrWXIWq2r2UFbyM1EUmmkGeWK5mttvl8lK2m43DtIi5IXKDpwVA58EkQYN2yUbrhnXQjzwQLW-pY5r2HYQKpbO8YM7DBLJp5MaV5-6HQGg1vPXANWl1njn7rZhOrvH9c2T4xKxVNIjDLdU9zU0dALkL51QbmMJUoP8puA045BJ8Ww0OnUQbeag6X33tDWCG7RYPnwuC-sjzuPvNnCmjjeUtKdWD5U"/>
+</div>
+</header>
+<div class="p-lg lg:p-xl max-w-max-width mx-auto w-full flex-1 mb-16 md:mb-0">
+<!-- Page Header -->
+<div class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h1 class="font-display-lg text-display-lg text-primary mb-xs">Calibrador Pie de Rey Digital</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">qr_code</span>
+                        ID Equipo: EQ-MET-0045 | Área: Laboratorio de Metrología
+                    </p>
+</div>
+<button class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-md text-label-md flex items-center gap-xs hover:bg-secondary/90 transition-colors">
+<span class="material-symbols-outlined">add</span>
+                    Nuevo Registro
+                </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-margin">
+<!-- KPI Card 1: Estado Actual -->
+<div class="lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase">Estado Actual</h3>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-primary">Apto</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Próxima Calibración: 15/10/2024</p>
+</div>
+</div>
+</div>
+<!-- KPI Card 2: Frecuencia -->
+<div class="lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase">Frecuencia de Verificación</h3>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">update</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-primary">Anual</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tolerancia: ±0.02 mm</p>
+</div>
+</div>
+</div>
+<!-- KPI Card 3: Historial -->
+<div class="lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase">Resumen Histórico</h3>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">history</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-primary">8 Registros</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Última desviación: 2021</p>
+</div>
+</div>
+</div>
+<!-- Timeline / List Section -->
+<div class="lg:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden mt-md">
+<div class="px-lg py-md border-b border-outline-variant bg-surface flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary">Histórico de Verificaciones y Calibraciones</h3>
+<div class="flex gap-sm">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant w-32">Fecha</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant">Responsable</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant w-32 text-center">Resultado</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant">Desviación Detectada</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant w-24 text-center">Certificado</th>
+</tr>
+</thead>
+<tbody>
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant hover:bg-surface transition-colors">
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface whitespace-nowrap">15/10/2023</td>
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-[10px]">ML</div>
+                                        María López
+                                    </td>
+<td class="px-md py-md text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#dcfce7] text-[#166534]">
+                                            Apto
+                                        </span>
+</td>
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface-variant">
+                                        Ninguna. Medición dentro de tolerancia (±0.01 mm).
+                                    </td>
+<td class="px-md py-md text-center">
+<button class="text-secondary hover:text-secondary-container transition-colors" title="Ver Certificado">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant hover:bg-surface transition-colors bg-surface-container-lowest">
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface whitespace-nowrap">12/10/2022</td>
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md text-[10px]">JP</div>
+                                        Juan Pérez
+                                    </td>
+<td class="px-md py-md text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#dcfce7] text-[#166534]">
+                                            Apto
+                                        </span>
+</td>
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface-variant">
+                                        Desviación mínima +0.01 mm. Ajuste preventivo realizado.
+                                    </td>
+<td class="px-md py-md text-center">
+<button class="text-secondary hover:text-secondary-container transition-colors" title="Ver Certificado">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant hover:bg-surface transition-colors">
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface whitespace-nowrap">10/10/2021</td>
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-[10px]">ML</div>
+                                        María López
+                                    </td>
+<td class="px-md py-md text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error-container text-on-error-container">
+                                            No Apto
+                                        </span>
+</td>
+<td class="px-md py-md font-body-sm text-body-sm text-on-surface-variant">
+                                        Desviación de +0.05 mm detectada. Equipo enviado a calibración externa.
+                                    </td>
+<td class="px-md py-md text-center">
+<button class="text-secondary hover:text-secondary-container transition-colors" title="Ver Certificado">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-container-lowest border-t border-outline-variant shadow-sm flex justify-around items-center h-16 px-gutter md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-xs">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-label-md text-label-md mt-xs">Risks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-label-md text-label-md mt-xs">Processes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold hover:bg-surface-container-high active:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+<span class="font-label-md text-label-md mt-xs">Audits</span>
+</a>
+</nav>
+</body></html>

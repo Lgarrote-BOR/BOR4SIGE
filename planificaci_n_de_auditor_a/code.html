@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Planificación de Auditoría - Sistema de Gestión Integrada (SIG)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#fefcff",
+                    "on-background": "#0b1c30",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-tertiary-container": "#818486",
+                    "surface": "#f8f9ff",
+                    "secondary-fixed": "#dbe1ff",
+                    "surface-container-high": "#dce9ff",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "tertiary-fixed": "#e0e3e5",
+                    "surface-container-low": "#eff4ff",
+                    "primary": "#000000",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "secondary": "#0051d5",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-surface-variant": "#45464d",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "primary-fixed-dim": "#bec6e0",
+                    "outline-variant": "#c6c6cd",
+                    "background": "#f8f9ff",
+                    "tertiary": "#000000",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#7c839b",
+                    "secondary-container": "#316bf3",
+                    "on-secondary-fixed": "#00174b",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#565e74",
+                    "surface-container": "#e5eeff",
+                    "surface-container-highest": "#d3e4fe",
+                    "primary-fixed": "#dae2fd",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#131b2e",
+                    "outline": "#76777d",
+                    "on-surface": "#0b1c30",
+                    "inverse-surface": "#213145",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#bec6e0",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "tertiary-container": "#191c1e",
+                    "surface-dim": "#cbdbf5",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "surface-variant": "#d3e4fe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin": "24px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "xl": "32px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "xs": "4px",
+                    "max-width": "1440px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { background-color: #F8FAFC; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-background bg-background min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant flex items-center justify-between px-margin py-base w-full z-50 sticky top-0">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary font-headline-md text-headline-md" style="font-variation-settings: 'FILL' 1;">security</span>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Sistema de Gestión Integrada (SIG)</h1>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">Luis Garrote</span>
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+                LG
+            </div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- NavigationDrawer -->
+<nav class="bg-surface-container-low border-r border-outline-variant fixed left-0 top-[65px] h-[calc(100vh-65px)] w-[240px] flex flex-col p-md gap-sm hidden md:flex z-40 overflow-y-auto">
+<div class="mb-lg">
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface">MENÚ DE GESTIÓN</h2>
+</div>
+<ul class="flex flex-col gap-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                        Panel de Control
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-secondary-container text-on-secondary-container transition-transform duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment</span>
+                        Auditorías
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+                        Hallazgos
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">verified</span>
+                        Normativa ISO
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                        Configuración
+                    </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-[240px] p-margin overflow-y-auto">
+<div class="max-w-max-width mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-xl border-b border-outline-variant pb-md">
+<div>
+<div class="flex items-center gap-sm mb-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">folder_open</span>
+<span class="font-label-md text-label-md">Auditorías / Planificación</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Planificación de Auditoría Interna</h2>
+</div>
+<div class="flex gap-md">
+<button class="bg-surface border border-outline text-on-surface font-label-md text-label-md px-lg py-sm rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">close</span>
+                            Cancelar
+                        </button>
+<button class="bg-secondary text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:bg-secondary-container transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                            Guardar Planificación
+                        </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-margin">
+<!-- Left Column: General Info & Scope -->
+<div class="lg:col-span-8 flex flex-col gap-margin">
+<!-- Card: Información General -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-center gap-sm mb-md border-b border-outline-variant pb-sm">
+<span class="material-symbols-outlined text-secondary">info</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Información General</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs col-span-1 md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Título de la Auditoría</label>
+<input class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-shadow" type="text" value="Auditoría Interna Sistema de Gestión de Calidad ISO 9001:2015"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Norma de Referencia</label>
+<select class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow">
+<option selected="">UNE-EN ISO 9001:2015</option>
+<option>UNE-EN ISO 14001:2015</option>
+<option>UNE-EN ISO 45001:2018</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Organización Auditada</label>
+<input class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow" type="text" value="LEJ AUTOMATIZACIÓN DE FLUIDOS, S.L."/>
+</div>
+<div class="flex flex-col gap-xs col-span-1 md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Instalaciones</label>
+<input class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow" type="text" value="C/ Pitagoras 139, Poligono Industrial Sepes, 46520, Puerto Sagunto, Valencia"/>
+</div>
+</div>
+</div>
+<!-- Card: Alcance y Objetivos -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-center gap-sm mb-md border-b border-outline-variant pb-sm">
+<span class="material-symbols-outlined text-secondary">track_changes</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Alcance y Objetivos</h3>
+</div>
+<div class="flex flex-col gap-lg">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Objeto de la Auditoría</label>
+<textarea class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow resize-none" rows="3">El objeto del informe, elaborado por la auditora Guadalupe Fidalgo Marcos es presentar, de forma detallada, el resultado de la evaluación llevada a cabo sobre la implantación del sistema de gestión de Calidad en LEJ AUTOMATIZACIÓN DE FLUIDOS, S.L. (en adelante LEJ) según norma UNE-EN ISO 9001:2015. Los resultados aquí descritos son fruto de una investigación muestral, por lo que no se descarta la aparición de desviaciones diferentes en otras fases del proceso de evaluación o en posteriores auditorias.</textarea>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Alcance Específico</label>
+<textarea class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow resize-none" rows="2">La auditoría llevada a cabo ha tenido por alcance el sistema de gestión según norma UNE-EN ISO 9001:2015,</textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Scheduling & Team -->
+<div class="lg:col-span-4 flex flex-col gap-margin">
+<!-- Card: Fechas y Estado -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-center justify-between mb-md border-b border-outline-variant pb-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">calendar_month</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Programación</h3>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant font-label-md text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">Planificada</span>
+</div>
+<div class="flex flex-col gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Fecha de Inicio</label>
+<input class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow" type="date" value="2025-04-07"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Fecha de Cierre (Prevista)</label>
+<input class="w-full bg-surface-bright border border-outline rounded-lg px-md py-sm font-body-md text-on-surface focus:outline-none focus:border-secondary transition-shadow" type="date" value="2025-04-09"/>
+</div>
+<div class="mt-sm p-sm bg-surface-container-low rounded-lg border border-outline-variant">
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] mt-1">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">La agenda detallada por procesos se definirá en el documento anexo R-9.2-01.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Card: Equipo Auditor -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-center justify-between mb-md border-b border-outline-variant pb-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">group</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Equipo Auditor</h3>
+</div>
+</div>
+<div class="flex flex-col gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Auditor Jefe</label>
+<div class="flex items-center gap-sm bg-surface-bright border border-outline rounded-lg p-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">GF</div>
+<span class="font-body-md text-on-surface flex-1">Guadalupe Fidalgo Marcos</span>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Auditores Acompañantes</label>
+<button class="text-secondary hover:text-secondary-container transition-colors p-1"><span class="material-symbols-outlined text-[18px]">add</span></button>
+</div>
+<div class="flex items-center gap-sm bg-surface-bright border border-outline rounded-lg p-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-bold text-sm">LG</div>
+<span class="font-body-md text-on-surface flex-1">Luis Garrote</span>
+<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+<div class="text-center mt-2">
+<button class="text-secondary font-label-md text-label-md hover:underline">+ Añadir auditor</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-on-background flex justify-between items-center px-lg py-md w-full border-t border-outline-variant z-50 mt-auto">
+<div class="font-body-sm text-body-sm text-on-primary">
+            © 2024 SIG Auditoría - Sistema de Gestión de Calidad ISO 9001:2015
+        </div>
+<div class="flex gap-lg">
+<a class="font-body-sm text-body-sm text-on-primary-fixed-variant hover:text-on-primary transition-colors opacity-90 hover:opacity-100" href="#">Soporte Técnico</a>
+<a class="font-body-sm text-body-sm text-on-primary-fixed-variant hover:text-on-primary transition-colors opacity-90 hover:opacity-100" href="#">Manual de Usuario</a>
+<a class="font-body-sm text-body-sm text-on-primary-fixed-variant hover:text-on-primary transition-colors opacity-90 hover:opacity-100" href="#">Privacidad</a>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Panel de KPIs de Proceso</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container": "#e5eeff",
+                      "surface-container-low": "#eff4ff",
+                      "outline": "#76777d",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "inverse-surface": "#213145",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#00174b",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary": "#0051d5",
+                      "surface-container-high": "#dce9ff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-primary-container": "#7c839b",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary": "#000000",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "secondary-container": "#316bf3",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-background": "#0b1c30",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "background": "#f8f9ff",
+                      "tertiary-container": "#191c1e",
+                      "on-tertiary-fixed-variant": "#444749"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "max-width": "1440px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "margin": "24px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "code-sm": ["JetBrains Mono"],
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-sm": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex selection:bg-secondary-container selection:text-on-secondary-container">
+    <!-- NavigationDrawer -->
+    <aside class="hidden md:flex flex-col w-[240px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface z-40 py-md">
+        <div class="px-md mb-lg">
+            <div class="flex items-center gap-sm mb-xs">
+                <span class="material-symbols-outlined text-primary font-headline-md text-headline-md">domain</span>
+                <span class="font-headline-md text-headline-md font-bold text-primary">SIG 2.0</span>
+            </div>
+            <div class="flex items-center justify-between p-sm border border-outline-variant rounded bg-surface-container-lowest">
+                <div class="flex flex-col">
+                    <span class="font-label-md text-label-md text-on-surface-variant uppercase">Entorno</span>
+                    <span class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-xs">
+                        <span class="w-2 h-2 rounded-full bg-error block"></span> Producción
+                    </span>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 flex flex-col gap-xs px-sm">
+            <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors scale-95 duration-150" href="../dashboard_de_gesti_n_sig/code.html">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label-md text-label-md">Cuadro de Mando</span>
+            </a>
+            <a class="flex items-center gap-sm px-md py-sm rounded-lg text-secondary font-semibold bg-surface-container-high transition-colors scale-95 duration-150" href="../mapa_de_procesos_sig/code.html">
+                <span class="material-symbols-outlined fill">account_tree</span>
+                <span class="font-label-md text-label-md">Mapa de Procesos</span>
+            </a>
+        </nav>
+        <div class="px-margin mt-auto pt-md border-t border-outline-variant">
+            <a id="back-to-process-link" class="flex items-center gap-md text-on-surface-variant hover:text-primary transition-colors w-full p-sm rounded hover:bg-surface-container" href="../mapa_de_procesos_sig/code.html">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="font-body-sm text-body-sm">Volver al Proceso</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 md:ml-[240px] flex flex-col min-h-screen">
+        <!-- TopAppBar -->
+        <header class="flex justify-between items-center px-margin h-[64px] bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-30">
+            <div class="flex items-center gap-md">
+                <h1 class="font-headline-md text-headline-md font-bold text-primary">Seguimiento de KPIs de Proceso</h1>
+            </div>
+            <div class="flex items-center gap-md">
+                <select id="proc-selector" onchange="changeProcess(this.value)" class="bg-surface border border-outline-variant rounded p-sm font-body-sm text-body-sm text-on-surface focus:ring-secondary focus:border-secondary cursor-pointer">
+                    <!-- Cargados dinámicamente -->
+                </select>
+            </div>
+        </header>
+
+        <!-- Canvas -->
+        <div class="p-margin max-w-max-width mx-auto w-full flex flex-col gap-lg pb-margin">
+            <!-- Context Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+                <div>
+                    <div class="flex items-center gap-sm mb-xs">
+                        <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Gestión de Procesos</span>
+                        <span class="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
+                        <span id="title-proc-name" class="font-label-md text-label-md text-secondary">Cargando...</span>
+                    </div>
+                    <h2 class="font-display-lg text-display-lg text-on-surface">Panel de Indicadores Mensuales</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant mt-xs max-w-2xl">Registre los datos de los indicadores mensuales incluidos en los KPIs del proceso para actualizar la tendencia histórica en tiempo real.</p>
+                </div>
+                <div class="flex gap-sm">
+                    <button onclick="openMetricModal()" class="flex items-center gap-sm px-md py-sm bg-secondary text-on-secondary rounded hover:bg-secondary/90 transition-colors font-label-md text-label-md shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">add_chart</span>
+                        <span>Registrar Medición</span>
+                    </button>
+                    <button onclick="openAlertModal()" class="flex items-center gap-sm px-md py-sm bg-surface border border-outline-variant text-on-surface rounded hover:bg-surface-container transition-colors font-label-md text-label-md">
+                        <span class="material-symbols-outlined text-[18px]">add_alert</span>
+                        <span>Registrar Alerta</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bento Grid Dashboard -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-md">
+                <!-- Bento KPIs Cards (Spans 4 cols / 3 rows) -->
+                <div id="kpis-cards-container" class="lg:col-span-4 flex flex-col gap-md">
+                    <!-- Dinámico -->
+                </div>
+
+                <!-- Main Trend Chart - Span 8 -->
+                <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-lg">
+                        <div>
+                            <h3 id="chart-kpi-name" class="font-headline-sm text-headline-sm text-on-surface font-bold">Histórico del Indicador</h3>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">Tendencia de los datos mensuales registrados</p>
+                        </div>
+                        <div class="flex gap-md">
+                            <div class="flex items-center gap-xs">
+                                <div class="w-3 h-3 rounded-full bg-secondary"></div>
+                                <span class="font-label-md text-label-md text-on-surface-variant">Real</span>
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <div class="w-3 h-3 rounded-full bg-outline-variant border border-dashed border-outline"></div>
+                                <span class="font-label-md text-label-md text-on-surface-variant">Límite Meta</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SVG Line Chart Dynamic -->
+                    <div class="w-full h-[260px] relative">
+                        <div id="chart-y-max" class="absolute left-0 top-0 text-code-sm text-on-surface-variant">100</div>
+                        <div id="chart-y-mid" class="absolute left-0 top-[50%] -translate-y-1/2 text-code-sm text-on-surface-variant">50</div>
+                        <div id="chart-y-min" class="absolute left-0 bottom-[30px] text-code-sm text-on-surface-variant">0</div>
+
+                        <div class="ml-[45px] h-[220px] relative border-b border-l border-outline-variant">
+                            <!-- Target Line dashed -->
+                            <div id="chart-target-line" class="absolute w-full border-t-2 border-dashed border-outline z-0" style="top: 20%;"></div>
+                            <!-- Dynamic Path SVG -->
+                            <svg class="absolute inset-0 w-full h-full overflow-visible z-10" id="chart-svg" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                <path id="chart-svg-path" d="" fill="none" stroke="#0051d5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                                <g id="chart-svg-points"></g>
+                            </svg>
+                        </div>
+                        <!-- X-Axis Labels -->
+                        <div class="ml-[45px] flex justify-between text-code-sm text-on-surface-variant mt-sm" id="chart-x-labels">
+                            <!-- Dinámico -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Section & History Table -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-md">
+                <!-- Alertas Activas (4 cols) -->
+                <div class="lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm flex flex-col">
+                    <div class="flex justify-between items-center mb-md pb-xs border-b border-outline-variant">
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Alertas y Desviaciones</h3>
+                        <span id="alerts-count" class="bg-error text-on-error px-2 py-0.5 rounded-full font-label-md text-label-md font-bold">0</span>
+                    </div>
+                    <div id="alerts-list" class="flex-1 overflow-y-auto max-h-[300px] space-y-sm">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
+
+                <!-- History Table (8 cols) -->
+                <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm flex flex-col">
+                    <div class="flex justify-between items-center mb-md pb-xs border-b border-outline-variant">
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold font-bold">Historial de Mediciones del Proceso</h3>
+                    </div>
+                    <div class="overflow-x-auto flex-1 max-h-[300px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-label-md font-label-md text-on-surface-variant">
+                                    <th class="p-sm">KPI / Indicador</th>
+                                    <th class="p-sm">Mes</th>
+                                    <th class="p-sm text-center">Valor Real</th>
+                                    <th class="p-sm text-center">Meta</th>
+                                    <th class="p-sm text-center">Estado</th>
+                                    <th class="p-sm text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mediciones-tbody" class="font-body-sm text-body-sm text-on-surface">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Registrar Medición -->
+    <div id="modal-metric" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-md w-full p-lg flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Registrar Medición Mensual</h3>
+                <button onclick="closeMetricModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form onsubmit="saveMetric(event)" class="space-y-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">KPI / Indicador</label>
+                    <select id="metric-kpi-select" required class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary cursor-pointer">
+                        <!-- Cargados dinámicamente -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Mes de Medición</label>
+                        <select id="metric-month" required class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary cursor-pointer">
+                            <option value="Ene">Enero</option>
+                            <option value="Feb">Febrero</option>
+                            <option value="Mar">Marzo</option>
+                            <option value="Abr">Abril</option>
+                            <option value="May">Mayo</option>
+                            <option value="Jun">Junio</option>
+                            <option value="Jul">Julio</option>
+                            <option value="Ago">Agosto</option>
+                            <option value="Sep">Septiembre</option>
+                            <option value="Oct">Octubre</option>
+                            <option value="Nov">Noviembre</option>
+                            <option value="Dic">Diciembre</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Valor Registrado</label>
+                        <input id="metric-value" required type="number" step="0.1" placeholder="Ej: 94.2" class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary"/>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                    <button type="button" onclick="closeMetricModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors shadow-sm">
+                        Guardar Medición
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Alerta -->
+    <div id="modal-alert" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-md w-full p-lg flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Registrar Alerta / Desviación</h3>
+                <button onclick="closeAlertModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form onsubmit="saveAlert(event)" class="space-y-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Título de la Desviación</label>
+                    <input id="alert-title" required type="text" placeholder="Ej: Pico de defectos" class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Descripción del Incidente</label>
+                    <textarea id="alert-desc" required placeholder="Describa el motivo y el turno..." rows="3" class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary"></textarea>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Nivel de Gravedad</label>
+                    <select id="alert-type" required class="w-full bg-surface border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary cursor-pointer">
+                        <option value="Crítico">Crítico</option>
+                        <option value="Advertencia">Advertencia</option>
+                        <option value="Informativo">Informativo</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                    <button type="button" onclick="closeAlertModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors shadow-sm">
+                        Guardar Alerta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let procesos = [];
+        let currentProcess = null;
+        let selectedKpiIndex = 0;
+        let alertas = [];
+
+        function init() {
+            // Cargar procesos
+            const stored = localStorage.getItem('sig_procesos');
+            if (stored) {
+                procesos = JSON.parse(stored);
+            }
+
+            // Selector de procesos
+            const procSelector = document.getElementById('proc-selector');
+            procSelector.innerHTML = "";
+            procesos.forEach(p => {
+                procSelector.innerHTML += `<option value="${p.id}">${p.id} - ${p.name}</option>`;
+            });
+
+            // Parámetro de URL
+            const params = new URLSearchParams(window.location.search);
+            let pId = params.get('id');
+
+            if (!pId && procesos.length > 0) {
+                pId = procesos[0].id;
+            }
+
+            if (pId) {
+                procSelector.value = pId;
+                changeProcess(pId);
+            }
+
+            // Cargar alertas globales de localStorage
+            const storedAlerts = localStorage.getItem('sig_kpi_alertas');
+            if (storedAlerts) {
+                alertas = JSON.parse(storedAlerts);
+            } else {
+                alertas = [
+                    { id: "A-001", processId: "PRO-01", title: "Pico de Defectos: Turno Noche", desc: "La tasa superó 4000 PPM entre 02:00 y 04:00 AM.", type: "Crítico", date: "Hace 4 horas" },
+                    { id: "A-002", processId: "PRO-01", title: "Mantenimiento Preventivo Atrasado", desc: "Ensambladora B3 requiere calibración urgente.", type: "Advertencia", date: "Hace 2 días" }
+                ];
+                localStorage.setItem('sig_kpi_alertas', JSON.stringify(alertas));
+            }
+
+            renderAlerts();
+        }
+
+        function changeProcess(id) {
+            currentProcess = procesos.find(p => p.id === id);
+            selectedKpiIndex = 0;
+
+            if (currentProcess) {
+                document.getElementById('title-proc-name').innerText = `${currentProcess.id} - ${currentProcess.name}`;
+                document.getElementById('back-to-process-link').href = `../ficha_de_proceso_detallada/code.html?id=${encodeURIComponent(currentProcess.id)}`;
+                
+                renderKpis();
+                renderTrendChart();
+                renderMedicionesTable();
+                renderAlerts();
+            }
+        }
+
+        function renderKpis() {
+            const kpisContainer = document.getElementById('kpis-cards-container');
+            kpisContainer.innerHTML = "";
+
+            const kpis = currentProcess.kpis || [];
+            if (kpis.length === 0) {
+                kpisContainer.innerHTML = `
+                    <div class="text-center py-md text-on-surface-variant text-body-sm bg-surface rounded-xl border border-outline-variant p-md">
+                        Sin KPIs definidos. Edite la Ficha de Proceso para agregarlos.
+                    </div>
+                `;
+                return;
+            }
+
+            kpis.forEach((k, idx) => {
+                // Sacar última medición
+                let lastVal = k.compliance || 100;
+                let valuesArr = Object.entries(k.values || {});
+                if (valuesArr.length > 0) {
+                    lastVal = valuesArr[valuesArr.length - 1][1];
+                }
+
+                const isSelected = idx === selectedKpiIndex;
+                const borderClass = isSelected ? 'border-2 border-secondary' : 'border border-outline-variant';
+                const badgeText = lastVal >= k.meta ? 'Conforme' : 'Desviación';
+                const badgeColor = lastVal >= k.meta ? 'bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]' : 'bg-error-container text-on-error-container border-[#FAD2CF]';
+
+                kpisContainer.innerHTML += `
+                    <div onclick="selectKpi(${idx})" class="bg-surface-container-lowest ${borderClass} rounded-xl p-md flex flex-col gap-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer relative">
+                        <div class="flex justify-between items-start">
+                            <span class="font-label-md text-label-md text-on-surface-variant font-bold">${k.name}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${badgeColor}">${badgeText}</span>
+                        </div>
+                        <div class="flex items-end justify-between mt-sm">
+                            <span class="font-display-lg text-display-lg text-on-surface">${lastVal}<span class="text-headline-sm font-normal text-on-surface-variant">${k.unit}</span></span>
+                            <span class="text-xs text-on-surface-variant">Meta: ${k.meta}${k.unit}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function selectKpi(idx) {
+            selectedKpiIndex = idx;
+            renderKpis();
+            renderTrendChart();
+        }
+
+        function renderTrendChart() {
+            const kpis = currentProcess.kpis || [];
+            if (kpis.length === 0 || !kpis[selectedKpiIndex]) return;
+
+            const kpi = kpis[selectedKpiIndex];
+            document.getElementById('chart-kpi-name').innerText = `Historial: ${kpi.name}`;
+
+            const values = kpi.values || {};
+            const keys = Object.keys(values);
+            const dataVals = Object.values(values);
+
+            // Calcular Y límites
+            let maxVal = Math.max(...dataVals, kpi.meta, 10) * 1.1;
+            let minVal = Math.min(...dataVals, kpi.meta, 0) * 0.9;
+            if (minVal < 0) minVal = 0;
+            
+            document.getElementById('chart-y-max').innerText = `${maxVal.toFixed(0)}${kpi.unit}`;
+            document.getElementById('chart-y-mid').innerText = `${((maxVal + minVal) / 2).toFixed(0)}${kpi.unit}`;
+            document.getElementById('chart-y-min').innerText = `${minVal.toFixed(0)}${kpi.unit}`;
+
+            // Posicionar línea Meta
+            const targetPct = 100 - (((kpi.meta - minVal) / (maxVal - minVal)) * 100);
+            document.getElementById('chart-target-line').style.top = `${targetPct}%`;
+
+            // Pintar SVG Path
+            const svgPath = document.getElementById('chart-svg-path');
+            const svgPoints = document.getElementById('chart-svg-points');
+            const xLabels = document.getElementById('chart-x-labels');
+
+            svgPoints.innerHTML = "";
+            xLabels.innerHTML = "";
+
+            if (keys.length === 0) {
+                svgPath.setAttribute('d', "");
+                return;
+            }
+
+            let pathD = "";
+            const stepX = keys.length > 1 ? 100 / (keys.length - 1) : 100;
+
+            keys.forEach((k, idx) => {
+                const val = dataVals[idx];
+                const pctY = 100 - (((val - minVal) / (maxVal - minVal)) * 100);
+                const posX = idx * stepX;
+
+                if (idx === 0) {
+                    pathD = `M${posX},${pctY}`;
+                } else {
+                    pathD += ` L${posX},${pctY}`;
+                }
+
+                // Círculo
+                svgPoints.innerHTML += `
+                    <circle cx="${posX}" cy="${pctY}" fill="#ffffff" r="2.5" stroke="#0051d5" stroke-width="2" class="cursor-pointer" title="${k}: ${val}${k.unit}"></circle>
+                `;
+
+                // Etiqueta X
+                xLabels.innerHTML += `<span>${k}</span>`;
+            });
+
+            svgPath.setAttribute('d', pathD);
+        }
+
+        function renderMedicionesTable() {
+            const tbody = document.getElementById('mediciones-tbody');
+            tbody.innerHTML = "";
+
+            const kpis = currentProcess.kpis || [];
+            let rowsCount = 0;
+
+            kpis.forEach((k, kpiIdx) => {
+                const values = k.values || {};
+                Object.entries(values).forEach(([mes, val]) => {
+                    rowsCount++;
+                    const isConforme = val >= k.meta;
+                    const badge = isConforme ? 
+                        `<span class="text-[#137333] bg-[#E6F4EA] px-2 py-0.5 rounded font-label-md text-[11px] uppercase tracking-wide border border-[#CEEAD6]">Conforme</span>` : 
+                        `<span class="text-[#C5221F] bg-[#FCE8E6] px-2 py-0.5 rounded font-label-md text-[11px] uppercase tracking-wide border border-[#FAD2CF]">Fuera Meta</span>`;
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                            <td class="p-sm font-semibold">${k.name}</td>
+                            <td class="p-sm">${mes}</td>
+                            <td class="p-sm text-center font-bold font-code-sm">${val}${k.unit}</td>
+                            <td class="p-sm text-center font-code-sm text-on-surface-variant">${k.meta}${k.unit}</td>
+                            <td class="p-sm text-center">${badge}</td>
+                            <td class="p-sm text-center">
+                                <button onclick="deleteMedicion(${kpiIdx}, '${mes}')" class="text-error hover:text-red-700 transition-colors p-1" title="Eliminar Medición">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+
+            if (rowsCount === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-md text-center text-on-surface-variant">
+                            No se han registrado mediciones todavía. Use "Registrar Medición".
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderAlerts() {
+            const list = document.getElementById('alerts-list');
+            list.innerHTML = "";
+
+            // Filtrar alertas del proceso actual
+            const procAlerts = alertas.filter(a => a.processId === currentProcess.id);
+            document.getElementById('alerts-count').innerText = procAlerts.length;
+
+            if (procAlerts.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-md text-on-surface-variant text-body-sm">
+                        Sin alertas activas. Todo bajo control.
+                    </div>
+                `;
+                return;
+            }
+
+            procAlerts.forEach(a => {
+                let cardClass = "";
+                let icon = "";
+                let iconColor = "";
+
+                if (a.type === "Crítico") {
+                    cardClass = "bg-error-container/20 border-error-container";
+                    icon = "warning";
+                    iconColor = "text-error";
+                } else if (a.type === "Advertencia") {
+                    cardClass = "bg-[#FFF8E1] border-[#FFECB3]";
+                    icon = "info";
+                    iconColor = "text-[#F57F17]";
+                } else {
+                    cardClass = "bg-surface-container-low border-outline-variant";
+                    icon = "check_circle";
+                    iconColor = "text-on-surface-variant";
+                }
+
+                list.innerHTML += `
+                    <div class="p-sm border rounded-lg flex gap-sm items-start relative group ${cardClass}">
+                        <span class="material-symbols-outlined mt-0.5 ${iconColor}">${icon}</span>
+                        <div class="pr-6">
+                            <h4 class="font-label-md text-label-md text-on-surface mb-0.5 font-bold">${a.title}</h4>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">${a.desc}</p>
+                            <span class="font-code-sm text-code-sm text-on-surface-variant mt-1 block">${a.date}</span>
+                        </div>
+                        <button onclick="deleteAlert('${a.id}')" class="absolute right-sm top-sm text-error opacity-0 group-hover:opacity-100 hover:text-red-700 transition-opacity" title="Eliminar Alerta">
+                            <span class="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // Modales
+        function openMetricModal() {
+            const kpiSelect = document.getElementById('metric-kpi-select');
+            kpiSelect.innerHTML = "";
+
+            const kpis = currentProcess.kpis || [];
+            kpis.forEach((k, idx) => {
+                kpiSelect.innerHTML += `<option value="${idx}">${k.name}</option>`;
+            });
+
+            document.getElementById('metric-value').value = "";
+            document.getElementById('modal-metric').classList.remove('hidden');
+        }
+
+        function closeMetricModal() {
+            document.getElementById('modal-metric').classList.add('hidden');
+        }
+
+        function saveMetric(event) {
+            event.preventDefault();
+
+            const kpiIdx = parseInt(document.getElementById('metric-kpi-select').value);
+            const mes = document.getElementById('metric-month').value;
+            const val = parseFloat(document.getElementById('metric-value').value);
+
+            if (currentProcess.kpis && currentProcess.kpis[kpiIdx]) {
+                const kpi = currentProcess.kpis[kpiIdx];
+                if (!kpi.values) kpi.values = {};
+                kpi.values[mes] = val;
+
+                // Actualizar valor de cumplimiento principal al último registrado
+                kpi.compliance = val;
+
+                // Recalcular KPIs del proceso
+                const sum = currentProcess.kpis.reduce((acc, k) => acc + (k.compliance || 0), 0);
+                currentProcess.compliance = Math.round(sum / currentProcess.kpis.length);
+
+                currentProcess.okKpis = currentProcess.kpis.filter(k => k.compliance >= k.meta).length;
+                currentProcess.warnKpis = currentProcess.kpis.filter(k => k.compliance < k.meta && k.compliance >= (k.meta * 0.8)).length;
+                currentProcess.critKpis = currentProcess.kpis.filter(k => k.compliance < (k.meta * 0.8)).length;
+
+                // Persistir
+                localStorage.setItem('sig_procesos', JSON.stringify(procesos));
+
+                changeProcess(currentProcess.id);
+                closeMetricModal();
+            }
+        }
+
+        function deleteMedicion(kpiIdx, mes) {
+            if (confirm(`¿Está seguro de que desea eliminar la medición del mes ${mes}?`)) {
+                if (currentProcess.kpis && currentProcess.kpis[kpiIdx]) {
+                    delete currentProcess.kpis[kpiIdx].values[mes];
+
+                    // Actualizar
+                    localStorage.setItem('sig_procesos', JSON.stringify(procesos));
+                    changeProcess(currentProcess.id);
+                }
+            }
+        }
+
+        function openAlertModal() {
+            document.getElementById('alert-title').value = "";
+            document.getElementById('alert-desc').value = "";
+            document.getElementById('modal-alert').classList.remove('hidden');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('modal-alert').classList.add('hidden');
+        }
+
+        function saveAlert(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('alert-title').value.trim();
+            const desc = document.getElementById('alert-desc').value.trim();
+            const type = document.getElementById('alert-type').value;
+
+            const newAlert = {
+                id: `A-${Date.now()}`,
+                processId: currentProcess.id,
+                title,
+                desc,
+                type,
+                date: "Reciente"
+            };
+
+            alertas.unshift(newAlert);
+            localStorage.setItem('sig_kpi_alertas', JSON.stringify(alertas));
+
+            renderAlerts();
+            closeAlertModal();
+        }
+
+        function deleteAlert(id) {
+            if (confirm("¿Desea archivar / eliminar esta alerta?")) {
+                alertas = alertas.filter(a => a.id !== id);
+                localStorage.setItem('sig_kpi_alertas', JSON.stringify(alertas));
+                renderAlerts();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Gestión de Incidentes de Seguridad — SIG 2.0</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#1e1b4b","secondary":"#4f46e5","background":"#f5f3ff","surface":"#ffffff","surface-container-low":"#f5f3ff","surface-container":"#ede9fe","outline-variant":"#ddd6fe","on-surface":"#1e1b4b","on-surface-variant":"#4c4774","success":"#137333","warning":"#b06000","danger":"#c5221f"},fontFamily:{sans:["Inter","sans-serif"]}}}}</script>
+    <style>
+        body{font-family:'Inter',sans-serif;background:#f5f3ff;}
+        .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+        .material-symbols-outlined.filled{font-variation-settings:'FILL' 1;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        .fade-up{animation:fadeUp .2s ease-out;}
+        .sec-header{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4338ca 100%);}
+        .timeline-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+        .no-scrollbar::-webkit-scrollbar{display:none;} .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+<header class="sec-header text-white sticky top-0 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+    <div class="flex items-center gap-3">
+        <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors"><span class="material-symbols-outlined">arrow_back</span></a>
+        <div><h1 class="font-bold text-base leading-none">SIG 2.0</h1><span class="text-[10px] text-indigo-300 font-semibold">Seguridad de la Información</span></div>
+    </div>
+    <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center border border-indigo-400 rounded-full px-3 py-1 bg-white/10 text-indigo-100 gap-1.5 text-xs font-semibold">
+            <span class="material-symbols-outlined text-sm">security</span>
+            <span>Incidentes de Seguridad — ISO 27001:2022 Anexo A §5.24–5.28</span>
+        </div>
+        <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">US</button>
+    </div>
+</header>
+
+<main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+        <div>
+            <h2 class="font-bold text-2xl text-primary tracking-tight flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">security</span>
+                Gestión de Incidentes de Seguridad de la Información
+            </h2>
+            <p class="text-sm text-on-surface-variant mt-1">Registro, clasificación, respuesta y cierre de incidentes de seguridad. <strong>ISO 27001:2022 Anexo A §5.24–5.28</strong>. Incluye obligación de notificación RGPD (72h) y CCN-CERT.</p>
+        </div>
+        <button onclick="openModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0">
+            <span class="material-symbols-outlined text-base">add_alert</span>Registrar Incidente
+        </button>
+    </div>
+
+    <!-- Banner RGPD -->
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+        <span class="material-symbols-outlined text-danger mt-0.5 shrink-0">timer</span>
+        <div>
+            <p class="text-xs font-bold text-danger">Obligación de Notificación — RGPD Art. 33 / ENS</p>
+            <p class="text-[11px] text-red-700 mt-0.5">Las brechas de datos personales con riesgo para los afectados deben notificarse a la <strong>AEPD en ≤ 72 horas</strong> desde su conocimiento. Los sistemas ENS afectados deben notificarse al <strong>CCN-CERT</strong>. Este módulo muestra el tiempo transcurrido desde la detección en cada incidente activo.</p>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">Total</span><span class="material-symbols-outlined text-secondary">list</span></div><span id="kpi-total" class="font-bold text-2xl text-primary">0</span><p class="text-[11px] text-on-surface-variant mt-1">Incidentes registrados</p></div>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-red-700 uppercase">Críticos</span><span class="material-symbols-outlined text-red-500">crisis_alert</span></div><span id="kpi-critical" class="font-bold text-2xl text-red-700">0</span><p class="text-[11px] text-red-600 mt-1">Severidad crítica/alta</p></div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-amber-700 uppercase">Abiertos</span><span class="material-symbols-outlined text-amber-500">hourglass_top</span></div><span id="kpi-open" class="font-bold text-2xl text-amber-700">0</span><p class="text-[11px] text-amber-600 mt-1">En gestión activa</p></div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-green-700 uppercase">Cerrados</span><span class="material-symbols-outlined text-green-500">check_circle</span></div><span id="kpi-closed" class="font-bold text-2xl text-green-700">0</span><p class="text-[11px] text-green-600 mt-1">Resueltos con cierre</p></div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">MTTR</span><span class="material-symbols-outlined text-secondary">timer</span></div><span id="kpi-mttr" class="font-bold text-2xl text-primary">—</span><p class="text-[11px] text-on-surface-variant mt-1">Tiempo medio resolución</p></div>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="border-b border-outline-variant">
+        <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+            <button id="btn-tab-lista" onclick="switchTab('lista')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">Registro de Incidentes</button>
+            <button id="btn-tab-stats" onclick="switchTab('stats')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Estadísticas</button>
+        </nav>
+    </div>
+
+    <!-- Lista -->
+    <section id="sec-lista" class="space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3 items-center bg-surface p-4 border border-outline-variant rounded-xl">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="search-input" oninput="renderList()" placeholder="Buscar incidente..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto justify-end">
+                <select id="filter-sev" onchange="renderList()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Todas las Severidades</option>
+                    <option>Crítica</option><option>Alta</option><option>Media</option><option>Baja</option>
+                </select>
+                <select id="filter-st" onchange="renderList()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option value="">Todos los Estados</option>
+                    <option>Detectado</option><option>En Contención</option><option>En Erradicación</option><option>En Recuperación</option><option>Cerrado</option>
+                </select>
+            </div>
+        </div>
+        <div class="space-y-4" id="incidents-list"></div>
+    </section>
+
+    <!-- Estadísticas -->
+    <section id="sec-stats" class="hidden grid grid-cols-1 md:grid-cols-2 gap-5" id="stats-grid"></section>
+
+</main>
+
+<!-- MODAL -->
+<div id="modal-inc" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-2xl w-full my-8 p-6 shadow-2xl space-y-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="modal-title" class="font-bold text-base text-primary">Registrar Incidente de Seguridad</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form onsubmit="saveInc(event)" class="space-y-4">
+            <input type="hidden" id="inc-id"/>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Título del Incidente *</label>
+                    <input id="i-title" required type="text" placeholder="Descripción breve del incidente" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Categoría *</label>
+                    <select id="i-cat" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Brecha de Datos Personales (RGPD)</option><option>Malware / Ransomware</option><option>Phishing / Ingeniería Social</option><option>Acceso No Autorizado</option><option>DDoS / Interrupción de Servicio</option><option>Pérdida / Robo de Dispositivo</option><option>Vulnerabilidad Explotada</option><option>Insider Threat</option><option>Fallo de Sistema Crítico</option><option>Otro</option>
+                    </select></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Severidad *</label>
+                    <select id="i-sev" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Crítica">Crítica — Impacto catastrófico</option><option value="Alta">Alta — Impacto significativo</option><option value="Media" selected>Media — Impacto moderado</option><option value="Baja">Baja — Impacto menor</option>
+                    </select></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha/Hora Detección *</label>
+                    <input id="i-detected" required type="datetime-local" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado *</label>
+                    <select id="i-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Detectado</option><option>En Contención</option><option>En Erradicación</option><option>En Recuperación</option><option>Cerrado</option>
+                    </select></div>
+            </div>
+            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción Detallada *</label>
+                <textarea id="i-desc" required rows="3" placeholder="Describir qué ocurrió, sistemas afectados, datos comprometidos, vector de ataque..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Sistemas / Activos Afectados</label>
+                    <input id="i-assets" type="text" placeholder="Ej: Servidor BBDD, ERP, portátiles de ventas" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Responsable / CISO</label>
+                    <input id="i-responsible" type="text" placeholder="Ej: CISO / Equipo de Respuesta" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-on-surface-variant">Notificaciones Requeridas</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <label class="flex items-center gap-2 text-xs font-medium cursor-pointer"><input type="checkbox" id="n-aepd" class="rounded text-secondary"/> AEPD (RGPD 72h)</label>
+                    <label class="flex items-center gap-2 text-xs font-medium cursor-pointer"><input type="checkbox" id="n-ccn" class="rounded text-secondary"/> CCN-CERT (ENS)</label>
+                    <label class="flex items-center gap-2 text-xs font-medium cursor-pointer"><input type="checkbox" id="n-afectados" class="rounded text-secondary"/> Afectados (RGPD Art.34)</label>
+                    <label class="flex items-center gap-2 text-xs font-medium cursor-pointer"><input type="checkbox" id="n-aepd-done" class="rounded text-secondary"/> AEPD Notificada ✓</label>
+                    <label class="flex items-center gap-2 text-xs font-medium cursor-pointer"><input type="checkbox" id="n-ccn-done" class="rounded text-secondary"/> CCN Notificado ✓</label>
+                </div>
+            </div>
+            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Acciones de Contención / Resolución</label>
+                <textarea id="i-actions" rows="2" placeholder="Medidas adoptadas: aislamiento, bloqueo de accesos, parche, restauración de backup..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Lecciones Aprendidas</label>
+                <textarea id="i-lessons" rows="2" placeholder="¿Qué se podría haber evitado? ¿Qué controles preventivos hay que implantar?" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Guardar Incidente</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const SEV = {
+    'Crítica': { cls:'bg-red-100 text-red-800 border-red-300', dot:'bg-red-500', icon:'crisis_alert' },
+    'Alta': { cls:'bg-orange-100 text-orange-800 border-orange-300', dot:'bg-orange-500', icon:'warning' },
+    'Media': { cls:'bg-amber-100 text-amber-800 border-amber-300', dot:'bg-amber-400', icon:'info' },
+    'Baja': { cls:'bg-green-100 text-green-800 border-green-300', dot:'bg-green-400', icon:'check_circle' }
+};
+const ST_CLS = {
+    'Detectado':'bg-red-100 text-red-800 border-red-300',
+    'En Contención':'bg-orange-100 text-orange-800 border-orange-300',
+    'En Erradicación':'bg-amber-100 text-amber-800 border-amber-300',
+    'En Recuperación':'bg-blue-100 text-blue-800 border-blue-300',
+    'Cerrado':'bg-green-100 text-green-800 border-green-300'
+};
+const seed = [
+    {id:'INC-2026-001',title:'Ransomware en servidor de ficheros compartidos',cat:'Malware / Ransomware',sev:'Crítica',detected:'2026-04-15T09:30',status:'Cerrado',desc:'El servidor de ficheros del departamento de RRHH fue cifrado por ransomware de tipo LockBit 3.0. Se vieron afectadas todas las carpetas compartidas. El vector de entrada fue un adjunto malicioso en un correo dirigido a un usuario del departamento.',assets:'Servidor FS-RRHH, Workstation-HR-03',responsible:'CISO / Equipo de Respuesta',notif:{aepd:true,ccn:true,afectados:false,aepdDone:true,ccnDone:true},actions:'Aislamiento inmediato del servidor, restauración desde backup del día anterior, limpieza de malware, cambio forzado de credenciales de usuarios afectados.',lessons:'Implantar solución EDR en todos los equipos. Reforzar la formación anti-phishing. Revisar el plan de backup (RPO actual = 24h, objetivo = 4h).',closedDate:'2026-04-18'},
+    {id:'INC-2026-002',title:'Acceso no autorizado a base de datos de clientes',cat:'Acceso No Autorizado',sev:'Alta',detected:'2026-05-22T14:15',status:'En Recuperación',desc:'Se detectó mediante SIEM un acceso anómalo a la base de datos de clientes desde una IP externa no registrada. La cuenta comprometida correspondía a un ex-empleado cuyo acceso no fue revocado correctamente en el proceso de baja.',assets:'Base de datos CRM, Servidor DB-01',responsible:'CISO / Responsable IT',notif:{aepd:true,ccn:false,afectados:false,aepdDone:false,ccnDone:false},actions:'Bloqueo inmediato de la cuenta comprometida. Auditoría de accesos activos. Revisión del proceso de baja de usuarios.',lessons:'Implantar proceso automatizado de revocación de accesos en el offboarding. Revisar PAM (Privileged Access Management).',closedDate:''},
+    {id:'INC-2026-003',title:'Campaña de phishing dirigida a dirección financiera',cat:'Phishing / Ingeniería Social',sev:'Media',detected:'2026-06-10T11:00',status:'Cerrado',desc:'Se recibieron 3 correos de phishing dirigidos (spear phishing) al director financiero y sus subordinados directos, simulando ser comunicaciones del banco de la empresa. Ningún usuario proporcionó credenciales.',assets:'Correo corporativo — Departamento Financiero',responsible:'Responsable IT',notif:{aepd:false,ccn:false,afectados:false,aepdDone:false,ccnDone:false},actions:'Bloqueo de dominio remitente. Comunicación a los afectados. Alerta a toda la organización.',lessons:'Programar simulacros de phishing periódicos. Implantar verificación en dos pasos en acceso a banca online.',closedDate:'2026-06-11'}
+];
+
+let incidents = [];
+
+function init() {
+    const stored = localStorage.getItem('sig_incidentes_seguridad');
+    incidents = stored ? JSON.parse(stored) : [...seed];
+    if (!stored) save();
+    // Poner datetime por defecto
+    const now = new Date();
+    const dt = now.toISOString().slice(0,16);
+    if (document.getElementById('i-detected')) document.getElementById('i-detected').value = dt;
+    render();
+}
+
+function save() { localStorage.setItem('sig_incidentes_seguridad', JSON.stringify(incidents)); }
+
+function render() { renderKPIs(); renderList(); renderStats(); }
+
+function renderKPIs() {
+    const t = incidents.length;
+    const crit = incidents.filter(i => i.sev==='Crítica'||i.sev==='Alta').length;
+    const open = incidents.filter(i => i.status !== 'Cerrado').length;
+    const closed = incidents.filter(i => i.status === 'Cerrado').length;
+    const withDates = incidents.filter(i => i.closedDate && i.detected);
+    let mttr = '—';
+    if (withDates.length > 0) {
+        const avg = withDates.reduce((acc,i) => acc + (new Date(i.closedDate) - new Date(i.detected)),0) / withDates.length;
+        const h = Math.round(avg / 3600000);
+        mttr = h >= 24 ? `${Math.round(h/24)}d` : `${h}h`;
+    }
+    document.getElementById('kpi-total').textContent = t;
+    document.getElementById('kpi-critical').textContent = crit;
+    document.getElementById('kpi-open').textContent = open;
+    document.getElementById('kpi-closed').textContent = closed;
+    document.getElementById('kpi-mttr').textContent = mttr;
+}
+
+function renderList() {
+    const container = document.getElementById('incidents-list');
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const sevF = document.getElementById('filter-sev').value;
+    const stF = document.getElementById('filter-st').value;
+    const filtered = incidents.filter(i =>
+        (i.title.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)) &&
+        (!sevF || i.sev === sevF) && (!stF || i.status === stF)
+    ).sort((a,b) => new Date(b.detected) - new Date(a.detected));
+
+    container.innerHTML = '';
+    if (!filtered.length) { container.innerHTML=`<div class="py-10 text-center text-on-surface-variant font-medium text-sm">No hay incidentes que coincidan.</div>`; return; }
+    filtered.forEach(i => {
+        const s = SEV[i.sev] || SEV['Media'];
+        const now = new Date();
+        const det = new Date(i.detected);
+        const hoursOpen = Math.round((now - det) / 3600000);
+        const rgpdAlert = i.notif?.aepd && !i.notif?.aepdDone && hoursOpen <= 72 && i.status !== 'Cerrado'
+            ? `<span class="text-danger text-[10px] font-bold animate-pulse">⏰ RGPD: ${72-hoursOpen}h para notificar AEPD</span>` : '';
+        const rgpdOverdue = i.notif?.aepd && !i.notif?.aepdDone && hoursOpen > 72 && i.status !== 'Cerrado'
+            ? `<span class="text-danger text-[10px] font-bold">⚠ AEPD: Plazo RGPD vencido</span>` : '';
+        container.innerHTML += `
+        <div class="bg-surface border border-outline-variant rounded-2xl p-5 fade-up hover:shadow-sm transition-all">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-secondary">${s.icon}</span>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <span class="font-mono text-[11px] text-secondary font-bold">${i.id}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] border font-bold ${s.cls}">${i.sev}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] border font-bold ${ST_CLS[i.status]||''}">${i.status}</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-primary">${i.title}</h4>
+                        <p class="text-[11px] text-on-surface-variant mt-0.5">${i.cat} · Detectado: ${i.detected?.replace('T',' ')}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    ${rgpdAlert}${rgpdOverdue}
+                    ${i.notif?.aepd ? `<span class="text-[10px] px-2 py-0.5 rounded-full border font-bold ${i.notif?.aepdDone ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}">AEPD ${i.notif?.aepdDone ? '✓' : 'Pendiente'}</span>` : ''}
+                </div>
+            </div>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2 mb-3">${i.desc}</p>
+            ${i.assets ? `<p class="text-[11px] text-on-surface-variant mb-2"><span class="font-bold text-primary">Activos:</span> ${i.assets}</p>` : ''}
+            ${i.actions ? `<div class="bg-surface-container-low border border-outline-variant rounded-lg p-2.5 text-[11px] text-on-surface-variant mb-2 line-clamp-2"><span class="font-bold text-primary">Acciones:</span> ${i.actions}</div>` : ''}
+            ${i.lessons ? `<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-2.5 text-[11px] text-on-surface-variant line-clamp-2"><span class="font-bold text-primary">Lecciones:</span> ${i.lessons}</div>` : ''}
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-3">
+                <button onclick="editInc('${i.id}')" class="text-secondary hover:text-primary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">edit</span>Editar</button>
+                <button onclick="deleteInc('${i.id}')" class="text-danger hover:text-red-700 text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">delete</span></button>
+            </div>
+        </div>`;
+    });
+}
+
+function renderStats() {
+    const grid = document.getElementById('sec-stats');
+    const byCat = {}, bySev = {};
+    incidents.forEach(i => { byCat[i.cat]=(byCat[i.cat]||0)+1; bySev[i.sev]=(bySev[i.sev]||0)+1; });
+    const total = incidents.length || 1;
+    const catRows = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+        `<div class="flex items-center gap-2"><span class="text-[10px] font-semibold text-on-surface-variant w-40 truncate">${k}</span><div class="flex-1 bg-surface-container rounded-full h-2"><div class="bg-secondary h-2 rounded-full" style="width:${Math.round(v/total*100)}%"></div></div><span class="text-[11px] font-bold text-primary w-5 text-right">${v}</span></div>`).join('');
+    const sevRows = Object.entries(bySev).map(([k,v])=>`<div class="flex justify-between text-xs"><span class="text-on-surface-variant font-semibold">${k}</span><span class="font-bold text-primary">${v}</span></div>`).join('');
+    grid.innerHTML = `
+        <div class="bg-surface border border-outline-variant rounded-2xl p-5 space-y-3"><h4 class="font-bold text-sm text-primary border-b border-outline-variant pb-2">Incidentes por Categoría</h4><div class="space-y-2">${catRows||'<p class="text-xs italic text-on-surface-variant">Sin datos</p>'}</div></div>
+        <div class="bg-surface border border-outline-variant rounded-2xl p-5 space-y-3"><h4 class="font-bold text-sm text-primary border-b border-outline-variant pb-2">Distribución por Severidad</h4><div class="space-y-2">${sevRows||'<p class="text-xs italic text-on-surface-variant">Sin datos</p>'}</div><div class="pt-2 border-t border-outline-variant"><p class="text-xs text-on-surface-variant">Total registrados</p><p class="text-2xl font-bold text-primary">${incidents.length}</p></div></div>`;
+}
+
+function switchTab(tab) {
+    ['lista','stats'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        const b = document.getElementById(`btn-tab-${t}`);
+        if(b) b.className='border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all';
+    });
+    document.getElementById(`sec-${tab}`).classList.remove('hidden');
+    const ab = document.getElementById(`btn-tab-${tab}`);
+    if(ab) ab.className='border-b-2 border-secondary text-secondary py-2 px-1 transition-all';
+    if(tab==='stats') renderStats();
+}
+
+function openModal(data=null) {
+    document.getElementById('modal-title').textContent = data ? 'Editar Incidente' : 'Registrar Incidente de Seguridad';
+    document.getElementById('inc-id').value = data?.id||'';
+    document.getElementById('i-title').value = data?.title||'';
+    document.getElementById('i-cat').value = data?.cat||'Brecha de Datos Personales (RGPD)';
+    document.getElementById('i-sev').value = data?.sev||'Media';
+    document.getElementById('i-detected').value = data?.detected||new Date().toISOString().slice(0,16);
+    document.getElementById('i-status').value = data?.status||'Detectado';
+    document.getElementById('i-desc').value = data?.desc||'';
+    document.getElementById('i-assets').value = data?.assets||'';
+    document.getElementById('i-responsible').value = data?.responsible||'';
+    document.getElementById('i-actions').value = data?.actions||'';
+    document.getElementById('i-lessons').value = data?.lessons||'';
+    document.getElementById('n-aepd').checked = data?.notif?.aepd||false;
+    document.getElementById('n-ccn').checked = data?.notif?.ccn||false;
+    document.getElementById('n-afectados').checked = data?.notif?.afectados||false;
+    document.getElementById('n-aepd-done').checked = data?.notif?.aepdDone||false;
+    document.getElementById('n-ccn-done').checked = data?.notif?.ccnDone||false;
+    document.getElementById('modal-inc').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modal-inc').classList.add('hidden'); }
+
+function saveInc(e) {
+    e.preventDefault();
+    const id = document.getElementById('inc-id').value;
+    const obj = {
+        id: id||`INC-${new Date().getFullYear()}-${String(incidents.length+1).padStart(3,'0')}`,
+        title:document.getElementById('i-title').value.trim(),
+        cat:document.getElementById('i-cat').value,
+        sev:document.getElementById('i-sev').value,
+        detected:document.getElementById('i-detected').value,
+        status:document.getElementById('i-status').value,
+        desc:document.getElementById('i-desc').value.trim(),
+        assets:document.getElementById('i-assets').value.trim(),
+        responsible:document.getElementById('i-responsible').value.trim(),
+        actions:document.getElementById('i-actions').value.trim(),
+        lessons:document.getElementById('i-lessons').value.trim(),
+        notif:{aepd:document.getElementById('n-aepd').checked,ccn:document.getElementById('n-ccn').checked,afectados:document.getElementById('n-afectados').checked,aepdDone:document.getElementById('n-aepd-done').checked,ccnDone:document.getElementById('n-ccn-done').checked},
+        closedDate:document.getElementById('i-status').value==='Cerrado'?new Date().toISOString().split('T')[0]:''
+    };
+    if(id){const idx=incidents.findIndex(i=>i.id===id);if(idx!==-1)incidents[idx]=obj;}else incidents.push(obj);
+    save();closeModal();render();
+}
+function editInc(id){openModal(incidents.find(i=>i.id===id));}
+function deleteInc(id){if(confirm('¿Eliminar incidente?')){incidents=incidents.filter(i=>i.id!==id);save();render();}}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

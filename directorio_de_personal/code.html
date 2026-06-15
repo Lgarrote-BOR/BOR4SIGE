@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Directorio de Personal - SIG</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "on-background": "#0b1c30",
+                      "surface-bright": "#f8f9ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-tertiary-container": "#818486",
+                      "surface": "#f8f9ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "surface-container-high": "#dce9ff",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-container-low": "#eff4ff",
+                      "primary": "#000000",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "secondary": "#0051d5",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-surface-variant": "#45464d",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "primary-fixed-dim": "#bec6e0",
+                      "outline-variant": "#c6c6cd",
+                      "background": "#f8f9ff",
+                      "tertiary": "#000000",
+                      "error": "#ba1a1a",
+                      "on-primary-container": "#7c839b",
+                      "secondary-container": "#316bf3",
+                      "on-secondary-fixed": "#00174b",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "surface-container": "#e5eeff",
+                      "surface-container-highest": "#d3e4fe",
+                      "primary-fixed": "#dae2fd",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#131b2e",
+                      "outline": "#76777d",
+                      "on-surface": "#0b1c30",
+                      "inverse-surface": "#213145",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bec6e0",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "tertiary-container": "#191c1e",
+                      "surface-dim": "#cbdbf5",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "surface-variant": "#d3e4fe"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "base": "4px",
+                      "margin": "24px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "max-width": "1440px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "code-sm": ["JetBrains Mono"],
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "display-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex">
+<!-- NavigationDrawer -->
+<nav aria-label="Main Navigation" class="hidden md:flex w-[240px] h-full fixed left-0 top-0 border-r border-outline-variant dark:border-outline bg-surface dark:bg-inverse-surface flex-col p-md z-30">
+<!-- Brand/Header -->
+<div class="mb-xl flex items-center justify-start space-x-sm">
+<span class="material-symbols-outlined text-secondary icon-fill" style="font-size: 32px;">assured_workload</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary-fixed">SIG</h1>
+</div>
+</div>
+<!-- Environment Switcher -->
+<div class="mb-lg p-sm border-l-4 border-secondary bg-surface-container-low rounded-r-lg">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Entorno</p>
+<p class="font-body-md text-body-md font-bold text-on-background">Producción</p>
+</div>
+<!-- Navigation Links -->
+<ul class="space-y-sm flex-1">
+<li>
+<a class="flex items-center space-x-md px-md py-sm rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-md px-md py-sm rounded-lg text-secondary font-bold border-r-4 border-secondary bg-surface-container-high transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined icon-fill">groups</span>
+<span class="font-body-md text-body-md">Personas</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-md px-md py-sm rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-body-md text-body-md">Riesgos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-md px-md py-sm rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-body-md text-body-md">Auditorías</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-md px-md py-sm rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Configuración</span>
+</a>
+</li>
+</ul>
+<!-- Profile Section -->
+<div class="mt-auto pt-md border-t border-outline-variant flex items-center space-x-sm">
+<img alt="Gestor de Cumplimiento avatar" class="w-10 h-10 rounded-full border border-outline-variant" data-alt="A professional corporate headshot of a compliance manager, bright office setting, sharp focus, natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvvlJbvZEy98D-lOaT38QGYNvf33EWJ2WyWAlTBBmPcd7Z2_IYZcuBPWMkrbs0t3VW12e6x1wydLgpr-WRA3_QlTO_bJzLL-LrCWkD7iKpKEMGn5b7tNd0T2NRS0wkvrdvxbl4a3_aPuVUxv2DtWN8ZZ6oNv1x0nkoKsdFOhaydz2L90FmHRDgjvGU7R42buqpLO0N3HhpBzLOgYA2Zrk4RCsACYcKFh6SmqGdreI6EYYJno17N-jNt7fXPbu_d3q7oZicltnPlMo"/>
+<div class="overflow-hidden">
+<p class="font-body-md text-body-md font-bold truncate">Gestor de Cumplimiento</p>
+<p class="font-label-md text-label-md text-on-surface-variant truncate">v2.4.0</p>
+</div>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-40 bg-surface dark:bg-on-background border-b border-outline-variant dark:border-outline flex items-center justify-between px-lg h-[64px] ml-[240px] md:w-[calc(100%-240px)]">
+<div class="flex items-center space-x-sm">
+<button class="md:hidden p-xs rounded-full hover:bg-surface-container-low active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-primary dark:text-on-primary-fixed">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md text-primary dark:text-on-primary-fixed">Gestión de Personas</h2>
+</div>
+<div class="flex items-center">
+<!-- Search & Filter Controls Top Bar -->
+<div class="hidden lg:flex items-center bg-surface-container-low rounded-full px-md py-sm border border-outline-variant mr-md focus-within:border-secondary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
+<input class="bg-transparent border-none outline-none font-body-md text-body-md text-on-surface focus:ring-0 w-64 placeholder:text-on-surface-variant" placeholder="Buscar por nombre o ID..." type="text"/>
+</div>
+<button class="p-xs rounded-full hover:bg-surface-container-low active:opacity-80 transition-opacity md:hidden">
+<span class="material-symbols-outlined text-primary dark:text-on-primary-fixed">search</span>
+</button>
+<img alt="Profile Photo" class="w-8 h-8 rounded-full ml-sm md:hidden" data-alt="Corporate headshot for mobile header, professional, sharp." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAte8PVpYJdtPSMV2_03mEIwldP7rlTTUb6jREc112UVPsGZinK506JkzBh3jJc2Vl28_6vWvV-hOEWbQFjjQBJN_N39lPG4OA_TdB_ByYO4S9y_xKSGpYEKmsEh7G-ZBs0DLCznRRDuuswB_XNBCfmTd6G7QdhferTFbkYUPenAg2tFadI2Xk-k-fc_3tcQe3YJndgNSUl4k9455jzmP6friRUMvaTaE04o7kWoizqYCabi5Hr71zDbiqLtT1A6ciHq4SfppP9D_k"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-[240px] pt-[64px] pb-[80px] md:pb-0 px-md lg:px-lg overflow-y-auto w-full bg-background min-h-screen">
+<div class="max-w-[1440px] mx-auto py-lg">
+<!-- Page Header & Global Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-lg space-y-md md:space-y-0">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-xs">Directorio Corporativo</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Gestiona la información de los empleados y sus roles dentro del sistema de gestión.</p>
+</div>
+<div class="flex items-center space-x-sm">
+<!-- Filters -->
+<div class="relative">
+<select id="filter-dept" onchange="filterData()" class="appearance-none bg-surface border border-outline-variant rounded-lg font-body-md text-body-md pl-md pr-xl py-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary text-on-surface">
+<option value="">Todos los Departamentos</option>
+<option value="Calidad">Calidad</option>
+<option value="Operaciones">Operaciones</option>
+<option value="TI">TI</option>
+<option value="Recursos Humanos">Recursos Humanos</option>
+<option value="Auditorías">Auditorías</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 transform -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+<div class="relative">
+<select id="filter-status" onchange="filterData()" class="appearance-none bg-surface border border-outline-variant rounded-lg font-body-md text-body-md pl-md pr-xl py-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary text-on-surface">
+<option value="">Estado: Todos</option>
+<option value="Activo">Activo</option>
+<option value="Licencia">Licencia</option>
+<option value="Inactivo">Inactivo</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 transform -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid / Glassmorphism Cards Layout for Directory -->
+<div id="directory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md">
+<!-- Dynamic cards injected here -->
+</div>
+</div>
+</main>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-lg dark:shadow-none flex justify-around items-center h-[80px] px-md pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform py-1 px-4 rounded-lg" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-[10px] mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform py-1 px-4 rounded-lg" href="#">
+<span class="material-symbols-outlined">shield</span>
+<span class="font-label-md text-[10px] mt-1">Riesgos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform py-1 px-4 rounded-lg" href="#">
+<span class="material-symbols-outlined">task_alt</span>
+<span class="font-label-md text-[10px] mt-1">Auditorías</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest scale-95 active:scale-90 transition-transform py-1 px-4 rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-[10px] mt-1">Perfil</span>
+</a>
+</nav>
+
+<!-- Floating Action Button (FAB) -->
+<button onclick="openModal()" aria-label="Añadir Personal" class="fixed bottom-[96px] md:bottom-lg right-lg w-14 h-14 bg-secondary text-on-secondary rounded-xl shadow-[0px_10px_25px_rgba(15,23,42,0.2)] flex items-center justify-center hover:bg-[#0047b3] active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined text-[28px] group-hover:rotate-90 transition-transform duration-300">add</span>
+</button>
+
+<!-- Modal Empleado -->
+<div id="modal-empleado" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl max-w-lg w-full p-lg flex flex-col gap-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+            <h3 id="modal-title" class="font-headline-sm text-headline-sm font-bold text-on-surface">Nuevo Empleado</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="form-empleado" onsubmit="saveEmployee(event)" class="space-y-4">
+            <input type="hidden" id="edit-id" value=""/>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="emp-name">Nombre Completo</label>
+                <input required id="emp-name" type="text" placeholder="Ej: Elena Montes" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="emp-role">Cargo / Puesto</label>
+                <input required id="emp-role" type="text" placeholder="Ej: Directora de Calidad" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="emp-dept">Departamento</label>
+                    <select id="emp-dept" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Calidad">Calidad</option>
+                        <option value="Operaciones">Operaciones</option>
+                        <option value="TI">TI</option>
+                        <option value="Recursos Humanos">Recursos Humanos</option>
+                        <option value="Auditorías">Auditorías</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="emp-status">Estado</label>
+                    <select id="emp-status" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="Activo">Activo</option>
+                        <option value="Licencia">Licencia</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="emp-photo">URL Foto (Opcional)</label>
+                <input id="emp-photo" type="text" placeholder="https://ejemplo.com/foto.jpg" class="w-full bg-surface-bright border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"/>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-md mt-4">
+                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-[#003ea8] transition-colors shadow-sm">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Datos semilla de personal
+    const seedPersonal = [
+        { id: "EMP-001", name: "Elena Montes", role: "Directora de Calidad", dept: "Calidad", status: "Activo", photo: "https://lh3.googleusercontent.com/aida-public/AB6AXuD69K_qlamwh3uoiapE26vtDmiJ8YMDAugHyaZniY7qw8sAyIylYfgv3dIAtAb-jO7NG41E2i87x7_6bs0wMao9mj4OCmDVWQSbXJDzAVt_aladYrU4ICB7ckVJaferbSY2SPRec2vqX3u1IpdTOYWRo4Sj3y6OZW9Xuz3ogk8la6d_by5pnZAF07RDsMhSbsn-i_2MfJKIF6lqrQfd0yX4SW7yFTCvCxlzw14awoQ_F7H2GjKnK-4FOpV1ezEvXYrtRpgLpQH3F3c" },
+        { id: "EMP-002", name: "Carlos Ruiz", role: "Auditor Líder ISO 9001", dept: "Auditorías", status: "Activo", photo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDo-Cy41WEMfynCeTspi9t-QgToa5p-0wehfPQ5UMuYvD0oxlBZfca8Y6-TSQIYCM3vB_dQRImAg98dbqC1pcSXFQWeqgXnWYa2lMSUAqR4wwR6DE0F0DSM4YxB09mD7cL01R9b2LLPcJPx0n3bLv1OqVVCcSGieqVMLVmx03esuCHZAAsdvYkM-7IiuYdksATjguTWgXfOiabWI4nSBfge_Ior4s4WgaC-xNWUY3Ru9hrryLFMtku9rYWW_L8G6mJZE6YC9roNqUI" },
+        { id: "EMP-003", name: "Ana Silva", role: "Ingeniera de Procesos", dept: "Operaciones", status: "Licencia", photo: "" },
+        { id: "EMP-004", name: "David Gómez", role: "Analista de Riesgos IT", dept: "TI", status: "Activo", photo: "https://lh3.googleusercontent.com/aida-public/AB6AXuCrhwWWObK-ok7TpL8nzUebJCcLTXBLtiIJhQ-vuf_Np8nadI7g3J8J6Ll899_EmO5HkLFNkTffyJEOjP8n6OprInrrzXidzZsZmtiuj6g463A9ouXjV7EeGk0HDN0jyA_8WZ2eg81ceznhrFWmxZvZoQhIiIn8t9xYxSGVvJ0UgEQpEWTs6u0RdZ9Oun8OalX-3WqZX8XO-2AB38mXpu4XfnJzsTkx4MhXlrucqvbZzfoAw1GfNx9uNbrHfw_XYyqqpCkYmpLx0Wc" },
+        { id: "EMP-005", name: "Laura M.", role: "Responsable de Calibraciones", dept: "Calidad", status: "Activo", photo: "" },
+        { id: "EMP-006", name: "Miguel R.", role: "Técnico de Mantenimiento", dept: "Operaciones", status: "Activo", photo: "" },
+        { id: "EMP-007", name: "Andrés T.", role: "Administrador de Sistemas", dept: "TI", status: "Activo", photo: "" }
+    ];
+
+    let personal = [];
+
+    // Inicializar datos
+    function initData() {
+        const stored = localStorage.getItem('sig_personal');
+        if (stored) {
+            personal = JSON.parse(stored);
+        } else {
+            personal = [...seedPersonal];
+            localStorage.setItem('sig_personal', JSON.stringify(personal));
+        }
+        
+        // Agregar id buscador superior al input del header
+        const headerInput = document.querySelector('header input');
+        if (headerInput) {
+            headerInput.id = 'search-input';
+            headerInput.setAttribute('oninput', 'filterData()');
+        }
+
+        renderDirectory();
+    }
+
+    // Renderizar directorio de tarjetas
+    function renderDirectory() {
+        const searchVal = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase().trim() : '';
+        const deptVal = document.getElementById('filter-dept').value;
+        const statusVal = document.getElementById('filter-status').value;
+
+        const grid = document.getElementById('directory-grid');
+        grid.innerHTML = '';
+
+        const filtered = personal.filter(emp => {
+            const matchesSearch = emp.name.toLowerCase().includes(searchVal) ||
+                                  emp.id.toLowerCase().includes(searchVal) ||
+                                  emp.role.toLowerCase().includes(searchVal);
+
+            const matchesDept = deptVal === '' || emp.dept === deptVal;
+            const matchesStatus = statusVal === '' || emp.status === statusVal;
+
+            return matchesSearch && matchesDept && matchesStatus;
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full py-8 text-center text-on-surface-variant font-medium card-level-1 rounded-xl">
+                    No se encontraron empleados con los filtros aplicados.
+                </div>
+            `;
+        } else {
+            filtered.forEach(emp => {
+                let statusDot = '';
+                if (emp.status === 'Activo') {
+                    statusDot = `
+                        <span class="absolute top-md right-md flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500" title="Activo"></span>
+                        </span>
+                    `;
+                } else if (emp.status === 'Licencia') {
+                    statusDot = `
+                        <span class="absolute top-md right-md flex h-3 w-3">
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500" title="Licencia"></span>
+                        </span>
+                    `;
+                } else {
+                    statusDot = `
+                        <span class="absolute top-md right-md flex h-3 w-3">
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-outline" title="Inactivo"></span>
+                        </span>
+                    `;
+                }
+
+                // Imagen o avatar
+                let imgHtml = '';
+                if (emp.photo) {
+                    imgHtml = `<img alt="${emp.name}" class="w-20 h-20 rounded-full object-cover mb-sm border-2 border-surface-container-high" src="${emp.photo}"/>`;
+                } else {
+                    const initials = emp.name.split(" ").map(n => n[0]).join("").substring(0,2).toUpperCase();
+                    imgHtml = `
+                        <div class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-sm border-2 border-surface-container-high font-bold text-xl select-none">
+                            ${initials}
+                        </div>
+                    `;
+                }
+
+                grid.innerHTML += `
+                    <div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col items-center text-center hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow duration-300 relative group min-h-[220px]">
+                        ${statusDot}
+                        ${imgHtml}
+                        <h4 class="font-headline-sm text-headline-sm text-on-background">${emp.name}</h4>
+                        <p class="font-body-md text-body-md text-primary font-medium mb-xs leading-none">${emp.role}</p>
+                        <span class="inline-block bg-surface-container text-on-surface-variant font-label-md text-[10px] px-sm py-xs rounded-full mb-md">${emp.dept}</span>
+                        <div class="w-full flex justify-between border-t border-outline-variant pt-sm mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editEmployee('${emp.id}')" class="text-secondary hover:bg-secondary-container hover:text-on-secondary-container p-xs rounded transition-colors text-xs font-semibold flex items-center gap-1" title="Editar">
+                                <span class="material-symbols-outlined text-sm">edit</span> Editar
+                            </button>
+                            <button onclick="deleteEmployee('${emp.id}')" class="text-error hover:bg-error-container hover:text-on-error-container p-xs rounded transition-colors text-xs font-semibold flex items-center gap-1" title="Eliminar">
+                                <span class="material-symbols-outlined text-sm">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    // Filtrar al escribir/cambiar selectores
+    function filterData() {
+        renderDirectory();
+    }
+
+    // Control del Modal
+    function openModal() {
+        document.getElementById('modal-title').innerText = "Nuevo Empleado";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-empleado').reset();
+        document.getElementById('modal-empleado').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-empleado').classList.add('hidden');
+        document.getElementById('form-empleado').reset();
+    }
+
+    // Editar
+    function editEmployee(id) {
+        const emp = personal.find(e => e.id === id);
+        if (emp) {
+            document.getElementById('modal-title').innerText = "Editar Empleado";
+            document.getElementById('edit-id').value = emp.id;
+            document.getElementById('emp-name').value = emp.name;
+            document.getElementById('emp-role').value = emp.role;
+            document.getElementById('emp-dept').value = emp.dept;
+            document.getElementById('emp-status').value = emp.status;
+            document.getElementById('emp-photo').value = emp.photo || '';
+            document.getElementById('modal-empleado').classList.remove('hidden');
+        }
+    }
+
+    // Eliminar
+    function deleteEmployee(id) {
+        if (confirm("¿Está seguro de que desea eliminar este empleado?")) {
+            personal = personal.filter(e => e.id !== id);
+            localStorage.setItem('sig_personal', JSON.stringify(personal));
+            renderDirectory();
+        }
+    }
+
+    // Guardar
+    function saveEmployee(event) {
+        event.preventDefault();
+
+        const editId = document.getElementById('edit-id').value;
+        const name = document.getElementById('emp-name').value.trim();
+        const role = document.getElementById('emp-role').value.trim();
+        const dept = document.getElementById('emp-dept').value;
+        const status = document.getElementById('emp-status').value;
+        const photo = document.getElementById('emp-photo').value.trim();
+
+        if (editId) {
+            // Editar existente
+            const idx = personal.findIndex(e => e.id === editId);
+            if (idx !== -1) {
+                personal[idx] = {
+                    ...personal[idx],
+                    name: name,
+                    role: role,
+                    dept: dept,
+                    status: status,
+                    photo: photo
+                };
+            }
+        } else {
+            // Generar nuevo ID secuencial EMP-XXX
+            let maxSeq = 7;
+            personal.forEach(e => {
+                const parts = e.id.split('-');
+                if (parts.length === 2) {
+                    const seq = parseInt(parts[1]);
+                    if (seq > maxSeq) maxSeq = seq;
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const newId = `EMP-${nextSeq}`;
+
+            const newEmp = {
+                id: newId,
+                name: name,
+                role: role,
+                dept: dept,
+                status: status,
+                photo: photo
+            };
+            personal.push(newEmp);
+        }
+
+        localStorage.setItem('sig_personal', JSON.stringify(personal));
+        renderDirectory();
+        closeModal();
+    }
+
+    // Inicializar al cargar
+    document.addEventListener('DOMContentLoaded', () => {
+        initData();
+    });
+</script>
+</body></html>

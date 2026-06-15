@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Operación Ambiental - SIG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137333",       // Verde Ecológico / Primario Ambiental
+                        "secondary": "#0f9d58",     // Verde Secundario
+                        "background": "#f8f9fb",    // Gris de fondo
+                        "surface": "#ffffff",       // Blanco
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "outline": "#737780",
+                        "outline-variant": "#c3c6d1",
+                        "success": "#137333",       // Verde Éxito
+                        "warning": "#b06000",       // Ámbar Alerta
+                        "danger": "#c5221f"         // Rojo Peligro
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">SIG 2.0</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Gestión Ambiental ISO 14001</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-primary rounded-full px-3 py-1 bg-surface-container-low text-primary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">eco</span>
+                <span>Control Operacional Ambiental (Medición de Recursos y Residuos)</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Cabecera del Módulo -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Operación Ambiental</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Gestión y declaración de residuos peligrosos y no peligrosos, y control de consumos de recursos (ISO 14001 §8.1).</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="resetToSeed()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">restore</span>
+                    Valores Iniciales
+                </button>
+                <button id="btn-crear-accion" onclick="openActionModal()" class="flex items-center gap-1.5 px-4 py-2 bg-primary text-white hover:bg-green-800 text-xs font-bold rounded-lg transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Registrar Residuo
+                </button>
+            </div>
+        </div>
+
+        <!-- Bento KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Residuos Peligrosos</span>
+                    <span class="material-symbols-outlined text-danger">warning</span>
+                </div>
+                <div>
+                    <span id="kpi-res-p" class="font-bold text-2xl text-danger">0 kg</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Actualmente en almacén temporal</p>
+                </div>
+            </div>
+            <!-- KPI 2 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Residuos Retirados</span>
+                    <span class="material-symbols-outlined text-success">delete_sweep</span>
+                </div>
+                <div>
+                    <span id="kpi-res-np" class="font-bold text-2xl text-success">0 kg</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Enviados a valorización este año</p>
+                </div>
+            </div>
+            <!-- KPI 3 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Consumo Eléctrico</span>
+                    <span class="material-symbols-outlined text-warning">bolt</span>
+                </div>
+                <div>
+                    <span id="kpi-consumo-el" class="font-bold text-2xl text-on-surface">0 kWh</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Acumulado del año en curso</p>
+                </div>
+            </div>
+            <!-- KPI 4 -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Huella Hídrica</span>
+                    <span class="material-symbols-outlined text-primary">water_drop</span>
+                </div>
+                <div>
+                    <span id="kpi-consumo-ag" class="font-bold text-2xl text-primary">0 m³</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Consumo de agua registrado</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas de Navegación del Módulo -->
+        <div class="border-b border-outline-variant">
+            <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none">
+                <button id="btn-tab-residuos" onclick="switchTab('residuos')" class="border-b-2 border-primary text-primary py-2 px-1 transition-all">
+                    Gestión de Residuos
+                </button>
+                <button id="btn-tab-consumos" onclick="switchTab('consumos')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                    Control de Consumos
+                </button>
+            </nav>
+        </div>
+
+        <!-- SECCIÓN 1: RESIDUOS -->
+        <section id="sec-residuos" class="space-y-4">
+            <!-- Tabla de Residuos -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-28 text-center">Código LER</th>
+                                <th class="p-3 w-36 text-center">Tipo</th>
+                                <th class="p-3">Descripción del Residuo</th>
+                                <th class="p-3 w-32 text-center">Cantidad (kg)</th>
+                                <th class="p-3 w-48">Gestor Autorizado</th>
+                                <th class="p-3 w-36 text-center">Fecha Retirada</th>
+                                <th class="p-3 w-32 text-center">Estado</th>
+                                <th class="p-3 w-28 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-residuos" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: CONSUMOS -->
+        <section id="sec-consumos" class="space-y-4 hidden">
+            <!-- Tabla de Consumos -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-32 text-center">Año-Mes</th>
+                                <th class="p-3 w-36 text-center">Electricidad (kWh)</th>
+                                <th class="p-3 w-36 text-center">Agua (m³)</th>
+                                <th class="p-3 w-36 text-center">Gasoil (litros)</th>
+                                <th class="p-3 w-36 text-center">Papel (kg)</th>
+                                <th class="p-3">Notas / Desviaciones</th>
+                                <th class="p-3 w-24 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-consumos" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL REGISTRAR RESIDUO -->
+    <div id="modal-residuos" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 id="modal-title-residuo" class="font-bold text-base text-primary">Registrar Salida / Almacén de Residuo</h3>
+                <button onclick="closeModal('modal-residuos')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveResiduo(event)" class="space-y-4">
+                <input type="hidden" id="res-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Código LER</label>
+                        <input id="res-ler" required type="text" placeholder="Ej: 15 01 10*" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo de Residuo</label>
+                        <select id="res-tipo" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+                            <option value="Peligroso">Peligroso (P)</option>
+                            <option value="No Peligroso">No Peligroso (NP)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción del Residuo</label>
+                    <input id="res-desc" required type="text" placeholder="Ej: Envases metálicos que contienen restos de sustancias peligrosas" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Cantidad Estimada (kg)</label>
+                        <input id="res-qty" required type="number" step="0.1" placeholder="Ej: 120.5" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado de Gestión</label>
+                        <select id="res-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+                            <option value="Almacenado">Almacenado Temporalmente</option>
+                            <option value="Retirado">Retirado por Gestor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Gestor Autorizado</label>
+                        <input id="res-gestor" type="text" placeholder="Ej: Eco-Recuperaciones S.A." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha Retirada</label>
+                        <input id="res-date" type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-residuos')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-primary text-white hover:bg-green-800 text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRAR CONSUMO -->
+    <div id="modal-consumos" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Registrar Lectura de Consumo</h3>
+                <button onclick="closeModal('modal-consumos')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveConsumo(event)" class="space-y-4">
+                <input type="hidden" id="con-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Año-Mes de Registro</label>
+                        <input id="con-period" required type="month" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Electricidad (kWh)</label>
+                        <input id="con-elect" required type="number" placeholder="Ej: 1450" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Agua (m³)</label>
+                        <input id="con-water" required type="number" placeholder="Ej: 45" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Gasoil (litros)</label>
+                        <input id="con-diesel" required type="number" placeholder="Ej: 200" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Papel (kg)</label>
+                        <input id="con-paper" required type="number" placeholder="Ej: 25" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Observaciones o Notas de Desviación</label>
+                    <textarea id="con-notes" rows="2" placeholder="Ej: Consumo de electricidad alto por horas extra en producción..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-consumos')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-primary text-white hover:bg-green-800 text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Guardar Consumo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Semillas iniciales
+        const seedResiduos = [
+            { id: "RES-001", ler: "15 01 10*", tipo: "Peligroso", desc: "Envases metálicos que contienen restos de disolventes", qty: 45.2, gestor: "Recuperaciones Químicas S.A.", date: "", status: "Almacenado" },
+            { id: "RES-002", ler: "15 01 01", tipo: "No Peligroso", desc: "Envases de cartón y embalajes", qty: 250.0, gestor: "Eco-Papelera S.L.", date: "2026-05-18", status: "Retirado" },
+            { id: "RES-003", ler: "13 02 05*", tipo: "Peligroso", desc: "Aceites minerales de motor no clorados de mantenimiento", qty: 80.0, gestor: "Geregras S.L.", date: "2026-04-10", status: "Retirado" }
+        ];
+
+        const seedConsumos = [
+            { id: "CON-001", period: "2026-04", elect: 1450, water: 38, diesel: 180, paper: 24, notes: "Funcionamiento ordinario de maquinaria." },
+            { id: "CON-002", period: "2026-05", elect: 1580, water: 45, diesel: 200, paper: 18, notes: "Incremento de electricidad debido a aumento de pedidos." }
+        ];
+
+        let residuos = [];
+        let consumos = [];
+        let currentTab = 'residuos';
+
+        function init() {
+            const stored = localStorage.getItem('sig_ambient_ops');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                residuos = parsed.residuos || [];
+                consumos = parsed.consumos || [];
+            } else {
+                residuos = [...seedResiduos];
+                consumos = [...seedConsumos];
+                saveToLocalStorage();
+            }
+            render();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_ambient_ops', JSON.stringify({ residuos, consumos }));
+        }
+
+        function resetToSeed() {
+            if (confirm("¿Está seguro de que desea restablecer los valores de control ambiental a la semilla inicial?")) {
+                residuos = [...seedResiduos];
+                consumos = [...seedConsumos];
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('sec-residuos').classList.add('hidden');
+            document.getElementById('sec-consumos').classList.add('hidden');
+            document.getElementById('btn-tab-residuos').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+            document.getElementById('btn-tab-consumos').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-tab-${tab}`).className = "border-b-2 border-primary text-primary py-2 px-1 transition-all";
+            
+            // Cambiar comportamiento del botón de cabecera
+            const btn = document.getElementById('btn-crear-accion');
+            if (tab === 'residuos') {
+                btn.innerHTML = `<span class="material-symbols-outlined text-base">add</span>Registrar Residuo`;
+            } else {
+                btn.innerHTML = `<span class="material-symbols-outlined text-base">add_chart</span>Registrar Consumo`;
+            }
+        }
+
+        function openActionModal() {
+            if (currentTab === 'residuos') {
+                document.getElementById('modal-title-residuo').innerText = "Registrar Residuo";
+                document.getElementById('res-id').value = "";
+                document.getElementById('res-ler').value = "";
+                document.getElementById('res-desc').value = "";
+                document.getElementById('res-qty').value = "";
+                document.getElementById('res-gestor').value = "";
+                document.getElementById('res-date').value = "";
+                document.getElementById('modal-residuos').classList.remove('hidden');
+            } else {
+                document.getElementById('con-id').value = "";
+                document.getElementById('con-period').value = "";
+                document.getElementById('con-elect').value = "";
+                document.getElementById('con-water').value = "";
+                document.getElementById('con-diesel').value = "";
+                document.getElementById('con-paper').value = "";
+                document.getElementById('con-notes').value = "";
+                document.getElementById('modal-consumos').classList.remove('hidden');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function renderKPIs() {
+            // Peligrosos almacenados temporalmente
+            const pQty = residuos.filter(r => r.tipo === "Peligroso" && r.status === "Almacenado").reduce((acc, curr) => acc + parseFloat(curr.qty), 0);
+            // No peligrosos retirados este año (2026)
+            const npQty = residuos.filter(r => r.tipo === "No Peligroso" && r.status === "Retirado").reduce((acc, curr) => acc + parseFloat(curr.qty), 0);
+            
+            // Consumos acumulados 2026
+            const totalElect = consumos.reduce((acc, curr) => acc + parseInt(curr.elect), 0);
+            const totalWater = consumos.reduce((acc, curr) => acc + parseInt(curr.water), 0);
+
+            document.getElementById('kpi-res-p').innerText = `${pQty.toFixed(1)} kg`;
+            document.getElementById('kpi-res-np').innerText = `${npQty.toFixed(1)} kg`;
+            document.getElementById('kpi-consumo-el').innerText = `${totalElect.toLocaleString('es-ES')} kWh`;
+            document.getElementById('kpi-consumo-ag').innerText = `${totalWater} m³`;
+        }
+
+        function render() {
+            renderKPIs();
+            
+            if (currentTab === 'residuos') {
+                const tbody = document.getElementById('tbody-residuos');
+                tbody.innerHTML = "";
+                
+                if (residuos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-on-surface-variant font-medium">No hay registros de residuos.</td></tr>`;
+                    return;
+                }
+
+                residuos.forEach(r => {
+                    let badgeClass = r.status === "Almacenado" ? "bg-amber-100 text-amber-800 border-amber-200" : "bg-green-100 text-green-800 border-green-200 font-bold";
+                    let typeBadge = r.tipo === "Peligroso" ? "bg-red-100 text-red-800 border-red-200 font-bold" : "bg-blue-100 text-blue-800 border-blue-200";
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 text-center font-mono font-bold text-on-surface-variant">${r.ler}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded text-[9px] border ${typeBadge}">${r.tipo}</span>
+                            </td>
+                            <td class="p-3 font-semibold text-primary">${r.desc}</td>
+                            <td class="p-3 text-center font-bold text-on-surface">${r.qty.toFixed(1)}</td>
+                            <td class="p-3 text-on-surface-variant font-semibold">${r.gestor || 'No asignado'}</td>
+                            <td class="p-3 text-center text-on-surface-variant">${r.date || '--'}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+                                    ${r.status}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button onclick="editResiduo('${r.id}')" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Editar">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </button>
+                                    <button onclick="deleteResiduo('${r.id}')" class="text-danger hover:text-red-700 p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Eliminar">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                const tbody = document.getElementById('tbody-consumos');
+                tbody.innerHTML = "";
+                
+                if (consumos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No hay registros de consumos mensuales.</td></tr>`;
+                    return;
+                }
+
+                consumos.forEach(c => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 text-center font-mono font-bold text-on-surface-variant">${c.period}</td>
+                            <td class="p-3 text-center font-semibold text-primary">${c.elect} kWh</td>
+                            <td class="p-3 text-center font-semibold text-secondary">${c.water} m³</td>
+                            <td class="p-3 text-center font-semibold text-on-surface-variant">${c.diesel} l</td>
+                            <td class="p-3 text-center font-semibold text-on-surface-variant">${c.paper} kg</td>
+                            <td class="p-3 text-on-surface-variant max-w-xs truncate" title="${c.notes || ''}">${c.notes || '--'}</td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button onclick="editConsumo('${c.id}')" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Editar">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </button>
+                                    <button onclick="deleteConsumo('${c.id}')" class="text-danger hover:text-red-700 p-1 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Eliminar">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Lógica CRUD Residuos
+        function saveResiduo(e) {
+            e.preventDefault();
+            const id = document.getElementById('res-id').value;
+            const ler = document.getElementById('res-ler').value.trim();
+            const tipo = document.getElementById('res-tipo').value;
+            const desc = document.getElementById('res-desc').value.trim();
+            const qty = parseFloat(document.getElementById('res-qty').value);
+            const status = document.getElementById('res-status').value;
+            const gestor = document.getElementById('res-gestor').value.trim();
+            const date = document.getElementById('res-date').value;
+
+            if (id) {
+                const idx = residuos.findIndex(r => r.id === id);
+                if (idx !== -1) {
+                    residuos[idx] = { ...residuos[idx], ler, tipo, desc, qty, status, gestor, date };
+                }
+            } else {
+                let maxSeq = 3;
+                residuos.forEach(r => {
+                    const parts = r.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `RES-${nextSeq}`;
+                residuos.push({ id: newId, ler, tipo, desc, qty, status, gestor, date });
+            }
+
+            saveToLocalStorage();
+            closeModal('modal-residuos');
+            render();
+            e.target.reset();
+        }
+
+        function editResiduo(id) {
+            const r = residuos.find(item => item.id === id);
+            if (r) {
+                document.getElementById('modal-title-residuo').innerText = `Editar Residuo (${r.id})`;
+                document.getElementById('res-id').value = r.id;
+                document.getElementById('res-ler').value = r.ler;
+                document.getElementById('res-tipo').value = r.tipo;
+                document.getElementById('res-desc').value = r.desc;
+                document.getElementById('res-qty').value = r.qty;
+                document.getElementById('res-status').value = r.status;
+                document.getElementById('res-gestor').value = r.gestor || '';
+                document.getElementById('res-date').value = r.date || '';
+                document.getElementById('modal-residuos').classList.remove('hidden');
+            }
+        }
+
+        function deleteResiduo(id) {
+            if (confirm(`¿Está seguro de que desea eliminar el residuo ${id}?`)) {
+                residuos = residuos.filter(item => item.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        // Lógica CRUD Consumos
+        function saveConsumo(e) {
+            e.preventDefault();
+            const id = document.getElementById('con-id').value;
+            const period = document.getElementById('con-period').value;
+            const elect = parseInt(document.getElementById('con-elect').value);
+            const water = parseInt(document.getElementById('con-water').value);
+            const diesel = parseInt(document.getElementById('con-diesel').value);
+            const paper = parseInt(document.getElementById('con-paper').value);
+            const notes = document.getElementById('con-notes').value.trim();
+
+            if (id) {
+                const idx = consumos.findIndex(c => c.id === id);
+                if (idx !== -1) {
+                    consumos[idx] = { ...consumos[idx], period, elect, water, diesel, paper, notes };
+                }
+            } else {
+                let maxSeq = 2;
+                consumos.forEach(c => {
+                    const parts = c.id.split('-');
+                    if (parts.length === 2) {
+                        const seq = parseInt(parts[1]);
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                });
+                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                const newId = `CON-${nextSeq}`;
+                consumos.push({ id: newId, period, elect, water, diesel, paper, notes });
+            }
+
+            saveToLocalStorage();
+            closeModal('modal-consumos');
+            render();
+            e.target.reset();
+        }
+
+        function editConsumo(id) {
+            const c = consumos.find(item => item.id === id);
+            if (c) {
+                document.getElementById('con-id').value = c.id;
+                document.getElementById('con-period').value = c.period;
+                document.getElementById('con-elect').value = c.elect;
+                document.getElementById('con-water').value = c.water;
+                document.getElementById('con-diesel').value = c.diesel;
+                document.getElementById('con-paper').value = c.paper;
+                document.getElementById('con-notes').value = c.notes || '';
+                document.getElementById('modal-consumos').classList.remove('hidden');
+            }
+        }
+
+        function deleteConsumo(id) {
+            if (confirm(`¿Está seguro de que desea eliminar la lectura de consumo ${id}?`)) {
+                consumos = consumos.filter(item => item.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

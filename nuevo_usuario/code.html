@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nuevo Usuario - Bor4D</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#cbdbf5",
+                        "inverse-surface": "#213145",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "primary-container": "#131b2e",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-fixed": "#00174b",
+                        "on-secondary-container": "#fefcff",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-container": "#191c1e",
+                        "secondary-container": "#316bf3",
+                        "primary": "#000000",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-high": "#dce9ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "surface-container": "#e5eeff",
+                        "background": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "primary-fixed": "#dae2fd",
+                        "outline": "#76777d",
+                        "on-background": "#0b1c30",
+                        "secondary": "#0051d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#818486",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#3f465c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "max-width": "1440px",
+                        "xs": "4px",
+                        "margin": "24px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- Top Navigation Area -->
+<header class="bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-lg h-16 w-full z-40 flex-shrink-0">
+<div class="flex items-center gap-md">
+<button class="text-primary hover:bg-surface-container-low rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<img alt="Bor4D Logo" class="h-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkPEqiwk9536gzsx1ZQd_McH_BMjk-pcpdj8qvzixEhgv_Wj2tzn3J5FS72-ItaoJIxtrsaTXAF0JgZzIsttotAbMLsMJRsJzplZjfR8ZgWmWzSZKj2KQLifv9fRS_Usz-Fk9yfsdF8PZyypQUow_aPq--KltaSVc3PmWR2AcLc1q_AKp5u29ZHd1XB06jonX-Mz1wBEEvNctST15bIAjtL-_izFD9KDTPghFBMaOMVp_mhwrYD7MIVZ-4K1aW8Q3Nhcl-24pj3ic"/>
+</div>
+<div class="flex items-center gap-md">
+<h1 class="font-headline-md text-headline-md text-primary hidden sm:block">Nuevo Usuario</h1>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-lg sm:p-xl max-w-[1024px] mx-auto w-full flex flex-col gap-lg">
+<div class="flex items-center justify-between mb-sm">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Detalles del Usuario</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Complete la información personal y asigne los permisos correspondientes.</p>
+</div>
+<!-- User Status Toggle -->
+<div class="flex items-center gap-sm bg-surface-container-low px-sm py-xs rounded-full border border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Estado</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-focus:ring-4 peer-focus:ring-secondary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary-container"></div>
+<span class="ml-sm font-label-md text-label-md text-on-surface">Activo</span>
+</label>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Personal Information Section (Spans 8 columns on desktop) -->
+<section class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col gap-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-sm border-b border-outline-variant pb-sm">
+<span class="material-symbols-outlined text-secondary">person</span>
+                    Información Personal
+                </h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<!-- Nombre Completo -->
+<div class="flex flex-col gap-xs sm:col-span-2">
+<label class="font-label-md text-label-md text-on-surface" for="fullName">Nombre Completo</label>
+<input class="w-full bg-surface border border-outline-variant rounded-md px-md py-sm font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-shadow" id="fullName" name="fullName" placeholder="Ej. Ana García" type="text"/>
+</div>
+<!-- Correo Electrónico -->
+<div class="flex flex-col gap-xs sm:col-span-2">
+<label class="font-label-md text-label-md text-on-surface" for="email">Correo Electrónico Corporativo</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 transform -translate-y-1/2 text-on-surface-variant pointer-events-none">mail</span>
+<input class="w-full bg-surface border border-outline-variant rounded-md pl-[44px] pr-md py-sm font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-shadow" id="email" name="email" placeholder="ana.garcia@empresa.com" type="email"/>
+</div>
+</div>
+<!-- ID Empleado -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="employeeId">ID Empleado</label>
+<input class="w-full bg-surface border border-outline-variant rounded-md px-md py-sm font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-shadow" id="employeeId" name="employeeId" placeholder="EMP-0001" type="text"/>
+</div>
+<!-- Rol Principal -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="role">Rol Principal</label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-md px-md py-sm font-body-md text-body-md text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-shadow" id="role" name="role">
+<option disabled="" selected="" value="">Seleccionar rol</option>
+<option value="admin">Administrador del Sistema</option>
+<option value="manager">Gerente de Calidad</option>
+<option value="auditor">Auditor Interno</option>
+<option value="viewer">Lector (Solo Vista)</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 transform -translate-y-1/2 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Permissions Section (Spans 4 columns on desktop) -->
+<section class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col gap-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-sm border-b border-outline-variant pb-sm">
+<span class="material-symbols-outlined text-secondary">admin_panel_settings</span>
+                    Módulos
+                </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Active el acceso a los módulos normativos requeridos para este usuario.</p>
+<div class="flex flex-col gap-md">
+<!-- Calidad (9001) -->
+<label class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-md cursor-pointer transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">verified</span>
+<span class="font-body-md text-body-md text-on-surface">Calidad (9001)</span>
+</div>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-outline-variant rounded-full peer peer-focus:ring-2 peer-focus:ring-secondary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary-container"></div>
+</div>
+</label>
+<!-- Medio Ambiente (14001) -->
+<label class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-md cursor-pointer transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">eco</span>
+<span class="font-body-md text-body-md text-on-surface">Medio Ambiente (14001)</span>
+</div>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-outline-variant rounded-full peer peer-focus:ring-2 peer-focus:ring-secondary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary-container"></div>
+</div>
+</label>
+<!-- Seguridad (27001) -->
+<label class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-md cursor-pointer transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">security</span>
+<span class="font-body-md text-body-md text-on-surface">Seguridad (27001)</span>
+</div>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-outline-variant rounded-full peer peer-focus:ring-2 peer-focus:ring-secondary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary-container"></div>
+</div>
+</label>
+<!-- Compliance -->
+<label class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-md cursor-pointer transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">gavel</span>
+<span class="font-body-md text-body-md text-on-surface">Compliance</span>
+</div>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-outline-variant rounded-full peer peer-focus:ring-2 peer-focus:ring-secondary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary-container"></div>
+</div>
+</label>
+</div>
+</section>
+</div>
+<!-- Action Buttons -->
+<div class="flex justify-end items-center gap-md pt-lg border-t border-outline-variant mt-sm">
+<button class="px-lg py-sm font-label-md text-label-md text-on-surface bg-surface border border-outline-variant rounded-md hover:bg-surface-container-low transition-colors focus:outline-none focus:ring-2 focus:ring-outline-variant focus:ring-offset-2" type="button">
+                Cancelar
+            </button>
+<button class="px-lg py-sm font-label-md text-label-md text-on-primary bg-secondary rounded-md hover:bg-secondary/90 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 flex items-center gap-xs" type="submit">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                Guardar Usuario
+            </button>
+</div>
+</main>
+</body></html>
