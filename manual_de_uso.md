@@ -1,148 +1,629 @@
-﻿# Manual de Uso de la Aplicación — SIGE 2.0
-## Sistema de Gestión Integrado (SGI) & Compliance
+# Manual de Usuario — SIGE 2.0
+## Sistema Integrado de Gestión Empresarial
 
-Este manual proporciona una guía detallada sobre la estructura, módulos y operación del sistema **SIGE 2.0**, diseñado para simplificar y automatizar el cumplimiento de múltiples normas internacionales de gestión (ISO) y del **Esquema Nacional de Seguridad (ENS)** español.
+> **Versión:** 2.0 | **Fecha:** Junio 2026 | **Destinatarios:** Usuarios del sistema
 
 ---
 
 ## Índice
 
-1. [Introducción y Objetivos](#1-introducción-y-objetivos)
-2. [Estructura del Portal y Arquitectura Técnica](#2-estructura-del-portal-y-arquitectura-técnica)
-3. [Descripción y Operación de Módulos Core](#3-descripción-y-operación-de-módulos-core)
-   - [3.1 Cuadro de Mando Integral (Dashboard)](#31-cuadro-de-mando-integral-dashboard)
-   - [3.2 Estrategia y Contexto Estratégico](#32-estrategia-y-contexto-estratégico)
-   - [3.3 Cumplimiento, ENS y Catálogo Legal](#33-cumplimiento-ens-y-catálogo-legal)
-   - [3.4 Gestión de Cambios TI (RFC) — ISO 20000-1 §8.5](#34-gestión-de-cambios-ti-rfc--iso-20000-1-85)
-   - [3.5 Desempeño de Proveedores — ISO 9001 §8.4](#35-desempeño-de-proveedores--iso-9001-84)
-   - [3.6 Eficacia de Formación — ISO 9001/45001 §7.2](#36-eficacia-de-formación--iso-900145001-72)
-   - [3.7 Gestión de Riesgos y Continuidad (BCP)](#37-gestión-de-riesgos-y-continuidad-bcp)
-   - [3.8 Operaciones, CAPA e Incidencias](#38-operaciones-capa-e-incidencias)
-   - [3.9 Gestión Documental](#39-gestión-documental)
-   - [3.10 Personas y Seguridad y Salud en el Trabajo (SST)](#310-personas-y-seguridad-y-salud-en-el-trabajo-sst)
-4. [Seguimiento Automatizado y Auditoría con IA](#4-seguimiento-automatizado-y-auditoría-con-ia)
-5. [Asistente Chatbot Virtual](#5-asistente-chatbot-virtual)
-6. [Instrucciones de Despliegue (Instalable/Pendrive)](#6-instrucciones-de-despliegue-instalablependrive)
+1. [Primeros pasos: cómo acceder al sistema](#1-primeros-pasos-cómo-acceder-al-sistema)
+2. [Navegación general](#2-navegación-general)
+3. [Cuadro de Mando (Dashboard)](#3-cuadro-de-mando-dashboard)
+4. [Gestión Documental](#4-gestión-documental)
+5. [Gestión de Auditorías y Acciones Correctivas (CAPA)](#5-gestión-de-auditorías-y-acciones-correctivas-capa)
+6. [Gestión de Riesgos](#6-gestión-de-riesgos)
+7. [Gestión de Cambios TI (RFC)](#7-gestión-de-cambios-ti-rfc)
+8. [Desempeño de Proveedores](#8-desempeño-de-proveedores)
+9. [Eficacia de la Formación](#9-eficacia-de-la-formación)
+10. [Satisfacción del Cliente](#10-satisfacción-del-cliente)
+11. [Incidentes de Seguridad](#11-incidentes-de-seguridad)
+12. [Seguridad y Salud en el Trabajo (SST)](#12-seguridad-y-salud-en-el-trabajo-sst)
+13. [Gestión Ambiental](#13-gestión-ambiental)
+14. [Canal de Denuncias](#14-canal-de-denuncias)
+15. [Cumplimiento Legal y ENS](#15-cumplimiento-legal-y-ens)
+16. [Revisión por la Dirección](#16-revisión-por-la-dirección)
+17. [Mapa de Procesos y KPIs](#17-mapa-de-procesos-y-kpis)
+18. [Análisis DAFO y Partes Interesadas](#18-análisis-dafo-y-partes-interesadas)
+19. [Servicios TI y Catálogo](#19-servicios-ti-y-catálogo)
+20. [Seguimiento por IA — Panel de Cumplimiento Automático](#20-seguimiento-por-ia--panel-de-cumplimiento-automático)
+21. [Asistente Virtual (Chatbot)](#21-asistente-virtual-chatbot)
+22. [Preguntas Frecuentes](#22-preguntas-frecuentes)
 
 ---
 
-## 1. Introducción y Objetivos
+## 1. Primeros pasos: cómo acceder al sistema
 
-El portal **SIGE 2.0** centraliza los requisitos de calidad, medio ambiente, seguridad de la información, continuidad de negocio, compliance y gestión de servicios TI de una organización. 
+### Acceso en modo servidor (recomendado para equipos)
 
-Los objetivos fundamentales son:
-- **Reducir la carga burocrática**: Evitar la duplicidad de registros comunes a varias normas (como planes de acción, no conformidades o gestión de riesgos).
-- **Adecuación al ENS**: Ofrecer herramientas interactivas para calcular la categoría del ENS en base a las dimensiones **CIDAT** (Confidencialidad, Integridad, Disponibilidad, Autenticidad, Trazabilidad) y controlar las medidas de control requeridas.
-- **Sincronización Transparente**: Proporcionar persistencia local autónoma (offline-first) y sincronización fluida con base de datos en servidor cuando esté conectado.
+1. Asegúrate de que el servidor SIGE 2.0 está en marcha. El administrador del sistema te proporcionará la URL de acceso, normalmente en formato:
+   ```
+   http://<IP-del-servidor>:3000/
+   ```
+2. Abre esa dirección en tu navegador web (Chrome, Edge o Firefox actualizados).
+3. La página principal (Portal SIGE 2.0) se cargará automáticamente.
 
----
+### Acceso en modo local (desde pendrive o equipo propio)
 
-## 2. Estructura del Portal y Arquitectura Técnica
+1. Navega a la carpeta de instalación de SIGE 2.0 en tu equipo o pendrive.
+2. Haz doble clic en `iniciar_servidor.bat` (Windows) para arrancar el servidor local.
+3. Una vez iniciado, abre tu navegador y accede a `http://localhost:3000/`.
+4. Como alternativa rápida, puedes abrir directamente el archivo `index.html` con tu navegador, aunque en este modo la información se guardará solo en ese navegador.
 
-El sistema está construido como una aplicación web de una sola página (SPA) simulada con marcos de navegación (`iframes`):
-- **Shell Principal (`index.html`)**: Contiene la barra lateral de navegación dinámica colapsable, un buscador de módulos en tiempo real, el simulador de perfiles de usuario (con control de accesos por Tenant) y el **Chatbot Virtual** flotante.
-- **Lienzo de Contenido (`content-iframe`)**: Carga dinámicamente el HTML de cada módulo en un espacio de trabajo aislado.
-- **Capa de Datos Compartida (`api-sync.js`)**: Modifica de forma transparente el comportamiento de `localStorage` dentro de los iframes. Si el servidor Node.js centralizado está activo, las operaciones de almacenamiento se guardan en el archivo `db.json` del servidor; en caso contrario, se realiza un fallback local transparente en el navegador del usuario.
-
----
-
-## 3. Descripción y Operación de Módulos Core
-
-### 3.1 Cuadro de Mando Integral (Dashboard)
-El centro neurálgico del portal. Muestra:
-- **Indicadores Clave (Bento Grid)**: Índice global de cumplimiento, volumen de acciones correctivas (CAPA), riesgos críticos y auditorías planificadas.
-- **Alcance por Organización**: Selector multi-tenant para aislar la información de diferentes clientes/sedes (Alfa, Beta, Omega) con control de visibilidad de normas configurables.
-- **Matriz de Dimensiones del ENS (CIDAT)**: Selector interactivo para asignar los niveles (Bajo, Medio, Alto) a cada dimensión de seguridad, calculando al instante la categoría global resultante del sistema según el RD 311/2022.
-- **Agente de Auditoría por IA**: Módulo integrado para automatizar la revisión del cumplimiento regulatorio (ver sección 4).
-
-### 3.2 Estrategia y Contexto Estratégico
-- **Análisis de Contexto**: Registro y seguimiento de factores estratégicos internos y externos (ISO 9001 §4.1).
-- **Matriz DAFO**: Permite estructurar Debilidades, Amenazas, Fortalezas y Oportunidades cruzando planes estratégicos.
-- **Partes Interesadas**: Gestión del alcance de las necesidades y expectativas de clientes, socios, administración y empleados (ISO 9001 §4.2).
-- **Mapa de Procesos**: Visualización del inventario de procesos estratégicos, clave y de soporte.
-- **Ficha de Proceso**: Plantilla interactiva con los dueños de proceso, entradas, salidas, KPIs, recursos y riesgos asociados.
-
-### 3.3 Cumplimiento, ENS y Catálogo Legal
-- **Requisitos Legales**: Control del catálogo legal y plazos de renovación de licencias u obligaciones estatales.
-- **Requisitos Normativos ENS**: Panel detallado que desglosa las medidas del Esquema Nacional de Seguridad organizadas en marcos organizativos, operacionales y de medidas técnicas.
-- **Revisión Puntos Norma**: Lista de control para auditar cláusula por cláusula las normas de referencia ISO.
-
-### 3.4 Gestión de Cambios TI (RFC) — ISO 20000-1 §8.5
-Diseñado para la gestión y autorización técnica de cambios en servicios informáticos.
-- **Operación**: Permite abrir Solicitudes de Cambio (RFC) clasificadas como Normales, Estándar o de Emergencia.
-- **Obligaciones**: Obliga a documentar la justificación técnica, el plan de pruebas previas y el **Plan de Reversión (Rollback)**.
-- **Comité de Cambios (CAB)**: Permite simular la evaluación y la aprobación técnica formal antes de pasar al estado de implementación.
-
-### 3.5 Desempeño de Proveedores — ISO 9001 §8.4
-Centraliza el control operativo y la evaluación anual obligatoria de los prestadores de servicios y subcontratistas.
-- **Operación**: Registra evaluaciones en base a 4 criterios clave: Calidad, Plazos (SLA), Atención de soporte y Seguridad/ESG (puntuación de 1 a 5).
-- **Acción Preventiva**: El sistema calcula de forma autónoma la nota media. Si el proveedor obtiene una nota final inferior a **2.5**, se bloquea su estado como "No Apto/Suspendido" y el sistema **dispara de forma automática una No Conformidad (CAPA)**.
-
-### 3.6 Eficacia de Formación — ISO 9001/45001 §7.2
-Mide el impacto real de las acciones formativas en el puesto de trabajo.
-- **Operación**: Evalúa las formaciones recibidas utilizando el modelo internacional de **4 Niveles de Kirkpatrick**:
-  1. *Reacción*: Satisfacción de los alumnos.
-  2. *Aprendizaje*: Calificación de exámenes y test teóricos.
-  3. *Comportamiento*: Aplicabilidad en el puesto de trabajo (evaluado a los 3 meses por el supervisor).
-  4. *Resultados*: Impacto cuantitativo en los KPIs de la organización (ej: reducción de incidencias).
-- **Mejora Continua**: Si la media es inferior a **3.0**, la formación se declara "No Eficaz" y el sistema **registra de manera autónoma una Acción de Mejora / Refuerzo formativo** para subsanar la brecha de competencia.
-
-### 3.7 Gestión de Riesgos y Continuidad (BCP)
-- **Evaluación de Riesgos**: Metodologías adaptadas a Magerit (seguridad de la información), riesgos de calidad (ISO 9001), riesgos compliance penal e impacto del cambio climático.
-- **Matriz de Riesgos v2**: Mapa de calor interactivo que visualiza la probabilidad frente al impacto.
-- **Tratamiento y Mitigación**: Registro de controles y salvaguardas aplicadas.
-- **Continuidad del Negocio (BCP)**: Permite registrar y evaluar planes de contingencia, análisis de impacto al negocio (BIA) e historial de simulacros anuales bajo la norma ISO 22301.
-
-### 3.8 Operaciones, CAPA e Incidencias
-- **Incidencias y NC**: Punto de entrada de todas las desviaciones, fallos técnicos, quejas de clientes y no conformidades.
-- **Acciones Correctivas (CAPA)**: Panel para formular análisis de causa raíz (5 Porqués / diagrama de Ishikawa) y asignar tareas correctivas con fechas límite.
-- **Acciones de Mejora**: Registro de oportunidades preventivas sugeridas por el personal o derivadas de auditorías.
-
-### 3.9 Gestión Documental
-- **Explorador de Documentos**: Biblioteca jerárquica con las políticas y procedimientos vigentes.
-- **Gestor Documental SGI**: Controla la codificación, versión, fecha de vigencia y autoría.
-- **Flujo de Aprobación**: Permite simular los estados de "Redacción", "Revisión" y "Aprobación" por los responsables asignados.
-
-### 3.10 Personas y Seguridad y Salud en el Trabajo (SST)
-- **Directorio de Personal**: Listado de empleados con cargos y competencias.
-- **Plan Formativo Anual**: Agenda de cursos planificados por área.
-- **Investigación de Accidentes**: Registro obligatorio de incidentes, lesiones y medidas adoptadas (ISO 45001 §10.2).
+> **Tip:** Se recomienda usar siempre el servidor local (`iniciar_servidor.bat`) para que todos los datos se guarden correctamente y sean accesibles por otros usuarios de la misma red.
 
 ---
 
-## 4. Seguimiento Automatizado y Auditoría con IA
+## 2. Navegación general
 
-El portal de **SIGE 2.0** incorpora una capacidad avanzada de **Seguimiento Automatizado de Cumplimiento por Inteligencia Artificial**. Esta función se activa desde la tarjeta integrada en el Cuadro de Mando Integral y opera de forma autónoma:
+### La barra lateral izquierda
 
-1. **Escaneo de Base de Datos**: El agente de IA audita de manera continua los datos de los diferentes módulos del SGI para verificar el cumplimiento normativo.
-2. **Auditorías Específicas**:
-   - **En Gestión de Cambios (ISO 20000-1 §8.5)**: Detecta solicitudes de cambio en estado abierto que carecen de plan de reversión (Rollback) o planes de prueba previos y genera alertas críticas inmediatas.
-   - **En Desempeño de Proveedores (ISO 9001 §8.4)**: Verifica si los proveedores que tienen notas deficientes cuentan con su correspondiente expediente de No Conformidad abierto en el módulo CAPA para justificar la acción correctora.
-   - **En Eficacia Formativa (ISO 45001 §7.2)**: Analiza que los expedientes calificados como no eficaces tengan asignado un plan de refuerzo o tutoría activa.
-   - **En Controles Técnicos**: Evalúa la aplicación de directivas del ENS e inspecciones obligatorias de ISO 14001.
-3. **Registro Autónomo**: A medida que detecta desvíos, escribe en el **Log de Actividad IA** y actualiza el contador de acciones de auditoría en el panel en tiempo real.
+Nada más entrar verás la barra lateral de navegación a la izquierda de la pantalla. Desde ella puedes acceder a todos los módulos del sistema, organizados por área temática:
+
+- **Estrategia**: DAFO, Partes Interesadas, Mapa de Procesos, KPIs, Ficha de Proceso.
+- **Operaciones y Calidad**: Satisfacción del Cliente, Proveedores, Compras, Formación.
+- **Cumplimiento y Legal**: Requisitos Legales, ENS, Políticas, Catálogo de Requisitos.
+- **Seguridad TI**: Incidentes, Cambios TI, Catálogo de Servicios TI.
+- **Medio Ambiente y SST**: Aspectos Ambientales, Cambio Climático, Accidentes SST.
+- **Documentación**: Gestión Documental, Explorador de Documentos, Informes.
+- **Cumplimiento y Compliance**: Canal de Denuncias, Auditorías, CAPA, Revisión Dirección.
+- **Dashboard**: Cuadro de Mando Integral.
+
+### Cómo buscar un módulo
+
+En la parte superior de la barra lateral encontrarás un **buscador**. Escribe cualquier palabra clave (por ejemplo, "proveedor", "riesgo", "auditoría") y el sistema filtrará los módulos disponibles en tiempo real.
+
+### Cambiar de organización (multi-empresa)
+
+Si tu instalación gestiona varias sedes u organizaciones, verás un **selector de organización** en la barra lateral. Al cambiar de organización, el tablero y todos los datos se filtrarán automáticamente para mostrar únicamente la información de esa entidad.
+
+### Colapsar la barra lateral
+
+Haz clic en el icono de menú (☰) en la parte superior izquierda para ocultar o mostrar la barra lateral y ganar espacio de trabajo.
 
 ---
 
-## 5. Asistente Chatbot Virtual
+## 3. Cuadro de Mando (Dashboard)
 
-En la esquina inferior derecha del portal se encuentra el **Asistente Chatbot Virtual**. Está diseñado para brindar soporte interactivo en tiempo real al usuario:
-- **Consultas Operativas**: Explica cómo usar el software y realizar tareas comunes (ej: *"¿Cómo registro un RFC?"* o *"¿Cómo evalúo a un proveedor?"*).
-- **Consultas Normativas**: Resuelve dudas sobre las cláusulas y requisitos de las normas de referencia (ej: *"¿Qué es el ENS?"*, *"¿Qué mide Kirkpatrick?"*).
-- **Acceso Directo (Navegación Asistida)**: Las respuestas del bot incorporan botones de acción directa en español. Al pulsar el botón, el asistente redirige automáticamente la pantalla al módulo exacto correspondiente, facilitando el aprendizaje y agilizando la gestión.
+El **Cuadro de Mando Integral** es la pantalla principal de SIGE 2.0. Ofrece una visión ejecutiva del estado del sistema de gestión en tiempo real.
+
+### Qué verás en el Dashboard
+
+| Tarjeta | Qué mide |
+|---------|----------|
+| **Índice Global de Cumplimiento** | Puntuación media de todas las normas activas (0–100%) |
+| **Acciones CAPA abiertas** | No conformidades pendientes de cierre |
+| **Riesgos críticos** | Riesgos con nivel alto no mitigados |
+| **Auditorías planificadas** | Auditorías próximas con su estado |
+
+### Matriz ENS (CIDAT)
+
+En el panel del ENS encontrarás los selectores para las 5 dimensiones de seguridad:
+
+- **C** — Confidencialidad
+- **I** — Integridad
+- **D** — Disponibilidad
+- **A** — Autenticidad
+- **T** — Trazabilidad
+
+**Cómo usarla:**
+1. Selecciona el nivel (Bajo / Medio / Alto) para cada dimensión según la sensibilidad de los datos y servicios de tu organización.
+2. El sistema calcula automáticamente la **categoría ENS global** (Básica / Media / Alta) conforme al RD 311/2022.
+3. Esta categoría determina las medidas de seguridad obligatorias para tu organización.
+
+### Gráficos de evolución
+
+Los gráficos de la parte inferior del Dashboard muestran la evolución histórica de los indicadores clave. Puedes pasar el cursor por encima de cada punto para ver el valor exacto de ese período.
 
 ---
 
-## 6. Instrucciones de Despliegue (Instalable/Pendrive)
+## 4. Gestión Documental
 
-Para utilizar la aplicación en modo autónomo local (ej: desde una unidad pendrive o disco duro local):
+Este módulo te permite controlar toda la documentación del sistema de gestión: manuales, procedimientos, instrucciones técnicas, registros y formatos.
 
-1. **Estructura Portátil**: Todos los componentes están integrados en la carpeta `sgi_webapp_instalable/`.
-2. **Ejecución Directa (Modo Local)**:
-   - Abra el archivo `index.html` con cualquier navegador web moderno (Edge, Chrome, Firefox).
-   - En este modo, el portal funcionará de forma local usando la memoria `localStorage` persistente de su navegador.
-3. **Ejecución con Servidor Local (Recomendado para Sincronización)**:
-   - Requiere tener instalado **Node.js** en el equipo.
-   - Ejecute el script `iniciar_servidor.bat` (en Windows) o `iniciar_servidor.sh` (en Linux/Mac).
-   - El servidor se iniciará en `http://localhost:3000/`.
-   - Todas las modificaciones se guardarán centralizadas en el archivo `db.json`.
+### Cómo registrar un nuevo documento
+
+1. Accede a **Gestión Documental** desde la barra lateral.
+2. Haz clic en el botón **"+ Nuevo Documento"**.
+3. Rellena los campos del formulario:
+   - **Código**: Identificador único del documento (ej: `PR-CAL-001`).
+   - **Título**: Nombre descriptivo del documento.
+   - **Tipo**: Manual, Procedimiento, Instrucción técnica, Formato/Registro, etc.
+   - **Ámbito**: Norma o área a la que pertenece (ej: `Calidad (ISO 9001)`).
+   - **Versión**: Número de versión actual (ej: `v1.0`).
+   - **Fecha**: Fecha de aprobación o entrada en vigor.
+   - **Estado**: Vigente, En Revisión, Obsoleto.
+   - **Responsable**: Persona o cargo responsable del documento.
+4. Haz clic en **"Guardar"**.
+
+### Cómo actualizar un documento existente
+
+1. Localiza el documento en la tabla (puedes filtrar por tipo, estado o ámbito).
+2. Haz clic en el icono de **edición** (✏️) en la fila correspondiente.
+3. Modifica los campos que corresponda (normalmente la versión y la fecha).
+4. Haz clic en **"Guardar"** para aplicar los cambios.
+
+### Cómo marcar un documento como obsoleto
+
+1. Edita el documento y cambia su **Estado** a `Obsoleto`.
+2. Guarda los cambios. El documento permanecerá visible en el historial pero diferenciado visualmente del resto.
+
+### Estados de un documento
+
+| Estado | Significado |
+|--------|-------------|
+| **Vigente** | Documento en uso, aprobado y aplicable |
+| **En Revisión** | Está siendo actualizado o pendiente de aprobación |
+| **Obsoleto** | Sustituido por una versión posterior, no aplicable |
+
+---
+
+## 5. Gestión de Auditorías y Acciones Correctivas (CAPA)
+
+### Módulo Auditorías & Acciones
+
+Este módulo centraliza el registro de hallazgos de auditoría, no conformidades y las acciones correctivas derivadas.
+
+#### Cómo registrar una no conformidad
+
+1. Accede a **Auditorías & Acciones** en la barra lateral.
+2. Haz clic en **"+ Nueva No Conformidad"**.
+3. Completa los campos:
+   - **Descripción**: Qué se ha detectado.
+   - **Origen**: Auditoría interna, queja de cliente, inspección, etc.
+   - **Norma / Cláusula afectada**: Ej: `ISO 9001 §8.4.1`.
+   - **Responsable de resolución**: Persona encargada de corregirla.
+   - **Fecha límite**: Plazo para resolver la no conformidad.
+4. Guarda la no conformidad. Su estado inicial será **"Abierta"**.
+
+#### Cómo registrar una acción correctiva (CAPA)
+
+Una vez abierta la no conformidad, debes asignarle una acción correctiva:
+
+1. Abre la no conformidad existente.
+2. En la sección **Acción Correctiva**, rellena:
+   - **Análisis de causa raíz**: Utiliza los 5 Porqués o el Diagrama de Ishikawa para identificar la causa real.
+   - **Acción a implementar**: Qué se va a hacer para corregirlo.
+   - **Evidencias de cierre**: Documento o prueba de que la acción fue ejecutada.
+3. Cuando la acción esté completada, cambia el estado a **"Cerrada"** e indica la fecha de cierre.
+
+#### Estados de una no conformidad
+
+| Estado | Significado |
+|--------|-------------|
+| **Abierta** | Detectada pero sin acción asignada o en curso |
+| **En curso** | Acción correctiva en progreso |
+| **Cerrada** | Resuelta y con evidencia de cierre |
+
+---
+
+## 6. Gestión de Riesgos
+
+### Cómo registrar un riesgo
+
+1. Accede al módulo **Gestión de Riesgos** desde la barra lateral.
+2. Haz clic en **"+ Nuevo Riesgo"**.
+3. Rellena los campos:
+   - **Descripción del riesgo**: Qué puede ocurrir y por qué.
+   - **Área / Proceso afectado**.
+   - **Tipo**: Operativo, Seguridad de la información, Ambiental, Compliance, etc.
+   - **Probabilidad**: Baja / Media / Alta.
+   - **Impacto**: Bajo / Medio / Alto.
+4. El sistema calculará automáticamente el **nivel de riesgo** (Bajo / Medio / Alto / Crítico) en función de la combinación de probabilidad e impacto.
+
+### Cómo tratar un riesgo
+
+1. Selecciona el riesgo y edítalo.
+2. En la sección **Tratamiento**, indica:
+   - **Tipo de tratamiento**: Eliminar, Reducir, Transferir, Aceptar.
+   - **Controles o salvaguardas aplicados**: Medidas técnicas u organizativas implementadas.
+   - **Riesgo residual**: Nivel de riesgo que queda tras aplicar los controles.
+3. Guarda los cambios.
+
+### Mapa de calor de riesgos
+
+En la parte superior del módulo encontrarás la **Matriz de Riesgos** (mapa de calor). Muestra todos los riesgos posicionados según su probabilidad e impacto:
+- 🟢 Verde: Riesgo bajo (aceptable).
+- 🟡 Amarillo: Riesgo medio (requiere vigilancia).
+- 🔴 Rojo: Riesgo alto / crítico (requiere tratamiento inmediato).
+
+---
+
+## 7. Gestión de Cambios TI (RFC)
+
+Este módulo gestiona todas las solicitudes de cambio en los sistemas informáticos de la organización, conforme a ISO 20000 e ITIL.
+
+### Cómo abrir una Solicitud de Cambio (RFC)
+
+1. Accede a **Gestión de Cambios TI** en la barra lateral.
+2. Haz clic en **"+ Nueva RFC"**.
+3. Rellena el formulario:
+   - **Título del cambio**: Descripción breve del cambio propuesto.
+   - **Tipo de cambio**:
+     - *Estándar*: Cambios preaprobados y de bajo riesgo (ej: actualizar una contraseña).
+     - *Normal*: Cambios planificados que requieren aprobación del CAB.
+     - *Emergencia*: Cambios urgentes que necesitan autorización inmediata.
+   - **Justificación técnica**: Por qué es necesario este cambio.
+   - **Plan de pruebas previas**: Qué pruebas se harán antes de implementar.
+   - **Plan de reversión (Rollback)**: Cómo se deshará el cambio si algo va mal.
+   - **Responsable técnico**: Quién lo va a ejecutar.
+   - **Fecha de implementación prevista**.
+
+> ⚠️ **Importante:** Los campos de Plan de Pruebas y Plan de Rollback son **obligatorios**. El agente de IA de SIGE 2.0 detectará automáticamente las RFCs que carezcan de ellos y generará una alerta.
+
+### Estados de una RFC
+
+| Estado | Significado |
+|--------|-------------|
+| **Pendiente de aprobación** | En espera de revisión por el CAB o el responsable |
+| **Aprobada** | Lista para ser implementada |
+| **En implementación** | Cambio en curso |
+| **Completada** | Cambio implementado y verificado con éxito |
+| **Rechazada** | El CAB ha denegado el cambio |
+| **Revertida** | Se aplicó el plan de rollback |
+
+---
+
+## 8. Desempeño de Proveedores
+
+### Cómo evaluar a un proveedor
+
+1. Accede a **Desempeño de Proveedores** en la barra lateral.
+2. Selecciona el proveedor de la lista o añade uno nuevo con **"+ Nuevo Proveedor"**.
+3. Haz clic en **"Nueva Evaluación"** y puntúa del 1 al 5 cada criterio:
+
+| Criterio | Qué evalúa |
+|----------|-----------|
+| **Calidad** | Calidad del producto o servicio entregado |
+| **Plazos (SLA)** | Cumplimiento de los tiempos acordados |
+| **Atención y soporte** | Capacidad de respuesta ante incidencias |
+| **Seguridad / ESG** | Seguridad de la información y responsabilidad ambiental |
+
+4. El sistema calcula automáticamente la **nota media**.
+5. Guarda la evaluación.
+
+### Qué ocurre si un proveedor suspende
+
+Si la nota media es **inferior a 2.5**, el sistema automáticamente:
+- Cambia el estado del proveedor a **"No Apto / Suspendido"**.
+- Genera una **No Conformidad (CAPA)** automática en el módulo de Auditorías.
+- Envía una alerta al Panel de IA del Dashboard.
+
+En este caso, deberás:
+1. Contactar con el proveedor para comunicar el resultado.
+2. Acordar un plan de mejora.
+3. Realizar una nueva evaluación en el plazo acordado.
+4. Cerrar la CAPA cuando el proveedor supere el umbral mínimo.
+
+---
+
+## 9. Eficacia de la Formación
+
+Este módulo evalúa si las acciones formativas están teniendo el impacto esperado en la organización.
+
+### Cómo registrar la evaluación de una formación
+
+1. Accede a **Eficacia de Formación** en la barra lateral.
+2. Selecciona la formación de la lista o añade una nueva.
+3. Evalúa los 4 niveles del **modelo Kirkpatrick**:
+
+| Nivel | Qué se evalúa | Cuándo |
+|-------|--------------|--------|
+| **1. Reacción** | Satisfacción de los participantes (encuesta) | Al finalizar la formación |
+| **2. Aprendizaje** | Nota del examen o prueba de conocimiento | Al finalizar la formación |
+| **3. Comportamiento** | Aplicación en el puesto de trabajo | 3 meses después |
+| **4. Resultados** | Impacto en los KPIs del área (ej: reducción de errores) | 6 meses después |
+
+4. Introduce la puntuación de cada nivel (1 a 5).
+5. El sistema calcula la media y determina si la formación es **Eficaz** (≥ 3.0) o **No Eficaz** (< 3.0).
+
+### Qué ocurre si una formación es declarada "No Eficaz"
+
+El sistema crea automáticamente una **Acción de Mejora** en el módulo de Auditorías, indicando que se debe:
+- Rediseñar el contenido de la formación.
+- Proporcionar formación de refuerzo a los participantes con menor puntuación.
+- Evaluar de nuevo en el próximo ciclo.
+
+---
+
+## 10. Satisfacción del Cliente
+
+### Cómo registrar una encuesta de satisfacción
+
+1. Accede a **Satisfacción del Cliente** en la barra lateral.
+2. Haz clic en **"+ Nueva Encuesta"**.
+3. Introduce:
+   - **Cliente / Proyecto**: A quién corresponde la encuesta.
+   - **Período**: Trimestre o campaña de medición.
+   - **Puntuaciones** por criterio (producto, servicio, comunicación, plazos, etc.).
+   - **Comentarios cualitativos** recibidos.
+4. El sistema calcula el **índice de satisfacción global** y lo refleja en el Dashboard.
+
+### Cómo gestionar una queja de cliente
+
+1. Accede al módulo de Satisfacción o directamente a **Auditorías & Acciones**.
+2. Registra la queja como **No Conformidad** con origen "Queja de Cliente".
+3. Sigue el proceso CAPA descrito en el apartado 5 de este manual.
+4. Una vez resuelta, notifica al cliente la solución adoptada.
+
+---
+
+## 11. Incidentes de Seguridad
+
+### Cómo registrar un incidente de seguridad de la información
+
+1. Accede a **Incidentes de Seguridad** en la barra lateral.
+2. Haz clic en **"+ Nuevo Incidente"**.
+3. Rellena el formulario:
+   - **Tipo de incidente**: Acceso no autorizado, filtración de datos, malware, caída de sistema, etc.
+   - **Descripción detallada**: Qué ocurrió, cuándo y cómo se detectó.
+   - **Sistemas afectados**: Qué equipos, aplicaciones o datos se han visto afectados.
+   - **Clasificación**: Bajo / Medio / Alto / Crítico.
+   - **Responsable de respuesta**: Persona que gestiona el incidente.
+4. Guarda el incidente. El sistema le asignará un ID único y marcará la fecha/hora de apertura.
+
+### Cómo cerrar un incidente
+
+1. Abre el incidente existente.
+2. Documenta las **acciones de contención** tomadas (ej: aislamiento de sistemas, cambio de contraseñas).
+3. Indica la **causa raíz** identificada.
+4. Describe las **medidas preventivas** adoptadas para evitar que se repita.
+5. Cambia el estado a **"Cerrado"** e indica la fecha de resolución.
+
+> Si el incidente supone una brecha de datos personales que afecta a ciudadanos de la UE, recuerda que el **RGPD obliga a notificar a la AEPD en menos de 72 horas**.
+
+---
+
+## 12. Seguridad y Salud en el Trabajo (SST)
+
+### Cómo registrar un accidente o incidente laboral
+
+1. Accede a **Investigación de Accidentes SST** en la barra lateral.
+2. Haz clic en **"+ Nuevo Accidente / Incidente"**.
+3. Rellena los datos del formulario:
+   - **Tipo**: Accidente con baja, accidente sin baja, incidente (casi-accidente).
+   - **Descripción**: Qué ocurrió, cómo y dónde.
+   - **Personas afectadas**: Nombre, puesto y lesiones producidas.
+   - **Causas inmediatas**: Qué condición o acto inseguro lo provocó.
+   - **Causas raíz**: Factores de gestión o del entorno que lo permitieron.
+   - **Medidas correctoras**: Qué se hace para que no vuelva a ocurrir.
+4. Guarda el registro. Quedará como **evidencia documental obligatoria** conforme a ISO 45001.
+
+---
+
+## 13. Gestión Ambiental
+
+### Evaluación de aspectos ambientales
+
+1. Accede a **Evaluación de Aspectos Ambientales** en la barra lateral.
+2. Haz clic en **"+ Nuevo Aspecto Ambiental"**.
+3. Describe el aspecto (ej: "Consumo de agua en planta") y su impacto ambiental asociado (ej: "Agotamiento de recurso hídrico").
+4. Evalúa los criterios de significatividad: frecuencia, severidad, alcance legal, capacidad de actuación.
+5. El sistema determina si el aspecto es **Significativo** (requiere control operacional) o **No Significativo**.
+
+### Riesgos y Oportunidades del Cambio Climático
+
+1. Accede a **Riesgos Cambio Climático** en la barra lateral.
+2. Registra riesgos físicos (inundaciones, olas de calor) y de transición (nuevas regulaciones, cambios de mercado).
+3. Para cada riesgo, indica el horizonte temporal (corto, medio, largo plazo) y el impacto financiero estimado.
+
+---
+
+## 14. Canal de Denuncias
+
+El Canal de Denuncias permite comunicar de forma confidencial cualquier irregularidad, conducta contraria a la ética o posible incumplimiento legal.
+
+### Cómo presentar una denuncia
+
+1. Accede a **Canal de Denuncias** desde la barra lateral.
+2. Haz clic en **"Nueva Denuncia"**.
+3. Rellena el formulario:
+   - **Categoría**: Corrupción, acoso, fraude, conflicto de intereses, incumplimiento normativo, etc.
+   - **Descripción de los hechos**: Describe la situación de forma detallada.
+   - **Fecha aproximada** en que ocurrieron los hechos.
+   - **Identidad** (opcional — el sistema permite la denuncia anónima).
+4. Envía la denuncia. El sistema generará un **código de seguimiento** que puedes usar para consultar el estado.
+
+> Todas las denuncias son **confidenciales**. El sistema garantiza que solo el responsable del canal tiene acceso a la información.
+
+---
+
+## 15. Cumplimiento Legal y ENS
+
+### Gestión de requisitos legales
+
+1. Accede a **Requisitos Legales** en la barra lateral.
+2. El módulo muestra el catálogo de obligaciones legales aplicables a la organización.
+3. Para cada requisito puedes indicar:
+   - **Estado**: Cumplido / En proceso / Incumplido.
+   - **Responsable** del seguimiento.
+   - **Fecha de próxima revisión**.
+4. Los requisitos con vencimiento próximo aparecen marcados con alerta.
+
+### Panel ENS — Medidas de control
+
+1. Accede a **Requisitos Legales y ENS** en la barra lateral.
+2. El panel muestra todas las medidas del ENS organizadas en tres marcos:
+   - **Marco Organizativo**: Políticas de seguridad, roles y responsabilidades.
+   - **Marco Operacional**: Gestión de activos, incidentes, continuidad.
+   - **Medidas de Protección**: Controles técnicos por tipo de activo.
+3. Para cada medida, selecciona su **grado de implantación** (L0: No implantada → L5: Optimizada).
+4. El sistema calcula el porcentaje de cumplimiento ENS global.
+
+---
+
+## 16. Revisión por la Dirección
+
+### Cómo preparar y registrar la Revisión por la Dirección
+
+La Revisión por la Dirección es una reunión periódica (mínimo anual) donde la alta dirección evalúa el desempeño del sistema de gestión.
+
+1. Accede a **Revisión por la Dirección** en la barra lateral.
+2. Haz clic en **"+ Nueva Revisión"**.
+3. Introduce los datos de la reunión: fecha, participantes, persona que la convoca.
+4. Cumplimenta las secciones de la revisión:
+   - **Resultados de auditorías** anteriores.
+   - **Feedback de clientes** y partes interesadas.
+   - **Desempeño de los procesos** y conformidad del producto/servicio.
+   - **Estado de las acciones correctivas** abiertas.
+   - **Seguimiento de decisiones** de revisiones anteriores.
+   - **Cambios** que podrían afectar al sistema de gestión.
+   - **Recursos necesarios**.
+5. En la sección **Decisiones y Acciones**, registra los compromisos adoptados con sus responsables y plazos.
+6. Guarda la revisión como **"Cerrada"** una vez completada.
+
+---
+
+## 17. Mapa de Procesos y KPIs
+
+### Mapa de Procesos
+
+El **Mapa de Procesos** muestra la estructura de procesos de la organización clasificados en:
+- **Procesos estratégicos**: Planificación estratégica, revisión por la dirección.
+- **Procesos clave / operativos**: Producción, prestación del servicio, atención al cliente.
+- **Procesos de soporte**: RRHH, TI, compras, mantenimiento.
+
+Para ver el detalle de un proceso, haz clic sobre él en el mapa. Se abrirá la **Ficha de Proceso** correspondiente.
+
+### Panel de KPIs de Proceso
+
+1. Accede a **Panel de KPIs de Proceso** en la barra lateral.
+2. El panel muestra todos los indicadores de desempeño configurados para cada proceso.
+3. Para cada KPI puedes ver:
+   - **Valor actual** vs. **Objetivo**.
+   - **Tendencia** (subiendo 📈 / bajando 📉 / estable).
+   - **Histórico** en los últimos períodos.
+4. Los KPIs que no alcanzan el objetivo aparecen resaltados en rojo como señal de alerta.
+
+---
+
+## 18. Análisis DAFO y Partes Interesadas
+
+### Análisis DAFO
+
+1. Accede a **Análisis DAFO Estratégico** en la barra lateral.
+2. Haz clic en **"+ Nuevo Factor"** y selecciona la categoría:
+   - **Fortaleza**: Ventajas internas de la organización.
+   - **Debilidad**: Áreas internas de mejora.
+   - **Oportunidad**: Factores externos favorables.
+   - **Amenaza**: Factores externos que suponen un riesgo.
+3. Escribe el título y la descripción del factor, su impacto estimado y si tiene un plan de acción asociado.
+
+### Gestión de Partes Interesadas
+
+1. Accede a **Gestión de Partes Interesadas** en la barra lateral.
+2. El módulo muestra el mapa de partes interesadas (stakeholders): clientes, proveedores, empleados, administración, accionistas, comunidad, etc.
+3. Para cada parte interesada puedes registrar:
+   - Sus **necesidades y expectativas** respecto al sistema de gestión.
+   - Su **nivel de influencia** e **interés** en la organización.
+   - Los **requisitos** derivados que el sistema debe cumplir.
+
+---
+
+## 19. Servicios TI y Catálogo
+
+### Catálogo de Servicios TI
+
+El **Catálogo de Servicios TI** contiene la descripción de todos los servicios tecnológicos que proporciona el departamento de TI a la organización.
+
+1. Accede a **Catálogo de Servicios TI** en la barra lateral.
+2. Para cada servicio puedes ver:
+   - Descripción y alcance del servicio.
+   - SLA (nivel de servicio acordado): disponibilidad y tiempo de respuesta.
+   - Responsable técnico.
+   - Estado actual (Operativo / Degradado / No disponible).
+3. Para añadir un nuevo servicio, haz clic en **"+ Nuevo Servicio"** y rellena la ficha.
+
+---
+
+## 20. Seguimiento por IA — Panel de Cumplimiento Automático
+
+El **Panel de Cumplimiento por IA** está integrado en el Cuadro de Mando y realiza un análisis automático y continuo de los datos del sistema para detectar incumplimientos.
+
+### Cómo funciona
+
+El motor de IA escanea los siguientes aspectos de forma periódica:
+
+| Área auditada | Qué comprueba |
+|---------------|---------------|
+| **Cambios TI** | Detecta RFCs sin Plan de Pruebas o sin Plan de Rollback |
+| **Proveedores** | Verifica que los proveedores con nota < 2.5 tienen CAPA abierta |
+| **Formación** | Comprueba que las formaciones no eficaces tienen acción de mejora |
+| **ENS** | Detecta medidas de seguridad obligatorias no implantadas |
+
+### Cómo interpretar las alertas
+
+El panel muestra alertas con tres niveles de severidad:
+
+| Símbolo | Color | Significado |
+|---------|-------|-------------|
+| ✅ CONFORME | Verde | El punto auditado cumple los requisitos |
+| ⚠️ ALERTA | Naranja | Hay una desviación que requiere atención |
+| ❌ CRÍTICO | Rojo | Incumplimiento grave que requiere acción inmediata |
+
+### Qué hacer cuando aparece una alerta
+
+1. Haz clic sobre la alerta para ver el detalle.
+2. El sistema te indicará exactamente qué módulo y qué registro está causando el incumplimiento.
+3. Navega al módulo indicado y subsana la incidencia.
+4. En el próximo escaneo automático, la alerta desaparecerá si el problema ha sido resuelto.
+
+### Registro de auditoría IA
+
+Cada detección queda registrada con fecha y hora en el **Log de Auditoría IA**, lo que proporciona una **trazabilidad completa** útil como evidencia en auditorías externas.
+
+---
+
+## 21. Asistente Virtual (Chatbot)
+
+El **Asistente Virtual** de SIGE 2.0 está disponible en todo momento en la esquina inferior derecha de la pantalla. Puedes consultarle sobre:
+
+- **Cómo realizar tareas** en la aplicación (ej: *"¿Cómo registro una no conformidad?"*).
+- **Requisitos de las normas ISO y ENS** (ej: *"¿Qué dice ISO 9001 sobre la evaluación de proveedores?"*).
+- **Navegación asistida**: Al responder, el chatbot incluye botones que te llevan directamente al módulo correspondiente con un solo clic.
+
+### Cómo usar el chatbot
+
+1. Haz clic en el **botón flotante** 🤖 en la esquina inferior derecha.
+2. Se abrirá el panel de chat.
+3. Escribe tu pregunta en el campo de texto y pulsa **Enviar** (↵ o el botón ➤).
+4. El asistente responderá en segundos.
+5. Si la respuesta incluye un botón de navegación, haz clic en él para ir directamente al módulo correspondiente.
+
+### Ejemplos de preguntas útiles
+
+- *"¿Cómo abro una RFC?"*
+- *"¿Qué es el modelo Kirkpatrick?"*
+- *"¿Cómo evalúo a un proveedor?"*
+- *"¿Qué medidas obligatorias exige el ENS?"*
+- *"¿Dónde registro un accidente laboral?"*
+- *"¿Cuándo hay que notificar una brecha de datos?"*
+
+---
+
+## 22. Preguntas Frecuentes
+
+**¿Puedo usar SIGE 2.0 sin conexión a internet?**
+Sí. SIGE 2.0 está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.
+
+**¿Los datos se pierden si cierro el navegador?**
+No, siempre que hayas arrancado el servidor con `iniciar_servidor.bat`. Los datos se guardan en `db.json`. Si usas el modo directo (sin servidor), los datos permanecen en el navegador hasta que se borre el caché.
+
+**¿Puedo acceder desde varios equipos a la vez?**
+Sí, si el servidor está en red. Varios usuarios pueden acceder simultáneamente desde distintos equipos apuntando a la IP del servidor en su navegador.
+
+**¿Qué hago si un módulo no carga?**
+Intenta recargar la página (F5). Si el problema persiste, comprueba que el servidor está activo (la consola del servidor debe estar abierta y sin errores).
+
+**¿Cómo sé si mis datos se están guardando en el servidor o solo en mi navegador?**
+Si el servidor está activo, verás el mensaje *"Estado cargado desde el servidor"* en la consola del navegador (F12 → Consola). Si aparece el mensaje de *fallback local*, significa que el servidor no está disponible y los datos se están guardando solo en ese navegador.
+
+**¿Cómo puedo exportar o imprimir un informe?**
+Accede al módulo **Previsualización de Informes** en la barra lateral. Desde allí puedes generar informes de auditoría y revisión por la dirección listos para imprimir o guardar como PDF usando la función de impresión del navegador (Ctrl+P).
+
+**¿Quién puedo consultar si tengo dudas sobre una norma?**
+Puedes preguntarle directamente al **Asistente Virtual** integrado en la aplicación. Está preparado para responder preguntas sobre los requisitos de ISO 9001, 14001, 45001, 27001, 22301, 37001, 37301, 20000, 27701 y el ENS.
+
+---
+
+*SIGE 2.0 — Sistema Integrado de Gestión Empresarial | © 2026*

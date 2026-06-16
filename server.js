@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -56,6 +56,53 @@ app.post('/api/store', (req, res) => {
 
     saveDb();
     res.json({ success: true });
+});
+
+// Proxy para interactuar con Ollama local
+app.post('/api/chat', (req, res) => {
+    const { prompt, systemPrompt, model } = req.body;
+    const http = require('http');
+
+    const postData = JSON.stringify({
+        model: model || 'llama3',
+        prompt: prompt,
+        system: systemPrompt || "Eres un asistente virtual experto en SIGE 2.0 y normas ISO.",
+        stream: false
+    });
+
+    const options = {
+        hostname: 'localhost',
+        port: 11434,
+        path: '/api/generate',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+        }
+    };
+
+    const request = http.request(options, (response) => {
+        let data = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            try {
+                const parsed = JSON.parse(data);
+                res.json({ text: parsed.response });
+            } catch (err) {
+                res.status(500).json({ error: "Error al parsear respuesta de Ollama", details: data });
+            }
+        });
+    });
+
+    request.on('error', (err) => {
+        res.status(502).json({ error: "Ollama no disponible en localhost:11434", details: err.message });
+    });
+
+    request.write(postData);
+    request.end();
 });
 
 // Servir la plataforma web de forma estática

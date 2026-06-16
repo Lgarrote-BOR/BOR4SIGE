@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <script src="../api-sync.js"></script>
@@ -134,6 +134,7 @@
             <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
                 <button id="btn-tab-lista" onclick="switchTab('lista')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">Registro de Denuncias</button>
                 <button id="btn-tab-nueva" onclick="switchTab('nueva')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Nueva Denuncia</button>
+                <button id="btn-tab-seguimiento" onclick="switchTab('seguimiento')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Seguimiento Anónimo</button>
                 <button id="btn-tab-stats" onclick="switchTab('stats')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">Estadísticas</button>
             </nav>
         </div>
@@ -267,6 +268,31 @@
             </div>
         </section>
 
+        <!-- SECCIÓN: Seguimiento Anónimo -->
+        <section id="sec-seguimiento" class="hidden">
+            <div class="bg-surface border border-outline-variant rounded-2xl p-6 max-w-lg mx-auto shadow-sm space-y-4">
+                <div class="flex items-center gap-3 border-b border-outline-variant pb-3">
+                    <span class="material-symbols-outlined text-accent text-2xl">shield_person</span>
+                    <div>
+                        <h3 class="font-bold text-sm text-primary">Consulta de Estado de Denuncia</h3>
+                        <p class="text-[10px] text-on-surface-variant">Acceso seguro y anónimo sin registro de usuario.</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Código de Seguimiento</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="track-code-input" placeholder="Ej: TRK-XYZ12345" class="flex-1 bg-background border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                            <button onclick="checkTrackCode()" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-1.5 rounded-lg transition-colors">Consultar</button>
+                        </div>
+                    </div>
+                    <div id="track-result" class="hidden border border-outline-variant rounded-xl p-4 space-y-3 bg-surface-container-low fade-in text-xs">
+                        <!-- Resultados inyectados por JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- SECCIÓN: Estadísticas -->
         <section id="sec-stats" class="hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="stats-content">
@@ -289,15 +315,40 @@
         </div>
     </div>
 
+    <!-- MODAL ÉXito Registro -->
+    <div id="modal-success" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-sm w-full p-6 shadow-2xl flex flex-col gap-4 text-center">
+            <span class="material-symbols-outlined text-success text-5xl mx-auto">check_circle</span>
+            <div>
+                <h3 class="font-bold text-sm text-primary">¡Denuncia Registrada con Éxito!</h3>
+                <p class="text-[10px] text-on-surface-variant mt-1">Tu denuncia ha sido guardada encriptada y con absoluta confidencialidad en el canal ético.</p>
+            </div>
+            <div class="bg-surface-container p-3 rounded-lg border border-outline-variant font-mono text-center">
+                <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">Código de Seguimiento Único</p>
+                <span id="success-track-code" class="font-bold text-lg text-secondary select-all">TRK-XYZ12345</span>
+            </div>
+            <p class="text-[10px] text-danger font-semibold">⚠️ IMPORTANTE: Guarda este código en un lugar seguro. No es posible recuperarlo en caso de pérdida.</p>
+            <div class="flex gap-2">
+                <button onclick="copyTrackCode()" class="flex-1 bg-surface-container-low border border-outline-variant text-on-surface hover:bg-surface-container-high text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
+                </button>
+                <button onclick="closeSuccessModal()" class="flex-1 bg-secondary text-white hover:bg-primary text-xs font-bold py-2 rounded-lg transition-colors">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const seed = [
-            { id: "DEN-2026-001", date: "2026-03-15", cat: "Soborno y Corrupción", priority: "Alta", desc: "Se ha detectado una posible comisión pagada a un funcionario público durante el proceso de licitación del proyecto X. El importe aproximado sería de 15.000€.", dept: "Compras", responsible: "Comité de Ética y Compliance", anonymous: true, reporterName: "", reporterContact: "", status: "Cerrada — Fundada", notes: "Investigación interna completada. Se han adoptado medidas disciplinarias y se ha procedido a la denuncia ante las autoridades competentes.", closedDate: "2026-05-20" },
-            { id: "DEN-2026-002", date: "2026-04-22", cat: "Acoso Laboral / Sexual", priority: "Alta", desc: "Situación de presunto acoso laboral por parte de un responsable de área hacia un trabajador subordinado. Incluye presiones indebidas y comentarios vejatorios.", dept: "Recursos Humanos", responsible: "Responsable de RRHH / Compliance", anonymous: false, reporterName: "Confidencial", reporterContact: "—", status: "En Investigación", notes: "Se ha iniciado el protocolo de prevención y actuación frente al acoso. Entrevistas en curso.", closedDate: "" },
-            { id: "DEN-2026-003", date: "2026-06-01", cat: "Conflicto de Intereses", priority: "Media", desc: "Un empleado del departamento de compras podría tener participación accionarial no declarada en uno de los proveedores homologados.", dept: "Compras", responsible: "Responsable de Compliance", anonymous: true, reporterName: "", reporterContact: "", status: "Pendiente de Revisión", notes: "", closedDate: "" }
+            { id: "DEN-2026-001", date: "2026-03-15", cat: "Soborno y Corrupción", priority: "Alta", desc: "Se ha detectado una posible comisión pagada a un funcionario público durante el proceso de licitación del proyecto X. El importe aproximado sería de 15.000€.", dept: "Compras", responsible: "Comité de Ética y Compliance", anonymous: true, reporterName: "", reporterContact: "", status: "Cerrada — Fundada", notes: "Investigación interna completada. Se han adoptado medidas disciplinarias y se ha procedido a la denuncia ante las autoridades competentes.", closedDate: "2026-05-20", trackCode: "TRK-SOB2026" },
+            { id: "DEN-2026-002", date: "2026-04-22", cat: "Acoso Laboral / Sexual", priority: "Alta", desc: "Situación de presunto acoso laboral por parte de un responsable de área hacia un trabajador subordinado. Incluye presiones indebidas y comentarios vejatorios.", dept: "Recursos Humanos", responsible: "Responsable de RRHH / Compliance", anonymous: false, reporterName: "Confidencial", reporterContact: "—", status: "En Investigación", notes: "Se ha iniciado el protocolo de prevención y actuación frente al acoso. Entrevistas en curso.", closedDate: "", trackCode: "TRK-ACO2026" },
+            { id: "DEN-2026-003", date: "2026-06-01", cat: "Conflicto de Intereses", priority: "Media", desc: "Un empleado del departamento de compras podría tener participación accionarial no declarada en uno de los proveedores homologados.", dept: "Compras", responsible: "Responsable de Compliance", anonymous: true, reporterName: "", reporterContact: "", status: "Pendiente de Revisión", notes: "", closedDate: "", trackCode: "TRK-CON2026" }
         ];
 
         let reports = [];
         let currentTab = 'lista';
+        let tempTrackCode = "";
 
         function init() {
             const stored = localStorage.getItem('sig_canal_denuncias');
@@ -430,7 +481,7 @@
 
         function switchTab(tab) {
             currentTab = tab;
-            ['lista','nueva','stats'].forEach(t => {
+            ['lista','nueva','seguimiento','stats'].forEach(t => {
                 document.getElementById(`sec-${t}`).classList.add('hidden');
                 const btn = document.getElementById(`btn-tab-${t}`);
                 if(btn) btn.className = 'border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all';
@@ -448,6 +499,7 @@
             document.getElementById('manage-content').innerHTML = `
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div><span class="font-bold text-on-surface-variant block">Código</span><span class="font-mono font-bold text-secondary">${r.id}</span></div>
+                    <div><span class="font-bold text-on-surface-variant block">Código Seguimiento</span><span class="font-mono text-accent font-semibold">${r.trackCode || '—'}</span></div>
                     <div><span class="font-bold text-on-surface-variant block">Fecha</span><span>${r.date}</span></div>
                     <div><span class="font-bold text-on-surface-variant block">Categoría</span><span class="font-semibold">${r.cat}</span></div>
                     <div><span class="font-bold text-on-surface-variant block">Prioridad</span><span class="font-bold ${r.priority === 'Alta' ? 'text-danger' : r.priority === 'Media' ? 'text-warning' : 'text-success'}">${r.priority}</span></div>
@@ -467,6 +519,12 @@
                     <label class="block text-xs font-semibold text-on-surface-variant mb-1">Notas de Investigación / Resolución</label>
                     <textarea id="manage-notes" rows="4" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none">${r.notes || ''}</textarea>
                 </div>
+                <div class="flex items-center gap-2 p-2.5 bg-purple-50 border border-purple-200 rounded-lg">
+                    <input type="checkbox" id="manage-link-capa" class="rounded text-secondary" checked/>
+                    <label for="manage-link-capa" class="text-[10px] text-purple-800 font-bold cursor-pointer select-none">
+                        Generar Acción Correctiva (CAPA) automáticamente si se resuelve como fundada
+                    </label>
+                </div>
                 <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
                     <button onclick="closeManage()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
                     <button onclick="saveManage('${r.id}')" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">Guardar Cambios</button>
@@ -477,15 +535,61 @@
         function saveManage(id) {
             const idx = reports.findIndex(r => r.id === id);
             if (idx !== -1) {
-                reports[idx].status = document.getElementById('manage-status').value;
-                reports[idx].notes = document.getElementById('manage-notes').value.trim();
-                if (reports[idx].status.startsWith('Cerrada') && !reports[idx].closedDate) {
+                const status = document.getElementById('manage-status').value;
+                const notes = document.getElementById('manage-notes').value.trim();
+                const linkCapa = document.getElementById('manage-link-capa').checked;
+
+                reports[idx].status = status;
+                reports[idx].notes = notes;
+                
+                if (status.startsWith('Cerrada') && !reports[idx].closedDate) {
                     reports[idx].closedDate = new Date().toISOString().split('T')[0];
                 }
+
+                if (status === 'Cerrada — Fundada' && linkCapa) {
+                    createCapaAction(`DEN-${reports[idx].id}`, `Acción derivada de denuncia fundada ${reports[idx].id} (${reports[idx].cat}): ${notes}`);
+                }
+
                 save();
                 render();
             }
             closeManage();
+        }
+
+        function createCapaAction(originId, summaryText) {
+            let actions = [];
+            const stored = localStorage.getItem('sig_acciones_correctivas');
+            if (stored) {
+                try { actions = JSON.parse(stored); } catch(e) { actions = []; }
+            }
+
+            if (actions.some(act => act.origen === originId)) {
+                return; // Evitar duplicar
+            }
+
+            const currentYear = new Date().getFullYear();
+            let maxSeq = 41;
+            actions.forEach(a => {
+                const parts = a.id.split('-');
+                if (parts.length === 3 && parts[1] == currentYear) {
+                    const seq = parseInt(parts[2]);
+                    if (seq > maxSeq) maxSeq = seq;
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const newId = `AC-${currentYear}-${nextSeq}`;
+
+            const newAction = {
+                id: newId,
+                origen: originId,
+                resumen: summaryText,
+                responsable: "Responsable de Compliance",
+                estado: "pendiente"
+            };
+
+            actions.unshift(newAction);
+            localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+            alert(`⚠️ Se ha generado automáticamente la Acción Correctiva ${newId} en el módulo CAPA.`);
         }
 
         function closeManage() {
@@ -512,11 +616,74 @@
             reports.push(report);
             save();
             render();
-            alert(`✅ Denuncia registrada correctamente.\n\nCódigo de seguimiento: ${trackCode}\n\nConserve este código para consultar el estado de su denuncia.`);
+
+            // Open custom success modal
+            tempTrackCode = trackCode;
+            document.getElementById('success-track-code').textContent = trackCode;
+            document.getElementById('modal-success').classList.remove('hidden');
+
             e.target.reset();
             document.getElementById('r-anonymous').checked = true;
             document.getElementById('reporter-block').classList.add('hidden');
+        }
+
+        function copyTrackCode() {
+            navigator.clipboard.writeText(tempTrackCode);
+            alert("Código de seguimiento copiado al portapapeles.");
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('modal-success').classList.add('hidden');
             switchTab('lista');
+        }
+
+        // Consultar denuncia
+        function checkTrackCode() {
+            const code = document.getElementById('track-code-input').value.trim().toUpperCase();
+            const box = document.getElementById('track-result');
+            box.innerHTML = '';
+            box.classList.add('hidden');
+
+            if (!code) {
+                alert("Por favor introduce un código.");
+                return;
+            }
+
+            const r = reports.find(x => x.trackCode === code || x.id === code);
+            if (!r) {
+                alert("Código de seguimiento no encontrado. Comprueba los caracteres.");
+                return;
+            }
+
+            const statusClass = {
+                'Pendiente de Revisión': 'bg-blue-100 text-blue-800 border-blue-200',
+                'En Investigación': 'bg-amber-100 text-amber-800 border-amber-200 font-bold',
+                'Cerrada — Fundada': 'bg-red-100 text-red-800 border-red-200 font-bold',
+                'Cerrada — Infundada': 'bg-gray-100 text-gray-600 border-gray-200',
+                'Archivada': 'bg-gray-100 text-gray-500 border-gray-200'
+            }[r.status] || 'bg-gray-100';
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                    <span class="font-bold text-primary">${r.id}</span>
+                    <span class="px-2 py-0.5 border rounded-full text-[10px] ${statusClass}">${r.status}</span>
+                </div>
+                <div class="space-y-2 pt-1 text-[11px]">
+                    <p><span class="font-bold text-on-surface-variant">Fecha de registro:</span> ${r.date}</p>
+                    <p><span class="font-bold text-on-surface-variant">Categoría:</span> ${r.cat}</p>
+                    <div class="bg-surface p-2.5 rounded border border-outline-variant">
+                        <span class="font-bold text-primary block mb-1">Tu descripción original:</span>
+                        <p class="text-on-surface-variant leading-relaxed line-clamp-3">${r.desc}</p>
+                    </div>
+                    ${r.notes ? `
+                    <div class="bg-purple-50 p-2.5 rounded border border-purple-200">
+                        <span class="font-bold text-purple-900 block mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">reply</span> Respuesta de Compliance:</span>
+                        <p class="text-purple-800 leading-relaxed font-semibold">${r.notes}</p>
+                    </div>` : `
+                    <p class="italic text-on-surface-variant text-center pt-2">No se han registrado notas ni conclusiones públicas todavía. Tu caso está bajo revisión confidencial.</p>
+                    `}
+                </div>`;
+            box.classList.remove('hidden');
         }
 
         function deleteReport(id) {

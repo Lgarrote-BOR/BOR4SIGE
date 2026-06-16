@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIGE 2.0 — Sistema Integrado de Gestión Empresarial</title>
+  <meta name="description" content="SIGE 2.0: La plataforma más completa para la gestión integrada de normas ISO, ENS, compliance y calidad empresarial. Con Inteligencia Artificial y automatización avanzada." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c-bg:        #05070f;
+      --c-surface:   #0d1120;
+      --c-surface2:  #111827;
+      --c-border:    rgba(255,255,255,0.07);
+      --c-text:      #e8ecf4;
+      --c-muted:     #8b95a8;
+      --c-accent1:   #3b82f6;
+      --c-accent2:   #8b5cf6;
+      --c-accent3:   #06b6d4;
+      --c-green:     #10b981;
+      --c-orange:    #f59e0b;
+      --gradient-hero: linear-gradient(135deg, #1e1b4b 0%, #0f172a 40%, #042029 100%);
+      --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      --gradient-card: linear-gradient(145deg, #111827, #0d1120);
+      --font-main: 'Inter', sans-serif;
+      --font-head: 'Space Grotesk', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: var(--font-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(5,7,15,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--c-border);
+      transition: all 0.3s ease;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-logo {
+      width: 36px; height: 36px;
+      background: var(--gradient-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .nav-name {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1.1rem;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--c-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--c-text); }
+    .nav-cta {
+      background: var(--gradient-accent);
+      color: #fff !important;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600 !important;
+      transition: opacity 0.2s !important;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      background: var(--gradient-hero);
+      overflow: hidden;
+    }
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    .hero-orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #3b82f6, transparent 70%);
+      top: -200px; left: -200px;
+      animation: float1 8s ease-in-out infinite;
+    }
+    .hero-orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #8b5cf6, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation: float2 10s ease-in-out infinite;
+    }
+    .hero-orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, #06b6d4, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: float3 12s ease-in-out infinite;
+    }
+    @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
+    @keyframes float3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.15)} }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #93c5fd;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      background: #3b82f6;
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+
+    .hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--c-muted);
+      max-width: 680px;
+      margin: 1.5rem auto 0;
+      animation: fadeUp 0.6s 0.2s ease both;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--gradient-accent);
+      color: #fff;
+      padding: 0.85rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(59,130,246,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(59,130,246,0.6); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      color: var(--c-text);
+      padding: 0.85rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid var(--c-border);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 4rem;
+      animation: fadeUp 0.6s 0.4s ease both;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat-num {
+      font-family: var(--font-head);
+      font-size: 2.25rem;
+      font-weight: 800;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--c-muted);
+      font-weight: 500;
+      margin-top: 0.25rem;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--c-muted);
+      font-size: 0.75rem;
+      animation: fadeUp 1s 1s ease both;
+    }
+    .hero-scroll-arrow {
+      width: 24px; height: 24px;
+      border-right: 2px solid var(--c-muted);
+      border-bottom: 2px solid var(--c-muted);
+      transform: rotate(45deg);
+      animation: bounce 1.5s ease infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:rotate(45deg) translate(0,0)} 50%{transform:rotate(45deg) translate(4px,4px)} }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTIONS ─── */
+    section { position: relative; z-index: 1; }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #60a5fa;
+      margin-bottom: 1rem;
+    }
+    .section-label::before {
+      content: '';
+      width: 20px; height: 2px;
+      background: #60a5fa;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+    .section-desc {
+      color: var(--c-muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin-top: 1rem;
+      line-height: 1.7;
+    }
+
+    /* ─── NORMAS STRIP ─── */
+    .normas-strip {
+      background: var(--c-surface);
+      border-top: 1px solid var(--c-border);
+      border-bottom: 1px solid var(--c-border);
+      overflow: hidden;
+      padding: 1.25rem 0;
+    }
+    .normas-track {
+      display: flex;
+      gap: 3rem;
+      animation: marquee 25s linear infinite;
+      white-space: nowrap;
+    }
+    .norma-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .norma-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .norma-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--c-muted);
+    }
+    @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+    /* ─── FEATURES GRID ─── */
+    .features-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--c-border);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59,130,246,0.3);
+      box-shadow: 0 20px 60px rgba(59,130,246,0.1);
+    }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .feature-title {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--c-muted);
+      line-height: 1.65;
+    }
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 1.25rem;
+    }
+    .feature-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      background: rgba(59,130,246,0.1);
+      color: #93c5fd;
+      border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    /* ─── MODULES SHOWCASE ─── */
+    .modules-bg {
+      background: var(--c-surface);
+      border-top: 1px solid var(--c-border);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .modules-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .modules-left { position: sticky; top: 6rem; }
+    .module-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+    .module-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--c-border);
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .module-item:hover, .module-item.active {
+      background: rgba(59,130,246,0.08);
+      border-color: rgba(59,130,246,0.3);
+    }
+    .module-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .module-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .module-sub {
+      font-size: 0.75rem;
+      color: var(--c-muted);
+    }
+
+    .modules-right {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .mod-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--c-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .mod-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .mod-card-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+    .mod-card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .mod-card-norm {
+      font-size: 0.7rem;
+      color: var(--c-muted);
+    }
+
+    /* ─── AI SECTION ─── */
+    .ai-section {
+      background: linear-gradient(135deg, #0a0e1a 0%, #0d1120 50%, #070d1f 100%);
+    }
+    .ai-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .ai-visual {
+      position: relative;
+    }
+    .ai-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--c-border);
+      border-radius: 20px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .ai-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(59,130,246,0.05), rgba(139,92,246,0.05));
+    }
+    .ai-scan-line {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      animation: scan 3s ease-in-out infinite;
+    }
+    @keyframes scan { 0%{top:0;opacity:1} 100%{top:100%;opacity:0} }
+
+    .ai-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+    }
+    .ai-alert-ok { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); }
+    .ai-alert-warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); }
+    .ai-alert-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); }
+    .ai-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 3px; flex-shrink: 0; }
+
+    .ai-features { list-style: none; margin-top: 1.5rem; }
+    .ai-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--c-border);
+      font-size: 0.9rem;
+    }
+    .ai-features li:last-child { border-bottom: none; }
+    .ai-check { color: #10b981; font-size: 1rem; margin-top: 1px; }
+
+    /* ─── STANDARDS SECTION ─── */
+    .standards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .std-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--c-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .std-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(139,92,246,0.4);
+    }
+    .std-card-glow {
+      position: absolute;
+      top: -20px; right: -20px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.2;
+    }
+    .std-badge {
+      display: inline-block;
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+    .std-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .std-desc {
+      font-size: 0.75rem;
+      color: var(--c-muted);
+      line-height: 1.5;
+    }
+    .std-score {
+      margin-top: 1rem;
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .std-score-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 1.5s cubic-bezier(0.25,1,0.5,1);
+    }
+    .std-score-pct {
+      font-size: 0.7rem;
+      color: var(--c-muted);
+      margin-top: 0.35rem;
+      text-align: right;
+    }
+
+    /* ─── CHATBOT SECTION ─── */
+    .chatbot-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .chat-window {
+      background: var(--gradient-card);
+      border: 1px solid var(--c-border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .chat-avatar {
+      width: 32px; height: 32px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+    .chat-name { font-size: 0.85rem; font-weight: 700; }
+    .chat-status { font-size: 0.7rem; color: #10b981; }
+    .chat-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .chat-msg {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      animation: fadeUp 0.4s ease both;
+    }
+    .chat-msg.user { flex-direction: row-reverse; }
+    .chat-bubble {
+      max-width: 75%;
+      padding: 0.75rem 1rem;
+      border-radius: 14px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .chat-bubble-bot {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 4px 14px 14px 14px;
+    }
+    .chat-bubble-user {
+      background: var(--gradient-accent);
+      border-radius: 14px 14px 4px 14px;
+      color: #fff;
+    }
+    .chat-input {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.02);
+      border-top: 1px solid var(--c-border);
+    }
+    .chat-input-field {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      color: var(--c-text);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .chat-send {
+      width: 34px; height: 34px;
+      background: var(--gradient-accent);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    /* ─── STATS BAND ─── */
+    .stats-band {
+      background: var(--c-surface);
+      border-top: 1px solid var(--c-border);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .stat-box {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-right: 1px solid var(--c-border);
+    }
+    .stat-box:last-child { border-right: none; }
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--c-muted);
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      text-align: center;
+    }
+    .cta-box {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .cta-box h2 {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .cta-box p {
+      color: var(--c-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--c-surface);
+      border-top: 1px solid var(--c-border);
+      padding: 3rem 2rem;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .footer-links a {
+      color: var(--c-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--c-text); }
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--c-muted);
+    }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .modules-layout, .ai-layout, .chatbot-layout { grid-template-columns: 1fr; }
+      .modules-left { position: static; }
+      .modules-right { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat-box { border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .modules-right { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="main-nav">
+    <div class="nav-brand">
+      <div class="nav-logo">SIGE</div>
+      <span class="nav-name">SIGE 2.0</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#funcionalidades">Funcionalidades</a></li>
+      <li><a href="#modulos">Módulos</a></li>
+      <li><a href="#normas">Normas</a></li>
+      <li><a href="#ia">Inteligencia Artificial</a></li>
+      <li><a href="#contacto" class="nav-cta">Acceder al Portal →</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Sistema Integrado de Gestión Empresarial
+    </div>
+
+    <h1>
+      Gestión normativa<br />
+      <span class="gradient-text">inteligente y unificada</span>
+    </h1>
+
+    <p class="hero-sub">
+      <strong>SIGE 2.0</strong> centraliza el cumplimiento de las principales normas ISO y el Esquema Nacional de Seguridad en una sola plataforma, potenciada con Inteligencia Artificial para auditorías automáticas y seguimiento continuo.
+    </p>
+
+    <div class="hero-actions">
+      <a href="../index.html" class="btn-primary">
+        🚀 Acceder al Portal
+      </a>
+      <a href="#funcionalidades" class="btn-secondary">
+        Descubrir funcionalidades ↓
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">10+</div>
+        <div class="hero-stat-label">Normas ISO & ENS</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">30+</div>
+        <div class="hero-stat-label">Módulos integrados</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">Offline-first</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">IA</div>
+        <div class="hero-stat-label">Cumplimiento automático</div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      Explorar
+      <div class="hero-scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- NORMAS STRIP -->
+  <div class="normas-strip">
+    <div class="normas-track" id="normasTrack">
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#2563eb">9001</div>
+        <span class="norma-name">ISO 9001 — Calidad</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#16a34a">14001</div>
+        <span class="norma-name">ISO 14001 — Medio Ambiente</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#ea580c">45001</div>
+        <span class="norma-name">ISO 45001 — SST</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#7c3aed">27001</div>
+        <span class="norma-name">ISO 27001 — Seguridad Info.</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#0891b2">22301</div>
+        <span class="norma-name">ISO 22301 — Continuidad</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#be185d">37001</div>
+        <span class="norma-name">ISO 37001 — Anti-Soborno</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#b45309">37301</div>
+        <span class="norma-name">ISO 37301 — Compliance</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#0d9488">20000</div>
+        <span class="norma-name">ISO 20000 — ITSM</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#6d28d9">27701</div>
+        <span class="norma-name">ISO 27701 — Privacidad</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#1d4ed8">ENS</div>
+        <span class="norma-name">ENS — Esquema Nacional de Seguridad</span>
+      </div>
+      <!-- duplicate for seamless loop -->
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#2563eb">9001</div>
+        <span class="norma-name">ISO 9001 — Calidad</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#16a34a">14001</div>
+        <span class="norma-name">ISO 14001 — Medio Ambiente</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#ea580c">45001</div>
+        <span class="norma-name">ISO 45001 — SST</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#7c3aed">27001</div>
+        <span class="norma-name">ISO 27001 — Seguridad Info.</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#0891b2">22301</div>
+        <span class="norma-name">ISO 22301 — Continuidad</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#be185d">37001</div>
+        <span class="norma-name">ISO 37001 — Anti-Soborno</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#b45309">37301</div>
+        <span class="norma-name">ISO 37301 — Compliance</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#0d9488">20000</div>
+        <span class="norma-name">ISO 20000 — ITSM</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#6d28d9">27701</div>
+        <span class="norma-name">ISO 27701 — Privacidad</span>
+      </div>
+      <div class="norma-item">
+        <div class="norma-icon" style="background:#1d4ed8">ENS</div>
+        <span class="norma-name">ENS — Esquema Nacional de Seguridad</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="funcionalidades">
+    <div class="section-inner">
+      <div class="features-header reveal">
+        <div class="section-label">Funcionalidades</div>
+        <h2 class="section-title">Todo lo que necesitas<br />en una sola plataforma</h2>
+        <p class="section-desc" style="margin:0 auto">SIGE 2.0 integra gestión de calidad, seguridad, medio ambiente, compliance y servicios TI en un entorno unificado, intuitivo y potente.</p>
+      </div>
+      <div class="features-grid">
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(59,130,246,0.15)">📊</div>
+          <div class="feature-title">Cuadro de Mando Integral</div>
+          <div class="feature-desc">Dashboard ejecutivo en tiempo real con KPIs de todos los sistemas de gestión, semáforo de cumplimiento y métricas ENS unificadas.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">KPIs</span>
+            <span class="feature-tag">Tiempo Real</span>
+            <span class="feature-tag">ENS</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(139,92,246,0.15)">🤖</div>
+          <div class="feature-title">IA para Cumplimiento Normativo</div>
+          <div class="feature-desc">Motor de inteligencia artificial que escanea continuamente los datos del sistema, detecta desviaciones y genera alertas de cumplimiento proactivas.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">Machine Learning</span>
+            <span class="feature-tag">Alertas automáticas</span>
+            <span class="feature-tag">CAPA</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(16,185,129,0.15)">📁</div>
+          <div class="feature-title">Gestión Documental Avanzada</div>
+          <div class="feature-desc">Control total de documentos, procedimientos, registros y manuales con control de versiones, estados y responsables. Cumple con el requisito 7.5 de las normas ISO.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">ISO 9001 §7.5</span>
+            <span class="feature-tag">Control de versiones</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(6,182,212,0.15)">🔍</div>
+          <div class="feature-title">Gestión de Auditorías</div>
+          <div class="feature-desc">Planificación, seguimiento y cierre de auditorías internas y externas. Registro de hallazgos, no conformidades y acciones correctivas (CAPA).</div>
+          <div class="feature-tags">
+            <span class="feature-tag">ISO 19011</span>
+            <span class="feature-tag">No conformidades</span>
+            <span class="feature-tag">CAPA</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(245,158,11,0.15)">⚖️</div>
+          <div class="feature-title">Cumplimiento Legal & ENS</div>
+          <div class="feature-desc">Registro, seguimiento y evaluación de obligaciones legales y reglamentarias. Mapa de cumplimiento del Esquema Nacional de Seguridad (Alto, Medio, Bajo).</div>
+          <div class="feature-tags">
+            <span class="feature-tag">ENS</span>
+            <span class="feature-tag">Requisitos legales</span>
+            <span class="feature-tag">RGPD</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(239,68,68,0.15)">🛡️</div>
+          <div class="feature-title">Gestión de Incidentes de Seguridad</div>
+          <div class="feature-desc">Registro, clasificación y seguimiento de incidentes de seguridad de la información. Trazabilidad completa según ISO 27001 y ENS.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">ISO 27001</span>
+            <span class="feature-tag">ENS</span>
+            <span class="feature-tag">Trazabilidad</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(16,185,129,0.15)">🌱</div>
+          <div class="feature-title">Gestión Ambiental & Climática</div>
+          <div class="feature-desc">Evaluación de aspectos e impactos ambientales, control de operaciones ambientales y análisis de riesgos y oportunidades derivados del cambio climático.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">ISO 14001</span>
+            <span class="feature-tag">ISO 14064</span>
+            <span class="feature-tag">Cambio Climático</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(249,115,22,0.15)">⛑️</div>
+          <div class="feature-title">Seguridad y Salud en el Trabajo</div>
+          <div class="feature-desc">Investigación de accidentes, evaluación de riesgos laborales y seguimiento de indicadores de SST. Cumplimiento integral de ISO 45001.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">ISO 45001</span>
+            <span class="feature-tag">Investigación accidentes</span>
+          </div>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon" style="background:rgba(139,92,246,0.15)">💬</div>
+          <div class="feature-title">Chatbot Asistente Virtual</div>
+          <div class="feature-desc">Asistente inteligente integrado para consultas sobre operativa de la aplicación y requisitos normativos. Disponible en todo momento desde cualquier módulo.</div>
+          <div class="feature-tags">
+            <span class="feature-tag">IA Conversacional</span>
+            <span class="feature-tag">Soporte normativo</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAND -->
+  <div class="stats-band reveal">
+    <div class="section-inner" style="padding:0">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-num" id="count1">0</div>
+          <div class="stat-label">Módulos integrados</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="count2">0</div>
+          <div class="stat-label">Normas soportadas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="count3">0</div>
+          <div class="stat-label">Controles ENS cubiertos</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="count4">0</div>
+          <div class="stat-label">% Operación offline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <section id="modulos" class="modules-bg">
+    <div class="section-inner">
+      <div class="reveal" style="margin-bottom:3rem">
+        <div class="section-label">Módulos</div>
+        <h2 class="section-title">Una suite completa<br />de gestión</h2>
+        <p class="section-desc">Cada área del sistema de gestión tiene su propio módulo especializado, diseñado para facilitar la operativa diaria y garantizar el cumplimiento normativo.</p>
+      </div>
+
+      <div class="modules-right reveal" style="grid-template-columns: repeat(auto-fill, minmax(200px,1fr))">
+        <div class="mod-card">
+          <div class="mod-card-icon">📊</div>
+          <div class="mod-card-title">Cuadro de Mando</div>
+          <div class="mod-card-norm">Dashboard Integral</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">📁</div>
+          <div class="mod-card-title">Gestión Documental</div>
+          <div class="mod-card-norm">ISO 9001 §7.5</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🔍</div>
+          <div class="mod-card-title">Auditorías & Acciones</div>
+          <div class="mod-card-norm">ISO 19011</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🗺️</div>
+          <div class="mod-card-title">Mapa de Procesos</div>
+          <div class="mod-card-norm">ISO 9001 §4.4</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">📈</div>
+          <div class="mod-card-title">KPIs de Proceso</div>
+          <div class="mod-card-norm">Indicadores de desempeño</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🧑‍🤝‍🧑</div>
+          <div class="mod-card-title">Partes Interesadas</div>
+          <div class="mod-card-norm">ISO §4.2</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🚦</div>
+          <div class="mod-card-title">Gestión de Riesgos</div>
+          <div class="mod-card-norm">ISO 31000</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🏆</div>
+          <div class="mod-card-title">Satisfacción del Cliente</div>
+          <div class="mod-card-norm">ISO 9001 §9.1.2</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🎓</div>
+          <div class="mod-card-title">Eficacia de Formación</div>
+          <div class="mod-card-norm">Kirkpatrick 4 niveles</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🛒</div>
+          <div class="mod-card-title">Evaluación Proveedores</div>
+          <div class="mod-card-norm">ISO 9001 §8.4</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🔒</div>
+          <div class="mod-card-title">Incidentes de Seguridad</div>
+          <div class="mod-card-norm">ISO 27001</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">💻</div>
+          <div class="mod-card-title">Cambios TI</div>
+          <div class="mod-card-norm">ISO 20000 / ITIL</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">📋</div>
+          <div class="mod-card-title">Catálogo de Servicios TI</div>
+          <div class="mod-card-norm">ISO 20000</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🌱</div>
+          <div class="mod-card-title">Aspectos Ambientales</div>
+          <div class="mod-card-norm">ISO 14001 §6.1.2</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🌡️</div>
+          <div class="mod-card-title">Riesgos Climáticos</div>
+          <div class="mod-card-norm">ISO 14064</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">⛑️</div>
+          <div class="mod-card-title">Accidentes SST</div>
+          <div class="mod-card-norm">ISO 45001 §10.2</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">📢</div>
+          <div class="mod-card-title">Canal de Denuncias</div>
+          <div class="mod-card-norm">ISO 37001 / 37301</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🎯</div>
+          <div class="mod-card-title">Revisión por la Dirección</div>
+          <div class="mod-card-norm">ISO §9.3</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">⚖️</div>
+          <div class="mod-card-title">Requisitos Legales & ENS</div>
+          <div class="mod-card-norm">ENS / RGPD</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">🔭</div>
+          <div class="mod-card-title">Análisis DAFO</div>
+          <div class="mod-card-norm">ISO §4.1</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">📜</div>
+          <div class="mod-card-title">Políticas del SGI</div>
+          <div class="mod-card-norm">ISO §5.2</div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-card-icon">📄</div>
+          <div class="mod-card-title">Informes Ejecutivos</div>
+          <div class="mod-card-norm">Previsualización PDF</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI SECTION -->
+  <section id="ia" class="ai-section">
+    <div class="section-inner">
+      <div class="ai-layout">
+        <div class="ai-visual reveal">
+          <div class="ai-card">
+            <div class="ai-scan-line"></div>
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+              <span style="font-size:1.5rem">🤖</span>
+              <div>
+                <div style="font-weight:700;font-size:0.9rem">Motor de IA — Auditoría Continua</div>
+                <div style="font-size:0.72rem;color:var(--c-muted)">Escaneo activo · Actualizado hace 3 min</div>
+              </div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;color:#10b981">
+                <span style="width:7px;height:7px;background:#10b981;border-radius:50%;display:inline-block;animation:pulse 2s infinite"></span>
+                ACTIVO
+              </div>
+            </div>
+            <div class="ai-alert ai-alert-ok">
+              <div class="ai-dot" style="background:#10b981"></div>
+              <div><strong style="color:#10b981">CONFORME</strong><br/><span style="color:var(--c-muted)">ISO 9001 §8.4 · Evaluación de proveedores al día. Puntuación media: 88/100.</span></div>
+            </div>
+            <div class="ai-alert ai-alert-warn">
+              <div class="ai-dot" style="background:#f59e0b"></div>
+              <div><strong style="color:#f59e0b">ALERTA</strong><br/><span style="color:var(--c-muted)">RFC-2024-089 · Sin aprobación de cambio TI tras 5 días. Acción correctiva recomendada.</span></div>
+            </div>
+            <div class="ai-alert ai-alert-info">
+              <div class="ai-dot" style="background:#3b82f6"></div>
+              <div><strong style="color:#3b82f6">MEJORA</strong><br/><span style="color:var(--c-muted)">Formación ISO 45001 · Eficacia 62%. Se sugiere refuerzo de unidad 3 (EPIs).</span></div>
+            </div>
+            <div class="ai-alert ai-alert-ok">
+              <div class="ai-dot" style="background:#10b981"></div>
+              <div><strong style="color:#10b981">CONFORME</strong><br/><span style="color:var(--c-muted)">ENS · Nivel de seguridad ALTO mantenido. Auditoría interna superada sin hallazgos.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <div class="section-label">Inteligencia Artificial</div>
+          <h2 class="section-title">Cumplimiento normativo<br />que se gestiona solo</h2>
+          <p class="section-desc">El motor de IA de SIGE 2.0 analiza continuamente todos los datos del sistema para detectar incumplimientos antes de que se conviertan en no conformidades.</p>
+
+          <ul class="ai-features">
+            <li>
+              <span class="ai-check">✦</span>
+              <div>
+                <strong>Escaneo periódico automático</strong><br/>
+                <span style="color:var(--c-muted);font-size:0.85rem">Revisa planes de acción, desempeño de proveedores, eficacia de formación y estado de cambios TI de forma continua.</span>
+              </div>
+            </li>
+            <li>
+              <span class="ai-check">✦</span>
+              <div>
+                <strong>Alertas proactivas por desviación</strong><br/>
+                <span style="color:var(--c-muted);font-size:0.85rem">Detecta umbrales de riesgo y genera recomendaciones de acción antes de que el auditor llegue.</span>
+              </div>
+            </li>
+            <li>
+              <span class="ai-check">✦</span>
+              <div>
+                <strong>Registro de evidencia automático</strong><br/>
+                <span style="color:var(--c-muted);font-size:0.85rem">Cada alerta queda registrada con timestamp para uso como evidencia en auditorías externas.</span>
+              </div>
+            </li>
+            <li>
+              <span class="ai-check">✦</span>
+              <div>
+                <strong>Asistente chatbot normativo</strong><br/>
+                <span style="color:var(--c-muted);font-size:0.85rem">Responde preguntas sobre requisitos ISO, cómo usar módulos y cómo resolver desviaciones.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STANDARDS -->
+  <section id="normas">
+    <div class="section-inner">
+      <div class="reveal" style="text-align:center;margin-bottom:1rem">
+        <div class="section-label" style="justify-content:center">Normas de Referencia</div>
+        <h2 class="section-title">10 normas. Una sola plataforma.</h2>
+        <p class="section-desc" style="margin:1rem auto">SIGE 2.0 cubre el ciclo de vida completo de cumplimiento para las principales normas internacionales y el esquema español de seguridad.</p>
+      </div>
+
+      <div class="standards-grid">
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#2563eb"></div>
+          <div class="std-badge" style="background:#2563eb">ISO 9001</div>
+          <div class="std-name">Calidad</div>
+          <div class="std-desc">Gestión de la calidad y mejora continua de procesos y productos.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:85%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 85%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#16a34a"></div>
+          <div class="std-badge" style="background:#16a34a">ISO 14001</div>
+          <div class="std-name">Medio Ambiente</div>
+          <div class="std-desc">Gestión ambiental y reducción del impacto en el entorno.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:60%;background:linear-gradient(90deg,#16a34a,#4ade80)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 60%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#ea580c"></div>
+          <div class="std-badge" style="background:#ea580c">ISO 45001</div>
+          <div class="std-name">SST</div>
+          <div class="std-desc">Seguridad y salud en el trabajo para proteger a las personas.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:72%;background:linear-gradient(90deg,#ea580c,#fb923c)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 72%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#7c3aed"></div>
+          <div class="std-badge" style="background:#7c3aed">ISO 27001</div>
+          <div class="std-name">Seguridad Info.</div>
+          <div class="std-desc">Protección de la información y gestión de riesgos de seguridad.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:82%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 82%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#0891b2"></div>
+          <div class="std-badge" style="background:#0891b2">ISO 22301</div>
+          <div class="std-name">Continuidad</div>
+          <div class="std-desc">Continuidad de negocio y resiliencia ante interrupciones.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:76%;background:linear-gradient(90deg,#0891b2,#22d3ee)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 76%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#be185d"></div>
+          <div class="std-badge" style="background:#be185d">ISO 37001</div>
+          <div class="std-name">Anti-Soborno</div>
+          <div class="std-desc">Sistemas de gestión anti-soborno y prevención de la corrupción.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:84%;background:linear-gradient(90deg,#be185d,#f472b6)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 84%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#b45309"></div>
+          <div class="std-badge" style="background:#b45309">ISO 37301</div>
+          <div class="std-name">Compliance</div>
+          <div class="std-desc">Gestión del cumplimiento normativo y ético corporativo.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:78%;background:linear-gradient(90deg,#b45309,#fbbf24)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 78%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#0d9488"></div>
+          <div class="std-badge" style="background:#0d9488">ISO 20000</div>
+          <div class="std-name">ITSM</div>
+          <div class="std-desc">Gestión de servicios TI y catálogo de servicios ITIL-alineado.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:70%;background:linear-gradient(90deg,#0d9488,#2dd4bf)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 70%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#6d28d9"></div>
+          <div class="std-badge" style="background:#6d28d9">ISO 27701</div>
+          <div class="std-name">Privacidad</div>
+          <div class="std-desc">Protección de datos personales y cumplimiento RGPD/LOPDGDD.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:81%;background:linear-gradient(90deg,#6d28d9,#c4b5fd)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 81%</div>
+        </div>
+        <div class="std-card reveal">
+          <div class="std-card-glow" style="background:#1d4ed8"></div>
+          <div class="std-badge" style="background:#1d4ed8">ENS</div>
+          <div class="std-name">Esquema Nac. Seguridad</div>
+          <div class="std-desc">Cumplimiento del ENS español en dimensiones C·I·D·A·T para organismos públicos y proveedores.</div>
+          <div class="std-score"><div class="std-score-fill" style="width:78%;background:linear-gradient(90deg,#1d4ed8,#60a5fa)"></div></div>
+          <div class="std-score-pct">Cumplimiento: 78%</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHATBOT DEMO -->
+  <section id="chatbot" style="background:var(--c-surface);border-top:1px solid var(--c-border)">
+    <div class="section-inner">
+      <div class="chatbot-layout">
+        <div class="reveal">
+          <div class="section-label">Asistente Virtual</div>
+          <h2 class="section-title">Pregunta cualquier cosa<br/>sobre las normas</h2>
+          <p class="section-desc">El chatbot integrado de SIGE 2.0 responde preguntas sobre la operativa de los módulos, requisitos de las normas ISO y cómo resolver desviaciones de cumplimiento.</p>
+
+          <ul class="ai-features" style="margin-top:2rem">
+            <li>
+              <span class="ai-check">💬</span>
+              <span style="font-size:0.85rem">Consultas sobre requisitos de normas ISO y ENS</span>
+            </li>
+            <li>
+              <span class="ai-check">🔗</span>
+              <span style="font-size:0.85rem">Navegación directa a los módulos desde el chat</span>
+            </li>
+            <li>
+              <span class="ai-check">📋</span>
+              <span style="font-size:0.85rem">Explicación de cómo registrar documentos, auditorías y más</span>
+            </li>
+            <li>
+              <span class="ai-check">🧠</span>
+              <span style="font-size:0.85rem">Respuestas contextualizadas al marco normativo de tu organización</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="chat-window reveal">
+          <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div>
+              <div class="chat-name">Asistente SIGE 2.0</div>
+              <div class="chat-status">● En línea</div>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="chat-msg">
+              <div class="chat-bubble chat-bubble-bot">
+                ¡Hola! Soy tu asistente de SIGE 2.0. Puedo ayudarte con los módulos de la aplicación o explicarte requisitos de las normas ISO y ENS. ¿En qué puedo ayudarte hoy?
+              </div>
+            </div>
+            <div class="chat-msg user">
+              <div class="chat-bubble chat-bubble-user">
+                ¿Cómo gestiono una no conformidad en ISO 9001?
+              </div>
+            </div>
+            <div class="chat-msg">
+              <div class="chat-bubble chat-bubble-bot">
+                Según la cláusula <strong>10.2 de ISO 9001</strong>, debes: <br/><br/>
+                1️⃣ Registrar la no conformidad<br/>
+                2️⃣ Determinar su causa raíz<br/>
+                3️⃣ Implementar una acción correctiva (CAPA)<br/>
+                4️⃣ Verificar la eficacia<br/><br/>
+                Puedes hacerlo en el módulo <em>Auditorías & Acciones</em> de SIGE 2.0. ¿Quieres que te lleve allí?
+              </div>
+            </div>
+            <div class="chat-msg user">
+              <div class="chat-bubble chat-bubble-user">
+                Sí, llévame al módulo
+              </div>
+            </div>
+            <div class="chat-msg">
+              <div class="chat-bubble chat-bubble-bot">
+                ✅ Navegando a <strong>Auditorías & Acciones...</strong>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input class="chat-input-field" placeholder="Escribe tu pregunta..." type="text" readonly />
+            <button class="chat-send">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contacto">
+    <div class="section-inner">
+      <div class="cta-box reveal">
+        <div class="section-label" style="justify-content:center;margin-bottom:1.5rem">Comienza ahora</div>
+        <h2>¿Listo para transformar<br/>tu gestión normativa?</h2>
+        <p>
+          SIGE 2.0 está diseñado para funcionar tanto en red local como en modo offline desde un pendrive. Sin dependencias de nube, sin suscripciones. Tu dato, tu control.
+        </p>
+        <div class="hero-actions" style="margin-top:0;justify-content:center">
+          <a href="../index.html" class="btn-primary">
+            🚀 Acceder al Portal SIGE 2.0
+          </a>
+          <a href="../manual_de_uso.md" class="btn-secondary">
+            📖 Leer el Manual de Uso
+          </a>
+        </div>
+
+        <div style="display:flex;gap:2rem;margin-top:3rem;justify-content:center;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--c-muted)">
+            <span style="color:#10b981">✓</span> Instalación en 5 minutos
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--c-muted)">
+            <span style="color:#10b981">✓</span> Sin necesidad de internet
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--c-muted)">
+            <span style="color:#10b981">✓</span> Multiusuario en red local
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--c-muted)">
+            <span style="color:#10b981">✓</span> Paquete portable (pendrive)
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo">SIGE</div>
+        <div>
+          <div class="nav-name">SIGE 2.0</div>
+          <div style="font-size:0.72rem;color:var(--c-muted)">Sistema Integrado de Gestión Empresarial</div>
+        </div>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#funcionalidades">Funcionalidades</a></li>
+        <li><a href="#modulos">Módulos</a></li>
+        <li><a href="#normas">Normas</a></li>
+        <li><a href="#ia">IA</a></li>
+        <li><a href="../manual_de_uso.md">Manual</a></li>
+      </ul>
+      <div class="footer-copy">© 2026 SIGE 2.0. Todos los derechos reservados.</div>
+    </div>
+  </footer>
+
+  <script>
+    // ─── SCROLL REVEAL ───
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+          revealObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    revealEls.forEach(el => revealObs.observe(el));
+
+    // ─── NAV SCROLL ───
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('main-nav');
+      nav.style.background = window.scrollY > 50
+        ? 'rgba(5,7,15,0.95)' : 'rgba(5,7,15,0.7)';
+    });
+
+    // ─── COUNTER ANIMATION ───
+    function animateCount(el, target, suffix='', duration=1800) {
+      let start = 0;
+      const step = target / (duration / 16);
+      const timer = setInterval(() => {
+        start += step;
+        if (start >= target) { el.textContent = target + suffix; clearInterval(timer); return; }
+        el.textContent = Math.floor(start) + suffix;
+      }, 16);
+    }
+
+    const statsSection = document.querySelector('.stats-band');
+    const statsObs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        animateCount(document.getElementById('count1'), 30, '+');
+        animateCount(document.getElementById('count2'), 10, '+');
+        animateCount(document.getElementById('count3'), 75, '+');
+        animateCount(document.getElementById('count4'), 100, '%');
+        statsObs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    statsObs.observe(statsSection);
+
+    // ─── ACTIVE NAV LINK ───
+    const sections = document.querySelectorAll('section[id]');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id;
+      });
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current
+          ? '#e8ecf4' : '';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <!-- Interceptor de LocalStorage para sincronización con el servidor -->
@@ -826,6 +826,9 @@
             // Recalcular categoría ENS (que además actualiza el badge y valor de la tarjeta de ENS)
             recalculateCategory();
             
+            // Sobrescribir KPIs con datos reales del localStorage si existen
+            if (typeof loadLiveKpis === 'function') loadLiveKpis();
+            
             // Actualizar actividades recientes
             const logEl = document.getElementById("activity-log");
             logEl.innerHTML = "";
@@ -1309,7 +1312,6 @@
             if (aiActive) {
                 addAiLog(`🤖 [Agente IA] Activado el seguimiento y auditoría automatizada del cumplimiento.`);
                 startAiInterval();
-                runAiScanManual();
             } else {
                 addAiLog(`🤖 [Agente IA] Desactivado el servicio de auditoría continua.`);
                 stopAiInterval();
@@ -1319,9 +1321,20 @@
 
         function startAiInterval() {
             stopAiInterval();
+            // Simplemente leer el estado y los logs actualizados del parent
             aiInterval = setInterval(() => {
-                simulateAiScan();
-            }, 6000);
+                const logsStr = localStorage.getItem('sig_ai_compliance_logs');
+                if (logsStr) {
+                    try { aiLogs = JSON.parse(logsStr); } catch(e) { aiLogs = []; }
+                }
+                const countStr = localStorage.getItem('sig_ai_actions_count');
+                aiActionsCount = parseInt(countStr) || 0;
+                
+                const lastCheckStr = localStorage.getItem('sig_ai_last_check');
+                aiLastCheck = lastCheckStr || "Nunca";
+
+                updateAiUi();
+            }, 3000);
         }
 
         function stopAiInterval() {
@@ -1356,122 +1369,112 @@
                 liveBadge.innerText = "ESCANEANDO...";
                 liveBadge.classList.remove("hidden");
             }
-            simulateAiScan(true);
+            
+            // Invocar el escáner centralizado en el parent
+            if (window.parent && typeof window.parent.runAiComplianceScan === 'function') {
+                window.parent.runAiComplianceScan();
+            }
+
+            setTimeout(() => {
+                const logsStr = localStorage.getItem('sig_ai_compliance_logs');
+                if (logsStr) {
+                    try { aiLogs = JSON.parse(logsStr); } catch(e) { aiLogs = []; }
+                }
+                const countStr = localStorage.getItem('sig_ai_actions_count');
+                aiActionsCount = parseInt(countStr) || 0;
+                
+                const lastCheckStr = localStorage.getItem('sig_ai_last_check');
+                aiLastCheck = lastCheckStr || "Nunca";
+
+                updateAiUi();
+                if (liveBadge) liveBadge.innerText = "ACTIVO";
+            }, 800);
         }
 
-        function simulateAiScan(isManual = false) {
-            if (!aiActive && !isManual) return;
+        // KPIs Dinámicos — Conectar widgets a datos reales del tenant activo
+        function loadLiveKpis() {
+            const tenant = localStorage.getItem('sig_active_tenant') || 'alfa';
 
-            aiActionsCount++;
-            localStorage.setItem('sig_ai_actions_count', aiActionsCount);
-
-            const now = new Date();
-            aiLastCheck = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            localStorage.setItem('sig_ai_last_check', aiLastCheck);
-
-            addAiLog(`[Escáner] Iniciando análisis cruzado de requisitos en base de datos local...`);
-
-            // 1. Escanear cambios TI
-            const rfcsStr = localStorage.getItem('sig_cambios_ti');
-            if (rfcsStr) {
-                try {
-                    const rfcs = JSON.parse(rfcsStr);
-                    const openRfcs = rfcs.filter(r => r.status !== 'Cerrado' && r.status !== 'Rechazado');
-                    if (openRfcs.length > 0) {
-                        addAiLog(`[Escáner] Encontrados ${openRfcs.length} RFCs abiertos. Verificando cumplimiento ISO 20000-1 §8.5.1...`);
-                        openRfcs.forEach(rfc => {
-                            if (!rfc.rollback || rfc.rollback.trim().length < 10) {
-                                addAiLog(`⚠️ ADVERTENCIA (ISO 20000-1 §8.5.1): El RFC '${rfc.id}' (${rfc.title}) tiene un plan de reversión incompleto. Riesgo crítico.`);
-                            } else {
-                                addAiLog(`✓ Verificación (ISO 20000-1 §8.5): RFC '${rfc.id}' aprobado con plan de rollback validado.`);
-                            }
-                        });
-                    } else {
-                        addAiLog(`✓ Verificación (ISO 20000-1 §8.5): 0 RFCs abiertos con riesgos de rollback.`);
-                    }
-                } catch(e) {
-                    console.error("Error al auditar RFCs:", e);
-                }
+            // ── CAPA ──────────────────────────────────────────────────────────
+            const capaKeys = [
+                `sig_acciones_correctivas_${tenant}`,
+                'sig_acciones_correctivas'
+            ];
+            let capaData = null;
+            for (const k of capaKeys) {
+                const v = localStorage.getItem(k);
+                if (v) { try { capaData = JSON.parse(v); break; } catch(e) {} }
+            }
+            if (Array.isArray(capaData) && capaData.length > 0) {
+                const open = capaData.filter(c => {
+                    const est = (c.estado || c.status || '').toLowerCase();
+                    return est !== 'completada' && est !== 'cerrada' && est !== 'closed' && est !== 'completed';
+                });
+                const critical = open.filter(c => {
+                    const p = (c.prioridad || c.priority || '').toLowerCase();
+                    return p === 'alta' || p === 'critica' || p === 'crítica' || p === 'critical' || p === 'high';
+                });
+                const resolved = capaData.length - open.length;
+                const elTotal = document.getElementById('kpi-capa-total');
+                const elCrit = document.getElementById('kpi-capa-criticas');
+                const elOpen = document.getElementById('kpi-capa-abiertas');
+                if (elTotal) elTotal.textContent = capaData.length;
+                if (elCrit) elCrit.textContent = `${critical.length} Críticas`;
+                if (elOpen) elOpen.textContent = `${open.length} Abiertas`;
+                // Actualizar pie subtexto
+                const elSub = elOpen?.closest('.glass-card')?.querySelector('p.text-xs.text-on-surface-variant');
+                if (elSub) elSub.textContent = `${resolved} acciones resueltas`;
             }
 
-            // 2. Escanear proveedores
-            const provsStr = localStorage.getItem('sig_desempeno_proveedores');
-            if (provsStr) {
-                try {
-                    const provs = JSON.parse(provsStr);
-                    const lowProvs = provs.filter(p => p.avg < 3.0);
-                    if (lowProvs.length > 0) {
-                        addAiLog(`[Escáner] Encontrados ${lowProvs.length} proveedores con nota baja. Verificando planes de acción correctiva (ISO 9001 §8.4)...`);
-                        lowProvs.forEach(p => {
-                            const ncStr = localStorage.getItem('sig_incidencias_nc_data');
-                            let hasNc = false;
-                            if (ncStr) {
-                                try {
-                                    const ncData = JSON.parse(ncStr);
-                                    hasNc = ncData.incidencias.some(nc => nc.title.includes(p.name));
-                                } catch(e) {}
-                            }
-                            if (!hasNc) {
-                                addAiLog(`⚠️ ADVERTENCIA (ISO 9001 §8.4): Proveedor '${p.name}' con calificación deficiente (${p.avg} estrellas) sin plan de acción correctiva CAPA registrado.`);
-                            } else {
-                                addAiLog(`✓ Verificación (ISO 9001 §8.4): Proveedor '${p.name}' bajo plan CAPA activo.`);
-                            }
-                        });
-                    } else {
-                        addAiLog(`✓ Verificación (ISO 9001 §8.4): Todos los proveedores activos cumplen con la nota mínima apta.`);
-                    }
-                } catch(e) {
-                    console.error("Error al auditar proveedores:", e);
+            // ── RIESGOS ───────────────────────────────────────────────────────
+            const riskKeys = [
+                `sig_riesgos_data_${tenant}`,
+                `sig_evaluacion_riesgos_${tenant}`,
+                `sig_riesgos_magerit_${tenant}`,
+                'sig_riesgos_data',
+                'sig_evaluacion_riesgos',
+                'sig_riesgos_magerit'
+            ];
+            let riskData = null;
+            for (const k of riskKeys) {
+                const v = localStorage.getItem(k);
+                if (v) { try { riskData = JSON.parse(v); break; } catch(e) {} }
+            }
+            if (riskData) {
+                const risks = Array.isArray(riskData) ? riskData : (riskData.riesgos || riskData.risks || riskData.data || []);
+                if (risks.length > 0) {
+                    const critical = risks.filter(r => {
+                        const level = (r.level || r.nivel || r.risk_level || '').toLowerCase();
+                        const score = parseInt(r.score || r.puntuacion || r.riskScore || 0);
+                        return level.includes('crít') || level.includes('alto') || level === 'critical' || level === 'high' || score >= 15;
+                    });
+                    const mitigated = risks.filter(r => {
+                        const st = (r.estado || r.status || r.treatment || '').toLowerCase();
+                        return st.includes('mitig') || st.includes('accept') || st === 'cerrado';
+                    });
+                    const unmitigated = critical.filter(r => {
+                        const st = (r.estado || r.status || r.treatment || '').toLowerCase();
+                        return !st.includes('mitig') && !st.includes('accept') && st !== 'cerrado';
+                    });
+                    const pct = risks.length > 0 ? Math.round((mitigated.length / risks.length) * 100) : 0;
+
+                    const elTotal = document.getElementById('kpi-risks-total');
+                    const elMit = document.getElementById('kpi-risks-mitigated');
+                    const elUnmit = document.getElementById('kpi-risks-unmitigated');
+                    if (elTotal) elTotal.textContent = critical.length;
+                    if (elMit) elMit.textContent = `${mitigated.length} Mitigados`;
+                    if (elUnmit) elUnmit.textContent = `${unmitigated.length} Sin Control`;
+                    const elSub = elUnmit?.closest('.glass-card')?.querySelector('p.text-xs.text-on-surface-variant');
+                    if (elSub) elSub.textContent = `Mitigación promedio: ${pct}%`;
                 }
             }
-
-            // 3. Escanear formación
-            const formStr = localStorage.getItem('sig_eficacia_formacion');
-            if (formStr) {
-                try {
-                    const forms = JSON.parse(formStr);
-                    const lowForms = forms.filter(f => f.avg < 3.0);
-                    if (lowForms.length > 0) {
-                        addAiLog(`[Escáner] Encontradas ${lowForms.length} acciones formativas con eficacia deficiente. Verificando planes de refuerzo (ISO 45001 §7.2)...`);
-                        lowForms.forEach(f => {
-                            const accStr = localStorage.getItem('sig_acciones_mejora_data');
-                            let hasAcc = false;
-                            if (accStr) {
-                                try {
-                                    const accData = JSON.parse(accStr);
-                                    hasAcc = accData.acciones.some(ac => ac.title.includes(f.course));
-                                } catch(e) {}
-                            }
-                            if (!hasAcc) {
-                                addAiLog(`⚠️ ADVERTENCIA (ISO 45001 §7.2): Formación '${f.course}' evaluada como no eficaz sin acción de mejora de competencia registrada.`);
-                            } else {
-                                addAiLog(`✓ Verificación (ISO 45001 §7.2): Brecha de competencia formativa en '${f.course}' mitigada con acción de mejora.`);
-                            }
-                        });
-                    } else {
-                        addAiLog(`✓ Verificación (ISO 45001 §7.2): 100% de expedientes de formación demuestran eficacia de competencia.`);
-                    }
-                } catch(e) {
-                    console.error("Error al auditar formación:", e);
-                }
-            }
-
-            addAiLog(`[Escáner] Verificando controles técnicos del ENS y control operacional ambiental (ISO 14001)...`);
-            setTimeout(() => {
-                addAiLog(`✓ Verificación (ISO 14001 §8.1): Registros de inspección ambiental al día.`);
-                addAiLog(`✓ Verificación (ENS MP.SI): Cumplimiento de política de contraseñas y doble factor (MFA) validado.`);
-                addAiLog(`🤖 [Agente IA] Análisis de cumplimiento integral finalizado con éxito.`);
-                
-                const liveBadge = document.getElementById("ai-live-badge");
-                if (liveBadge) liveBadge.innerText = "ACTIVO";
-                updateAiUi();
-            }, 800);
         }
 
         // Inicializar al cargar el documento
         document.addEventListener("DOMContentLoaded", () => {
             initOrganizations();
             initAiCompliance();
+            loadLiveKpis();
         });
     </script>
 </body>

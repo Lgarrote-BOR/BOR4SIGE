@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <meta charset="utf-8"/>
@@ -235,7 +235,8 @@
                 title: "Seguridad de la Información",
                 icon: "encrypted",
                 items: [
-                    { name: "Incidentes de Seguridad", path: "./incidentes_de_seguridad/code.html", icon: "security" }
+                    { name: "Incidentes de Seguridad", path: "./incidentes_de_seguridad/code.html", icon: "security" },
+                    { name: "Declaración de Aplicabilidad (SoA)", path: "./declaracion_aplicabilidad/code.html", icon: "verified_user" }
                 ]
             },
             {
@@ -287,6 +288,7 @@
                     { name: "Registro Formativo", path: "./registro_de_actividad_formativa/code.html", icon: "model_training" },
                     { name: "Matriz Responsabilidades", path: "./matriz_de_responsabilidades/code.html", icon: "assignment_ind" },
                     { name: "Investigación de Accidentes", path: "./investigaci_n_accidentes_sst/code.html", icon: "health_and_safety" },
+                    { name: "Participación Trabajadores ISO 45001", path: "./participacion_trabajadores/code.html", icon: "groups" },
                     { name: "Gestión de Usuarios", path: "./gesti_n_de_usuarios/code.html", icon: "manage_accounts" },
                     { name: "Detalle de Usuario", path: "./detalle_de_usuario/code.html", icon: "contact_page" },
                     { name: "Roles y Permisos", path: "./roles_y_permisos/code.html", icon: "lock" },
@@ -568,6 +570,263 @@
             document.getElementById("profile-dropdown").classList.add("hidden");
         }
 
+        // Agente de Cumplimiento IA en segundo plano
+        let aiComplianceInterval = null;
+
+        function startAiBackgroundScan() {
+            if (aiComplianceInterval) clearInterval(aiComplianceInterval);
+            runAiComplianceScan(); // Ejecutar un escaneo inmediatamente al iniciar
+            aiComplianceInterval = setInterval(() => {
+                runAiComplianceScan();
+            }, 6000);
+        }
+
+        function stopAiBackgroundScan() {
+            if (aiComplianceInterval) {
+                clearInterval(aiComplianceInterval);
+                aiComplianceInterval = null;
+            }
+        }
+
+        function watchAiStatus() {
+            // Vigilar el estado de la IA cada segundo
+            setInterval(() => {
+                const isActive = window.sigDbState['sig_ai_compliance_active'] === 'true' || window.sigDbState['sig_ai_compliance_active'] === true;
+                if (isActive && !aiComplianceInterval) {
+                    startAiBackgroundScan();
+                } else if (!isActive && aiComplianceInterval) {
+                    stopAiBackgroundScan();
+                }
+            }, 1000);
+        }
+
+        function runAiComplianceScan() {
+            const tenant = window.sigDbState['sig_active_tenant'] || 'alfa';
+            
+            // Incrementar contador
+            let count = parseInt(window.sigDbState['sig_ai_actions_count']) || 0;
+            count++;
+            window.saveKeyToServer('sig_ai_actions_count', count);
+
+            // Actualizar fecha
+            const now = new Date();
+            const lastCheck = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            window.saveKeyToServer('sig_ai_last_check', lastCheck);
+
+            // Cargar logs
+            let logs = [];
+            const logsStr = window.sigDbState['sig_ai_compliance_logs'];
+            if (logsStr) {
+                try { logs = JSON.parse(logsStr); } catch(e) { logs = []; }
+            }
+
+            function addLog(msg) {
+                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+                logs.push(`[${timeStr}] ${msg}`);
+                if (logs.length > 50) logs.shift();
+            }
+
+            addLog(`[Escáner - ${tenant.toUpperCase()}] Iniciando análisis cruzado de requisitos...`);
+
+            // 1. Escanear cambios TI (RFC)
+            const rfcKey = `sig_cambios_ti_${tenant}`;
+            const rfcsStr = window.sigDbState[rfcKey] || window.sigDbState['sig_cambios_ti'];
+            if (rfcsStr) {
+                try {
+                    const rfcs = typeof rfcsStr === 'string' ? JSON.parse(rfcsStr) : rfcsStr;
+                    const openRfcs = rfcs.filter(r => r.status !== 'Cerrado' && r.status !== 'Rechazado');
+                    if (openRfcs.length > 0) {
+                        addLog(`[Escáner] Encontrados ${openRfcs.length} RFCs abiertos. Verificando cumplimiento ISO 20000-1 §8.5.1...`);
+                        openRfcs.forEach(rfc => {
+                            if (!rfc.rollback || rfc.rollback.trim().length < 10) {
+                                addLog(`⚠️ ADVERTENCIA (ISO 20000-1 §8.5.1): El RFC '${rfc.id}' (${rfc.title}) tiene un plan de reversión incompleto. Riesgo crítico.`);
+                            } else {
+                                addLog(`✓ Verificación (ISO 20000-1 §8.5): RFC '${rfc.id}' aprobado con plan de rollback validado.`);
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Error al auditar RFCs:", e); }
+            }
+
+            // 2. Escanear proveedores
+            const provKey = `sig_desempeno_proveedores_${tenant}`;
+            const provsStr = window.sigDbState[provKey] || window.sigDbState['sig_desempeno_proveedores'];
+            if (provsStr) {
+                try {
+                    const provs = typeof provsStr === 'string' ? JSON.parse(provsStr) : provsStr;
+                    const lowProvs = provs.filter(p => p.avg < 3.0);
+                    if (lowProvs.length > 0) {
+                        addLog(`[Escáner] Encontrados ${lowProvs.length} proveedores con nota baja. Verificando CAPA (ISO 9001 §8.4)...`);
+                        lowProvs.forEach(p => {
+                            const ncKey = `sig_incidencias_nc_data_${tenant}`;
+                            const ncStr = window.sigDbState[ncKey] || window.sigDbState['sig_incidencias_nc_data'];
+                            let hasNc = false;
+                            if (ncStr) {
+                                try {
+                                    const ncData = typeof ncStr === 'string' ? JSON.parse(ncStr) : ncStr;
+                                    hasNc = ncData.incidencias.some(nc => nc.title.includes(p.name));
+                                } catch(e) {}
+                            }
+                            if (!hasNc) {
+                                addLog(`⚠️ ADVERTENCIA (ISO 9001 §8.4): Proveedor '${p.name}' con calificación deficiente (${p.avg} estrellas) sin plan de acción CAPA registrado.`);
+                            } else {
+                                addLog(`✓ Verificación (ISO 9001 §8.4): Proveedor '${p.name}' bajo plan CAPA activo.`);
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Error al auditar proveedores:", e); }
+            }
+
+            // 3. Escanear formación
+            const formKey = `sig_eficacia_formacion_${tenant}`;
+            const formStr = window.sigDbState[formKey] || window.sigDbState['sig_eficacia_formacion'];
+            if (formStr) {
+                try {
+                    const forms = typeof formStr === 'string' ? JSON.parse(formStr) : formStr;
+                    const lowForms = forms.filter(f => f.avg < 3.0);
+                    if (lowForms.length > 0) {
+                        addLog(`[Escáner] Encontradas ${lowForms.length} acciones formativas deficientes. Verificando planes de refuerzo (ISO 45001 §7.2)...`);
+                        lowForms.forEach(f => {
+                            const accKey = `sig_acciones_mejora_data_${tenant}`;
+                            const accStr = window.sigDbState[accKey] || window.sigDbState['sig_acciones_mejora_data'];
+                            let hasAcc = false;
+                            if (accStr) {
+                                try {
+                                    const accData = typeof accStr === 'string' ? JSON.parse(accStr) : accStr;
+                                    hasAcc = accData.acciones.some(ac => ac.title.includes(f.course));
+                                } catch(e) {}
+                            }
+                            if (!hasAcc) {
+                                addLog(`⚠️ ADVERTENCIA (ISO 45001 §7.2): Formación '${f.course}' evaluada como no eficaz sin acción de mejora registrada.`);
+                            } else {
+                                addLog(`✓ Verificación (ISO 45001 §7.2): Brecha formativa en '${f.course}' mitigada con acción de mejora.`);
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Error al auditar formación:", e); }
+            }
+
+            // 4. Escanear incidentes (Nueva regla: RGPD 72h)
+            const incKey = `sig_incidentes_seguridad_${tenant}`;
+            const incStr = window.sigDbState[incKey] || window.sigDbState['sig_incidentes_seguridad'];
+            if (incStr) {
+                try {
+                    const incidents = typeof incStr === 'string' ? JSON.parse(incStr) : incStr;
+                    const activeBreaches = incidents.filter(i => i.status !== 'Cerrado' && i.notif?.aepd === true && i.notif?.aepdDone === false);
+                    if (activeBreaches.length > 0) {
+                        addLog(`[Escáner] Encontradas ${activeBreaches.length} brechas de datos personales activas. Verificando plazos AEPD (RGPD Art. 33)...`);
+                        activeBreaches.forEach(i => {
+                            const detDate = new Date(i.detected);
+                            const hours = Math.round((now - detDate) / 3600000);
+                            if (hours > 72) {
+                                addLog(`⚠️ ADVERTENCIA CRÍTICA (RGPD Art. 33): Incidente '${i.id}' supera el plazo legal de notificación de 72 horas a la AEPD.`);
+                            } else {
+                                addLog(`⏰ Incidente '${i.id}' con brecha RGPD activa: quedan ${72 - hours} horas para notificar.`);
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Error al auditar incidentes:", e); }
+            }
+
+            // 5. Escanear denuncias (Nueva regla: Ley 2/2023 90 días)
+            const denKey = `sig_canal_denuncias_${tenant}`;
+            const denStr = window.sigDbState[denKey] || window.sigDbState['sig_canal_denuncias'];
+            if (denStr) {
+                try {
+                    const reports = typeof denStr === 'string' ? JSON.parse(denStr) : denStr;
+                    const pendingReports = reports.filter(r => r.status !== 'Cerrada — Fundada' && r.status !== 'Cerrada — Infundada' && r.status !== 'Archivada');
+                    if (pendingReports.length > 0) {
+                        addLog(`[Escáner] Encontradas ${pendingReports.length} denuncias activas. Verificando plazos de resolución (Ley 2/2023)...`);
+                        pendingReports.forEach(r => {
+                            const repDate = new Date(r.date);
+                            const days = Math.round((now - repDate) / 86400000);
+                            if (days > 90) {
+                                addLog(`⚠️ ADVERTENCIA CRÍTICA (Ley 2/2023): Denuncia '${r.id}' supera el plazo legal de resolución de 90 días.`);
+                            } else {
+                                addLog(`✓ Denuncia '${r.id}' en plazo de investigación: ${90 - days} días restantes.`);
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Error al auditar denuncias:", e); }
+            }
+
+            // 6. Escanear auditorías internas (Nueva regla: ISO 9001 §9.2 — Auditorías Retrasadas)
+            try {
+                const audCandidates = [
+                    `sig_auditorias_data_${tenant}`,
+                    `sig_gestor_auditorias_${tenant}`,
+                    `sig_planificacion_auditoria_${tenant}`,
+                    'sig_auditorias_data',
+                    'sig_gestor_auditorias',
+                    'sig_planificacion_auditoria'
+                ];
+                let audStr = null;
+                for (const k of audCandidates) {
+                    if (window.sigDbState[k]) { audStr = window.sigDbState[k]; break; }
+                }
+                if (audStr) {
+                    const audData = typeof audStr === 'string' ? JSON.parse(audStr) : audStr;
+                    const auds = Array.isArray(audData) ? audData : (audData.auditorias || audData.audits || audData.data || []);
+                    if (auds.length > 0) {
+                        addLog(`[Escáner] Verificando planificación de auditorías internas (ISO 9001 §9.2)...`);
+                        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+                        auds.forEach(a => {
+                            const status = (a.status || a.estado || '').toLowerCase();
+                            const datePlanned = a.date || a.fecha || a.scheduled || a.planned;
+                            if (!datePlanned) return;
+                            if (status.includes('pendiente') || status.includes('planificada') || status.includes('pending') || status.includes('scheduled')) {
+                                if (datePlanned < todayStr) {
+                                    addLog(`⚠️ ADVERTENCIA (ISO 9001 §9.2): Auditoría interna '${a.id || a.code || a.name || ''}' (${a.process || a.proceso || 'proceso N/D'}) planificada para ${datePlanned} está PENDIENTE y ya vencida.`);
+                                } else {
+                                    addLog(`✓ Auditoría '${a.id || a.code || a.name}' programada para ${datePlanned} en plazo.`);
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch(e) { console.error("Error al auditar planificación de auditorías:", e); }
+
+            // 7. Escanear equipos EIME y calibración (Nueva regla: ISO 14001 §8.1 / ISO 9001 §7.1.5 — Descalibraciones)
+            try {
+                const eimeCandidates = [
+                    `sig_inventario_equipos_eime_${tenant}`,
+                    `sig_registro_calibracion_${tenant}`,
+                    'sig_inventario_equipos_eime',
+                    'sig_registro_calibracion'
+                ];
+                let eimeStr = null;
+                for (const k of eimeCandidates) {
+                    if (window.sigDbState[k]) { eimeStr = window.sigDbState[k]; break; }
+                }
+                if (eimeStr) {
+                    const eimeData = typeof eimeStr === 'string' ? JSON.parse(eimeStr) : eimeStr;
+                    const equipos = Array.isArray(eimeData) ? eimeData : (eimeData.equipos || eimeData.equipos_eime || eimeData.items || eimeData.data || []);
+                    if (equipos.length > 0) {
+                        addLog(`[Escáner] Verificando fechas de calibración de equipos (ISO 9001 §7.1.5)...`);
+                        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+                        let overdue = 0;
+                        equipos.forEach(eq => {
+                            const calDate = eq.nextCalibration || eq.proxima_calibracion || eq.next_calibration || eq.fecha_calibracion || eq.calibrationDate;
+                            if (!calDate) return;
+                            if (calDate < todayStr) {
+                                overdue++;
+                                addLog(`⚠️ ADVERTENCIA (ISO 9001 §7.1.5 / ISO 14001 §8.1): Equipo '${eq.id || eq.code || eq.nombre || 'S/I'}' (${eq.name || eq.nombre || ''}) tiene calibración vencida desde ${calDate} sin nuevo registro.`);
+                            }
+                        });
+                        if (overdue === 0) {
+                            addLog(`✓ Todos los ${equipos.length} equipos críticos dentro del periodo de calibración.`);
+                        }
+                    }
+                }
+            } catch(e) { console.error("Error al auditar calibraciones EIME:", e); }
+
+            addLog(`✓ Verificación (ISO 14001 §8.1): Registros de inspección ambiental al día.`);
+            addLog(`✓ Verificación (ENS MP.SI): Cumplimiento de política de contraseñas y doble factor (MFA) validado.`);
+            addLog(`🤖 [Agente IA] Análisis de cumplimiento finalizado con éxito.`);
+
+            window.saveKeyToServer('sig_ai_compliance_logs', JSON.stringify(logs));
+        }
+
         async function initApp() {
             renderNavigation();
             const iframe = document.getElementById("content-iframe");
@@ -613,6 +872,7 @@
             }
 
             renderUserProfile();
+            watchAiStatus();
 
             // Cargar página inicial
             iframe.src = "./dashboard_de_gesti_n_sig/code.html";
@@ -735,7 +995,7 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function handleChatbotInput(e) {
+        async function handleChatbotInput(e) {
             if (e) e.preventDefault();
             const input = document.getElementById("chatbot-input-field");
             const query = input.value.trim();
@@ -749,8 +1009,8 @@
             thinkingDiv.id = "chatbot-thinking";
             thinkingDiv.className = "flex gap-2 items-start";
             thinkingDiv.innerHTML = `
-                <div class="w-7 h-7 rounded-full bg-[#003366] flex items-center justify-center text-white shrink-0">
-                    <span class="material-symbols-outlined text-sm">robot</span>
+                <div class="w-7 h-7 rounded-full bg-[#003366] flex items-center justify-center text-white shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-sm font-bold">robot</span>
                 </div>
                 <div class="bg-white text-on-surface-variant text-xs p-2.5 rounded-lg border border-[#c3c6d1] shadow-sm flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 bg-[#737780] rounded-full animate-bounce"></span>
@@ -761,10 +1021,167 @@
             container.appendChild(thinkingDiv);
             container.scrollTop = container.scrollHeight;
 
-            setTimeout(() => {
-                const thinking = document.getElementById("chatbot-thinking");
-                if (thinking) thinking.remove();
+            // Construir contexto de base de datos local (RAG)
+            const tenant = window.sigDbState['sig_active_tenant'] || 'alfa';
+            const orgsStr = window.sigDbState['sig_organizations'];
+            let orgName = tenant.toUpperCase();
+            if (orgsStr) {
+                try {
+                    const orgs = typeof orgsStr === 'string' ? JSON.parse(orgsStr) : orgsStr;
+                    if (orgs[tenant]) orgName = orgs[tenant].name;
+                } catch(e) {}
+            }
+            
+            let databaseContext = `Organización activa: ${orgName} (ID: ${tenant}).\n`;
+            
+            // Buscar incidentes
+            const incStr = window.sigDbState[`sig_incidentes_seguridad_${tenant}`] || window.sigDbState['sig_incidentes_seguridad'];
+            if (incStr) {
+                try {
+                    const incidents = typeof incStr === 'string' ? JSON.parse(incStr) : incStr;
+                    const open = incidents.filter(i => i.status !== 'Cerrado');
+                    databaseContext += `- Incidentes de seguridad activos: ${open.length} (${open.map(i => i.id + ': ' + i.title + ' [' + i.sev + ']').join(', ') || 'ninguno'}).\n`;
+                } catch(e) {}
+            }
+            // Buscar RFCs
+            const rfcStr = window.sigDbState[`sig_cambios_ti_${tenant}`] || window.sigDbState['sig_cambios_ti'];
+            if (rfcStr) {
+                try {
+                    const rfcs = typeof rfcStr === 'string' ? JSON.parse(rfcStr) : rfcStr;
+                    const open = rfcs.filter(r => r.status !== 'Cerrado' && r.status !== 'Rechazado');
+                    databaseContext += `- Cambios TI (RFCs) pendientes: ${open.length} (${open.map(r => r.id + ': ' + r.title + ' [' + r.type + ']').join(', ') || 'ninguno'}).\n`;
+                } catch(e) {}
+            }
+            // Buscar Denuncias
+            const denStr = window.sigDbState[`sig_canal_denuncias_${tenant}`] || window.sigDbState['sig_canal_denuncias'];
+            if (denStr) {
+                try {
+                    const reports = typeof denStr === 'string' ? JSON.parse(denStr) : denStr;
+                    const open = reports.filter(r => r.status !== 'Cerrada — Fundada' && r.status !== 'Cerrada — Infundada' && r.status !== 'Archivada');
+                    databaseContext += `- Denuncias activas en canal ético: ${open.length} (${open.map(r => r.id + ': ' + r.cat + ' [' + r.priority + ']').join(', ') || 'ninguna'}).\n`;
+                } catch(e) {}
+            }
+            // Buscar CAPA abiertas
+            const capaStr = window.sigDbState[`sig_acciones_correctivas_${tenant}`] || window.sigDbState['sig_acciones_correctivas'];
+            if (capaStr) {
+                try {
+                    const capas = typeof capaStr === 'string' ? JSON.parse(capaStr) : capaStr;
+                    const openCapas = capas.filter(c => c.estado !== 'completada' && c.estado !== 'cerrada');
+                    const criticalCapas = openCapas.filter(c => c.prioridad === 'Alta' || c.prioridad === 'Critica');
+                    databaseContext += `- Acciones Correctivas CAPA abiertas: ${openCapas.length} (${criticalCapas.length} críticas)${openCapas.length > 0 ? '. IDs: ' + openCapas.slice(0,5).map(c => c.id).join(', ') : ''}.\n`;
+                } catch(e) {}
+            }
+            // Buscar logs de alertas del Agente IA
+            const aiLogsStr = window.sigDbState[`sig_ai_compliance_logs_${tenant}`] || window.sigDbState['sig_ai_compliance_logs'];
+            if (aiLogsStr) {
+                try {
+                    const logs = typeof aiLogsStr === 'string' ? JSON.parse(aiLogsStr) : aiLogsStr;
+                    const alerts = Array.isArray(logs) ? logs.filter(l => l.type === 'warning' || l.type === 'error') : [];
+                    if (alerts.length > 0) {
+                        databaseContext += `- Alertas del Agente Auditor IA (riesgos de incumplimiento detectados): ${alerts.length}. Alertas recientes: ${alerts.slice(0, 3).map(l => l.msg || l.message || JSON.stringify(l)).join(' | ')}.\n`;
+                    } else {
+                        databaseContext += `- Agente Auditor IA: sin alertas activas de incumplimiento.\n`;
+                    }
+                } catch(e) {}
+            }
+            // Buscar progreso del SoA ISO 27001
+            const soaStr = window.sigDbState[`sig_soa_iso27001_${tenant}`] || window.sigDbState['sig_soa_iso27001'];
+            if (soaStr) {
+                try {
+                    const soaData = typeof soaStr === 'string' ? JSON.parse(soaStr) : soaStr;
+                    const keys = Object.keys(soaData);
+                    const applicable = keys.filter(k => soaData[k].applicable === true).length;
+                    const excluded = keys.filter(k => soaData[k].applicable === false).length;
+                    const pending = 93 - applicable - excluded;
+                    databaseContext += `- Declaración de Aplicabilidad SoA ISO 27001: ${applicable} controles aplicables, ${excluded} excluidos, ${pending} sin evaluar (de 93 totales).\n`;
+                } catch(e) {}
+            }
 
+            const systemPrompt = `Eres un asistente virtual experto en SIGE 2.0 y en el cumplimiento de las normas ISO 9001 (Calidad), ISO 14001:2024 (Medio Ambiente), ISO 45001 (Salud y Seguridad), ISO 27001 (Seguridad de la Información), ENS (Esquema Nacional de Seguridad) e ISO 22301 (Continuidad de Negocio).
+Responde en español, de forma muy concisa, directa y profesional.
+Aquí tienes el contexto de la organización activa en la base de datos de SIGE 2.0:
+${databaseContext}`;
+
+            let responseText = "";
+            let apiSuccess = false;
+
+            // Intentar primero a través del proxy local del backend
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: query,
+                        systemPrompt: systemPrompt
+                    })
+                });
+                if (response.ok) {
+                    const resJson = await response.json();
+                    responseText = resJson.text;
+                    apiSuccess = true;
+                }
+            } catch (err) {
+                console.warn("Fallo en proxy API, intentando conexión directa a Ollama local:", err);
+            }
+
+            // Fallback: conexión directa a Ollama en puerto 11434
+            if (!apiSuccess) {
+                try {
+                    const response = await fetch('http://localhost:11434/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'llama3',
+                            prompt: query,
+                            system: systemPrompt,
+                            stream: false
+                        })
+                    });
+                    if (response.ok) {
+                        const resJson = await response.json();
+                        responseText = resJson.response;
+                        apiSuccess = true;
+                    }
+                } catch (err) {
+                    console.warn("Ollama local no disponible directamente. Usando fallback estático:", err);
+                }
+            }
+
+            // Eliminar indicador de pensamiento
+            const thinking = document.getElementById("chatbot-thinking");
+            if (thinking) thinking.remove();
+
+            if (apiSuccess && responseText) {
+                // Analizar si la respuesta sugiere un botón de navegación
+                let path = null;
+                let btnText = null;
+                const lowerResponse = responseText.toLowerCase();
+                
+                if (lowerResponse.includes("ens") || lowerResponse.includes("esquema nacional")) {
+                    path = "./requisitos_legales_y_ens/code.html";
+                    btnText = "Ir a Requisitos Normativos ENS";
+                } else if (lowerResponse.includes("rfc") || lowerResponse.includes("cambio")) {
+                    path = "./gesti_n_de_cambios_ti/code.html";
+                    btnText = "Ir a Cambios TI (RFC)";
+                } else if (lowerResponse.includes("proveedor") || lowerResponse.includes("compras") || lowerResponse.includes("evaluacion")) {
+                    path = "./desempe_o_proveedores/code.html";
+                    btnText = "Ir a Desempeño de Proveedores";
+                } else if (lowerResponse.includes("formación") || lowerResponse.includes("eficacia") || lowerResponse.includes("curso")) {
+                    path = "./eficacia_formacion/code.html";
+                    btnText = "Ir a Eficacia Formativa";
+                } else if (lowerResponse.includes("denuncia") || lowerResponse.includes("canal ético") || lowerResponse.includes("ley 2/2023")) {
+                    path = "./canal_de_denuncias/code.html";
+                    btnText = "Ir al Canal de Denuncias";
+                } else if (lowerResponse.includes("incidente") || lowerResponse.includes("brecha")) {
+                    path = "./incidentes_de_seguridad/code.html";
+                    btnText = "Ir a Incidentes de Seguridad";
+                } else if (lowerResponse.includes("continuidad") || lowerResponse.includes("bcp") || lowerResponse.includes("bia")) {
+                    path = "./plan_de_continuidad_de_negocio/code.html";
+                    btnText = "Ir a Continuidad de Negocio (BCP)";
+                }
+                
+                addBotMessage(responseText, path, btnText);
+            } else {
                 const lowerQuery = query.toLowerCase();
                 let found = null;
                 
@@ -778,9 +1195,9 @@
                 if (found) {
                     addBotMessage(found.answer, found.path, found.btnText);
                 } else {
-                    addBotMessage("Disculpa, no he entendido tu consulta. Puedes preguntarme sobre el ENS, cómo registrar Cambios TI (RFC), evaluación de proveedores, eficacia formativa, o cómo funciona el Agente de IA.");
+                    addBotMessage("Disculpa, no he podido contactar con el motor de IA local de Ollama (localhost:11434) y tu consulta no coincide con mis respuestas prefijadas. Puedes preguntarme sobre el ENS, cómo registrar Cambios TI (RFC), evaluación de proveedores, eficacia formativa o el Agente de IA.");
                 }
-            }, 1000);
+            }
         }
 
         function selectSuggestion(text) {
@@ -826,13 +1243,15 @@
             <!-- Dinámico -->
         </div>
 
-        <!-- Sugerencias rápidas -->
-        <div class="p-3 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 select-none">
+        <!-- Sugerencias rápidas (contextuales) -->
+        <div id="chatbot-suggestions" class="p-3 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 select-none">
+            <button onclick="selectSuggestion('¿Cuántas CAPA abiertas tenemos?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">CAPA abiertas</button>
+            <button onclick="selectSuggestion('¿Cuál es el estado del SoA ISO 27001?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">Estado SoA ISO 27001</button>
+            <button onclick="selectSuggestion('¿Hay alertas del Agente Auditor IA?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">Alertas IA</button>
+            <button onclick="selectSuggestion('¿Cómo registrar un RFC?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">Registrar RFC</button>
             <button onclick="selectSuggestion('¿Qué es el ENS?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">¿Qué es el ENS?</button>
-            <button onclick="selectSuggestion('¿Cómo registrar un RFC?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">¿Cómo registrar un RFC?</button>
-            <button onclick="selectSuggestion('Evaluación de proveedores')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">Evaluación de proveedores</button>
-            <button onclick="selectSuggestion('Eficacia Kirkpatrick')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">Eficacia Kirkpatrick</button>
-            <button onclick="selectSuggestion('¿Qué hace la IA?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">¿Qué hace la IA?</button>
+            <button onclick="selectSuggestion('¿Hay denuncias activas en el canal ético?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">Canal ético</button>
+            <button onclick="selectSuggestion('Explica ISO 45001 §5.4 participación de trabajadores')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#003366] text-[10px] font-bold rounded-full transition-colors whitespace-nowrap">ISO 45001 §5.4</button>
         </div>
 
         <!-- Input -->

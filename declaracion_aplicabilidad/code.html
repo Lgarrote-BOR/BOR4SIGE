@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Declaración de Aplicabilidad (SoA) — ISO 27001:2022</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f172a",
+                        "secondary": "#2563eb",
+                        "accent": "#7c3aed",
+                        "background": "#f8fafc",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container": "#e2e8f0",
+                        "surface-container-high": "#cbd5e1",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "outline": "#94a3b8",
+                        "outline-variant": "#e2e8f0",
+                        "success": "#15803d",
+                        "warning": "#b45309",
+                        "danger": "#dc2626"
+                    },
+                    fontFamily: { sans: ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.2s ease-out; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #cbd5e1; border-radius: 22px; transition: .2s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+        input:checked + .toggle-slider { background: #2563eb; }
+        input:checked + .toggle-slider:before { transform: translateX(18px); }
+        .control-row:hover { background: #f8fafc; }
+        .soa-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+<!-- Header -->
+<header class="soa-header text-white sticky top-0 z-40 flex justify-between items-center px-6 py-3 shrink-0 shadow-lg">
+    <div class="flex items-center gap-3">
+        <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="font-bold text-base leading-none">SIGE 2.0</h1>
+            <span class="text-[10px] text-blue-200 font-semibold">Seguridad de la Información</span>
+        </div>
+    </div>
+    <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center border border-blue-400 rounded-full px-3 py-1 bg-white/10 text-blue-100 gap-1.5 text-xs font-semibold">
+            <span class="material-symbols-outlined text-sm">verified_user</span>
+            <span>Declaración de Aplicabilidad — ISO 27001:2022 Anexo A</span>
+        </div>
+        <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">US</button>
+    </div>
+</header>
+
+<main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+
+    <!-- Título -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="bg-blue-100 text-blue-800 font-bold text-xs px-2 py-0.5 rounded-full uppercase tracking-wider">ISO 27001:2022</span>
+                <span class="text-on-surface-variant font-mono text-xs">Anexo A — 93 Controles</span>
+            </div>
+            <h2 class="font-bold text-2xl text-primary tracking-tight">Declaración de Aplicabilidad (SoA)</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Justificación de la inclusión o exclusión de cada control del Anexo A. Requerido por <strong>ISO 27001:2022 §6.1.3</strong>.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="exportSoA()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-primary hover:bg-surface-container text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">download</span>Exportar CSV
+            </button>
+            <button onclick="resetAll()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-danger hover:bg-red-50 text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">restart_alt</span>Reiniciar
+            </button>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-surface border border-outline-variant rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase">Total Controles</span>
+                <span class="material-symbols-outlined text-secondary">shield</span>
+            </div>
+            <span id="kpi-total" class="font-bold text-2xl text-primary">93</span>
+            <p class="text-[11px] text-on-surface-variant mt-1">ISO 27001:2022 Anexo A</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold text-green-700 uppercase">Aplicables</span>
+                <span class="material-symbols-outlined text-success">check_circle</span>
+            </div>
+            <span id="kpi-applicable" class="font-bold text-2xl text-success">0</span>
+            <p class="text-[11px] text-green-600 mt-1">Incluidos en el SGSI</p>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold text-red-700 uppercase">Excluidos</span>
+                <span class="material-symbols-outlined text-danger">cancel</span>
+            </div>
+            <span id="kpi-excluded" class="font-bold text-2xl text-danger">0</span>
+            <p class="text-[11px] text-red-600 mt-1">Con justificación requerida</p>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold text-amber-700 uppercase">Sin Evaluar</span>
+                <span class="material-symbols-outlined text-warning">pending</span>
+            </div>
+            <span id="kpi-pending" class="font-bold text-2xl text-warning">93</span>
+            <p class="text-[11px] text-amber-600 mt-1">Pendientes de revisión</p>
+        </div>
+    </div>
+
+    <!-- Progreso -->
+    <div class="bg-surface border border-outline-variant rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-sm">monitoring</span>
+                <p class="text-xs font-bold text-primary">Progreso de Revisión del SoA</p>
+            </div>
+            <span id="progress-pct" class="text-xs font-mono font-bold text-secondary">0%</span>
+        </div>
+        <div class="w-full bg-surface-container rounded-full h-2.5">
+            <div id="progress-bar" class="bg-secondary h-2.5 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex flex-col sm:flex-row gap-3 items-center bg-surface p-4 border border-outline-variant rounded-xl">
+        <div class="relative w-full sm:w-80">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+            <input type="text" id="search-ctrl" oninput="renderControls()" placeholder="Buscar control o categoría..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+            <select id="filter-cat" onchange="renderControls()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                <option value="">Todas las Categorías</option>
+                <option value="A.5">A.5 — Organizacionales</option>
+                <option value="A.6">A.6 — Personas</option>
+                <option value="A.7">A.7 — Físicos</option>
+                <option value="A.8">A.8 — Tecnológicos</option>
+            </select>
+            <select id="filter-status" onchange="renderControls()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                <option value="">Todos los Estados</option>
+                <option value="applicable">Aplicable</option>
+                <option value="excluded">Excluido</option>
+                <option value="pending">Sin evaluar</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Tabla de Controles -->
+    <div id="controls-container" class="space-y-4"></div>
+
+</main>
+
+<!-- MODAL Editar Justificación -->
+<div id="modal-just" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-6 shadow-2xl flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <div>
+                <h3 id="just-modal-title" class="font-bold text-sm text-primary">Justificación del Control</h3>
+                <p id="just-modal-subtitle" class="text-[10px] text-on-surface-variant mt-0.5"></p>
+            </div>
+            <button onclick="closeJustModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <input type="hidden" id="just-ctrl-id"/>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado del Control *</label>
+                <div class="flex gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-transparent hover:border-green-200 hover:bg-green-50 transition-colors flex-1">
+                        <input type="radio" name="just-applicable" value="applicable" class="text-success"/> 
+                        <span class="text-xs font-bold text-success">✓ Aplicable</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-transparent hover:border-red-200 hover:bg-red-50 transition-colors flex-1">
+                        <input type="radio" name="just-applicable" value="excluded" class="text-danger"/>
+                        <span class="text-xs font-bold text-danger">✗ Excluido</span>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1">Justificación (motivo de inclusión o exclusión) *</label>
+                <textarea id="just-text" rows="3" placeholder="Describa por qué este control es aplicable o no aplicable en el alcance del SGSI..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1">Evidencia / Procedimiento que lo implementa</label>
+                <input type="text" id="just-evidence" placeholder="Ej: POL-SYS-003 Política de Control de Accesos, módulo Incidentes de Seguridad..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+            <button onclick="closeJustModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+            <button onclick="saveJustification()" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">Guardar Justificación</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ─── CATÁLOGO COMPLETO ISO 27001:2022 ANEXO A (93 CONTROLES) ─────────────────
+const ISO27001_CONTROLS = [
+    // A.5 — Controles Organizacionales (37 controles)
+    { id:"A.5.1",  cat:"A.5", name:"Políticas de seguridad de la información", desc:"Políticas de SI deben definirse, aprobarse por la dirección, publicarse, comunicarse y revisarse a intervalos planificados." },
+    { id:"A.5.2",  cat:"A.5", name:"Roles y responsabilidades de seguridad de la información", desc:"Deben definirse y asignarse los roles y responsabilidades de seguridad de la información." },
+    { id:"A.5.3",  cat:"A.5", name:"Segregación de funciones", desc:"Los deberes y responsabilidades conflictivos deben segregarse para reducir oportunidades de acceso, modificación o uso no autorizado." },
+    { id:"A.5.4",  cat:"A.5", name:"Responsabilidades de la dirección", desc:"La dirección debe exigir que todo el personal aplique la seguridad de la información conforme a las políticas establecidas." },
+    { id:"A.5.5",  cat:"A.5", name:"Contacto con las autoridades", desc:"Deben mantenerse contactos adecuados con autoridades relevantes." },
+    { id:"A.5.6",  cat:"A.5", name:"Contacto con grupos de interés especiales", desc:"Deben mantenerse contactos adecuados con grupos de interés especiales u otros foros especializados." },
+    { id:"A.5.7",  cat:"A.5", name:"Inteligencia de amenazas", desc:"La información sobre amenazas de SI relevantes debe recopilarse y analizarse para generar inteligencia de amenazas." },
+    { id:"A.5.8",  cat:"A.5", name:"Seguridad de la información en la gestión de proyectos", desc:"La seguridad debe integrarse en la gestión de proyectos." },
+    { id:"A.5.9",  cat:"A.5", name:"Inventario de información y otros activos asociados", desc:"Debe desarrollarse y mantenerse un inventario de información y otros activos asociados." },
+    { id:"A.5.10", cat:"A.5", name:"Uso aceptable de la información y otros activos", desc:"Deben identificarse, documentarse e implementarse reglas para el uso aceptable de la información y otros activos." },
+    { id:"A.5.11", cat:"A.5", name:"Devolución de activos", desc:"El personal y otras partes interesadas deben devolver los activos de la organización al cambiar o finalizar su empleo, contrato o acuerdo." },
+    { id:"A.5.12", cat:"A.5", name:"Clasificación de la información", desc:"La información debe clasificarse de acuerdo con las necesidades de SI de la organización." },
+    { id:"A.5.13", cat:"A.5", name:"Etiquetado de la información", desc:"Debe desarrollarse e implementarse un conjunto apropiado de procedimientos para el etiquetado de la información." },
+    { id:"A.5.14", cat:"A.5", name:"Transferencia de la información", desc:"Deben existir reglas, procedimientos o acuerdos de transferencia de información para todos los tipos de medios de comunicación." },
+    { id:"A.5.15", cat:"A.5", name:"Control de acceso", desc:"Deben establecerse e implementarse reglas para controlar el acceso físico y lógico a la información y otros activos basadas en los requisitos de negocio y de seguridad." },
+    { id:"A.5.16", cat:"A.5", name:"Gestión de identidades", desc:"Debe gestionarse el ciclo de vida completo de las identidades." },
+    { id:"A.5.17", cat:"A.5", name:"Información de autenticación", desc:"La asignación y gestión de la información de autenticación debe controlarse mediante un proceso de gestión." },
+    { id:"A.5.18", cat:"A.5", name:"Derechos de acceso", desc:"Los derechos de acceso a la información y otros activos deben provisionarse, revisarse, modificarse y eliminarse de acuerdo con la política de control de accesos." },
+    { id:"A.5.19", cat:"A.5", name:"Seguridad de la información en las relaciones con los proveedores", desc:"Deben definirse e implementarse procesos y procedimientos para gestionar los riesgos de SI asociados al uso de productos y servicios de proveedores." },
+    { id:"A.5.20", cat:"A.5", name:"Gestión de la seguridad de la información en los acuerdos con proveedores", desc:"Los requisitos relevantes de SI deben establecerse y acordarse con cada proveedor basándose en el tipo de relación." },
+    { id:"A.5.21", cat:"A.5", name:"Gestión de la seguridad de la información en la cadena de suministro de TIC", desc:"Deben definirse e implementarse procesos y procedimientos para gestionar la SI en la cadena de suministro de TIC." },
+    { id:"A.5.22", cat:"A.5", name:"Seguimiento, revisión y gestión de cambios de los servicios de proveedores", desc:"La organización debe supervisar, revisar, evaluar y gestionar regularmente los cambios en las prácticas de seguridad de los proveedores." },
+    { id:"A.5.23", cat:"A.5", name:"Seguridad de la información para el uso de servicios en la nube", desc:"Los procesos de adquisición, uso, gestión y salida de servicios en la nube deben establecerse de acuerdo con los requisitos de seguridad." },
+    { id:"A.5.24", cat:"A.5", name:"Planificación y preparación de la gestión de incidentes de seguridad de la información", desc:"La organización debe planificar y prepararse para gestionar incidentes de SI definiendo, estableciendo y comunicando procesos, roles y responsabilidades." },
+    { id:"A.5.25", cat:"A.5", name:"Evaluación y decisión sobre eventos de seguridad de la información", desc:"La organización debe evaluar los eventos de SI y decidir si deben clasificarse como incidentes." },
+    { id:"A.5.26", cat:"A.5", name:"Respuesta a incidentes de seguridad de la información", desc:"Los incidentes de SI deben responderse de acuerdo con procedimientos documentados." },
+    { id:"A.5.27", cat:"A.5", name:"Aprendizaje de los incidentes de seguridad de la información", desc:"El conocimiento obtenido de los incidentes de SI debe usarse para fortalecer y mejorar los controles." },
+    { id:"A.5.28", cat:"A.5", name:"Recopilación de evidencias", desc:"La organización debe establecer e implementar procedimientos para la identificación, recopilación, adquisición y preservación de evidencias relacionadas con eventos de SI." },
+    { id:"A.5.29", cat:"A.5", name:"Seguridad de la información durante la interrupción", desc:"La organización debe planificar cómo mantener la SI a un nivel apropiado durante la interrupción." },
+    { id:"A.5.30", cat:"A.5", name:"Preparación de las TIC para la continuidad del negocio", desc:"La preparación de las TIC debe planificarse, implementarse, mantenerse y probarse basándose en los objetivos de continuidad del negocio." },
+    { id:"A.5.31", cat:"A.5", name:"Requisitos legales, estatutarios, reglamentarios y contractuales", desc:"Los requisitos legales, estatutarios, reglamentarios y contractuales relevantes para la SI y el enfoque de la organización para cumplirlos deben identificarse, documentarse y mantenerse actualizados." },
+    { id:"A.5.32", cat:"A.5", name:"Derechos de propiedad intelectual", desc:"La organización debe implementar procedimientos apropiados para proteger los derechos de propiedad intelectual." },
+    { id:"A.5.33", cat:"A.5", name:"Protección de los registros", desc:"Los registros deben estar protegidos de pérdida, destrucción, falsificación, acceso no autorizado y publicación no autorizada." },
+    { id:"A.5.34", cat:"A.5", name:"Privacidad y protección de información de identificación personal", desc:"La organización debe identificar y cumplir los requisitos relativos a la preservación de la privacidad y protección de IPI según la legislación aplicable." },
+    { id:"A.5.35", cat:"A.5", name:"Revisión independiente de la seguridad de la información", desc:"El enfoque de la organización para gestionar la SI y su implementación, incluyendo personas, procesos y tecnología, deben revisarse independientemente a intervalos planificados." },
+    { id:"A.5.36", cat:"A.5", name:"Cumplimiento de políticas, reglas y estándares de seguridad de la información", desc:"El cumplimiento de la política de SI, las políticas específicas del tema, las reglas y los estándares de la organización deben revisarse regularmente." },
+    { id:"A.5.37", cat:"A.5", name:"Procedimientos operativos documentados", desc:"Los procedimientos operativos para las instalaciones de procesamiento de información deben documentarse y ponerse a disposición del personal que los necesite." },
+
+    // A.6 — Controles de Personas (8 controles)
+    { id:"A.6.1",  cat:"A.6", name:"Verificación de antecedentes", desc:"Las comprobaciones de antecedentes de todos los candidatos al empleo deben realizarse antes de unirse a la organización y de forma continua, teniendo en cuenta las leyes, regulaciones y ética aplicables." },
+    { id:"A.6.2",  cat:"A.6", name:"Términos y condiciones del empleo", desc:"Los acuerdos contractuales con el personal deben establecer sus responsabilidades y las de la organización con respecto a la SI." },
+    { id:"A.6.3",  cat:"A.6", name:"Concienciación, educación y formación en seguridad de la información", desc:"Todo el personal de la organización y, cuando sea relevante, las partes contratantes deben recibir concienciación, educación y formación apropiadas en SI." },
+    { id:"A.6.4",  cat:"A.6", name:"Proceso disciplinario", desc:"Debe establecerse y comunicarse un proceso disciplinario para tomar acciones contra el personal que haya cometido una infracción de la política de SI." },
+    { id:"A.6.5",  cat:"A.6", name:"Responsabilidades tras la finalización o cambio de empleo", desc:"Las responsabilidades y obligaciones de SI que permanecen válidas tras la finalización o cambio de empleo deben definirse, hacerse cumplir y comunicarse." },
+    { id:"A.6.6",  cat:"A.6", name:"Acuerdos de confidencialidad o no divulgación", desc:"Los acuerdos de confidencialidad o no divulgación que reflejen las necesidades de la organización de proteger la información deben identificarse, documentarse, revisarse regularmente y firmarse." },
+    { id:"A.6.7",  cat:"A.6", name:"Trabajo remoto", desc:"Las medidas de seguridad deben implementarse cuando el personal trabaja de forma remota para proteger la información a la que se accede, procesa o almacena fuera de las instalaciones de la organización." },
+    { id:"A.6.8",  cat:"A.6", name:"Reporte de eventos de seguridad de la información", desc:"La organización debe proporcionar un mecanismo para que el personal reporte eventos de SI observados o sospechados." },
+
+    // A.7 — Controles Físicos (14 controles)
+    { id:"A.7.1",  cat:"A.7", name:"Perímetros de seguridad física", desc:"Los perímetros de seguridad deben definirse y usarse para proteger las áreas que contienen información y otros activos asociados." },
+    { id:"A.7.2",  cat:"A.7", name:"Entrada física", desc:"Las áreas seguras deben estar protegidas por controles de entrada apropiados y puntos de acceso." },
+    { id:"A.7.3",  cat:"A.7", name:"Seguridad de oficinas, salas e instalaciones", desc:"La seguridad física de las oficinas, salas e instalaciones debe diseñarse e implementarse." },
+    { id:"A.7.4",  cat:"A.7", name:"Monitorización de la seguridad física", desc:"Las instalaciones deben monitorizarse continuamente para detectar accesos físicos no autorizados." },
+    { id:"A.7.5",  cat:"A.7", name:"Protección contra amenazas físicas y ambientales", desc:"Deben diseñarse e implementarse protecciones contra amenazas físicas y ambientales, como desastres naturales y otros peligros físicos intencionales o no intencionales." },
+    { id:"A.7.6",  cat:"A.7", name:"Trabajo en áreas seguras", desc:"Las medidas de seguridad para trabajar en áreas seguras deben diseñarse e implementarse." },
+    { id:"A.7.7",  cat:"A.7", name:"Escritorio y pantalla despejados", desc:"Deben definirse e implementarse apropiadamente reglas de escritorio y pantalla despejados para los equipos de usuario." },
+    { id:"A.7.8",  cat:"A.7", name:"Ubicación y protección de los equipos", desc:"Los equipos deben ubicarse y protegerse de forma segura." },
+    { id:"A.7.9",  cat:"A.7", name:"Seguridad de los activos fuera de las instalaciones", desc:"Los activos fuera de las instalaciones deben protegerse." },
+    { id:"A.7.10", cat:"A.7", name:"Medios de almacenamiento", desc:"Los medios de almacenamiento deben gestionarse durante su ciclo de vida de adquisición, uso, transporte y eliminación de acuerdo con el esquema de clasificación y los requisitos de manejo de la organización." },
+    { id:"A.7.11", cat:"A.7", name:"Servicios de suministro", desc:"Las instalaciones de procesamiento de información deben estar protegidas de fallos de energía y otras interrupciones causadas por fallos en los servicios de suministro." },
+    { id:"A.7.12", cat:"A.7", name:"Seguridad del cableado", desc:"Los cables que llevan energía, datos o soportan servicios de información deben estar protegidos de interceptación, interferencia o daño." },
+    { id:"A.7.13", cat:"A.7", name:"Mantenimiento de equipos", desc:"Los equipos deben mantenerse correctamente para garantizar la disponibilidad, integridad y confidencialidad de la información." },
+    { id:"A.7.14", cat:"A.7", name:"Eliminación o reutilización segura de equipos", desc:"Los equipos que contienen medios de almacenamiento deben verificarse para garantizar que cualquier dato sensible y software con licencia se haya eliminado o sobrescrito de forma segura antes de la eliminación o reutilización." },
+
+    // A.8 — Controles Tecnológicos (34 controles)
+    { id:"A.8.1",  cat:"A.8", name:"Dispositivos de usuario final", desc:"La información almacenada, procesada o accesible a través de dispositivos de usuario final debe protegerse." },
+    { id:"A.8.2",  cat:"A.8", name:"Derechos de acceso privilegiado", desc:"La asignación y el uso de derechos de acceso privilegiado debe restringirse y gestionarse." },
+    { id:"A.8.3",  cat:"A.8", name:"Restricción de acceso a la información", desc:"El acceso a la información y otros activos asociados debe restringirse de acuerdo con la política de control de accesos establecida." },
+    { id:"A.8.4",  cat:"A.8", name:"Acceso al código fuente", desc:"El acceso de lectura y escritura al código fuente, las herramientas de desarrollo y las bibliotecas de software debe gestionarse apropiadamente." },
+    { id:"A.8.5",  cat:"A.8", name:"Autenticación segura", desc:"Las tecnologías y procedimientos de autenticación segura deben implementarse basándose en las restricciones de acceso a la información y la política de control de accesos." },
+    { id:"A.8.6",  cat:"A.8", name:"Gestión de la capacidad", desc:"El uso de los recursos debe monitorizarse y ajustarse, y las proyecciones de los futuros requisitos de capacidad deben realizarse para garantizar el rendimiento requerido." },
+    { id:"A.8.7",  cat:"A.8", name:"Protección contra malware", desc:"La protección contra malware debe implementarse y soportarse con la concienciación apropiada del usuario." },
+    { id:"A.8.8",  cat:"A.8", name:"Gestión de las vulnerabilidades técnicas", desc:"La información sobre las vulnerabilidades técnicas de los sistemas de información en uso debe obtenerse, evaluarse la exposición de la organización a dichas vulnerabilidades y tomarse las medidas apropiadas." },
+    { id:"A.8.9",  cat:"A.8", name:"Gestión de la configuración", desc:"Las configuraciones, incluyendo las configuraciones de seguridad, del hardware, software, servicios y redes deben establecerse, documentarse, implementarse, monitorizarse y revisarse." },
+    { id:"A.8.10", cat:"A.8", name:"Eliminación de información", desc:"La información almacenada en sistemas de información, dispositivos o en cualquier otro medio de almacenamiento debe eliminarse cuando ya no sea necesaria." },
+    { id:"A.8.11", cat:"A.8", name:"Enmascaramiento de datos", desc:"El enmascaramiento de datos debe usarse de acuerdo con la política específica del tema de la organización sobre control de accesos y otros requisitos de negocio relevantes, teniendo en cuenta la legislación aplicable." },
+    { id:"A.8.12", cat:"A.8", name:"Prevención de fuga de datos", desc:"Las medidas de prevención de fuga de datos deben aplicarse a los sistemas, redes y cualquier otro dispositivo que procese, almacene o transmita información sensible." },
+    { id:"A.8.13", cat:"A.8", name:"Copia de seguridad de la información", desc:"Las copias de seguridad de la información, software y sistemas deben mantenerse y probarse regularmente." },
+    { id:"A.8.14", cat:"A.8", name:"Redundancia de las instalaciones de procesamiento de información", desc:"Las instalaciones de procesamiento de información deben implementarse con redundancia suficiente para cumplir los requisitos de disponibilidad." },
+    { id:"A.8.15", cat:"A.8", name:"Registro de eventos", desc:"Los registros que registran actividades, excepciones, fallos y otros eventos relevantes deben producirse, almacenarse, protegerse y analizarse." },
+    { id:"A.8.16", cat:"A.8", name:"Actividades de monitorización", desc:"Las redes, sistemas y aplicaciones deben monitorizarse para detectar comportamientos anómalos e iniciar acciones apropiadas para evaluar posibles incidentes de SI." },
+    { id:"A.8.17", cat:"A.8", name:"Sincronización de reloj", desc:"Los relojes de los sistemas de procesamiento de información utilizados por la organización deben sincronizarse con fuentes de tiempo de referencia aprobadas." },
+    { id:"A.8.18", cat:"A.8", name:"Uso de programas de utilidades privilegiados", desc:"El uso de programas de utilidades que puedan ser capaces de anular los controles del sistema y de las aplicaciones debe restringirse y controlarse estrictamente." },
+    { id:"A.8.19", cat:"A.8", name:"Instalación de software en sistemas operativos", desc:"Deben implementarse procedimientos y medidas para gestionar de forma segura la instalación de software en sistemas operativos." },
+    { id:"A.8.20", cat:"A.8", name:"Seguridad de redes", desc:"Las redes y los dispositivos de red deben estar asegurados, gestionados y controlados para proteger la información en los sistemas y aplicaciones." },
+    { id:"A.8.21", cat:"A.8", name:"Seguridad de los servicios de red", desc:"Los mecanismos de seguridad, niveles de servicio y requisitos de servicio de todos los servicios de red deben identificarse, implementarse y monitorizarse." },
+    { id:"A.8.22", cat:"A.8", name:"Segregación de redes", desc:"Los grupos de servicios de información, usuarios y sistemas de información deben segregarse en las redes de la organización." },
+    { id:"A.8.23", cat:"A.8", name:"Filtrado web", desc:"El acceso a sitios web externos debe gestionarse para reducir la exposición a contenido malicioso." },
+    { id:"A.8.24", cat:"A.8", name:"Uso de criptografía", desc:"Deben definirse e implementarse reglas para el uso efectivo de la criptografía, incluida la gestión de claves criptográficas." },
+    { id:"A.8.25", cat:"A.8", name:"Ciclo de vida de desarrollo seguro", desc:"Deben establecerse e implementarse reglas para el desarrollo seguro de software y sistemas." },
+    { id:"A.8.26", cat:"A.8", name:"Requisitos de seguridad de las aplicaciones", desc:"Los requisitos de SI deben identificarse, especificarse y aprobarse al desarrollar o adquirir aplicaciones." },
+    { id:"A.8.27", cat:"A.8", name:"Principios de ingeniería de sistemas seguros y arquitectura", desc:"Los principios para diseñar sistemas seguros deben establecerse, documentarse, mantenerse y aplicarse a cualquier actividad de ingeniería de sistemas de información." },
+    { id:"A.8.28", cat:"A.8", name:"Codificación segura", desc:"Los principios de codificación segura deben aplicarse al desarrollo de software." },
+    { id:"A.8.29", cat:"A.8", name:"Pruebas de seguridad en el desarrollo y la aceptación", desc:"Los procesos de pruebas de seguridad deben definirse e implementarse en el ciclo de vida de desarrollo." },
+    { id:"A.8.30", cat:"A.8", name:"Desarrollo externalizado", desc:"La organización debe supervisar y monitorizar las actividades de desarrollo de sistemas externalizadas." },
+    { id:"A.8.31", cat:"A.8", name:"Separación de los entornos de desarrollo, prueba y producción", desc:"Los entornos de desarrollo, prueba y producción deben separarse y asegurarse." },
+    { id:"A.8.32", cat:"A.8", name:"Gestión de cambios", desc:"Los cambios en las instalaciones de procesamiento de información y los sistemas de información deben someterse a procedimientos de gestión de cambios." },
+    { id:"A.8.33", cat:"A.8", name:"Información de prueba", desc:"La información de prueba debe seleccionarse, protegerse y gestionarse apropiadamente." },
+    { id:"A.8.34", cat:"A.8", name:"Protección de los sistemas de información durante las pruebas de auditoría", desc:"Las pruebas de auditoría y otras actividades de aseguramiento que involucren evaluación de sistemas operativos deben planificarse y acordarse entre el solicitante y la dirección apropiada." }
+];
+
+const CAT_INFO = {
+    "A.5": { name:"A.5 — Controles Organizacionales", color:"blue", count: 37 },
+    "A.6": { name:"A.6 — Controles de Personas", color:"purple", count: 8 },
+    "A.7": { name:"A.7 — Controles Físicos", color:"amber", count: 14 },
+    "A.8": { name:"A.8 — Controles Tecnológicos", color:"green", count: 34 }
+};
+
+let soaData = {}; // { "A.5.1": { applicable: true/false/null, justification: "", evidence: "" } }
+
+function init() {
+    const stored = localStorage.getItem('sig_soa_iso27001');
+    if (stored) {
+        try { soaData = JSON.parse(stored); } catch(e) { soaData = {}; }
+    }
+    updateKPIs();
+    renderControls();
+}
+
+function save() {
+    localStorage.setItem('sig_soa_iso27001', JSON.stringify(soaData));
+}
+
+function updateKPIs() {
+    const total = ISO27001_CONTROLS.length;
+    let applicable = 0, excluded = 0, pending = 0;
+    ISO27001_CONTROLS.forEach(c => {
+        const d = soaData[c.id];
+        if (!d || d.applicable === null || d.applicable === undefined) pending++;
+        else if (d.applicable === true) applicable++;
+        else excluded++;
+    });
+    document.getElementById('kpi-total').textContent = total;
+    document.getElementById('kpi-applicable').textContent = applicable;
+    document.getElementById('kpi-excluded').textContent = excluded;
+    document.getElementById('kpi-pending').textContent = pending;
+    const reviewed = applicable + excluded;
+    const pct = Math.round((reviewed / total) * 100);
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function getStatusOf(id) {
+    const d = soaData[id];
+    if (!d || d.applicable === null || d.applicable === undefined) return 'pending';
+    return d.applicable ? 'applicable' : 'excluded';
+}
+
+function renderControls() {
+    const container = document.getElementById('controls-container');
+    const q = document.getElementById('search-ctrl').value.toLowerCase().trim();
+    const catF = document.getElementById('filter-cat').value;
+    const stF = document.getElementById('filter-status').value;
+
+    const cats = ["A.5", "A.6", "A.7", "A.8"];
+    container.innerHTML = '';
+
+    cats.forEach(cat => {
+        if (catF && catF !== cat) return;
+        const controls = ISO27001_CONTROLS.filter(c => c.cat === cat &&
+            (c.id.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)) &&
+            (!stF || getStatusOf(c.id) === stF)
+        );
+        if (controls.length === 0) return;
+
+        const info = CAT_INFO[cat];
+        const colorMap = { blue: 'bg-blue-600', purple: 'bg-purple-600', amber: 'bg-amber-600', green: 'bg-green-600' };
+        const sectionEl = document.createElement('div');
+        sectionEl.className = 'space-y-2';
+        
+        const catApplicable = controls.filter(c => getStatusOf(c.id) === 'applicable').length;
+        const catExcluded = controls.filter(c => getStatusOf(c.id) === 'excluded').length;
+
+        sectionEl.innerHTML = `
+        <div class="flex items-center justify-between px-1">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-sm ${colorMap[info.color]}"></div>
+                <h3 class="font-bold text-sm text-primary">${info.name}</h3>
+                <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">${controls.length} controles</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+                <span class="text-success font-semibold">✓ ${catApplicable}</span>
+                <span class="text-danger font-semibold">✗ ${catExcluded}</span>
+            </div>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low border-b border-outline-variant text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                        <th class="p-3 w-20">Control</th>
+                        <th class="p-3">Nombre</th>
+                        <th class="p-3 w-32 text-center">Estado</th>
+                        <th class="p-3 w-64">Justificación</th>
+                        <th class="p-3 w-24 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant text-xs" id="tbody-${cat.replace('.', '_')}">
+                </tbody>
+            </table>
+        </div>`;
+
+        container.appendChild(sectionEl);
+
+        const tbody = sectionEl.querySelector(`#tbody-${cat.replace('.', '_')}`);
+        controls.forEach(c => {
+            const d = soaData[c.id] || {};
+            const status = getStatusOf(c.id);
+            const statusBadge = status === 'applicable'
+                ? '<span class="px-2 py-0.5 rounded-full text-[10px] border bg-green-100 text-green-800 border-green-200 font-bold">✓ Aplicable</span>'
+                : status === 'excluded'
+                ? '<span class="px-2 py-0.5 rounded-full text-[10px] border bg-red-100 text-red-800 border-red-200 font-bold">✗ Excluido</span>'
+                : '<span class="px-2 py-0.5 rounded-full text-[10px] border bg-amber-100 text-amber-700 border-amber-200">⏳ Pendiente</span>';
+
+            const justText = d.justification ? `<span class="text-on-surface-variant truncate block max-w-[220px]" title="${d.justification}">${d.justification}</span>` : '<span class="text-outline italic">Sin justificación</span>';
+            const evidenceText = d.evidence ? `<span class="text-secondary text-[10px] truncate block max-w-[220px]" title="${d.evidence}">📎 ${d.evidence}</span>` : '';
+
+            const tr = document.createElement('tr');
+            tr.className = 'control-row hover:bg-surface-container-low transition-colors';
+            tr.innerHTML = `
+                <td class="p-3 font-mono font-bold text-secondary text-[11px]">${c.id}</td>
+                <td class="p-3">
+                    <p class="font-semibold text-primary">${c.name}</p>
+                    <p class="text-on-surface-variant text-[10px] mt-0.5 line-clamp-1">${c.desc}</p>
+                </td>
+                <td class="p-3 text-center">${statusBadge}</td>
+                <td class="p-3">${justText}${evidenceText}</td>
+                <td class="p-3 text-center">
+                    <button onclick="openJustModal('${c.id}')" class="text-secondary hover:text-primary text-xs font-bold flex items-center gap-1 mx-auto hover:bg-surface-container-low px-2 py-1 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-sm">edit_note</span>Editar
+                    </button>
+                </td>`;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+function openJustModal(ctrlId) {
+    const ctrl = ISO27001_CONTROLS.find(c => c.id === ctrlId);
+    if (!ctrl) return;
+    const d = soaData[ctrlId] || {};
+    document.getElementById('just-ctrl-id').value = ctrlId;
+    document.getElementById('just-modal-title').textContent = `${ctrlId} — ${ctrl.name}`;
+    document.getElementById('just-modal-subtitle').textContent = ctrl.desc;
+    document.getElementById('just-text').value = d.justification || '';
+    document.getElementById('just-evidence').value = d.evidence || '';
+    const applicable = d.applicable;
+    document.querySelectorAll('input[name="just-applicable"]').forEach(r => {
+        r.checked = (applicable === true && r.value === 'applicable') || (applicable === false && r.value === 'excluded');
+    });
+    document.getElementById('modal-just').classList.remove('hidden');
+}
+
+function closeJustModal() {
+    document.getElementById('modal-just').classList.add('hidden');
+}
+
+function saveJustification() {
+    const ctrlId = document.getElementById('just-ctrl-id').value;
+    const justText = document.getElementById('just-text').value.trim();
+    const evidence = document.getElementById('just-evidence').value.trim();
+    const selectedRadio = document.querySelector('input[name="just-applicable"]:checked');
+    if (!selectedRadio) { alert('Por favor selecciona el estado del control (Aplicable / Excluido).'); return; }
+    const applicable = selectedRadio.value === 'applicable';
+    soaData[ctrlId] = { applicable, justification: justText, evidence };
+    save();
+    closeJustModal();
+    updateKPIs();
+    renderControls();
+}
+
+function resetAll() {
+    if (!confirm('¿Reiniciar toda la evaluación SoA? Se perderán todas las justificaciones.')) return;
+    soaData = {};
+    save();
+    updateKPIs();
+    renderControls();
+}
+
+function exportSoA() {
+    const rows = [['ID Control', 'Categoría', 'Nombre', 'Estado', 'Justificación', 'Evidencia']];
+    ISO27001_CONTROLS.forEach(c => {
+        const d = soaData[c.id] || {};
+        const status = d.applicable === true ? 'Aplicable' : d.applicable === false ? 'Excluido' : 'Pendiente';
+        rows.push([c.id, c.cat, c.name, status, d.justification || '', d.evidence || '']);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SoA_ISO27001_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,402 +1,922 @@
 <!DOCTYPE html>
-
-<html lang="es"><head>
+<html lang="es" class="light">
+<head>
     <!-- Interceptor de LocalStorage para sincronización con el servidor -->
     <script src="../api-sync.js"></script>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Registro BCP - SIG Compliance</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Registro BCP - SIG Compliance</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
         tailwind.config = {
           darkMode: "class",
           theme: {
             extend: {
-              "colors": {
-                      "inverse-surface": "#213145",
-                      "inverse-on-surface": "#eaf1ff",
-                      "background": "#f8f9ff",
-                      "on-primary": "#ffffff",
-                      "surface": "#f8f9ff",
-                      "tertiary-fixed": "#e0e3e5",
-                      "on-secondary-fixed": "#00174b",
-                      "error-container": "#ffdad6",
-                      "error": "#ba1a1a",
-                      "on-error-container": "#93000a",
-                      "on-tertiary-fixed": "#191c1e",
-                      "secondary": "#0051d5",
-                      "on-primary-fixed-variant": "#3f465c",
-                      "primary-fixed-dim": "#bec6e0",
-                      "surface-bright": "#f8f9ff",
-                      "inverse-primary": "#bec6e0",
-                      "outline": "#76777d",
-                      "tertiary-container": "#191c1e",
-                      "on-secondary-container": "#fefcff",
-                      "on-tertiary-container": "#818486",
-                      "secondary-fixed": "#dbe1ff",
-                      "on-tertiary-fixed-variant": "#444749",
-                      "secondary-container": "#316bf3",
-                      "on-secondary": "#ffffff",
-                      "on-tertiary": "#ffffff",
-                      "on-background": "#0b1c30",
-                      "surface-tint": "#565e74",
-                      "primary": "#000000",
-                      "surface-container-low": "#eff4ff",
-                      "surface-container-high": "#dce9ff",
-                      "surface-container": "#e5eeff",
-                      "surface-dim": "#cbdbf5",
-                      "primary-fixed": "#dae2fd",
-                      "on-surface-variant": "#45464d",
-                      "on-secondary-fixed-variant": "#003ea8",
-                      "on-surface": "#0b1c30",
-                      "primary-container": "#131b2e",
-                      "surface-variant": "#d3e4fe",
-                      "tertiary-fixed-dim": "#c4c7c9",
-                      "surface-container-highest": "#d3e4fe",
-                      "tertiary": "#000000",
-                      "outline-variant": "#c6c6cd",
-                      "on-primary-fixed": "#131b2e",
-                      "secondary-fixed-dim": "#b4c5ff",
-                      "on-error": "#ffffff",
-                      "surface-container-lowest": "#ffffff",
-                      "on-primary-container": "#7c839b"
+              colors: {
+                "inverse-surface": "#213145",
+                "inverse-on-surface": "#eaf1ff",
+                "background": "#f8f9ff",
+                "on-primary": "#ffffff",
+                "surface": "#ffffff",
+                "tertiary-fixed": "#e0e3e5",
+                "on-secondary-fixed": "#00174b",
+                "error-container": "#ffdad6",
+                "error": "#ba1a1a",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed": "#191c1e",
+                "secondary": "#0051d5",
+                "on-primary-fixed-variant": "#3f465c",
+                "primary-fixed-dim": "#bec6e0",
+                "surface-bright": "#f8f9ff",
+                "inverse-primary": "#bec6e0",
+                "outline": "#76777d",
+                "tertiary-container": "#191c1e",
+                "on-secondary-container": "#fefcff",
+                "on-tertiary-container": "#818486",
+                "secondary-fixed": "#dbe1ff",
+                "on-tertiary-fixed-variant": "#444749",
+                "secondary-container": "#316bf3",
+                "on-secondary": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "on-background": "#0b1c30",
+                "surface-tint": "#565e74",
+                "primary": "#0b1c30",
+                "surface-container-low": "#eff4ff",
+                "surface-container-high": "#dce9ff",
+                "surface-container": "#e5eeff",
+                "surface-dim": "#cbdbf5",
+                "primary-fixed": "#dae2fd",
+                "on-surface-variant": "#45464d",
+                "on-secondary-fixed-variant": "#003ea8",
+                "on-surface": "#0b1c30",
+                "primary-container": "#131b2e",
+                "surface-variant": "#d3e4fe",
+                "tertiary-fixed-dim": "#c4c7c9",
+                "surface-container-highest": "#d3e4fe",
+                "tertiary": "#000000",
+                "outline-variant": "#c6c6cd",
+                "on-primary-fixed": "#131b2e",
+                "secondary-fixed-dim": "#b4c5ff",
+                "on-error": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-container": "#7c839b"
               },
-              "borderRadius": {
-                      "DEFAULT": "0.125rem",
-                      "lg": "0.25rem",
-                      "xl": "0.5rem",
-                      "full": "0.75rem"
+              borderRadius: {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
               },
-              "spacing": {
-                      "md": "16px",
-                      "gutter": "16px",
-                      "max-width": "1440px",
-                      "xl": "32px",
-                      "margin": "24px",
-                      "sm": "8px",
-                      "xs": "4px",
-                      "lg": "24px",
-                      "base": "4px"
+              spacing: {
+                "md": "16px",
+                "gutter": "16px",
+                "max-width": "1440px",
+                "xl": "32px",
+                "margin": "24px",
+                "sm": "8px",
+                "xs": "4px",
+                "lg": "24px",
+                "base": "4px"
               },
-              "fontFamily": {
-                      "headline-md": ["Inter"],
-                      "body-sm": ["Inter"],
-                      "headline-sm": ["Inter"],
-                      "code-sm": ["JetBrains Mono"],
-                      "label-md": ["Inter"],
-                      "body-lg": ["Inter"],
-                      "display-lg": ["Inter"],
-                      "body-md": ["Inter"]
-              },
-              "fontSize": {
-                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
-                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                      "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              fontFamily: {
+                sans: ["Inter", "sans-serif"],
+                mono: ["JetBrains Mono", "monospace"]
               }
             }
           }
         }
     </script>
-<style>
+    <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .icon-fill { font-variation-settings: 'FILL' 1; }
-        /* Custom scrollbar for data tables */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up { animation: fadeUp 0.2s ease-out; }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background text-on-background font-body-md text-body-md flex h-screen overflow-hidden antialiased">
-<!-- NavigationDrawer (Desktop) -->
-<nav aria-label="Sidebar" class="bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline w-[240px] h-full fixed left-0 top-0 flex flex-col gap-xs p-md hidden md:flex z-40">
-<!-- Environment Switcher -->
-<div class="mb-lg border border-outline-variant rounded-lg p-sm bg-surface-container-lowest">
-<div class="flex items-center gap-sm mb-xs">
-<img alt="Manager Avatar" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A professional headshot avatar of a corporate Quality Director, neutral background, sharp corporate lighting, representing high-stakes compliance management authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC57bi5k4FZMBoHem287RTP9mR5LJmmOl_8aNZfFr-q0axqtsIzaiRUEQeSj4jwKVYzfljjuMNWltltcLW4IDusPUrPzo9GsbI4iKeyxTjL5KLZSYJtwl1WfUzpKikowew5wAw6ozUyVEWZbuEc79G_I8RrGxuiJMkUKhCzd-V61sjI61Uv_b7GV5w1ZUWWCnWPuH93gYtdVb8B3-tpdwrApSxhCUUUbbmrA2Gi-7aZBP5plp1j0pEsXW3z8uoQ3ioYY-f6uafSFhE"/>
-<div>
-<h3 class="font-label-md text-label-md text-primary truncate">Quality Director</h3>
-<p class="font-code-sm text-code-sm text-on-surface-variant truncate">ISO 9001:2015</p>
-</div>
-</div>
-<div class="bg-primary-container text-on-primary-container font-label-md text-label-md py-xs px-sm rounded text-center">
-                Environment: Production
+</head>
+<body class="bg-background text-on-background font-sans antialiased min-h-screen flex flex-col">
+<div class="flex-1 flex flex-col overflow-hidden">
+<main class="flex-1 overflow-y-auto p-md md:p-lg pb-24">
+<div class="max-w-max-width mx-auto space-y-6">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant pb-4 gap-md">
+        <div>
+            <div class="flex items-center gap-sm mb-xs">
+                <span class="bg-secondary-fixed text-on-secondary-fixed font-semibold text-xs px-2 py-0.5 rounded-full uppercase tracking-wider">Activo</span>
+                <span class="text-on-surface-variant font-mono text-xs">ISO 22301:2019</span>
             </div>
-</div>
-<!-- Navigation Links -->
-<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low transition-all duration-200 ease-in-out font-label-md text-label-md rounded" href="#">
-<span class="material-symbols-outlined">verified</span>
-            Quality Management
-        </a>
-<a class="flex items-center gap-sm px-sm py-xs bg-secondary-container text-on-secondary-container dark:bg-secondary dark:text-on-secondary font-bold rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined icon-fill">gpp_maybe</span>
-            Risk Registry
-        </a>
-<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low transition-all duration-200 ease-in-out font-label-md text-label-md rounded" href="#">
-<span class="material-symbols-outlined">description</span>
-            Document Control
-        </a>
-<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-low transition-all duration-200 ease-in-out font-label-md text-label-md rounded" href="#">
-<span class="material-symbols-outlined">settings_suggest</span>
-            Maintenance Ops
-        </a>
-</nav>
-<!-- Main Workspace -->
-<div class="flex-1 flex flex-col h-screen overflow-hidden md:ml-[240px]">
-<!-- TopAppBar -->
-<header class="bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant dark:border-outline w-full top-0 sticky z-30">
-<div class="flex justify-between items-center px-lg py-md w-full max-w-max-width mx-auto">
-<div class="flex items-center gap-sm cursor-pointer active:opacity-80 transition-colors">
-<span class="material-symbols-outlined text-secondary dark:text-secondary-fixed">admin_panel_settings</span>
-<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-on-surface tracking-tight">SIG Compliance</h1>
-</div>
-<div>
-<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer hover:bg-surface-container-high transition-colors" data-alt="A small circular avatar placeholder for a generic system user, simple gray silhouette on a white background, clean and minimal corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDuK0LLR_5Er2kkENXtWpAdNf0toPNO6e7OVLnh1VXp9vWsY4yd_xtALbNTeJ8LHe610Y10tIWSd5oyg8rg2Uw2FWQdo_-lDl_rmsUXmx1UUG9IGRuObeGMgVZDf9u_guu2_2A3y79K_hNJj8r_XBfAAS_RJdfzeu2yZDuQRruwoilvkGm-JvICXx3YWsk6vMWrnTwGisr8vY30HQWIHbULHMGYkA_TWn7V_u3e1xFn2MHTAt5cQcgzAgAuX1YnnSekeJ1V3BU5RA"/>
-</div>
-</div>
-</header>
-<!-- Content Canvas -->
-<main class="flex-1 overflow-y-auto bg-background p-md md:p-lg pb-24 md:pb-lg">
-<div class="max-w-max-width mx-auto">
-<!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-lg gap-md">
-<div>
-<div class="flex items-center gap-sm mb-xs">
-<span class="bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md px-2 py-1 rounded-full uppercase tracking-wider">Activo</span>
-<span class="text-on-surface-variant font-code-sm text-code-sm">ISO 22301:2019</span>
-</div>
-<h2 class="font-display-lg text-display-lg text-primary text-balance">Plan de Continuidad de Negocio</h2>
-<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Ref: BCP-HQ-2023-Rev4 | Sede Central</p>
-</div>
-<div class="flex gap-sm">
-<button class="px-md py-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md rounded hover:bg-surface-container-low transition-colors flex items-center gap-xs">
-<span class="material-symbols-outlined text-[18px]">download</span> Exportar
-                        </button>
-<button class="px-md py-sm bg-secondary text-on-secondary font-label-md text-label-md rounded hover:bg-secondary-container transition-colors flex items-center gap-xs">
-<span class="material-symbols-outlined text-[18px]">edit_document</span> Editar Plan
-                        </button>
-</div>
-</div>
-<!-- Bento Grid Layout -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-lg">
-<!-- Widget 1: Estado General (Overall Status) -->
-<section class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin flex flex-col justify-between">
-<div>
-<div class="flex items-center gap-sm mb-md text-secondary">
-<span class="material-symbols-outlined icon-fill">radar</span>
-<h3 class="font-headline-sm text-headline-sm text-primary">Estado de Actualización</h3>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">Métricas de cumplimiento conforme a las revisiones programadas del framework ISO 22301.</p>
-</div>
-<div class="flex items-end justify-between mb-sm">
-<span class="font-display-lg text-display-lg text-primary">92%</span>
-<span class="font-label-md text-label-md text-secondary mb-1">Conforme</span>
-</div>
-<div class="w-full bg-surface-container-high rounded-full h-2 mb-md">
-<div class="bg-secondary h-2 rounded-full" style="width: 92%"></div>
-</div>
-<ul class="space-y-xs mt-auto">
-<li class="flex justify-between items-center font-code-sm text-code-sm text-on-surface">
-<span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px] text-outline">calendar_today</span> Última Revisión:</span>
-<span>15 Oct 2023</span>
-</li>
-<li class="flex justify-between items-center font-code-sm text-code-sm text-on-surface">
-<span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px] text-outline">update</span> Próxima Auditoría:</span>
-<span>15 Abr 2024</span>
-</li>
-</ul>
-</section>
-<!-- Widget 2: Análisis de Impacto al Negocio (BIA) -->
-<section class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin flex flex-col">
-<div class="flex justify-between items-start mb-md">
-<div class="flex items-center gap-sm text-secondary">
-<span class="material-symbols-outlined icon-fill">analytics</span>
-<h3 class="font-headline-sm text-headline-sm text-primary">Análisis de Impacto (BIA)</h3>
-</div>
-<span class="bg-surface-container text-on-surface-variant font-label-md text-label-md px-2 py-1 rounded">Actualizado</span>
-</div>
-<div class="overflow-x-auto mt-4">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="border-b border-outline-variant">
-<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant w-1/3">Proceso Crítico</th>
-<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">MTPD (Máximo Tolerable)</th>
-<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">RTO Objetivo</th>
-<th class="py-2 px-3 font-label-md text-label-md text-on-surface-variant text-right">Nivel Impacto</th>
-</tr>
-</thead>
-<tbody class="font-body-sm text-body-sm">
-<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors">
-<td class="py-3 px-3 font-code-sm">Procesamiento de Pagos Central</td>
-<td class="py-3 px-3">4 Horas</td>
-<td class="py-3 px-3 font-semibold text-secondary">2 Horas</td>
-<td class="py-3 px-3 text-right"><span class="inline-block w-3 h-3 rounded-full bg-error mr-1"></span> Crítico</td>
-</tr>
-<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors">
-<td class="py-3 px-3 font-code-sm">Infraestructura Cloud Core</td>
-<td class="py-3 px-3">12 Horas</td>
-<td class="py-3 px-3 font-semibold text-secondary">4 Horas</td>
-<td class="py-3 px-3 text-right"><span class="inline-block w-3 h-3 rounded-full bg-error mr-1"></span> Crítico</td>
-</tr>
-<tr class="hover:bg-surface-container-low transition-colors">
-<td class="py-3 px-3 font-code-sm">Soporte Técnico Nivel 1</td>
-<td class="py-3 px-3">48 Horas</td>
-<td class="py-3 px-3 font-semibold text-secondary">24 Horas</td>
-<td class="py-3 px-3 text-right"><span class="inline-block w-3 h-3 rounded-full bg-secondary-container mr-1"></span> Alto</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<!-- Widget 3: Estrategias de Recuperación -->
-<section class="md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin">
-<div class="flex items-center gap-sm mb-lg text-secondary">
-<span class="material-symbols-outlined icon-fill">published_with_changes</span>
-<h3 class="font-headline-sm text-headline-sm text-primary">Estrategias de Recuperación</h3>
-</div>
-<div class="space-y-md">
-<div class="border border-outline-variant rounded p-sm flex items-start gap-md">
-<div class="bg-surface-container p-sm rounded text-secondary">
-<span class="material-symbols-outlined">dns</span>
-</div>
-<div class="flex-1">
-<h4 class="font-label-md text-label-md text-primary mb-1">Failover a Sitio Alterno (Cold Site)</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Activación del centro de datos secundario en Región B para restaurar servicios core.</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant">check_circle</span>
-</div>
-<div class="border border-outline-variant rounded p-sm flex items-start gap-md">
-<div class="bg-surface-container p-sm rounded text-secondary">
-<span class="material-symbols-outlined">group_work</span>
-</div>
-<div class="flex-1">
-<h4 class="font-label-md text-label-md text-primary mb-1">Trabajo Remoto Distribuido</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Despliegue de VPN corporativa para el 80% de la plantilla operativa en 4h.</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant">check_circle</span>
-</div>
-</div>
-</section>
-<!-- Widget 4: Escenarios de Crisis -->
-<section class="md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin">
-<div class="flex items-center gap-sm mb-lg text-secondary">
-<span class="material-symbols-outlined icon-fill">crisis_alert</span>
-<h3 class="font-headline-sm text-headline-sm text-primary">Escenarios de Crisis Evaludos</h3>
-</div>
-<div class="grid grid-cols-1 gap-sm">
-<div class="bg-surface-container-low p-sm rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
-<div class="flex items-center gap-sm">
-<span class="material-symbols-outlined text-error">security</span>
-<span class="font-body-md text-body-md text-on-surface">Ciberataque (Ransomware)</span>
-</div>
-<span class="font-code-sm text-code-sm bg-surface-container text-on-surface-variant px-2 py-1 rounded">Simulado: Hace 2m</span>
-</div>
-<div class="bg-surface-container-low p-sm rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
-<div class="flex items-center gap-sm">
-<span class="material-symbols-outlined text-outline">power_off</span>
-<span class="font-body-md text-body-md text-on-surface">Corte Suministro Eléctrico Prolongado</span>
-</div>
-<span class="font-code-sm text-code-sm bg-surface-container text-on-surface-variant px-2 py-1 rounded">Simulado: Hace 6m</span>
-</div>
-<div class="bg-surface-container-low p-sm rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
-<div class="flex items-center gap-sm">
-<span class="material-symbols-outlined text-outline">flood</span>
-<span class="font-body-md text-body-md text-on-surface">Desastre Natural (Inundación Sede)</span>
-</div>
-<span class="font-code-sm text-code-sm bg-error-container text-on-error-container px-2 py-1 rounded">Requiere Revisión</span>
-</div>
-</div>
-</section>
-<!-- Widget 5: Equipos de Respuesta -->
-<section class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-lg p-margin">
-<div class="flex justify-between items-center mb-lg">
-<div class="flex items-center gap-sm text-secondary">
-<span class="material-symbols-outlined icon-fill">groups</span>
-<h3 class="font-headline-sm text-headline-sm text-primary">Equipos de Respuesta a Incidentes</h3>
-</div>
-<button class="text-secondary hover:text-primary transition-colors font-label-md text-label-md">Ver Directorio Completo</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-md">
-<!-- Card 1 -->
-<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
-<div class="relative w-10 h-10">
-<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">MR</div>
-<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container border-2 border-surface-bright rounded-full"></div>
-</div>
-<div>
-<h4 class="font-label-md text-label-md text-primary">Comité de Crisis</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant">M. Rojas (Director)</p>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
-<div class="relative w-10 h-10">
-<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">LT</div>
-<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container border-2 border-surface-bright rounded-full"></div>
-</div>
-<div>
-<h4 class="font-label-md text-label-md text-primary">Recuperación IT</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant">L. Torres (CISO)</p>
-</div>
-</div>
-<!-- Card 3 -->
-<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
-<div class="relative w-10 h-10">
-<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">AP</div>
-<div class="absolute bottom-0 right-0 w-3 h-3 bg-outline border-2 border-surface-bright rounded-full"></div>
-</div>
-<div>
-<h4 class="font-label-md text-label-md text-primary">Comunicaciones</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant">A. Pérez (RRPP)</p>
-</div>
-</div>
-<!-- Card 4 -->
-<div class="border border-outline-variant rounded p-sm flex items-center gap-md hover:shadow-sm transition-shadow bg-surface-bright">
-<div class="relative w-10 h-10">
-<div class="w-full h-full rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-code-sm">JL</div>
-<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container border-2 border-surface-bright rounded-full"></div>
-</div>
-<div>
-<h4 class="font-label-md text-label-md text-primary">Logística</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant">J. López (Ops)</p>
-</div>
-</div>
-</div>
-</section>
-</div>
+            <h2 class="font-bold text-2xl text-primary">Plan de Continuidad de Negocio (BCP)</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Análisis de Impacto al Negocio (BIA), Estrategias de Recuperación y Gestión de Simulacros.</p>
+        </div>
+        <div class="flex gap-sm">
+            <button onclick="switchTab('bia')" class="px-3 py-1.5 bg-surface-container-lowest border border-outline-variant text-on-surface font-semibold text-xs rounded hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">add</span> Nuevo Proceso BIA
+            </button>
+            <button onclick="switchTab('simulacros')" class="px-3 py-1.5 bg-secondary text-on-secondary font-semibold text-xs rounded hover:bg-secondary-container transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">sports_score</span> Registrar Simulacro
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-outline-variant">
+        <nav class="flex gap-6 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+            <button id="btn-tab-dashboard" onclick="switchTab('dashboard')" class="border-b-2 border-secondary text-secondary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">dashboard</span> Resumen General
+            </button>
+            <button id="btn-tab-bia" onclick="switchTab('bia')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">analytics</span> Análisis BIA (Procesos)
+            </button>
+            <button id="btn-tab-simulacros" onclick="switchTab('simulacros')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">sports_score</span> Simulacros y Ejercicios
+            </button>
+        </nav>
+    </div>
+
+    <!-- SECCIÓN: Dashboard -->
+    <div id="sec-dashboard" class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-lg fade-up">
+        <!-- Widget 1: Estado General -->
+        <section class="md:col-span-4 bg-surface border border-outline-variant rounded-lg p-md flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-sm mb-md text-secondary">
+                    <span class="material-symbols-outlined icon-fill">radar</span>
+                    <h3 class="font-bold text-sm text-primary">Estado de Continuidad</h3>
+                </div>
+                <p class="text-xs text-on-surface-variant mb-lg">Porcentaje de procesos con RTO alineado dentro del MTPD y simulacros exitosos.</p>
+            </div>
+            <div class="flex items-end justify-between mb-sm">
+                <span id="kpi-compliance" class="font-bold text-3xl text-primary">0%</span>
+                <span class="text-xs text-secondary font-bold mb-1">Alineación RTO</span>
+            </div>
+            <div class="w-full bg-surface-container rounded-full h-2 mb-md">
+                <div id="compliance-bar" class="bg-secondary h-2 rounded-full" style="width: 0%"></div>
+            </div>
+            <ul class="space-y-xs mt-auto">
+                <li class="flex justify-between items-center text-xs text-on-surface">
+                    <span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">calendar_today</span> Última Revisión:</span>
+                    <span class="font-mono">15 Jun 2026</span>
+                </li>
+                <li class="flex justify-between items-center text-xs text-on-surface">
+                    <span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">sports_score</span> Simulacros Realizados:</span>
+                    <span id="kpi-drill-count" class="font-mono font-semibold">0</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Widget 2: Resumen BIA -->
+        <section class="md:col-span-8 bg-surface border border-outline-variant rounded-lg p-md flex flex-col">
+            <div class="flex justify-between items-start mb-md">
+                <div class="flex items-center gap-sm text-secondary">
+                    <span class="material-symbols-outlined icon-fill">analytics</span>
+                    <h3 class="font-bold text-sm text-primary">Procesos Críticos en BIA</h3>
+                </div>
+                <span class="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded">Resumen Activo</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase">
+                            <th class="py-2 px-2">Proceso Crítico</th>
+                            <th class="py-2 px-2">MTPD</th>
+                            <th class="py-2 px-2">RTO</th>
+                            <th class="py-2 px-2 text-right">Impacto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dash-bia-tbody" class="divide-y divide-outline-variant">
+                        <!-- Inyectado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Widget 3: Estrategias de Recuperación -->
+        <section class="md:col-span-6 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex items-center gap-sm mb-lg text-secondary">
+                <span class="material-symbols-outlined icon-fill">published_with_changes</span>
+                <h3 class="font-bold text-sm text-primary">Estrategias de Recuperación</h3>
+            </div>
+            <div class="space-y-md">
+                <div class="border border-outline-variant rounded p-sm flex items-start gap-md bg-surface-bright">
+                    <div class="bg-surface-container p-sm rounded text-secondary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[18px]">dns</span>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-xs text-primary mb-1">Failover a Sitio Alterno (Cold Site)</h4>
+                        <p class="text-[11px] text-on-surface-variant">Activación del centro de datos secundario en Región B para restaurar servicios core.</p>
+                    </div>
+                    <span class="material-symbols-outlined text-success font-bold">check_circle</span>
+                </div>
+                <div class="border border-outline-variant rounded p-sm flex items-start gap-md bg-surface-bright">
+                    <div class="bg-surface-container p-sm rounded text-secondary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[18px]">group_work</span>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-xs text-primary mb-1">Trabajo Remoto Distribuido</h4>
+                        <p class="text-[11px] text-on-surface-variant">Despliegue de VPN corporativa para el 80% de la plantilla operativa en 4h.</p>
+                    </div>
+                    <span class="material-symbols-outlined text-success font-bold">check_circle</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Widget 4: Escenarios de Crisis -->
+        <section class="md:col-span-6 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex items-center gap-sm mb-lg text-secondary">
+                <span class="material-symbols-outlined icon-fill">crisis_alert</span>
+                <h3 class="font-bold text-sm text-primary">Escenarios de Crisis Evaluados</h3>
+            </div>
+            <div class="grid grid-cols-1 gap-sm" id="dash-crisis-scenarios">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
+
+        <!-- Widget 5: Equipos de Respuesta -->
+        <section class="md:col-span-12 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex justify-between items-center mb-lg border-b border-outline-variant pb-2">
+                <div class="flex items-center gap-sm text-secondary">
+                    <span class="material-symbols-outlined icon-fill">groups</span>
+                    <h3 class="font-bold text-sm text-primary">Equipos de Respuesta a Incidentes</h3>
+                </div>
+                <span class="text-xs text-on-surface-variant">4 Roles Clave Definidos</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-md">
+                <div class="border border-outline-variant rounded p-sm flex items-center gap-md bg-surface-bright">
+                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs">MR</div>
+                    <div>
+                        <h4 class="font-bold text-xs text-primary">Comité de Crisis</h4>
+                        <p class="text-[10px] text-on-surface-variant">M. Rojas (Director)</p>
+                    </div>
+                </div>
+                <div class="border border-outline-variant rounded p-sm flex items-center gap-md bg-surface-bright">
+                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs">LT</div>
+                    <div>
+                        <h4 class="font-bold text-xs text-primary">Recuperación IT</h4>
+                        <p class="text-[10px] text-on-surface-variant">L. Torres (CISO)</p>
+                    </div>
+                </div>
+                <div class="border border-outline-variant rounded p-sm flex items-center gap-md bg-surface-bright">
+                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs">AP</div>
+                    <div>
+                        <h4 class="font-bold text-xs text-primary">Comunicaciones</h4>
+                        <p class="text-[10px] text-on-surface-variant">A. Pérez (RRPP)</p>
+                    </div>
+                </div>
+                <div class="border border-outline-variant rounded p-sm flex items-center gap-md bg-surface-bright">
+                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs">JL</div>
+                    <div>
+                        <h4 class="font-bold text-xs text-primary">Logística</h4>
+                        <p class="text-[10px] text-on-surface-variant">J. López (Ops)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- SECCIÓN: Análisis BIA -->
+    <div id="sec-bia" class="hidden space-y-4 fade-up">
+        <div class="flex justify-between items-center bg-surface p-4 border border-outline-variant rounded-xl gap-4">
+            <div class="relative max-w-sm w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="bia-search" oninput="renderBiaList()" placeholder="Buscar proceso..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+            </div>
+            <button onclick="openProcessModal()" class="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">add</span> Agregar Proceso
+            </button>
+        </div>
+
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3 w-1/4">Proceso Crítico</th>
+                            <th class="p-3 w-20 text-center">MTPD</th>
+                            <th class="p-3 w-24 text-center">RTO Objetivo</th>
+                            <th class="p-3 w-24 text-center">RPO Objetivo</th>
+                            <th class="p-3 w-32 text-center">Impactos (Día 1/2/7)</th>
+                            <th class="p-3 w-28 text-center">Impacto BIA</th>
+                            <th class="p-3 text-center">Fin/Op/Rep</th>
+                            <th class="p-3 w-28 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bia-tbody" class="divide-y divide-outline-variant">
+                        <!-- Inyectado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN: Simulacros BCP -->
+    <div id="sec-simulacros" class="hidden space-y-4 fade-up">
+        <div class="flex justify-between items-center bg-surface p-4 border border-outline-variant rounded-xl gap-4">
+            <div class="relative max-w-sm w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="sim-search" oninput="renderSimList()" placeholder="Buscar simulacro..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+            </div>
+            <button onclick="openExModal()" class="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">add</span> Planificar Simulacro
+            </button>
+        </div>
+
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3">Título / Simulación</th>
+                            <th class="p-3 w-28">Fecha</th>
+                            <th class="p-3 w-32">Escenario</th>
+                            <th class="p-3 w-28 text-center">RTO Obj.</th>
+                            <th class="p-3 w-28 text-center">RTO Real</th>
+                            <th class="p-3 w-32 text-center">Resultado</th>
+                            <th class="p-3 w-28 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sim-tbody" class="divide-y divide-outline-variant">
+                        <!-- Inyectado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
 </main>
 </div>
-<!-- BottomNavBar (Mobile) -->
-<nav aria-label="Bottom Navigation" class="bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-gutter md:hidden shadow-sm">
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
-<span class="material-symbols-outlined mb-1">dashboard</span>
-            Dashboard
-        </a>
-<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-bold hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
-<span class="material-symbols-outlined icon-fill mb-1">warning</span>
-            Risks
-        </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
-<span class="material-symbols-outlined mb-1">account_tree</span>
-            Processes
-        </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container active:scale-95 transition-transform font-label-md text-label-md w-full h-full" href="#">
-<span class="material-symbols-outlined mb-1">fact_check</span>
-            Audits
-        </a>
-</nav>
-</body></html>
+
+<!-- MODAL: Crear/Editar Proceso BIA -->
+<div id="modal-process" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full my-8 p-6 shadow-2xl flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="process-modal-title" class="font-bold text-sm text-primary">Proceso Crítico BIA</h3>
+            <button onclick="closeProcessModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full"><span class="material-symbols-outlined text-base">close</span></button>
+        </div>
+        <form onsubmit="saveProcess(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="p-id"/>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Nombre del Proceso *</label>
+                <input id="p-name" required type="text" placeholder="Ej: Procesamiento de transacciones" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">MTPD (Horas) *</label>
+                    <input id="p-mtpd" required type="number" min="0.1" step="0.1" placeholder="Ej: 12" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">RTO Objetivo (Horas) *</label>
+                    <input id="p-rto" required type="number" min="0.1" step="0.1" placeholder="Ej: 4" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">RPO Objetivo (Horas) *</label>
+                    <input id="p-rpo" required type="number" min="0.1" step="0.1" placeholder="Ej: 2" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+            </div>
+            <div class="border border-secondary-container/30 rounded p-3 space-y-2 bg-surface-bright">
+                <div class="flex items-center justify-between">
+                    <p class="font-bold text-primary">Evaluación de Impacto por Días (1–4: Bajo, Medio, Alto, Crítico)</p>
+                    <span class="text-[10px] text-on-surface-variant font-mono">ISO 22301 §8.2.2</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] text-on-surface-variant font-bold mb-1">Día 1 (primeras 24h)</label>
+                        <select id="p-imp-d1" class="w-full bg-background border border-outline-variant rounded px-2 py-1 text-xs">
+                            <option value="1">1 — Bajo</option>
+                            <option value="2" selected>2 — Medio</option>
+                            <option value="3">3 — Alto</option>
+                            <option value="4">4 — Crítico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-on-surface-variant font-bold mb-1">Día 2 (24–48h)</label>
+                        <select id="p-imp-d2" class="w-full bg-background border border-outline-variant rounded px-2 py-1 text-xs">
+                            <option value="1">1 — Bajo</option>
+                            <option value="2">2 — Medio</option>
+                            <option value="3" selected>3 — Alto</option>
+                            <option value="4">4 — Crítico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-on-surface-variant font-bold mb-1">Día 7 (+168h)</label>
+                        <select id="p-imp-d7" class="w-full bg-background border border-outline-variant rounded px-2 py-1 text-xs">
+                            <option value="1">1 — Bajo</option>
+                            <option value="2">2 — Medio</option>
+                            <option value="3">3 — Alto</option>
+                            <option value="4" selected>4 — Crítico</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="bia-recommendation" class="text-[10px] text-on-surface-variant bg-background border border-outline-variant rounded p-2 font-mono hidden">
+                    <span class="font-bold text-secondary">💡 RTO/RPO recomendado:</span> <span id="bia-recommendation-text"></span>
+                </div>
+            </div>
+            <div class="border border-outline-variant rounded p-3 space-y-2 bg-surface-bright">
+                <p class="font-bold text-primary mb-1">Valoración de Impactos (Escala 1–4: Bajo, Medio, Alto, Crítico)</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] text-on-surface-variant font-bold mb-1">Impacto Financiero</label>
+                        <select id="p-imp-fin" class="w-full bg-background border border-outline-variant rounded px-2 py-1 text-xs">
+                            <option value="1">1 — Bajo</option>
+                            <option value="2">2 — Medio</option>
+                            <option value="3">3 — Alto</option>
+                            <option value="4" selected>4 — Crítico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-on-surface-variant font-bold mb-1">Impacto Operativo</label>
+                        <select id="p-imp-op" class="w-full bg-background border border-outline-variant rounded px-2 py-1 text-xs">
+                            <option value="1">1 — Bajo</option>
+                            <option value="2">2 — Medio</option>
+                            <option value="3" selected>3 — Alto</option>
+                            <option value="4">4 — Crítico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-on-surface-variant font-bold mb-1">Impacto Reputacional</label>
+                        <select id="p-imp-rep" class="w-full bg-background border border-outline-variant rounded px-2 py-1 text-xs">
+                            <option value="1">1 — Bajo</option>
+                            <option value="2" selected>2 — Medio</option>
+                            <option value="3">3 — Alto</option>
+                            <option value="4">4 — Crítico</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                <button type="button" onclick="closeProcessModal()" class="bg-surface border border-outline-variant text-on-surface px-4 py-2 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary px-4 py-2 rounded-lg font-bold shadow-sm">Guardar Proceso</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Crear/Editar Simulacro -->
+<div id="modal-exercise" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full my-8 p-6 shadow-2xl flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="ex-modal-title" class="font-bold text-sm text-primary">Registrar Ejercicio / Simulacro</h3>
+            <button onclick="closeExModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full"><span class="material-symbols-outlined text-base">close</span></button>
+        </div>
+        <form onsubmit="saveExercise(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="ex-id"/>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Título del Ejercicio *</label>
+                <input id="ex-title" required type="text" placeholder="Ej: Simulacro anual Caída de Red Core" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Fecha de Ejecución *</label>
+                    <input id="ex-date" required type="date" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Escenario de Crisis *</label>
+                    <select id="ex-scenario" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Ciberataque (Ransomware)</option>
+                        <option>Corte Suministro Eléctrico Prolongado</option>
+                        <option>Desastre Natural (Inundación Sede)</option>
+                        <option>Caída de Proveedor Cloud Crítico</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">RTO Objetivo (Horas) *</label>
+                    <input id="ex-target-rto" required type="number" min="0.1" step="0.1" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">RTO Real Obtenido (Horas) *</label>
+                    <input id="ex-actual-rto" required type="number" min="0" step="0.1" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Resultado *</label>
+                    <select id="ex-status" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Exitoso</option>
+                        <option>Desviación Detectada</option>
+                        <option>Fallido</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Observaciones / Medidas Adoptadas</label>
+                <textarea id="ex-notes" rows="3" placeholder="Describir los resultados, fallos detectados, recomendaciones de mejora..." class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary resize-none"></textarea>
+            </div>
+            <div class="flex items-center gap-2 p-2 bg-error-container/30 border border-error/20 rounded">
+                <input type="checkbox" id="ex-link-capa" class="rounded text-secondary" checked/>
+                <label for="ex-link-capa" class="text-[10px] text-danger font-bold cursor-pointer">
+                    Generar Acción Correctiva (CAPA) automáticamente en caso de desviación o fallo
+                </label>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                <button type="button" onclick="closeExModal()" class="bg-surface border border-outline-variant text-on-surface px-4 py-2 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary px-4 py-2 rounded-lg font-bold shadow-sm">Guardar Ejercicio</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const seedProcesses = [
+        { id: "BIA-001", name: "Procesamiento de Pagos Central", mtpd: 4, rto: 2, rpo: 1, impD1: 4, impD2: 4, impD7: 4, impFin: 4, impOp: 4, impRep: 3 },
+        { id: "BIA-002", name: "Infraestructura Cloud Core", mtpd: 12, rto: 4, rpo: 2, impD1: 4, impD2: 4, impD7: 4, impFin: 4, impOp: 4, impRep: 4 },
+        { id: "BIA-003", name: "Soporte Técnico Nivel 1", mtpd: 48, rto: 24, rpo: 12, impD1: 2, impD2: 3, impD7: 3, impFin: 2, impOp: 3, impRep: 3 }
+    ];
+
+    const seedExercises = [
+        { id: "EX-2026-001", title: "Prueba de restauración de backups ransomware", date: "2026-03-15", scenario: "Ciberataque (Ransomware)", targetRto: 4, actualRto: 3.5, status: "Exitoso", notes: "Backups restaurados con éxito. RTO dentro del objetivo." },
+        { id: "EX-2026-002", title: "Corte de red y conmutación de switch core", date: "2026-05-10", scenario: "Corte Suministro Eléctrico Prolongado", targetRto: 2, actualRto: 2.8, status: "Desviación Detectada", notes: "Hubo retrasos debido a la mala configuración del switch auxiliar." }
+    ];
+
+    let processes = [];
+    let exercises = [];
+
+    function init() {
+        const storedP = localStorage.getItem('sig_bcp_processes');
+        const storedEx = localStorage.getItem('sig_bcp_exercises');
+        processes = storedP ? JSON.parse(storedP) : [...seedProcesses];
+        exercises = storedEx ? JSON.parse(storedEx) : [...seedExercises];
+        if (!storedP) localStorage.setItem('sig_bcp_processes', JSON.stringify(processes));
+        if (!storedEx) localStorage.setItem('sig_bcp_exercises', JSON.stringify(exercises));
+
+        render();
+    }
+
+    function render() {
+        renderKPIs();
+        renderDashboardBia();
+        renderDashboardCrisis();
+        renderBiaList();
+        renderSimList();
+    }
+
+    function renderKPIs() {
+        const total = processes.length;
+        if (total === 0) {
+            document.getElementById('kpi-compliance').textContent = '0%';
+            document.getElementById('compliance-bar').style.width = '0%';
+            return;
+        }
+        const compliant = processes.filter(p => p.rto <= p.mtpd).length;
+        const compliancePct = Math.round((compliant / total) * 100);
+        document.getElementById('kpi-compliance').textContent = `${compliancePct}%`;
+        document.getElementById('compliance-bar').style.width = `${compliancePct}%`;
+        document.getElementById('kpi-drill-count').textContent = exercises.length;
+    }
+
+    function getImpactLevel(p) {
+        const max = Math.max(p.impFin || 1, p.impOp || 1, p.impRep || 1, p.impD1 || 1, p.impD2 || 1, p.impD7 || 1);
+        if (max === 4) return { text: "Crítico", color: "bg-error text-white font-bold" };
+        if (max === 3) return { text: "Alto", color: "bg-orange-500 text-white font-bold" };
+        if (max === 2) return { text: "Medio", color: "bg-yellow-500 text-primary font-bold" };
+        return { text: "Bajo", color: "bg-green-500 text-white font-bold" };
+    }
+
+    function getDayBadge(level) {
+        const lvl = level || 1;
+        if (lvl === 4) return 'bg-error text-white';
+        if (lvl === 3) return 'bg-orange-500 text-white';
+        if (lvl === 2) return 'bg-yellow-500 text-primary';
+        return 'bg-green-500 text-white';
+    }
+
+    function renderDashboardBia() {
+        const tbody = document.getElementById('dash-bia-tbody');
+        tbody.innerHTML = '';
+        if (processes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-2 text-center text-on-surface-variant">Sin datos</td></tr>`;
+            return;
+        }
+        processes.forEach(p => {
+            const imp = getImpactLevel(p);
+            tbody.innerHTML += `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="py-2 px-2 font-bold text-primary">${p.name}</td>
+                <td class="py-2 px-2 font-mono">${p.mtpd}h</td>
+                <td class="py-2 px-2 font-mono text-secondary font-bold">${p.rto}h</td>
+                <td class="py-2 px-2 text-right"><span class="px-1.5 py-0.5 rounded text-[10px] ${imp.color}">${imp.text}</span></td>
+            </tr>`;
+        });
+    }
+
+    function renderDashboardCrisis() {
+        const grid = document.getElementById('dash-crisis-scenarios');
+        grid.innerHTML = '';
+        const scenarios = [
+            { name: "Ciberataque (Ransomware)", icon: "security", key: "Ciberataque (Ransomware)" },
+            { name: "Corte Suministro Eléctrico Prolongado", icon: "power_off", key: "Corte Suministro Eléctrico Prolongado" },
+            { name: "Desastre Natural (Inundación Sede)", icon: "flood", key: "Desastre Natural (Inundación Sede)" }
+        ];
+
+        scenarios.forEach(sc => {
+            // Find latest drill
+            const lastDrill = exercises.filter(ex => ex.scenario === sc.key).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+            let label = "Sin Simulación";
+            let cls = "bg-surface-container text-on-surface-variant";
+            if (lastDrill) {
+                if (lastDrill.status === "Exitoso") {
+                    label = `Simulado: Éxito (${lastDrill.actualRto}h)`;
+                    cls = "bg-green-100 text-green-800 border-green-200 font-bold";
+                } else if (lastDrill.status === "Desviación Detectada") {
+                    label = `Desviación (${lastDrill.actualRto}h)`;
+                    cls = "bg-yellow-100 text-yellow-800 border-yellow-200 font-bold";
+                } else {
+                    label = `Fallido (${lastDrill.actualRto}h)`;
+                    cls = "bg-error-container text-on-error-container border-red-200 font-bold";
+                }
+            }
+            grid.innerHTML += `
+            <div class="bg-surface-container-low p-2 rounded flex justify-between items-center border border-transparent hover:border-outline-variant transition-colors">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-sm text-secondary">${sc.icon}</span>
+                    <span class="font-semibold text-xs text-primary">${sc.name}</span>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 border rounded ${cls}">${label}</span>
+            </div>`;
+        });
+    }
+
+    function renderBiaList() {
+        const tbody = document.getElementById('bia-tbody');
+        const q = document.getElementById('bia-search').value.toLowerCase();
+        const filtered = processes.filter(p => p.name.toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="p-3 text-center text-on-surface-variant">No se encontraron procesos en el análisis BIA.</td></tr>`;
+            return;
+        }
+        filtered.forEach(p => {
+            const imp = getImpactLevel(p);
+            const b1 = getDayBadge(p.impD1);
+            const b2 = getDayBadge(p.impD2);
+            const b7 = getDayBadge(p.impD7);
+            tbody.innerHTML += `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-3 font-semibold text-primary">${p.name}</td>
+                <td class="p-3 text-center font-mono">${p.mtpd} h</td>
+                <td class="p-3 text-center font-mono font-bold text-secondary">${p.rto} h</td>
+                <td class="p-3 text-center font-mono text-on-surface-variant">${p.rpo} h</td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center gap-1" title="D1=${p.impD1} | D2=${p.impD2} | D7=${p.impD7}">
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${b1}">D1</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${b2}">D2</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${b7}">D7</span>
+                    </div>
+                </td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] ${imp.color}">${imp.text}</span></td>
+                <td class="p-3 text-center font-mono text-[10px] text-on-surface-variant">F:${p.impFin} O:${p.impOp} R:${p.impRep}</td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="editProcess('${p.id}')" class="text-secondary hover:text-primary font-bold text-xs flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">edit</span></button>
+                        <button onclick="deleteProcess('${p.id}')" class="text-error hover:text-red-700 font-bold text-xs flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">delete</span></button>
+                    </div>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function renderSimList() {
+        const tbody = document.getElementById('sim-tbody');
+        const q = document.getElementById('sim-search').value.toLowerCase();
+        const filtered = exercises.filter(ex => ex.title.toLowerCase().includes(q) || ex.scenario.toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-on-surface-variant">No se encontraron simulacros registrados.</td></tr>`;
+            return;
+        }
+        filtered.forEach(ex => {
+            let badgeCls = 'bg-gray-100 text-gray-700';
+            if (ex.status === 'Exitoso') badgeCls = 'bg-green-100 text-green-800 border-green-200';
+            else if (ex.status === 'Desviación Detectada') badgeCls = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            else if (ex.status === 'Fallido') badgeCls = 'bg-error-container text-on-error-container border-red-200';
+
+            tbody.innerHTML += `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-3 font-semibold text-primary">
+                    ${ex.title}
+                    ${ex.notes ? `<p class="text-[10px] font-normal text-on-surface-variant mt-0.5">${ex.notes}</p>` : ''}
+                </td>
+                <td class="p-3 font-mono text-on-surface-variant">${ex.date}</td>
+                <td class="p-3 text-on-surface-variant">${ex.scenario}</td>
+                <td class="p-3 text-center font-mono">${ex.targetRto}h</td>
+                <td class="p-3 text-center font-mono font-bold">${ex.actualRto}h</td>
+                <td class="p-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] border font-semibold ${badgeCls}">${ex.status}</span></td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="editEx('${ex.id}')" class="text-secondary hover:text-primary font-bold text-xs flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">edit</span> Editar</button>
+                        <button onclick="deleteEx('${ex.id}')" class="text-error hover:text-red-700 font-bold text-xs flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">delete</span></button>
+                    </div>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function switchTab(tab) {
+        ['dashboard','bia','simulacros'].forEach(t => {
+            document.getElementById(`sec-${t}`).classList.add('hidden');
+            const btn = document.getElementById(`btn-tab-${t}`);
+            btn.className = 'border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5';
+        });
+        document.getElementById(`sec-${tab}`).classList.remove('hidden');
+        const activeBtn = document.getElementById(`btn-tab-${tab}`);
+        activeBtn.className = 'border-b-2 border-secondary text-secondary py-3 px-1 transition-all flex items-center gap-1.5';
+    }
+
+    // Modales BIA
+    function openProcessModal(data = null) {
+        document.getElementById('process-modal-title').textContent = data ? 'Editar Proceso BIA' : 'Agregar Proceso BIA';
+        document.getElementById('p-id').value = data ? data.id : '';
+        document.getElementById('p-name').value = data ? data.name : '';
+        document.getElementById('p-mtpd').value = data ? data.mtpd : '';
+        document.getElementById('p-rto').value = data ? data.rto : '';
+        document.getElementById('p-rpo').value = data ? data.rpo : '';
+        document.getElementById('p-imp-d1').value = data ? (data.impD1 || 2) : '2';
+        document.getElementById('p-imp-d2').value = data ? (data.impD2 || 3) : '3';
+        document.getElementById('p-imp-d7').value = data ? (data.impD7 || 4) : '4';
+        document.getElementById('p-imp-fin').value = data ? data.impFin : '4';
+        document.getElementById('p-imp-op').value = data ? data.impOp : '3';
+        document.getElementById('p-imp-rep').value = data ? data.impRep : '2';
+        document.getElementById('modal-process').classList.remove('hidden');
+        updateBiaRecommendation();
+    }
+
+    // Cálculo dinámico de RTO/RPO recomendado según impactos por día
+    function updateBiaRecommendation() {
+        const d1 = parseInt(document.getElementById('p-imp-d1').value) || 0;
+        const d2 = parseInt(document.getElementById('p-imp-d2').value) || 0;
+        const d7 = parseInt(document.getElementById('p-imp-d7').value) || 0;
+        const max = Math.max(d1, d2, d7);
+        const recBox = document.getElementById('bia-recommendation');
+        const recText = document.getElementById('bia-recommendation-text');
+        let rtoRec, rpoRec, prioridad;
+        if (max === 4) { rtoRec = '<2h'; rpoRec = '<15min'; prioridad = 'Crítica'; }
+        else if (max === 3) { rtoRec = '<8h'; rpoRec = '<1h'; prioridad = 'Alta'; }
+        else if (max === 2) { rtoRec = '<24h'; rpoRec = '<4h'; prioridad = 'Media'; }
+        else { rtoRec = '<72h'; rpoRec = '<24h'; prioridad = 'Baja'; }
+        recText.innerHTML = `Prioridad <b>${prioridad}</b> (max impacto ${max}/4). Sugerencia: <b>RTO ≤ ${rtoRec}</b>, <b>RPO ≤ ${rpoRec}</b>.`;
+        recBox.classList.remove('hidden');
+    }
+    // Listeners para el cálculo en vivo
+    document.addEventListener('change', function(e){
+        if (e.target && (e.target.id === 'p-imp-d1' || e.target.id === 'p-imp-d2' || e.target.id === 'p-imp-d7')) {
+            updateBiaRecommendation();
+        }
+    });
+
+    function closeProcessModal() {
+        document.getElementById('modal-process').classList.add('hidden');
+    }
+
+    function saveProcess(e) {
+        e.preventDefault();
+        const id = document.getElementById('p-id').value;
+        const pObj = {
+            id: id || `BIA-${String(processes.length + 1).padStart(3, '0')}`,
+            name: document.getElementById('p-name').value.trim(),
+            mtpd: parseFloat(document.getElementById('p-mtpd').value) || 0,
+            rto: parseFloat(document.getElementById('p-rto').value) || 0,
+            rpo: parseFloat(document.getElementById('p-rpo').value) || 0,
+            impD1: parseInt(document.getElementById('p-imp-d1').value) || 2,
+            impD2: parseInt(document.getElementById('p-imp-d2').value) || 3,
+            impD7: parseInt(document.getElementById('p-imp-d7').value) || 4,
+            impFin: parseInt(document.getElementById('p-imp-fin').value),
+            impOp: parseInt(document.getElementById('p-imp-op').value),
+            impRep: parseInt(document.getElementById('p-imp-rep').value)
+        };
+
+        if (id) {
+            const idx = processes.findIndex(p => p.id === id);
+            if (idx !== -1) processes[idx] = pObj;
+        } else {
+            processes.push(pObj);
+        }
+        localStorage.setItem('sig_bcp_processes', JSON.stringify(processes));
+        closeProcessModal();
+        render();
+    }
+
+    function editProcess(id) {
+        const p = processes.find(x => x.id === id);
+        if (p) openProcessModal(p);
+    }
+
+    function deleteProcess(id) {
+        if (confirm('¿Eliminar este proceso del análisis BIA?')) {
+            processes = processes.filter(p => p.id !== id);
+            localStorage.setItem('sig_bcp_processes', JSON.stringify(processes));
+            render();
+        }
+    }
+
+    // Modales Simulacros
+    function openExModal(data = null) {
+        document.getElementById('ex-modal-title').textContent = data ? 'Editar Simulacro / Ejercicio BCP' : 'Registrar Simulacro / Ejercicio BCP';
+        document.getElementById('ex-id').value = data ? data.id : '';
+        document.getElementById('ex-title').value = data ? data.title : '';
+        document.getElementById('ex-date').value = data ? data.date : new Date().toISOString().split('T')[0];
+        document.getElementById('ex-scenario').value = data ? data.scenario : 'Ciberataque (Ransomware)';
+        document.getElementById('ex-target-rto').value = data ? data.targetRto : '4';
+        document.getElementById('ex-actual-rto').value = data ? data.actualRto : '0';
+        document.getElementById('ex-status').value = data ? data.status : 'Exitoso';
+        document.getElementById('ex-notes').value = data ? data.notes : '';
+        document.getElementById('ex-link-capa').checked = true;
+        document.getElementById('modal-exercise').classList.remove('hidden');
+    }
+
+    function closeExModal() {
+        document.getElementById('modal-exercise').classList.add('hidden');
+    }
+
+    function saveExercise(e) {
+        e.preventDefault();
+        const id = document.getElementById('ex-id').value;
+        const title = document.getElementById('ex-title').value.trim();
+        const date = document.getElementById('ex-date').value;
+        const scenario = document.getElementById('ex-scenario').value;
+        const targetRto = parseFloat(document.getElementById('ex-target-rto').value) || 0;
+        const actualRto = parseFloat(document.getElementById('ex-actual-rto').value) || 0;
+        const status = document.getElementById('ex-status').value;
+        const notes = document.getElementById('ex-notes').value.trim();
+        const linkCapa = document.getElementById('ex-link-capa').checked;
+
+        const newEx = {
+            id: id || `EX-${new Date().getFullYear()}-${String(exercises.length + 1).padStart(3, '0')}`,
+            title, date, scenario, targetRto, actualRto, status, notes
+        };
+
+        if (id) {
+            const idx = exercises.findIndex(ex => ex.id === id);
+            if (idx !== -1) exercises[idx] = newEx;
+        } else {
+            exercises.push(newEx);
+        }
+        localStorage.setItem('sig_bcp_exercises', JSON.stringify(exercises));
+
+        // CAPA integration
+        if (linkCapa && (actualRto > targetRto || status === 'Fallido' || status === 'Desviación Detectada')) {
+            createCapaAction(`SIM-${newEx.id}`, `Desviación en Simulacro BCP (${newEx.title}): RTO real (${actualRto}h) superior al RTO objetivo (${targetRto}h).`);
+        }
+
+        closeExModal();
+        render();
+    }
+
+    function createCapaAction(originId, summaryText) {
+        let capaActions = [];
+        const stored = localStorage.getItem('sig_acciones_correctivas');
+        if (stored) {
+            try { capaActions = JSON.parse(stored); } catch(e) { capaActions = []; }
+        }
+        
+        // Evitar duplicados
+        if (capaActions.some(act => act.origen === originId)) {
+            return;
+        }
+
+        const currentYear = new Date().getFullYear();
+        let maxSeq = 41;
+        capaActions.forEach(a => {
+            const parts = a.id.split('-');
+            if (parts.length === 3 && parts[1] == currentYear) {
+                const seq = parseInt(parts[2]);
+                if (seq > maxSeq) maxSeq = seq;
+            }
+        });
+        const nextSeq = String(maxSeq + 1).padStart(3, '0');
+        const newId = `AC-${currentYear}-${nextSeq}`;
+
+        const newAction = {
+            id: newId,
+            origen: originId,
+            resumen: summaryText,
+            responsable: "Responsable de Continuidad / Compliance",
+            estado: "pendiente"
+        };
+
+        capaActions.unshift(newAction);
+        localStorage.setItem('sig_acciones_correctivas', JSON.stringify(capaActions));
+        
+        alert(`⚠️ Se ha generado automáticamente la Acción Correctiva ${newId} en el módulo CAPA por desviación o fallo en simulacro.`);
+    }
+
+    function editEx(id) {
+        const ex = exercises.find(x => x.id === id);
+        if (ex) openExModal(ex);
+    }
+
+    function deleteEx(id) {
+        if (confirm('¿Eliminar este simulacro del historial?')) {
+            exercises = exercises.filter(ex => ex.id !== id);
+            localStorage.setItem('sig_bcp_exercises', JSON.stringify(exercises));
+            render();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

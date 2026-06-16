@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <script src="../api-sync.js"></script>
@@ -122,67 +122,112 @@
 
 </main>
 
-<!-- MODAL -->
+<!-- MODAL ASISTENTE (WIZARD) -->
 <div id="modal-acc" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
-    <div class="bg-surface border border-outline-variant rounded-2xl max-w-2xl w-full my-8 p-6 shadow-2xl space-y-4">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-2xl w-full my-8 p-6 shadow-2xl flex flex-col gap-4">
         <div class="flex justify-between items-center border-b border-outline-variant pb-3">
             <h3 id="modal-title" class="font-bold text-base text-primary">Registrar Accidente / Incidente SST</h3>
             <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined">close</span></button>
         </div>
+
+        <!-- Wizard Tabs Header -->
+        <div class="flex border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase select-none mb-2 justify-between gap-1 overflow-x-auto no-scrollbar">
+            <button type="button" id="step-btn-1" onclick="goToStep(1)" class="border-b-2 border-secondary text-secondary pb-2 px-1 flex-1 text-center">1. General</button>
+            <button type="button" id="step-btn-2" onclick="goToStep(2)" class="border-b-2 border-transparent pb-2 px-1 flex-1 text-center">2. Testigos y Evidencias</button>
+            <button type="button" id="step-btn-3" onclick="goToStep(3)" class="border-b-2 border-transparent pb-2 px-1 flex-1 text-center">3. 5 Porqués</button>
+            <button type="button" id="step-btn-4" onclick="goToStep(4)" class="border-b-2 border-transparent pb-2 px-1 flex-1 text-center">4. Acciones y Notif.</button>
+        </div>
+
         <form onsubmit="saveAcc(event)" class="space-y-4">
             <input type="hidden" id="acc-id"/>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo de Siniestro *</label>
-                    <select id="a-type" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
-                        <option>Accidente con baja</option><option>Accidente sin baja</option><option>Cuasi-accidente (near miss)</option><option>Enfermedad profesional</option><option>Accidente in itinere</option><option>Accidente grave / muy grave</option><option>Accidente mortal</option>
-                    </select></div>
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha y Hora *</label>
-                    <input id="a-date" required type="datetime-local" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Trabajador Afectado</label>
-                    <input id="a-worker" type="text" placeholder="Nombre y puesto de trabajo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Área / Lugar del Accidente</label>
-                    <input id="a-area" type="text" placeholder="Ej: Almacén, Línea de producción 3" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-            </div>
-            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción de los Hechos *</label>
-                <textarea id="a-desc" required rows="3" placeholder="Describir qué ocurrió, cómo, en qué circunstancias, agente material causante..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Lesión / Consecuencia</label>
-                    <input id="a-injury" type="text" placeholder="Ej: Fractura dedo índice" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Días de Baja</label>
-                    <input id="a-days" type="number" min="0" value="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado</label>
-                    <select id="a-status" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
-                        <option>Abierto</option><option>En Investigación</option><option>Cerrado</option>
-                    </select></div>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-on-surface-variant mb-2">Análisis de Causa Raíz — Metodología 5 Porqués</label>
-                <div class="space-y-2">
-                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué ocurrió? (1er nivel)</label><input id="why1" type="text" placeholder="Causa directa / inmediata" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (2º nivel)</label><input id="why2" type="text" placeholder="Causa subyacente" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (3er nivel)</label><input id="why3" type="text" placeholder="Causa sistémica" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                    <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (4º nivel — opcional)</label><input id="why4" type="text" placeholder="Causa raíz" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+
+            <!-- PASO 1: Datos Generales -->
+            <div id="form-step-1" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo de Siniestro *</label>
+                        <select id="a-type" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                            <option>Accidente con baja</option><option>Accidente sin baja</option><option>Cuasi-accidente (near miss)</option><option>Enfermedad profesional</option><option>Accidente in itinere</option><option>Accidente grave / muy grave</option><option>Accidente mortal</option>
+                        </select></div>
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha y Hora *</label>
+                        <input id="a-date" required type="datetime-local" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Trabajador Afectado</label>
+                        <input id="a-worker" type="text" placeholder="Nombre y puesto de trabajo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Área / Lugar del Accidente</label>
+                        <input id="a-area" type="text" placeholder="Ej: Almacén, Línea de producción 3" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                </div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción de los Hechos *</label>
+                    <textarea id="a-desc" required rows="3" placeholder="Describir qué ocurrió, cómo, en qué circunstancias, agente material causante..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Lesión / Consecuencia</label>
+                        <input id="a-injury" type="text" placeholder="Ej: Fractura dedo índice" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Días de Baja</label>
+                        <input id="a-days" type="number" min="0" value="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado</label>
+                        <select id="a-status" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                            <option>Abierto</option><option>En Investigación</option><option>Cerrado</option>
+                        </select></div>
                 </div>
             </div>
-            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Acciones Correctivas / Preventivas</label>
-                <textarea id="a-actions" rows="2" placeholder="Medidas adoptadas para evitar la recurrencia: EPI, formación, rediseño del puesto, procedimientos..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Investigador Responsable</label>
-                    <input id="a-investigator" type="text" placeholder="Ej: Técnico PRL / Mando directo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+
+            <!-- PASO 2: Testigos y Evidencias -->
+            <div id="form-step-2" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-xs font-semibold text-on-surface-variant mb-2">Notificaciones</label>
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-mutua" class="rounded text-secondary"/>Comunicado a Mutua/INSS</label>
-                        <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-itss" class="rounded text-secondary"/>Comunicado a ITSS (obligatorio grave/mortal)</label>
-                        <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-delegado" class="rounded text-secondary"/>Comunicado a Delegado de Prevención</label>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Declaraciones de Testigos</label>
+                    <textarea id="a-witnesses" rows="3" placeholder="Nombres de los compañeros testigos del siniestro y resumen de sus comentarios/declaraciones..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Medidas Preventivas Inmediatas (24 Horas) *</label>
+                    <textarea id="a-immediate-measures" rows="3" placeholder="Detallar acciones inmediatas aplicadas para asegurar la zona y contener riesgos..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Evidencia Visual / Croquis (Enlace o Nombre del Archivo)</label>
+                    <input id="a-visual-evidence" type="text" placeholder="Ej: croquis_almacen_pasillo2.png" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+            </div>
+
+            <!-- PASO 3: Análisis de Causa Raíz -->
+            <div id="form-step-3" class="space-y-2 hidden">
+                <p class="text-xs font-bold text-primary mb-2">Análisis de Causa Raíz — Metodología 5 Porqués</p>
+                <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué ocurrió? (1er nivel)</label><input id="why1" type="text" placeholder="Causa directa / inmediata" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (2º nivel)</label><input id="why2" type="text" placeholder="Causa subyacente" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (3er nivel)</label><input id="why3" type="text" placeholder="Causa sistémica" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                <div class="why-step"><label class="text-[10px] text-on-surface-variant font-bold">¿Por qué? (4º nivel — opcional)</label><input id="why4" type="text" placeholder="Causa raíz" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 mt-1 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+            </div>
+
+            <!-- PASO 4: Acciones y Notificaciones -->
+            <div id="form-step-4" class="space-y-4 hidden">
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Acciones Preventivas / Correctivas Permanentes</label>
+                    <textarea id="a-actions" rows="2" placeholder="Medidas definitivas adoptadas para evitar recurrencia: EPI, formación, rediseño de puesto, etc..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Investigador Responsable</label>
+                        <input id="a-investigator" type="text" placeholder="Ej: Técnico PRL / Mando directo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-2">Notificaciones Legales Realizadas</label>
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-mutua" class="rounded text-secondary"/>Comunicado a Mutua/INSS</label>
+                            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-itss" class="rounded text-secondary"/>Comunicado a ITSS (obligatorio grave/mortal)</label>
+                            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" id="n-delegado" class="rounded text-secondary"/>Comunicado a Delegado de Prevención</label>
+                        </div>
                     </div>
                 </div>
+                <div class="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded">
+                    <input type="checkbox" id="a-link-capa" class="rounded text-secondary" checked/>
+                    <label for="a-link-capa" class="text-[10px] text-danger font-bold cursor-pointer select-none">
+                        Generar Acción Correctiva (CAPA) automáticamente en el módulo de operaciones
+                    </label>
+                </div>
             </div>
-            <div class="flex justify-end gap-2 border-t border-outline-variant pt-4">
-                <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
-                <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Guardar</button>
+
+            <!-- Modal Navigation Footer -->
+            <div class="flex justify-between items-center border-t border-outline-variant pt-4 mt-4">
+                <button type="button" id="btn-prev-step" onclick="prevStep()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg hidden">Anterior</button>
+                <div class="flex gap-2 ml-auto">
+                    <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                    <button type="button" id="btn-next-step" onclick="nextStep()" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg">Siguiente</button>
+                    <button type="submit" id="btn-submit-step" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg shadow-sm hidden">Guardar Siniestro</button>
+                </div>
             </div>
         </form>
     </div>
@@ -190,11 +235,12 @@
 
 <script>
 const seed = [
-    {id:'ACC-2026-001',type:'Accidente con baja',date:'2026-03-12T10:20',worker:'Juan García López — Operario Producción',area:'Línea de producción 2 — Zona de carga',desc:'El trabajador sufrió un esguince de tobillo al tropezar con una tarima mal colocada en el pasillo de la línea de producción 2. Llevaba los EPI reglamentarios (calzado de seguridad).',injury:'Esguince de tobillo grado II',days:8,status:'Cerrado',why1:'Tropiezo con tarima mal colocada en el pasillo',why2:'La tarima estaba fuera de su zona de almacenamiento correcta',why3:'No hay marcación en el suelo que delimite correctamente las zonas de paso y almacenamiento',why4:'El plan de organización de espacios de la planta no se ha revisado desde 2023',actions:'Marcación en suelo de zonas de paso y almacenamiento. Formación a todos los operarios. Revisión mensual del orden y limpieza.',investigator:'Técnico de PRL',notif:{mutua:true,itss:false,delegado:true}},
-    {id:'ACC-2026-002',type:'Cuasi-accidente (near miss)',date:'2026-04-28T15:45',worker:'Sin lesionado — Área afectada: taller mantenimiento',area:'Taller de mantenimiento',desc:'Un operario de mantenimiento detectó a tiempo que un condensador eléctrico presentaba signos de deterioro severo que podría haber provocado un cortocircuito durante el siguiente turno. No hubo lesionados.',injury:'Sin lesiones',days:0,status:'Cerrado',why1:'Condensador deteriorado en cuadro eléctrico secundario',why2:'El programa de mantenimiento preventivo no incluía la revisión periódica de este cuadro específico',why3:'El inventario de equipos eléctricos no estaba actualizado',why4:'No existe un procedimiento de revisión del inventario de activos críticos',actions:'Sustitución inmediata del condensador. Revisión completa del programa de mantenimiento preventivo eléctrico. Actualización del inventario de equipos.',investigator:'Responsable de Mantenimiento',notif:{mutua:false,itss:false,delegado:true}}
+    {id:'ACC-2026-001',type:'Accidente con baja',date:'2026-03-12T10:20',worker:'Juan García López — Operario Producción',area:'Línea de producción 2 — Zona de carga',desc:'El trabajador sufrió un esguince de tobillo al tropezar con una tarima mal colocada en el pasillo de la línea de producción 2. Llevaba los EPI reglamentarios (calzado de seguridad).',injury:'Esguince de tobillo grado II',days:8,status:'Cerrado',why1:'Tropiezo con tarima mal colocada en el pasillo',why2:'La tarima estaba fuera de su zona de almacenamiento correcta',why3:'No hay marcación en el suelo que delimite correctamente las zonas de paso y almacenamiento',why4:'El plan de organización de espacios de la planta no se ha revisado desde 2023',actions:'Marcación en suelo de zonas de paso y almacenamiento. Formación a todos los operarios. Revisión mensual del orden y limpieza.',investigator:'Técnico de PRL',notif:{mutua:true,itss:false,delegado:true},witnesses:'Pedro Sánchez (Operario Línea 2) presenció la caída.',immediateMeasures:'Retirada inmediata de la tarima del pasillo. Inspección general de zonas de paso en Planta 1.',visualEvidence:'croquis_linea2_carga.png'},
+    {id:'ACC-2026-002',type:'Cuasi-accidente (near miss)',date:'2026-04-28T15:45',worker:'Sin lesionado — Área afectada: taller mantenimiento',area:'Taller de mantenimiento',desc:'Un operario de mantenimiento detectó a tiempo que un condensador eléctrico presentaba signos de deterioro severo que podría haber provocado un cortocircuito durante el siguiente turno. No hubo lesionados.',injury:'Sin lesiones',days:0,status:'Cerrado',why1:'Condensador deteriorado en cuadro eléctrico secundario',why2:'El programa de mantenimiento preventivo no incluía la revisión periódica de este cuadro específico',why3:'El inventario de equipos eléctricos no estaba actualizado',why4:'No existe un procedimiento de revisión del inventario de activos críticos',actions:'Sustitución inmediata del condensador. Revisión completa del programa de mantenimiento preventivo eléctrico. Actualización del inventario de equipos.',investigator:'Responsable de Mantenimiento',notif:{mutua:false,itss:false,delegado:true},witnesses:'Detectado durante inspección diaria por el mecánico de turno.',immediateMeasures:'Corte eléctrico parcial preventivo y etiquetado de peligro (LOTO).',visualEvidence:'foto_condensador_deteriorado.jpg'}
 ];
 
 let accidents = [];
+let currentStep = 1;
 
 function init() {
     const stored = localStorage.getItem('sig_accidentes_sst');
@@ -276,11 +322,16 @@ function renderCards() {
                 <div class="flex items-center gap-1 col-span-2"><span class="material-symbols-outlined text-[12px]">location_on</span><span class="truncate">${a.area||'—'}</span></div>
             </div>
             <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">${a.desc}</p>
+            
+            ${a.witnesses ? `<div class="bg-orange-50/50 border border-orange-100 rounded-lg p-2 text-[10px] text-on-surface-variant"><span class="font-bold text-primary">Testigos:</span> ${a.witnesses}</div>` : ''}
+            ${a.immediateMeasures ? `<div class="bg-orange-50/50 border border-orange-100 rounded-lg p-2 text-[10px] text-on-surface-variant"><span class="font-bold text-primary">Medida Inmediata:</span> ${a.immediateMeasures}</div>` : ''}
+            ${a.visualEvidence ? `<div class="flex items-center gap-1 text-[10px] text-secondary font-semibold"><span class="material-symbols-outlined text-sm">image</span><span>Evidencia: ${a.visualEvidence}</span></div>` : ''}
+
             ${whys.length>0?`<div class="bg-orange-50 border border-orange-200 rounded-lg p-2.5 text-[11px]">
                 <p class="font-bold text-primary mb-1.5">5 Porqués — Causas Raíz</p>
                 ${whys.map((w,i)=>`<div class="flex gap-2 items-start ${i>0?'mt-1':''}">${'⬇'.repeat(i+1)} <span class="text-on-surface-variant">${w}</span></div>`).join('')}
             </div>`:''}
-            ${a.actions?`<div class="bg-surface-container-low border border-outline-variant rounded-lg p-2.5 text-[11px] text-on-surface-variant line-clamp-2"><span class="font-bold text-primary">Acciones:</span> ${a.actions}</div>`:''}
+            ${a.actions?`<div class="bg-surface-container-low border border-outline-variant rounded-lg p-2.5 text-[11px] text-on-surface-variant line-clamp-2"><span class="font-bold text-primary">Acciones Preventivas:</span> ${a.actions}</div>`:''}
             <div class="flex justify-end gap-2 border-t border-outline-variant pt-2">
                 <button onclick="editAcc('${a.id}')" class="text-secondary hover:text-primary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">edit</span>Editar</button>
                 <button onclick="deleteAcc('${a.id}')" class="text-danger hover:text-red-700 text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">delete</span></button>
@@ -309,12 +360,49 @@ function openModal(data=null){
     document.getElementById('n-mutua').checked=data?.notif?.mutua||false;
     document.getElementById('n-itss').checked=data?.notif?.itss||false;
     document.getElementById('n-delegado').checked=data?.notif?.delegado||false;
+    document.getElementById('a-witnesses').value=data?.witnesses||'';
+    document.getElementById('a-immediate-measures').value=data?.immediateMeasures||'';
+    document.getElementById('a-visual-evidence').value=data?.visualEvidence||'';
+    document.getElementById('a-link-capa').checked=true;
+
+    goToStep(1);
     document.getElementById('modal-acc').classList.remove('hidden');
 }
+
 function closeModal(){document.getElementById('modal-acc').classList.add('hidden');}
+
+// Lógica del Asistente (Wizard)
+function goToStep(step) {
+    currentStep = step;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`form-step-${i}`).classList.add('hidden');
+        const btn = document.getElementById(`step-btn-${i}`);
+        btn.className = 'border-b-2 border-transparent pb-2 px-1 flex-1 text-center text-on-surface-variant transition-all hover:text-primary';
+    }
+    document.getElementById(`form-step-${step}`).classList.remove('hidden');
+    const activeBtn = document.getElementById(`step-btn-${step}`);
+    activeBtn.className = 'border-b-2 border-secondary text-secondary pb-2 px-1 flex-1 text-center font-bold';
+
+    // Manejar visibilidad de botones del footer
+    document.getElementById('btn-prev-step').classList.toggle('hidden', step === 1);
+    document.getElementById('btn-next-step').classList.toggle('hidden', step === 4);
+    document.getElementById('btn-submit-step').classList.toggle('hidden', step !== 4);
+}
+
+function nextStep() {
+    if (currentStep < 4) goToStep(currentStep + 1);
+}
+
+function prevStep() {
+    if (currentStep > 1) goToStep(currentStep - 1);
+}
+
 function saveAcc(e){
     e.preventDefault();
     const id=document.getElementById('acc-id').value;
+    const actionsDesc = document.getElementById('a-actions').value.trim();
+    const linkCapa = document.getElementById('a-link-capa').checked;
+
     const obj={
         id:id||`ACC-${new Date().getFullYear()}-${String(accidents.length+1).padStart(3,'0')}`,
         type:document.getElementById('a-type').value,
@@ -329,13 +417,61 @@ function saveAcc(e){
         why2:document.getElementById('why2').value.trim(),
         why3:document.getElementById('why3').value.trim(),
         why4:document.getElementById('why4').value.trim(),
-        actions:document.getElementById('a-actions').value.trim(),
+        actions:actionsDesc,
         investigator:document.getElementById('a-investigator').value.trim(),
-        notif:{mutua:document.getElementById('n-mutua').checked,itss:document.getElementById('n-itss').checked,delegado:document.getElementById('n-delegado').checked}
+        notif:{mutua:document.getElementById('n-mutua').checked,itss:document.getElementById('n-itss').checked,delegado:document.getElementById('n-delegado').checked},
+        witnesses:document.getElementById('a-witnesses').value.trim(),
+        immediateMeasures:document.getElementById('a-immediate-measures').value.trim(),
+        visualEvidence:document.getElementById('a-visual-evidence').value.trim()
     };
     if(id){const idx=accidents.findIndex(a=>a.id===id);if(idx!==-1)accidents[idx]=obj;}else accidents.push(obj);
-    save();closeModal();render();
+    save();
+
+    // CAPA integration
+    if (linkCapa && actionsDesc) {
+        createCapaAction(`ACC-${obj.id}`, `Acción correctiva por accidente laboral ${obj.id} (${obj.worker}): ${actionsDesc}`);
+    }
+
+    closeModal();render();
 }
+
+function createCapaAction(originId, summaryText) {
+    let capaActions = [];
+    const stored = localStorage.getItem('sig_acciones_correctivas');
+    if (stored) {
+        try { capaActions = JSON.parse(stored); } catch(e) { capaActions = []; }
+    }
+    
+    // Evitar duplicados
+    if (capaActions.some(act => act.origen === originId)) {
+        return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    let maxSeq = 41;
+    capaActions.forEach(a => {
+        const parts = a.id.split('-');
+        if (parts.length === 3 && parts[1] == currentYear) {
+            const seq = parseInt(parts[2]);
+            if (seq > maxSeq) maxSeq = seq;
+        }
+    });
+    const nextSeq = String(maxSeq + 1).padStart(3, '0');
+    const newId = `AC-${currentYear}-${nextSeq}`;
+
+    const newAction = {
+        id: newId,
+        origen: originId,
+        resumen: summaryText,
+        responsable: "Responsable de Seguridad y Salud (SST)",
+        estado: "pendiente"
+    };
+
+    capaActions.unshift(newAction);
+    localStorage.setItem('sig_acciones_correctivas', JSON.stringify(capaActions));
+    alert(`⚠️ Se ha generado automáticamente la Acción Correctiva ${newId} en el módulo CAPA.`);
+}
+
 function editAcc(id){openModal(accidents.find(a=>a.id===id));}
 function deleteAcc(id){if(confirm('¿Eliminar este registro?')){accidents=accidents.filter(a=>a.id!==id);save();render();}}
 

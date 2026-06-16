@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Satisfacción del Cliente y Liberación de Servicios - SIGE 2.0</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "inverse-surface": "#213145",
+                "inverse-on-surface": "#eaf1ff",
+                "background": "#f8f9ff",
+                "on-primary": "#ffffff",
+                "surface": "#ffffff",
+                "tertiary-fixed": "#e0e3e5",
+                "on-secondary-fixed": "#00174b",
+                "error-container": "#ffdad6",
+                "error": "#ba1a1a",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed": "#191c1e",
+                "secondary": "#0051d5",
+                "on-primary-fixed-variant": "#3f465c",
+                "primary-fixed-dim": "#bec6e0",
+                "surface-bright": "#f8f9ff",
+                "inverse-primary": "#bec6e0",
+                "outline": "#76777d",
+                "tertiary-container": "#191c1e",
+                "on-secondary-container": "#fefcff",
+                "on-tertiary-container": "#818486",
+                "secondary-fixed": "#dbe1ff",
+                "on-tertiary-fixed-variant": "#444749",
+                "secondary-container": "#316bf3",
+                "on-secondary": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "on-background": "#0b1c30",
+                "surface-tint": "#565e74",
+                "primary": "#0b1c30",
+                "surface-container-low": "#eff4ff",
+                "surface-container-high": "#dce9ff",
+                "surface-container": "#e5eeff",
+                "surface-dim": "#cbdbf5",
+                "primary-fixed": "#dae2fd",
+                "on-surface-variant": "#45464d",
+                "on-secondary-fixed-variant": "#003ea8",
+                "on-surface": "#0b1c30",
+                "primary-container": "#131b2e",
+                "surface-variant": "#d3e4fe",
+                "tertiary-fixed-dim": "#c4c7c9",
+                "surface-container-highest": "#d3e4fe",
+                "tertiary": "#000000",
+                "outline-variant": "#c6c6cd",
+                "on-primary-fixed": "#131b2e",
+                "secondary-fixed-dim": "#b4c5ff",
+                "on-error": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-container": "#7c839b"
+              },
+              spacing: { "md": "16px", "sm": "8px", "xs": "4px", "lg": "24px" },
+              fontFamily: { sans: ["Inter", "sans-serif"], mono: ["JetBrains Mono", "monospace"] }
+            }
+          }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+        .fade-up { animation: fadeUp 0.2s ease-out; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-background text-on-background font-sans antialiased min-h-screen flex flex-col">
+<div class="flex-1 flex flex-col overflow-hidden">
+<main class="flex-1 overflow-y-auto p-md md:p-lg pb-24">
+<div class="max-w-[1440px] mx-auto space-y-6">
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant pb-4 gap-md">
+        <div>
+            <div class="flex items-center gap-sm mb-xs">
+                <span class="bg-secondary-fixed text-on-secondary-fixed font-semibold text-xs px-2 py-0.5 rounded-full uppercase tracking-wider">Activo</span>
+                <span class="text-on-surface-variant font-mono text-xs">ISO 9001 §9.1.2 / §8.6</span>
+            </div>
+            <h2 class="font-bold text-2xl text-primary">Satisfacción del Cliente & Liberación de Servicios</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Encuestas CSAT/NPS, gestión de quejas, control de conformidad y entrega de servicios al cliente.</p>
+        </div>
+        <div class="flex gap-sm">
+            <button onclick="switchTab('encuestas')" class="px-3 py-1.5 bg-surface border border-outline-variant text-on-surface font-semibold text-xs rounded hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">add</span> Nueva Encuesta
+            </button>
+            <button onclick="switchTab('quejas')" class="px-3 py-1.5 bg-surface border border-outline-variant text-on-surface font-semibold text-xs rounded hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">report</span> Registrar Queja
+            </button>
+            <button onclick="switchTab('liberacion')" class="px-3 py-1.5 bg-secondary text-white font-semibold text-xs rounded hover:bg-secondary-container transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">verified</span> Liberación Servicio
+            </button>
+        </div>
+    </div>
+
+    <div class="border-b border-outline-variant">
+        <nav class="flex gap-6 -mb-px text-xs font-bold uppercase tracking-wider select-none overflow-x-auto">
+            <button id="btn-tab-dashboard" onclick="switchTab('dashboard')" class="border-b-2 border-secondary text-secondary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">dashboard</span> Cuadro de Mando
+            </button>
+            <button id="btn-tab-encuestas" onclick="switchTab('encuestas')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">reviews</span> Encuestas CSAT/NPS
+            </button>
+            <button id="btn-tab-quejas" onclick="switchTab('quejas')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">mood_bad</span> Quejas y Reclamaciones
+            </button>
+            <button id="btn-tab-liberacion" onclick="switchTab('liberacion')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">task_alt</span> Liberación de Servicios
+            </button>
+        </nav>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard" class="grid grid-cols-1 md:grid-cols-12 gap-md fade-up">
+        <section class="md:col-span-3 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex items-center gap-sm mb-md text-secondary">
+                <span class="material-symbols-outlined icon-fill">sentiment_very_satisfied</span>
+                <h3 class="font-bold text-sm text-primary">CSAT Global</h3>
+            </div>
+            <p class="font-bold text-3xl text-primary" id="kpi-csat">0.0<span class="text-base text-on-surface-variant">/5</span></p>
+            <p class="text-[10px] text-on-surface-variant mt-1">Customer Satisfaction Score (último trimestre)</p>
+        </section>
+        <section class="md:col-span-3 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex items-center gap-sm mb-md text-secondary">
+                <span class="material-symbols-outlined icon-fill">loyalty</span>
+                <h3 class="font-bold text-sm text-primary">NPS</h3>
+            </div>
+            <p class="font-bold text-3xl text-primary" id="kpi-nps">0</p>
+            <p class="text-[10px] text-on-surface-variant mt-1">Net Promoter Score (-100 a +100)</p>
+        </section>
+        <section class="md:col-span-3 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex items-center gap-sm mb-md text-secondary">
+                <span class="material-symbols-outlined icon-fill">mood_bad</span>
+                <h3 class="font-bold text-sm text-primary">Quejas Abiertas</h3>
+            </div>
+            <p class="font-bold text-3xl text-error" id="kpi-quejas">0</p>
+            <p class="text-[10px] text-on-surface-variant mt-1">Pendientes de resolución</p>
+        </section>
+        <section class="md:col-span-3 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex items-center gap-sm mb-md text-secondary">
+                <span class="material-symbols-outlined icon-fill">verified</span>
+                <h3 class="font-bold text-sm text-primary">Servicios Liberados</h3>
+            </div>
+            <p class="font-bold text-3xl text-primary" id="kpi-liberaciones">0</p>
+            <p class="text-[10px] text-on-surface-variant mt-1">Conforme ISO 9001 §8.6</p>
+        </section>
+
+        <section class="md:col-span-12 bg-surface border border-outline-variant rounded-lg p-md">
+            <div class="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
+                <div class="flex items-center gap-sm text-secondary">
+                    <span class="material-symbols-outlined icon-fill">insights</span>
+                    <h3 class="font-bold text-sm text-primary">Distribución de Satisfacción por Proceso</h3>
+                </div>
+                <span class="text-[10px] text-on-surface-variant font-mono">Análisis Causa-Origen</span>
+            </div>
+            <div id="dash-quejas-proceso" class="space-y-2"></div>
+        </section>
+    </div>
+
+    <!-- ENCUESTAS -->
+    <div id="sec-encuestas" class="hidden space-y-4 fade-up">
+        <div class="flex justify-between items-center bg-surface p-4 border border-outline-variant rounded-xl gap-4">
+            <div class="relative max-w-sm w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="enc-search" oninput="renderEncuestas()" placeholder="Buscar encuesta..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+            </div>
+            <button onclick="openEncuestaModal()" class="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">add</span> Nueva Encuesta
+            </button>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3">Cliente / Proyecto</th>
+                            <th class="p-3 w-28">Fecha</th>
+                            <th class="p-3 w-24 text-center">Tipo</th>
+                            <th class="p-3 w-20 text-center">Puntuación</th>
+                            <th class="p-3 w-28 text-center">Categoría</th>
+                            <th class="p-3">Comentarios</th>
+                            <th class="p-3 w-20 text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enc-tbody" class="divide-y divide-outline-variant"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUEJAS -->
+    <div id="sec-quejas" class="hidden space-y-4 fade-up">
+        <div class="flex justify-between items-center bg-surface p-4 border border-outline-variant rounded-xl gap-4">
+            <div class="relative max-w-sm w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="queja-search" oninput="renderQuejas()" placeholder="Buscar queja..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+            </div>
+            <button onclick="openQuejaModal()" class="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">add</span> Registrar Queja
+            </button>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3 w-28">Recepción</th>
+                            <th class="p-3 w-24 text-center">Canal</th>
+                            <th class="p-3">Motivo / Proceso afectado</th>
+                            <th class="p-3 w-24 text-center">Severidad</th>
+                            <th class="p-3 w-28 text-center">Estado</th>
+                            <th class="p-3 w-20 text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queja-tbody" class="divide-y divide-outline-variant"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIBERACIÓN -->
+    <div id="sec-liberacion" class="hidden space-y-4 fade-up">
+        <div class="flex justify-between items-center bg-surface p-4 border border-outline-variant rounded-xl gap-4">
+            <div class="relative max-w-sm w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="lib-search" oninput="renderLiberaciones()" placeholder="Buscar servicio..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+            </div>
+            <button onclick="openLibModal()" class="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-base">add</span> Nueva Liberación
+            </button>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            <th class="p-3">Servicio / Producto</th>
+                            <th class="p-3 w-24">Cliente</th>
+                            <th class="p-3 w-28">Fecha</th>
+                            <th class="p-3 w-20 text-center">Checklist</th>
+                            <th class="p-3 w-28 text-center">Aprobado por</th>
+                            <th class="p-3 w-28 text-center">Estado</th>
+                            <th class="p-3 w-20 text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lib-tbody" class="divide-y divide-outline-variant"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+</div>
+
+<!-- MODAL: Encuesta -->
+<div id="modal-encuesta" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full my-8 p-6 shadow-2xl flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="enc-modal-title" class="font-bold text-sm text-primary">Encuesta de Satisfacción</h3>
+            <button onclick="closeEncuestaModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full"><span class="material-symbols-outlined text-base">close</span></button>
+        </div>
+        <form onsubmit="saveEncuesta(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="enc-id"/>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Cliente / Proyecto *</label>
+                <input id="enc-cliente" required type="text" placeholder="Ej: Cliente A — Proyecto XYZ" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Fecha *</label>
+                    <input id="enc-fecha" required type="date" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Tipo *</label>
+                    <select id="enc-tipo" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="CSAT">CSAT (1–5)</option>
+                        <option value="NPS">NPS (0–10)</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Puntuación (1–5 CSAT / 0–10 NPS) *</label>
+                <input id="enc-score" required type="number" min="0" max="10" step="1" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Categoría evaluada</label>
+                <select id="enc-categoria" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option>Atención al cliente</option>
+                    <option>Calidad del producto/servicio</option>
+                    <option>Cumplimiento de plazos</option>
+                    <option>Soporte técnico postventa</option>
+                    <option>Documentación entregada</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Comentarios del cliente</label>
+                <textarea id="enc-comentarios" rows="2" placeholder="Observaciones recibidas del cliente..." class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 focus:ring-1 focus:ring-secondary resize-none"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                <button type="button" onclick="closeEncuestaModal()" class="bg-surface border border-outline-variant text-on-surface px-4 py-2 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary px-4 py-2 rounded-lg font-bold shadow-sm">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Queja -->
+<div id="modal-queja" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full my-8 p-6 shadow-2xl flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="queja-modal-title" class="font-bold text-sm text-primary">Registro de Queja o Reclamación</h3>
+            <button onclick="closeQuejaModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full"><span class="material-symbols-outlined text-base">close</span></button>
+        </div>
+        <form onsubmit="saveQueja(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="queja-id"/>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Cliente *</label>
+                <input id="queja-cliente" required type="text" placeholder="Nombre del cliente" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Fecha recepción *</label>
+                    <input id="queja-fecha" required type="date" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Canal de entrada</label>
+                    <select id="queja-canal" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option>Email</option>
+                        <option>Teléfono</option>
+                        <option>Reunión presencial</option>
+                        <option>Formulario Web</option>
+                        <option>Encuesta</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Proceso del SGI afectado *</label>
+                <select id="queja-proceso" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option>Gestión Comercial</option>
+                    <option>Diseño y Desarrollo</option>
+                    <option>Producción / Prestación del Servicio</option>
+                    <option>Logística y Entrega</option>
+                    <option>Soporte Postventa</option>
+                    <option>Facturación y Cobro</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Severidad *</label>
+                <select id="queja-severidad" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary cursor-pointer">
+                    <option>Baja</option>
+                    <option>Media</option>
+                    <option>Alta</option>
+                    <option>Crítica</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Motivo / Descripción *</label>
+                <textarea id="queja-motivo" required rows="2" placeholder="Detalle del problema reportado" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 focus:ring-1 focus:ring-secondary resize-none"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                <button type="button" onclick="closeQuejaModal()" class="bg-surface border border-outline-variant text-on-surface px-4 py-2 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary px-4 py-2 rounded-lg font-bold shadow-sm">Registrar Queja</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Liberación -->
+<div id="modal-lib" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
+    <div class="bg-surface border border-outline-variant rounded-xl max-w-2xl w-full my-8 p-6 shadow-2xl flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+            <h3 id="lib-modal-title" class="font-bold text-sm text-primary">Liberación de Servicio / Producto (ISO 9001 §8.6)</h3>
+            <button onclick="closeLibModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full"><span class="material-symbols-outlined text-base">close</span></button>
+        </div>
+        <form onsubmit="saveLib(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="lib-id"/>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Servicio / Producto *</label>
+                    <input id="lib-servicio" required type="text" placeholder="Ej: Migración Cloud v2" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Cliente *</label>
+                    <input id="lib-cliente" required type="text" placeholder="Cliente final" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Fecha liberación *</label>
+                    <input id="lib-fecha" required type="date" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">Aprobado por *</label>
+                    <input id="lib-aprobador" required type="text" placeholder="Director Técnico / Calidad" class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 font-semibold focus:ring-1 focus:ring-secondary focus:outline-none"/>
+                </div>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-2">Checklist de Control de Calidad *</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-surface-bright border border-outline-variant rounded p-3" id="lib-checklist">
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="pruebas" class="lib-check rounded text-secondary" checked/> Pruebas funcionales superadas</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="seguridad" class="lib-check rounded text-secondary" checked/> Revisión de seguridad / ENS</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="rendimiento" class="lib-check rounded text-secondary" checked/> Pruebas de rendimiento y carga</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="docs" class="lib-check rounded text-secondary" checked/> Documentación técnica entregada</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="formacion" class="lib-check rounded text-secondary"/> Formación al cliente impartida</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="legal" class="lib-check rounded text-secondary" checked/> Cumplimiento legal/normativo verificado</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="criterios" class="lib-check rounded text-secondary" checked/> Criterios de aceptación cumplidos</label>
+                    <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" value="firma" class="lib-check rounded text-secondary" checked/> Firma de aprobación del responsable</label>
+                </div>
+            </div>
+            <div>
+                <label class="block font-semibold text-on-surface-variant mb-1">Observaciones</label>
+                <textarea id="lib-obs" rows="2" placeholder="Notas sobre la liberación, restricciones conocidas, etc." class="w-full bg-background border border-outline-variant rounded px-3 py-1.5 focus:ring-1 focus:ring-secondary resize-none"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                <button type="button" onclick="closeLibModal()" class="bg-surface border border-outline-variant text-on-surface px-4 py-2 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary px-4 py-2 rounded-lg font-bold shadow-sm">Registrar Liberación</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const seedEncuestas = [
+        { id: "ENC-2026-001", cliente: "ACME Corp — Migración Cloud", fecha: "2026-04-12", tipo: "CSAT", score: 4, categoria: "Calidad del producto/servicio", comentarios: "Muy satisfechos con el rendimiento. Pequeños retrasos en la fase de pruebas." },
+        { id: "ENC-2026-002", cliente: "Global Tech S.A.", fecha: "2026-05-03", tipo: "NPS", score: 9, categoria: "Atención al cliente", comentarios: "Promotor. Recomendarían nuestros servicios." },
+        { id: "ENC-2026-003", cliente: "Innovatech S.L.", fecha: "2026-05-21", tipo: "CSAT", score: 2, categoria: "Soporte técnico postventa", comentarios: "Tiempos de respuesta lentos y falta de seguimiento del incidente." }
+    ];
+    const seedQuejas = [
+        { id: "Q-2026-001", cliente: "Innovatech S.L.", fecha: "2026-05-22", canal: "Email", proceso: "Soporte Postventa", severidad: "Alta", motivo: "Caída del servicio durante 6h sin comunicación proactiva", estado: "En análisis" },
+        { id: "Q-2026-002", cliente: "BetaPharma", fecha: "2026-06-02", canal: "Formulario Web", proceso: "Facturación y Cobro", severidad: "Media", motivo: "Duplicidad de cargo en factura de mayo", estado: "Resuelta" }
+    ];
+    const seedLiberaciones = [
+        { id: "LIB-2026-001", servicio: "Plataforma analítica v3.2", cliente: "ACME Corp", fecha: "2026-05-30", checklist: ["pruebas","seguridad","rendimiento","docs","criterios","firma"], aprobador: "Ana Rodríguez (Quality Mgr.)", estado: "Liberado" },
+        { id: "LIB-2026-002", servicio: "Servicio Gestionado de Backups", cliente: "Global Tech S.A.", fecha: "2026-06-10", checklist: ["pruebas","seguridad","docs","legal","firma"], aprobador: "Carlos Gómez (CISO)", estado: "Liberado" }
+    ];
+
+    let encuestas = [];
+    let quejas = [];
+    let liberaciones = [];
+
+    function init() {
+        const e = localStorage.getItem('sig_satisfaccion_encuestas');
+        const q = localStorage.getItem('sig_satisfaccion_quejas');
+        const l = localStorage.getItem('sig_satisfaccion_liberaciones');
+        encuestas = e ? JSON.parse(e) : [...seedEncuestas];
+        quejas = q ? JSON.parse(q) : [...seedQuejas];
+        liberaciones = l ? JSON.parse(l) : [...seedLiberaciones];
+        if (!e) localStorage.setItem('sig_satisfaccion_encuestas', JSON.stringify(encuestas));
+        if (!q) localStorage.setItem('sig_satisfaccion_quejas', JSON.stringify(quejas));
+        if (!l) localStorage.setItem('sig_satisfaccion_liberaciones', JSON.stringify(liberaciones));
+        render();
+    }
+
+    function render() {
+        renderKpis();
+        renderDashQuejasProceso();
+        renderEncuestas();
+        renderQuejas();
+        renderLiberaciones();
+    }
+
+    function renderKpis() {
+        // CSAT
+        const csats = encuestas.filter(e => e.tipo === 'CSAT');
+        const csat = csats.length ? (csats.reduce((s,e) => s + e.score, 0) / csats.length).toFixed(1) : '0.0';
+        document.getElementById('kpi-csat').innerHTML = `${csat}<span class="text-base text-on-surface-variant">/5</span>`;
+        // NPS = %promotores (9-10) - %detractores (0-6)
+        const npsScores = encuestas.filter(e => e.tipo === 'NPS');
+        let nps = 0;
+        if (npsScores.length) {
+            const prom = npsScores.filter(e => e.score >= 9).length / npsScores.length * 100;
+            const detr = npsScores.filter(e => e.score <= 6).length / npsScores.length * 100;
+            nps = Math.round(prom - detr);
+        }
+        document.getElementById('kpi-nps').textContent = (nps > 0 ? '+' : '') + nps;
+        // Quejas
+        const qAbiertas = quejas.filter(q => q.estado !== 'Resuelta' && q.estado !== 'Cerrada').length;
+        document.getElementById('kpi-quejas').textContent = qAbiertas;
+        // Liberaciones
+        document.getElementById('kpi-liberaciones').textContent = liberaciones.filter(l => l.estado === 'Liberado').length;
+    }
+
+    function renderDashQuejasProceso() {
+        const cont = document.getElementById('dash-quejas-proceso');
+        cont.innerHTML = '';
+        const procesos = {};
+        quejas.forEach(q => { procesos[q.proceso] = (procesos[q.proceso] || 0) + 1; });
+        const total = quejas.length || 1;
+        if (Object.keys(procesos).length === 0) {
+            cont.innerHTML = '<p class="text-xs text-on-surface-variant">Sin quejas registradas en el período.</p>';
+            return;
+        }
+        Object.entries(procesos).sort((a,b) => b[1]-a[1]).forEach(([proc, count]) => {
+            const pct = Math.round(count / total * 100);
+            cont.innerHTML += `
+            <div class="flex items-center gap-2 text-xs">
+                <div class="w-40 font-semibold text-primary truncate">${proc}</div>
+                <div class="flex-1 bg-surface-container rounded-full h-3 overflow-hidden">
+                    <div class="bg-error h-full" style="width:${pct}%"></div>
+                </div>
+                <div class="w-24 text-right font-mono font-bold text-on-surface">${count} (${pct}%)</div>
+            </div>`;
+        });
+    }
+
+    function renderEncuestas() {
+        const tbody = document.getElementById('enc-tbody');
+        const q = document.getElementById('enc-search').value.toLowerCase();
+        const filtered = encuestas.filter(e => e.cliente.toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-on-surface-variant">No se encontraron encuestas.</td></tr>`;
+            return;
+        }
+        filtered.forEach(e => {
+            const scoreCls = e.score >= 4 ? 'bg-green-100 text-green-800' : (e.score >= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-error-container text-on-error-container');
+            const isBad = e.tipo === 'CSAT' ? e.score <= 2 : e.score <= 6;
+            tbody.innerHTML += `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-3 font-semibold text-primary">${e.cliente}</td>
+                <td class="p-3 font-mono text-on-surface-variant">${e.fecha}</td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container-high text-primary">${e.tipo}</span></td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${scoreCls}">${e.score}</span></td>
+                <td class="p-3 text-center text-on-surface-variant text-[10px]">${e.categoria}</td>
+                <td class="p-3 text-on-surface-variant text-[11px]">${e.comentarios || '<span class="italic text-outline">Sin comentarios</span>'}</td>
+                <td class="p-3 text-center">
+                    ${isBad ? `<button onclick="convertToQueja('${e.id}')" title="Convertir a queja" class="text-error hover:text-red-700 font-bold text-[10px] flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">report</span> Abrir NC</button>` : '<span class="text-[10px] text-on-surface-variant italic">OK</span>'}
+                </td>
+            </tr>`;
+        });
+    }
+
+    function convertToQueja(encId) {
+        const e = encuestas.find(x => x.id === encId);
+        if (!e) return;
+        openQuejaModal();
+        document.getElementById('queja-cliente').value = e.cliente;
+        document.getElementById('queja-motivo').value = `Detectado en encuesta ${e.id}: ${e.comentarios || 'Sin comentarios'} (Puntuación: ${e.score}/${e.tipo === 'NPS' ? '10' : '5'})`;
+        document.getElementById('queja-severidad').value = e.score <= 2 ? 'Alta' : 'Media';
+    }
+
+    function renderQuejas() {
+        const tbody = document.getElementById('queja-tbody');
+        const q = document.getElementById('queja-search').value.toLowerCase();
+        const filtered = quejas.filter(x => x.cliente.toLowerCase().includes(q) || x.motivo.toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-on-surface-variant">No se encontraron quejas.</td></tr>`;
+            return;
+        }
+        filtered.forEach(q => {
+            const sevCls = { 'Baja': 'bg-green-100 text-green-800', 'Media': 'bg-yellow-100 text-yellow-800', 'Alta': 'bg-orange-500 text-white', 'Crítica': 'bg-error text-white' }[q.severidad] || 'bg-surface-container text-on-surface';
+            const estCls = q.estado === 'Resuelta' || q.estado === 'Cerrada' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            tbody.innerHTML += `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-3 font-semibold text-primary">${q.cliente}</td>
+                <td class="p-3 font-mono text-on-surface-variant">${q.fecha}</td>
+                <td class="p-3 text-center text-[10px] text-on-surface-variant">${q.canal}</td>
+                <td class="p-3 text-on-surface-variant text-[11px]"><b>${q.proceso}:</b> ${q.motivo}</td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${sevCls}">${q.severidad}</span></td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] border font-semibold ${estCls}">${q.estado}</span></td>
+                <td class="p-3 text-center">
+                    <button onclick="deleteQueja('${q.id}')" class="text-error hover:text-red-700 text-xs"><span class="material-symbols-outlined text-sm">delete</span></button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function renderLiberaciones() {
+        const tbody = document.getElementById('lib-tbody');
+        const q = document.getElementById('lib-search').value.toLowerCase();
+        const filtered = liberaciones.filter(x => x.servicio.toLowerCase().includes(q) || x.cliente.toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-on-surface-variant">No se encontraron liberaciones.</td></tr>`;
+            return;
+        }
+        filtered.forEach(l => {
+            const pct = Math.round((l.checklist?.length || 0) / 8 * 100);
+            const allOk = pct === 100;
+            const stCls = l.estado === 'Liberado' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            tbody.innerHTML += `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-3 font-semibold text-primary">${l.servicio}</td>
+                <td class="p-3 text-on-surface-variant text-[11px]">${l.cliente}</td>
+                <td class="p-3 font-mono text-on-surface-variant">${l.fecha}</td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${allOk ? 'bg-green-100 text-green-800' : 'bg-orange-500 text-white'}">${pct}%</span></td>
+                <td class="p-3 text-center text-on-surface-variant text-[11px]">${l.aprobador}</td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] border font-semibold ${stCls}">${l.estado}</span></td>
+                <td class="p-3 text-center">
+                    <button onclick="deleteLib('${l.id}')" class="text-error hover:text-red-700 text-xs"><span class="material-symbols-outlined text-sm">delete</span></button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function switchTab(tab) {
+        ['dashboard','encuestas','quejas','liberacion'].forEach(t => {
+            const sec = document.getElementById(`sec-${t}`);
+            if (sec) sec.classList.add('hidden');
+            const btn = document.getElementById(`btn-tab-${t}`);
+            if (btn) btn.className = 'border-b-2 border-transparent text-on-surface-variant hover:text-primary py-3 px-1 transition-all flex items-center gap-1.5';
+        });
+        const activeSec = document.getElementById(`sec-${tab}`);
+        if (activeSec) activeSec.classList.remove('hidden');
+        const activeBtn = document.getElementById(`btn-tab-${tab}`);
+        if (activeBtn) activeBtn.className = 'border-b-2 border-secondary text-secondary py-3 px-1 transition-all flex items-center gap-1.5';
+    }
+
+    // Encuesta modals
+    function openEncuestaModal() {
+        document.getElementById('enc-modal-title').textContent = 'Nueva Encuesta de Satisfacción';
+        document.getElementById('enc-id').value = '';
+        document.getElementById('enc-cliente').value = '';
+        document.getElementById('enc-fecha').value = new Date().toISOString().split('T')[0];
+        document.getElementById('enc-tipo').value = 'CSAT';
+        document.getElementById('enc-score').value = '4';
+        document.getElementById('enc-categoria').selectedIndex = 0;
+        document.getElementById('enc-comentarios').value = '';
+        document.getElementById('modal-encuesta').classList.remove('hidden');
+    }
+    function closeEncuestaModal() { document.getElementById('modal-encuesta').classList.add('hidden'); }
+    function saveEncuesta(e) {
+        e.preventDefault();
+        const id = document.getElementById('enc-id').value || `ENC-${new Date().getFullYear()}-${String(encuestas.length + 1).padStart(3,'0')}`;
+        const obj = {
+            id, cliente: document.getElementById('enc-cliente').value.trim(),
+            fecha: document.getElementById('enc-fecha').value,
+            tipo: document.getElementById('enc-tipo').value,
+            score: parseInt(document.getElementById('enc-score').value),
+            categoria: document.getElementById('enc-categoria').value,
+            comentarios: document.getElementById('enc-comentarios').value.trim()
+        };
+        const idx = encuestas.findIndex(x => x.id === id);
+        if (idx >= 0) encuestas[idx] = obj; else encuestas.push(obj);
+        localStorage.setItem('sig_satisfaccion_encuestas', JSON.stringify(encuestas));
+        closeEncuestaModal();
+        render();
+    }
+
+    // Queja modals
+    function openQuejaModal() {
+        document.getElementById('queja-modal-title').textContent = 'Registrar Queja o Reclamación';
+        document.getElementById('queja-id').value = '';
+        document.getElementById('queja-cliente').value = '';
+        document.getElementById('queja-fecha').value = new Date().toISOString().split('T')[0];
+        document.getElementById('queja-canal').selectedIndex = 0;
+        document.getElementById('queja-proceso').selectedIndex = 0;
+        document.getElementById('queja-severidad').value = 'Media';
+        document.getElementById('queja-motivo').value = '';
+        document.getElementById('modal-queja').classList.remove('hidden');
+    }
+    function closeQuejaModal() { document.getElementById('modal-queja').classList.add('hidden'); }
+    function saveQueja(e) {
+        e.preventDefault();
+        const id = document.getElementById('queja-id').value || `Q-${new Date().getFullYear()}-${String(quejas.length + 1).padStart(3,'0')}`;
+        const obj = {
+            id, cliente: document.getElementById('queja-cliente').value.trim(),
+            fecha: document.getElementById('queja-fecha').value,
+            canal: document.getElementById('queja-canal').value,
+            proceso: document.getElementById('queja-proceso').value,
+            severidad: document.getElementById('queja-severidad').value,
+            motivo: document.getElementById('queja-motivo').value.trim(),
+            estado: 'En análisis'
+        };
+        const idx = quejas.findIndex(x => x.id === id);
+        if (idx >= 0) { obj.estado = quejas[idx].estado; quejas[idx] = obj; } else quejas.push(obj);
+        localStorage.setItem('sig_satisfaccion_quejas', JSON.stringify(quejas));
+        closeQuejaModal();
+        render();
+    }
+    function deleteQueja(id) {
+        if (confirm('¿Eliminar queja?')) {
+            quejas = quejas.filter(x => x.id !== id);
+            localStorage.setItem('sig_satisfaccion_quejas', JSON.stringify(quejas));
+            render();
+        }
+    }
+
+    // Liberación modals
+    function openLibModal() {
+        document.getElementById('lib-modal-title').textContent = 'Nueva Liberación de Servicio / Producto';
+        document.getElementById('lib-id').value = '';
+        document.getElementById('lib-servicio').value = '';
+        document.getElementById('lib-cliente').value = '';
+        document.getElementById('lib-fecha').value = new Date().toISOString().split('T')[0];
+        document.getElementById('lib-aprobador').value = '';
+        document.getElementById('lib-obs').value = '';
+        document.querySelectorAll('.lib-check').forEach(c => c.checked = true);
+        document.getElementById('modal-lib').classList.remove('hidden');
+    }
+    function closeLibModal() { document.getElementById('modal-lib').classList.add('hidden'); }
+    function saveLib(e) {
+        e.preventDefault();
+        const id = document.getElementById('lib-id').value || `LIB-${new Date().getFullYear()}-${String(liberaciones.length + 1).padStart(3,'0')}`;
+        const checks = Array.from(document.querySelectorAll('.lib-check:checked')).map(c => c.value);
+        const obj = {
+            id,
+            servicio: document.getElementById('lib-servicio').value.trim(),
+            cliente: document.getElementById('lib-cliente').value.trim(),
+            fecha: document.getElementById('lib-fecha').value,
+            checklist: checks,
+            aprobador: document.getElementById('lib-aprobador').value.trim(),
+            obs: document.getElementById('lib-obs').value.trim(),
+            estado: checks.length >= 6 ? 'Liberado' : 'Liberación parcial'
+        };
+        const idx = liberaciones.findIndex(x => x.id === id);
+        if (idx >= 0) liberaciones[idx] = obj; else liberaciones.push(obj);
+        localStorage.setItem('sig_satisfaccion_liberaciones', JSON.stringify(liberaciones));
+        closeLibModal();
+        render();
+    }
+    function deleteLib(id) {
+        if (confirm('¿Eliminar registro de liberación?')) {
+            liberaciones = liberaciones.filter(x => x.id !== id);
+            localStorage.setItem('sig_satisfaccion_liberaciones', JSON.stringify(liberaciones));
+            render();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
