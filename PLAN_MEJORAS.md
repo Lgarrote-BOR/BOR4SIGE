@@ -1,4 +1,4 @@
-# Plan de Mejoras SIGE 2.0 — Hoja de Ruta
+# Plan de Mejoras Bor4SIGE — Hoja de Ruta
 
 ## Estado Actual (Auditoría)
 
@@ -41,4 +41,4 @@
 - **Patrón de interceptor:** Modificar `api-sync.js` para inyectar en cada submódulo un script de limpieza que detecte `window.self !== window.top` y oculte headers/sidebars duplicadas.
 - **Datos:** Usar `localStorage` con claves tenantizadas `sig_<modulo>_<tenant>` (ya funcionando).
 - **Sin frameworks nuevos:** Mantener HTML + Tailwind + JS vanilla para coherencia con la base existente.
-- **Estilo:** Reutilizar el sistema de diseño de SIGE 2.0 (azul marino `#003366`, IBM Plex Sans, Material Symbols).
+- **Estilo:** Reutilizar el sistema de diseño de Bor4SIGE (azul marino `#003366`, IBM Plex Sans, Material Symbols).

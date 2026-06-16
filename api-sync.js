@@ -1,6 +1,6 @@
 /**
  * api-sync.js
- * Interceptor transparente de localStorage para sincronización cliente-servidor en SIGE 2.0.
+ * Interceptor transparente de localStorage para sincronización cliente-servidor en Bor4SIGE.
  * Si detecta que está corriendo dentro del portal (iframe) y el servidor está activo, 
  * redirige las consultas a la base de datos centralizada de la Webapp en el parent.
  * De lo contrario, cae en el comportamiento por defecto de localStorage de forma segura.
@@ -111,7 +111,7 @@
             if (!document.getElementById('sig-iframe-badge')) {
                 const badge = document.createElement('div');
                 badge.id = 'sig-iframe-badge';
-                badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:linear-gradient(135deg,#003366,#0060ac);color:#fff;font-family:Inter,IBM Plex Sans,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.4px;border-radius:0 0 8px 8px;box-shadow:0 2px 6px rgba(0,0,0,0.15)"><span class="material-symbols-outlined" style="font-size:14px">verified_user</span> SIGE 2.0 — ' + (document.title || 'Módulo SGI') + '</span>';
+                badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:linear-gradient(135deg,#003366,#0060ac);color:#fff;font-family:Inter,IBM Plex Sans,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.4px;border-radius:0 0 8px 8px;box-shadow:0 2px 6px rgba(0,0,0,0.15)"><span class="material-symbols-outlined" style="font-size:14px">verified_user</span> Bor4SIGE — ' + (document.title || 'Módulo SGI') + '</span>';
                 badge.style.cssText = 'position:fixed;top:0;left:16px;z-index:9999;pointer-events:none;';
                 document.body.appendChild(badge);
             }

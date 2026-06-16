@@ -1,4 +1,4 @@
-# Manual de Usuario — SIGE 2.0
+# Manual de Usuario — Bor4SIGE
 ## Sistema Integrado de Gestión Empresarial
 
 > **Versión:** 2.0 | **Fecha:** Junio 2026 | **Destinatarios:** Usuarios del sistema
@@ -36,16 +36,16 @@
 
 ### Acceso en modo servidor (recomendado para equipos)
 
-1. Asegúrate de que el servidor SIGE 2.0 está en marcha. El administrador del sistema te proporcionará la URL de acceso, normalmente en formato:
+1. Asegúrate de que el servidor Bor4SIGE está en marcha. El administrador del sistema te proporcionará la URL de acceso, normalmente en formato:
    ```
    http://<IP-del-servidor>:3000/
    ```
 2. Abre esa dirección en tu navegador web (Chrome, Edge o Firefox actualizados).
-3. La página principal (Portal SIGE 2.0) se cargará automáticamente.
+3. La página principal (Portal Bor4SIGE) se cargará automáticamente.
 
 ### Acceso en modo local (desde pendrive o equipo propio)
 
-1. Navega a la carpeta de instalación de SIGE 2.0 en tu equipo o pendrive.
+1. Navega a la carpeta de instalación de Bor4SIGE en tu equipo o pendrive.
 2. Haz doble clic en `iniciar_servidor.bat` (Windows) para arrancar el servidor local.
 3. Una vez iniciado, abre tu navegador y accede a `http://localhost:3000/`.
 4. Como alternativa rápida, puedes abrir directamente el archivo `index.html` con tu navegador, aunque en este modo la información se guardará solo en ese navegador.
@@ -85,7 +85,7 @@ Haz clic en el icono de menú (☰) en la parte superior izquierda para ocultar 
 
 ## 3. Cuadro de Mando (Dashboard)
 
-El **Cuadro de Mando Integral** es la pantalla principal de SIGE 2.0. Ofrece una visión ejecutiva del estado del sistema de gestión en tiempo real.
+El **Cuadro de Mando Integral** es la pantalla principal de Bor4SIGE. Ofrece una visión ejecutiva del estado del sistema de gestión en tiempo real.
 
 ### Qué verás en el Dashboard
 
@@ -249,7 +249,7 @@ Este módulo gestiona todas las solicitudes de cambio en los sistemas informáti
    - **Responsable técnico**: Quién lo va a ejecutar.
    - **Fecha de implementación prevista**.
 
-> ⚠️ **Importante:** Los campos de Plan de Pruebas y Plan de Rollback son **obligatorios**. El agente de IA de SIGE 2.0 detectará automáticamente las RFCs que carezcan de ellos y generará una alerta.
+> ⚠️ **Importante:** Los campos de Plan de Pruebas y Plan de Rollback son **obligatorios**. El agente de IA de Bor4SIGE detectará automáticamente las RFCs que carezcan de ellos y generará una alerta.
 
 ### Estados de una RFC
 
@@ -576,7 +576,7 @@ Cada detección queda registrada con fecha y hora en el **Log de Auditoría IA**
 
 ## 21. Asistente Virtual (Chatbot)
 
-El **Asistente Virtual** de SIGE 2.0 está disponible en todo momento en la esquina inferior derecha de la pantalla. Puedes consultarle sobre:
+El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esquina inferior derecha de la pantalla. Puedes consultarle sobre:
 
 - **Cómo realizar tareas** en la aplicación (ej: *"¿Cómo registro una no conformidad?"*).
 - **Requisitos de las normas ISO y ENS** (ej: *"¿Qué dice ISO 9001 sobre la evaluación de proveedores?"*).
@@ -603,8 +603,8 @@ El **Asistente Virtual** de SIGE 2.0 está disponible en todo momento en la esqu
 
 ## 22. Preguntas Frecuentes
 
-**¿Puedo usar SIGE 2.0 sin conexión a internet?**
-Sí. SIGE 2.0 está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.
+**¿Puedo usar Bor4SIGE sin conexión a internet?**
+Sí. Bor4SIGE está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.
 
 **¿Los datos se pierden si cierro el navegador?**
 No, siempre que hayas arrancado el servidor con `iniciar_servidor.bat`. Los datos se guardan en `db.json`. Si usas el modo directo (sin servidor), los datos permanecen en el navegador hasta que se borre el caché.
@@ -626,4 +626,4 @@ Puedes preguntarle directamente al **Asistente Virtual** integrado en la aplicac
 
 ---
 
-*SIGE 2.0 — Sistema Integrado de Gestión Empresarial | © 2026*
+*Bor4SIGE — Sistema Integrado de Gestión Empresarial | © 2026*

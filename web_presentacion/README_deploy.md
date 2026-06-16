@@ -1,4 +1,4 @@
-# SIGE 2.0 — Web de Presentación
+# Bor4SIGE — Web de Presentación
 ## Guía de Despliegue en Servidor Hetzner
 
 ---
@@ -15,7 +15,7 @@
 
 ```bash
 # Desde tu máquina local (Windows)
-scp -r web_presentacion/ root@<IP_HETZNER>:/var/www/sige20/
+scp -r web_presentacion/ root@<IP_HETZNER>:/var/www/bor4sige/
 
 # Alternativa con WinSCP o FileZilla (SFTP)
 # Host: <IP_HETZNER>  |  Puerto: 22  |  Usuario: root
@@ -36,10 +36,10 @@ sudo systemctl start nginx
 ## 3. Crear el directorio web y copiar archivos
 
 ```bash
-sudo mkdir -p /var/www/sige20
-sudo cp -r /ruta/subida/* /var/www/sige20/
-sudo chown -R www-data:www-data /var/www/sige20
-sudo chmod -R 755 /var/www/sige20
+sudo mkdir -p /var/www/bor4sige
+sudo cp -r /ruta/subida/* /var/www/bor4sige/
+sudo chown -R www-data:www-data /var/www/bor4sige
+sudo chmod -R 755 /var/www/bor4sige
 ```
 
 ---
@@ -47,14 +47,14 @@ sudo chmod -R 755 /var/www/sige20
 ## 4. Configurar Nginx
 
 ```bash
-# Editar el nombre de dominio en nginx.conf (sustituye "sige20.tudominio.com")
-sudo nano /var/www/sige20/nginx.conf
+# Editar el nombre de dominio en nginx.conf (sustituye "bor4sige.tudominio.com")
+sudo nano /var/www/bor4sige/nginx.conf
 
 # Copiar la configuración al directorio de Nginx
-sudo cp /var/www/sige20/nginx.conf /etc/nginx/sites-available/sige20
+sudo cp /var/www/bor4sige/nginx.conf /etc/nginx/sites-available/bor4sige
 
 # Activar el sitio
-sudo ln -s /etc/nginx/sites-available/sige20 /etc/nginx/sites-enabled/sige20
+sudo ln -s /etc/nginx/sites-available/bor4sige /etc/nginx/sites-enabled/bor4sige
 
 # Verificar configuración
 sudo nginx -t
@@ -69,7 +69,7 @@ sudo systemctl reload nginx
 
 ```bash
 sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d sige20.tudominio.com
+sudo certbot --nginx -d bor4sige.tudominio.com
 ```
 
 > Sigue las instrucciones en pantalla. Certbot configura el HTTPS automáticamente.
@@ -79,7 +79,7 @@ sudo certbot --nginx -d sige20.tudominio.com
 ## 6. Verificar el despliegue
 
 Abre el navegador en:  
-👉 `https://sige20.tudominio.com`
+👉 `https://bor4sige.tudominio.com`
 
 ---
 
@@ -89,14 +89,14 @@ En tu proveedor de dominio, crea un registro A:
 
 | Tipo | Nombre | Valor           | TTL   |
 |------|--------|-----------------|-------|
-| A    | sige20 | `<IP_HETZNER>`  | 300   |
+| A    | bor4sige | `<IP_HETZNER>`  | 300   |
 
 ---
 
 ## Estructura de archivos desplegados
 
 ```
-/var/www/sige20/
+/var/www/bor4sige/
 ├── index.html          ← Página principal de presentación
 ├── nginx.conf          ← Configuración del servidor web
 └── README_deploy.md    ← Esta guía
@@ -108,8 +108,8 @@ En tu proveedor de dominio, crea un registro A:
 
 - La web es **100% estática** — no requiere Node.js, PHP ni base de datos.
 - Las fuentes se cargan desde Google Fonts CDN (requiere internet en el cliente).
-- El botón "Acceder al Portal" apunta a `../index.html` — debes ajustarlo a la URL real de tu instancia SIGE 2.0 si la alojas en el mismo servidor.
+- El botón "Acceder al Portal" apunta a `../index.html` — debes ajustarlo a la URL real de tu instancia Bor4SIGE si la alojas en el mismo servidor.
 
 ---
 
-*SIGE 2.0 © 2026 — Sistema Integrado de Gestión Empresarial*
+*Bor4SIGE © 2026 — Sistema Integrado de Gestión Empresarial*

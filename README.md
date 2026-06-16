@@ -1,6 +1,6 @@
-﻿# SIGE 2.0 - Sistema de Gestión Integrado y Compliance (Webapp)
+﻿# Bor4SIGE - Sistema de Gestión Integrado y Compliance (Webapp)
 
-Esta es la versión Webapp lista para producción del Sistema de Gestión Integrado (SIGE 2.0). Permite un despliegue multiusuario en servidor (o local compartido) manteniendo todas las interfaces premium interactivas desarrolladas.
+Esta es la versión Webapp lista para producción del Sistema de Gestión Integrado (Bor4SIGE). Permite un despliegue multiusuario en servidor (o local compartido) manteniendo todas las interfaces premium interactivas desarrolladas.
 
 ---
 

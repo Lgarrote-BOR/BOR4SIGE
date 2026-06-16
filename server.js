@@ -66,7 +66,7 @@ app.post('/api/chat', (req, res) => {
     const postData = JSON.stringify({
         model: model || 'llama3',
         prompt: prompt,
-        system: systemPrompt || "Eres un asistente virtual experto en SIGE 2.0 y normas ISO.",
+        system: systemPrompt || "Eres un asistente virtual experto en Bor4SIGE y normas ISO.",
         stream: false
     });
 
@@ -120,7 +120,7 @@ app.get('*', (req, res, next) => {
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`===================================================`);
-    console.log(`🚀 SIGE 2.0 Webapp activa y lista.`);
+    console.log(`🚀 Bor4SIGE Webapp activa y lista.`);
     console.log(`   Desplegada localmente en: http://localhost:${PORT}`);
     console.log(`===================================================`);
 });

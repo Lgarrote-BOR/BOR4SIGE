@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Portal SIGE 2.0 - Sistema de Gestión Integrado</title>
+    <title>Portal Bor4SIGE - Sistema de Gestión Integrado</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <!-- Google Fonts: IBM Plex Sans -->
@@ -76,7 +76,7 @@
                     <span class="material-symbols-outlined filled">verified_user</span>
                 </div>
                 <div>
-                    <h2 class="font-bold text-base text-primary tracking-tight leading-none">SIGE 2.0</h2>
+                    <h2 class="font-bold text-base text-primary tracking-tight leading-none">Bor4SIGE</h2>
                     <span class="text-[10px] text-on-surface-variant font-semibold">SGI & Compliance</span>
                 </div>
             </div>
@@ -127,7 +127,7 @@
         <!-- Footer del Menú Lateral -->
         <div class="p-4 border-t border-outline-variant bg-surface-container-low text-[10px] text-on-surface-variant flex justify-between font-medium">
             <span>© 2026 SIG Auditoría</span>
-            <span>Espacio de Trabajo SIGE 2.0</span>
+            <span>Espacio de Trabajo Bor4SIGE</span>
         </div>
     </aside>
 
@@ -137,7 +137,7 @@
             <button onclick="toggleMobileSidebar()" class="text-primary hover:bg-surface-container-low p-2 rounded-lg transition-colors">
                 <span class="material-symbols-outlined text-2xl">menu</span>
             </button>
-            <h1 class="font-bold text-lg text-primary tracking-tight">SIGE 2.0</h1>
+            <h1 class="font-bold text-lg text-primary tracking-tight">Bor4SIGE</h1>
         </div>
         <div class="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
             US
@@ -228,7 +228,8 @@
                 title: "Compliance y Ética",
                 icon: "balance",
                 items: [
-                    { name: "Canal de Denuncias", path: "./canal_de_denuncias/code.html", icon: "campaign" }
+                    { name: "Canal de Denuncias", path: "./canal_de_denuncias/code.html", icon: "campaign" },
+                    { name: "Protección de Datos (RGPD)", path: "./proteccion_datos_rgpd/code.html", icon: "shield_person" }
                 ]
             },
             {
@@ -836,12 +837,12 @@
                 if (response.ok) {
                     window.sigDbState = await response.json();
                     window.isServerActive = true;
-                    console.log("SIGE 2.0 Webapp: Estado cargado desde el servidor.");
+                    console.log("Bor4SIGE Webapp: Estado cargado desde el servidor.");
                 } else {
                     throw new Error("El servidor no devolvió un estado válido.");
                 }
             } catch (err) {
-                console.warn("SIGE 2.0 Local: Servidor inactivo. Usando localStorage como fallback:", err);
+                console.warn("Bor4SIGE Local: Servidor inactivo. Usando localStorage como fallback:", err);
                 window.sigDbState = {};
                 window.isServerActive = false;
                 
@@ -900,7 +901,7 @@
             },
             {
                 keywords: ["formación", "formacion", "eficacia", "kirkpatrick", "competencia"],
-                answer: "Según la cláusula 7.2 de ISO 9001 / ISO 45001, las organizaciones deben evaluar la eficacia de la formación. SIGE 2.0 implementa el modelo Kirkpatrick en 4 niveles (Reacción, Aprendizaje, Comportamiento, Resultados). Evaluaciones bajas disparan acciones de mejora automáticamente.",
+                answer: "Según la cláusula 7.2 de ISO 9001 / ISO 45001, las organizaciones deben evaluar la eficacia de la formación. Bor4SIGE implementa el modelo Kirkpatrick en 4 niveles (Reacción, Aprendizaje, Comportamiento, Resultados). Evaluaciones bajas disparan acciones de mejora automáticamente.",
                 path: "./eficacia_formacion/code.html",
                 btnText: "Ir a Eficacia Formativa"
             },
@@ -924,7 +925,7 @@
             },
             {
                 keywords: ["continuidad", "bcp", "negocio", "recuperación", "desastre", "22301"],
-                answer: "La norma ISO 22301 define los requisitos para la continuidad del negocio. El plan BCP de SIGE 2.0 incluye simulacros anuales, análisis BIA y planes de contingencia para restaurar operaciones críticas.",
+                answer: "La norma ISO 22301 define los requisitos para la continuidad del negocio. El plan BCP de Bor4SIGE incluye simulacros anuales, análisis BIA y planes de contingencia para restaurar operaciones críticas.",
                 path: "./plan_de_continidad_de_negocio/code.html",
                 btnText: "Ir a Continuidad de Negocio"
             }
@@ -941,7 +942,7 @@
                 
                 const container = document.getElementById("chatbot-messages");
                 if (container.children.length === 0) {
-                    addBotMessage("¡Hola! Soy tu asistente virtual de SIGE 2.0. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre la operatividad de los módulos o sobre los requisitos de las normas ISO y ENS.");
+                    addBotMessage("¡Hola! Soy tu asistente virtual de Bor4SIGE. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre la operatividad de los módulos o sobre los requisitos de las normas ISO y ENS.");
                 }
             } else {
                 panel.classList.add("pointer-events-none", "opacity-0", "translate-y-4");
@@ -1097,9 +1098,9 @@
                 } catch(e) {}
             }
 
-            const systemPrompt = `Eres un asistente virtual experto en SIGE 2.0 y en el cumplimiento de las normas ISO 9001 (Calidad), ISO 14001:2024 (Medio Ambiente), ISO 45001 (Salud y Seguridad), ISO 27001 (Seguridad de la Información), ENS (Esquema Nacional de Seguridad) e ISO 22301 (Continuidad de Negocio).
+            const systemPrompt = `Eres un asistente virtual experto en Bor4SIGE y en el cumplimiento de las normas ISO 9001 (Calidad), ISO 14001:2024 (Medio Ambiente), ISO 45001 (Salud y Seguridad), ISO 27001 (Seguridad de la Información), ENS (Esquema Nacional de Seguridad) e ISO 22301 (Continuidad de Negocio).
 Responde en español, de forma muy concisa, directa y profesional.
-Aquí tienes el contexto de la organización activa en la base de datos de SIGE 2.0:
+Aquí tienes el contexto de la organización activa en la base de datos de Bor4SIGE:
 ${databaseContext}`;
 
             let responseText = "";
@@ -1229,7 +1230,7 @@ ${databaseContext}`;
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined font-bold text-xl">robot</span>
                 <div>
-                    <h3 class="font-bold text-sm leading-none">Asistente Virtual SIGE 2.0</h3>
+                    <h3 class="font-bold text-sm leading-none">Asistente Virtual Bor4SIGE</h3>
                     <span class="text-[9px] text-slate-300 font-medium">Soporte Operativo & Normativo</span>
                 </div>
             </div>
