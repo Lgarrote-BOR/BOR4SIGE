@@ -27,9 +27,10 @@
 18. [Análisis DAFO y Partes Interesadas](#18-análisis-dafo-y-partes-interesadas)
 19. [Catálogo Unificado de Productos y Servicios](#19-catálogo-unificado-de-productos-y-servicios)
 20. [Producción y Gestión de Capacidad (ISO 20000-1)](#20-producción-y-gestión-de-capacidad-iso-20000-1)
-21. [Seguimiento por IA — Panel de Cumplimiento Automático](#21-seguimiento-por-ia--panel-de-cumplimiento-automático)
-22. [Asistente Virtual (Chatbot)](#22-asistente-virtual-chatbot)
-23. [Preguntas Frecuentes](#23-preguntas-frecuentes)
+21. [Análisis de Clima Laboral (ISO 45001 & ISO 9001)](#21-análisis-de-clima-laboral-iso-45001-iso-9001)
+22. [Seguimiento por IA — Panel de Cumplimiento Automático](#22-seguimiento-por-ia--panel-de-cumplimiento-automático)
+23. [Asistente Virtual (Chatbot)](#23-asistente-virtual-chatbot)
+24. [Preguntas Frecuentes](#24-preguntas-frecuentes)
 
 ---
 
@@ -577,7 +578,43 @@ En la pestaña **Dashboard de Capacidad y Disponibilidad**, el sistema procesa l
 
 ---
 
-## 21. Seguimiento por IA — Panel de Cumplimiento Automático
+---
+
+## 21. Análisis de Clima Laboral (ISO 45001 & ISO 9001)
+
+El módulo de **Análisis de Clima Laboral** responde a los requisitos de consulta y participación de los trabajadores exigidos por **ISO 45001 §5.4** y de retroalimentación de procesos bajo **ISO 9001**. Ofrece una forma estructurada y periódica de evaluar el bienestar de la plantilla y detectar oportunidades de mejora.
+
+### Cumplimentación de la Encuesta
+1. Accede a **Análisis Clima Laboral** en la barra lateral.
+2. Selecciona el **Periodo de Evaluación** (ej. Q1, Q2, etc.) y la fecha.
+3. Elige si deseas realizar la encuesta de forma **Anónima** o atribuyéndola a un colaborador del directorio corporativo.
+4. Responde a las 8 preguntas cuantitativas seleccionando un valor en la escala Likert (1 a 5, con emojis explicativos de la satisfacción):
+   - *Q1*: Nivel de satisfacción salarial (Compensación).
+   - *Q2*: Equipamiento necesario para protección de riesgos (SST/Seguridad).
+   - *Q3*: Imagen de la empresa de cara al cliente (Calidad).
+   - *Q4*: Recepción y puesta en marcha de propuestas de mejora personales.
+   - *Q5*: Satisfacción con el tipo de tareas desarrolladas.
+   - *Q6*: Sentirse acogido e integrado por el equipo de compañeros.
+   - *Q7*: Equipamiento general disponible para sus funciones.
+   - *Q8*: Actitud del jefe inmediato, nivel de escucha y apertura.
+5. Completa las dos preguntas abiertas para recoger feedback cualitativo:
+   - *Mejoras propuestas* (lo que cambiaría).
+   - *Fortalezas* (lo que ve positivo).
+6. Presiona **"Enviar Encuesta"** para guardar.
+
+### Dashboard de Resultados y KPI Clima (ICL)
+En la pestaña **Dashboard y Resultados**, el sistema calcula:
+- **Índice de Clima Laboral (ICL) Global**: Nota media expresada en porcentaje (0-100%). Cuenta con una indicación semántica por colores (Verde: >=75% Excelente; Amarillo: 50-74% Aceptable; Rojo: <50% Crítico).
+- **Desglose de Dimensiones**: Progreso en porcentaje para los bloques de Compensación, SST y Recursos, Liderazgo e Integración, y Motivación y Voz.
+- **Evolutivo por Periodo**: Gráfico de barras que compara los periodos de evaluación históricos para analizar tendencias de satisfacción.
+- **Tablón de Ideas**: Clasifica y muestra en tarjetas los comentarios abiertos de fortalezas (Lo Positivo) y de propuestas de mejora en la organización.
+
+### Historial de Respuestas
+- En la pestaña **Historial y Respuestas**, el administrador de SGI puede consultar la lista de encuestas registradas, ver la nota media de cada una o hacer clic en el botón de visualización para ver el detalle de las 10 respuestas.
+
+---
+
+## 22. Seguimiento por IA — Panel de Cumplimiento Automático
 
 El **Panel de Cumplimiento por IA** está integrado en el Cuadro de Mando y realiza un análisis automático y continuo de los datos del sistema para detectar incumplimientos.
 
@@ -616,7 +653,7 @@ Cada detección queda registrada con fecha y hora en el **Log de Auditoría IA**
 
 ---
 
-## 22. Asistente Virtual (Chatbot)
+## 23. Asistente Virtual (Chatbot)
 
 El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esquina inferior derecha de la pantalla. Puedes consultarle sobre:
 
@@ -643,7 +680,7 @@ El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esqu
 
 ---
 
-## 23. Preguntas Frecuentes
+## 24. Preguntas Frecuentes
 
 **¿Puedo usar Bor4SIGE sin conexión a internet?**
 Sí. Bor4SIGE está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.
