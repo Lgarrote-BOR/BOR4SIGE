@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <!-- Interceptor de LocalStorage para sincronización con el servidor -->
+    <script src="../api-sync.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Producción y Gestión de Capacidad - ISO 20000-1</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0c1445",       // Azul Oscuro
+                        "secondary": "#1d4ed8",     // Azul Eléctrico
+                        "accent": "#6366f1",        // Indigo
+                        "background": "#f0f4ff",    // Fondo muy claro
+                        "surface": "#ffffff",       // Blanco
+                        "surface-container-low": "#eff6ff",
+                        "surface-container": "#dbeafe",
+                        "outline-variant": "#bfdbfe",
+                        "on-surface": "#0c1445",
+                        "on-surface-variant": "#1e40af",
+                        "success": "#16a34a",
+                        "warning": "#ca8a04",
+                        "danger": "#dc2626"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4ff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes scaleUp {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-animate {
+            animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .chart-bar-animation {
+            transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-[#0c1445] text-white w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-white">Bor4SIGE</h1>
+                <span class="text-[10px] text-blue-200 font-semibold">Producción y Gestión de Capacidad</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-blue-400 rounded-full px-3 py-1 bg-white/10 text-blue-100 gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
+                <span>ISO 20000-1:2018 §8.1 / §8.3 / §8.4</span>
+            </div>
+            <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 overflow-y-auto p-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Fila de Cabecera del Módulo -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Módulo de Producción y Gestión de Capacidad</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Planificación de pedidos de clientes y aseguramiento proactivo de la disponibilidad de recursos (ISO 20000-1).</p>
+            </div>
+            <button onclick="openNewPedidoModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary hover:bg-primary text-white text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0">
+                <span class="material-symbols-outlined text-base">add_box</span>
+                Nuevo Pedido de Cliente
+            </button>
+        </div>
+
+        <!-- Pestañas del Módulo -->
+        <div class="border-b border-outline-variant">
+            <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+                <button id="btn-tab-pedidos" onclick="switchTab('pedidos')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">
+                    Pedidos de Clientes
+                </button>
+                <button id="btn-tab-dashboard" onclick="switchTab('dashboard')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                    Dashboard de Capacidad y Disponibilidad
+                </button>
+                <button id="btn-tab-analisis" onclick="switchTab('analisis')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                    Estudios de Carga e Incidencias de Capacidad
+                </button>
+            </nav>
+        </div>
+
+        <!-- SECCIÓN 1: PEDIDOS DE CLIENTES -->
+        <section id="sec-pedidos" class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+                <!-- Buscador -->
+                <div class="relative w-full sm:w-80">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                    <input type="text" id="search-pedido" oninput="render()" placeholder="Buscar cliente o concepto..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+                </div>
+                
+                <!-- Filtros -->
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <select id="filter-tipo" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="">Todos los Tipos</option>
+                        <option value="Servicio">Servicios</option>
+                        <option value="Producto">Productos</option>
+                    </select>
+                    <select id="filter-estado" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="">Todos los Estados</option>
+                        <option value="Planificado">Planificado</option>
+                        <option value="En Curso">En Curso</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Retrasado">Retrasado</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de Pedidos -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-28 text-center font-bold">Nº Pedido</th>
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3 w-28 text-center">Tipo</th>
+                                <th class="p-3">Elemento Vinculado</th>
+                                <th class="p-3">Concepto/Detalle</th>
+                                <th class="p-3 w-24 text-center">F. Entrega</th>
+                                <th class="p-3 w-56">Demanda de Recursos</th>
+                                <th class="p-3 w-24 text-center">Estado</th>
+                                <th class="p-3 w-32 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-pedidos" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Inyectado dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: DASHBOARD DE CAPACIDAD Y DISPONIBILIDAD (ISO 20000-1) -->
+        <section id="sec-dashboard" class="space-y-6 hidden">
+            <!-- Indicadores Críticos en Tiempo Real (Disponibilidad) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- KPI 1: Horas de Soporte Personal -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">groups</span>
+                            <h3 class="font-bold text-sm text-primary">Soporte Técnico (Banda de Horas)</h3>
+                        </div>
+                        <span id="pct-soporte" class="font-mono font-bold text-sm text-success">80%</span>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-3">
+                        <div id="bar-soporte" class="bg-success h-3 rounded-full transition-all duration-500" style="width: 80%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-on-surface-variant font-medium">
+                        <span>Consumo: <strong id="val-soporte-demand">120h</strong></span>
+                        <span>Capacidad Total: <strong>150h / semana</strong></span>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Infraestructura Cloud (vCPUs) -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">cloud</span>
+                            <h3 class="font-bold text-sm text-primary">Infraestructura Cloud (vCPUs)</h3>
+                        </div>
+                        <span id="pct-infra" class="font-mono font-bold text-sm text-warning">76%</span>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-3">
+                        <div id="bar-infra" class="bg-warning h-3 rounded-full transition-all duration-500" style="width: 76%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-on-surface-variant font-medium">
+                        <span>Consumo: <strong id="val-infra-demand">380 vCPUs</strong></span>
+                        <span>Capacidad Total: <strong>500 vCPUs</strong></span>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Stock de Almacén Suministros -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">inventory_2</span>
+                            <h3 class="font-bold text-sm text-primary">Stock de Suministros (Material)</h3>
+                        </div>
+                        <span id="pct-stock" class="font-mono font-bold text-sm text-danger">92%</span>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-3">
+                        <div id="bar-stock" class="bg-danger h-3 rounded-full transition-all duration-500" style="width: 92%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-on-surface-variant font-medium">
+                        <span>Consumo: <strong id="val-stock-demand">920 kg</strong></span>
+                        <span>Capacidad Máx: <strong>1000 kg</strong></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Gráfico Predictivo y Tendencias (ISO 20000-1 §6.3 / §8.1) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Gráfico de Tendencias en SVG -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-6 shadow-sm lg:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                        <div>
+                            <h3 class="font-bold text-base text-primary">Análisis de Tendencias (Predictivo 6 Meses)</h3>
+                            <p class="text-[11px] text-on-surface-variant">Proyección del consumo de capacidad global basada en histórico de pedidos.</p>
+                        </div>
+                        <span class="bg-indigo-50 border border-indigo-200 text-indigo-800 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Proyección ISO</span>
+                    </div>
+
+                    <!-- Representación de Gráfico con barras CSS/SVG -->
+                    <div class="flex items-end justify-between h-56 pt-6 px-4 border-b border-l border-outline-variant relative">
+                        <!-- Línea de Umbral de Saturación (90%) -->
+                        <div class="absolute w-full border-t border-dashed border-danger/60 top-[10%] left-0" title="Umbral de Saturación (90%)">
+                            <span class="absolute right-2 -top-2.5 text-[9px] font-bold text-danger bg-white px-1">SATURACIÓN (90%)</span>
+                        </div>
+                        <div class="absolute w-full border-t border-dashed border-warning/60 top-[30%] left-0" title="Alerta de Capacidad (70%)">
+                            <span class="absolute right-2 -top-2.5 text-[9px] font-bold text-warning bg-white px-1">ALERTA (70%)</span>
+                        </div>
+
+                        <!-- Barras Históricas -->
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div class="bg-secondary/60 w-8 h-24 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-on-surface-variant font-mono">Ene</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div class="bg-secondary/60 w-8 h-32 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-on-surface-variant font-mono">Feb</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div class="bg-secondary/60 w-8 h-28 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-on-surface-variant font-mono">Mar</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div class="bg-secondary/80 w-8 h-38 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-on-surface-variant font-mono">Abr</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div class="bg-secondary/80 w-8 h-42 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-on-surface-variant font-mono">May</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div id="bar-current-month" class="bg-secondary w-8 h-44 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-primary font-mono">Jun (Act)</span>
+                        </div>
+
+                        <!-- Barras Proyección Predictiva -->
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div id="bar-proj-1" class="bg-accent/50 border-2 border-dashed border-accent w-8 h-46 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-accent font-mono">Jul (P)</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div id="bar-proj-2" class="bg-accent/50 border-2 border-dashed border-accent w-8 h-48 rounded-t chart-bar-animation"></div>
+                            <span class="text-[9px] font-bold text-accent font-mono">Ago (P)</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 w-10">
+                            <div id="bar-proj-3" class="bg-danger/50 border-2 border-dashed border-danger w-8 h-52 rounded-t chart-bar-animation animate-pulse"></div>
+                            <span class="text-[9px] font-bold text-danger font-mono">Sep (P)</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-800">
+                        <span class="material-symbols-outlined text-red-600 shrink-0">crisis_alert</span>
+                        <div>
+                            <span class="font-bold">Alerta Predictiva (ISO 20000-1):</span> Se proyecta una **saturación crítica (92%) en el stock de Suministros/Materiales en el mes de Septiembre** debido a la previsión de pedidos del cliente. Se recomienda generar propuestas de compra preventivas.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Planificación de Recursos -->
+                <div class="bg-surface border border-outline-variant rounded-2xl p-6 shadow-sm space-y-4">
+                    <h3 class="font-bold text-base text-primary border-b border-outline-variant pb-2">Estudio de Capacidad Activa</h3>
+                    
+                    <ul class="divide-y divide-outline-variant text-xs text-primary font-semibold space-y-3 pt-1">
+                        <li class="flex justify-between py-2 items-center">
+                            <div>
+                                <p>VPN Corporativa</p>
+                                <span class="text-[10px] text-on-surface-variant font-normal">Capacidad VPN: 200/250 túneles</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 border border-green-200 text-[10px] px-2 py-0.5 rounded font-bold">80% OK</span>
+                        </li>
+                        <li class="flex justify-between py-2 items-center">
+                            <div>
+                                <p>Soporte SAP ERP</p>
+                                <span class="text-[10px] text-on-surface-variant font-normal">SLA Atención: 15/20 min medio</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 border border-green-200 text-[10px] px-2 py-0.5 rounded font-bold">75% OK</span>
+                        </li>
+                        <li class="flex justify-between py-2 items-center">
+                            <div>
+                                <p>Aditivos y Purificación</p>
+                                <span class="text-[10px] text-on-surface-variant font-normal">Stock mínimo seguridad: 150 kg</span>
+                            </div>
+                            <span class="bg-red-100 text-red-800 border border-red-200 text-[10px] px-2 py-0.5 rounded font-bold animate-pulse">85% Alerta</span>
+                        </li>
+                        <li class="flex justify-between py-2 items-center">
+                            <div>
+                                <p>Backup y Veeam Cloud</p>
+                                <span class="text-[10px] text-on-surface-variant font-normal">Capacidad Cloud: 8.5/10 TB</span>
+                            </div>
+                            <span class="bg-amber-100 text-amber-800 border border-amber-200 text-[10px] px-2 py-0.5 rounded font-bold">85% Alerta</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: ESTUDIOS DE CARGA E INCIDENCIAS DE CAPACIDAD -->
+        <section id="sec-analisis" class="space-y-4 hidden">
+            <div class="bg-white border border-outline-variant rounded-xl p-4 flex gap-3 text-xs text-primary">
+                <span class="material-symbols-outlined text-secondary shrink-0">info</span>
+                <div>
+                    <p class="font-bold">Análisis Proactivo de Elementos de Servicio (ISO 20000-1 §8.11):</p>
+                    <p class="mt-0.5">Permite identificar y solventar de forma anticipada la falta de disponibilidad de elementos de servicio antes de que afecten a la prestación a clientes.</p>
+                </div>
+            </div>
+
+            <!-- Listado de Alertas de Capacidad de los Elementos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Alerta 1 -->
+                <div class="bg-surface border border-outline-variant rounded-xl p-4 flex items-start gap-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="p-2 bg-red-100 text-red-700 rounded-lg">
+                        <span class="material-symbols-outlined text-lg font-bold">sd_storage</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-sm text-primary">Capacidad Crítica de Almacenamiento NAS</h4>
+                            <span class="bg-red-100 text-red-800 text-[9px] px-1.5 py-0.2 rounded font-bold">95% de carga</span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant">El volumen `NAS-BACKUP-01` está al 95% (9.5 TB de 10 TB). El plan de backups corre riesgo de detenerse en 72 horas.</p>
+                        <button onclick="triggerPurchaseProposal('ART-002', 'Software y TI', 1800)" class="text-xs font-bold text-secondary hover:text-primary flex items-center gap-0.5 pt-1.5">
+                            <span class="material-symbols-outlined text-[13px]">shopping_cart</span>
+                            Solicitar compra de ampliación (Servidor VPS)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alerta 2 -->
+                <div class="bg-surface border border-outline-variant rounded-xl p-4 flex items-start gap-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="p-2 bg-amber-100 text-amber-700 rounded-lg">
+                        <span class="material-symbols-outlined text-lg font-bold">biotech</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-sm text-primary">Stock Mínimo de Seguridad Aditivos Químicos</h4>
+                            <span class="bg-amber-100 text-amber-800 text-[9px] px-1.5 py-0.2 rounded font-bold">85% de carga</span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant">El stock de reactivo de purificación es de 130 kg (umbral mínimo de seguridad: 150 kg). Consumo acelerado por pedido PED-CLI-002.</p>
+                        <button onclick="triggerPurchaseProposal('ART-001', 'Materias Primas', 3200)" class="text-xs font-bold text-secondary hover:text-primary flex items-center gap-0.5 pt-1.5">
+                            <span class="material-symbols-outlined text-[13px]">shopping_cart</span>
+                            Solicitar compra de reactivos
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL REGISTRO PEDIDO DE CLIENTE -->
+    <div id="modal-pedido-cliente" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl modal-animate overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Registrar Pedido de Cliente</h3>
+                <button onclick="closeModal('modal-pedido-cliente')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="savePedidoCliente(event)" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre del Cliente *</label>
+                        <input id="cli-name" required type="text" placeholder="Ej: Hospital de Madrid" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo de Pedido</label>
+                        <select id="cli-type" onchange="onClienteTypeChange()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Servicio">Servicio TI / Consultoría</option>
+                            <option value="Producto">Producto Específico</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Elemento del Catálogo Unificado (ISO 20000-1)</label>
+                    <select id="cli-catalog-id" onchange="onClienteCatalogChange()" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <!-- Cargados del catálogo local -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Concepto / Detalle del Pedido *</label>
+                    <input id="cli-concept" required type="text" placeholder="Ej: Soporte e Integración ERP SAP" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha Límite / Entrega</label>
+                        <input id="cli-delivery" required type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Alcance / Unidades</label>
+                        <input id="cli-scope" required type="text" placeholder="Ej: 1 Proyecto, 50 uds, 150h" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <!-- Demandas de recursos para cálculo de capacidad -->
+                <div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 space-y-3">
+                    <span class="block text-[11px] font-bold text-primary">Cálculo de Demanda de Recursos (Auto-estimado)</span>
+                    
+                    <div class="grid grid-cols-3 gap-3 text-xs text-primary font-semibold">
+                        <div>
+                            <label class="block text-[9px] text-on-surface-variant">Soporte (h/semana)</label>
+                            <input id="dem-soporte" type="number" min="0" value="20" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs"/>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-on-surface-variant">Infra. Cloud (vCPUs)</label>
+                            <input id="dem-infra" type="number" min="0" value="40" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs"/>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-on-surface-variant">Material (kg stock)</label>
+                            <input id="dem-material" type="number" min="0" value="50" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-pedido-cliente')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar Pedido Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Gestión e Interactividad -->
+    <script>
+        const seedPedidosClientes = [
+            { id: "PED-CLI-001", name: "Servicio de Salud Metropolitano", type: "Servicio", svcId: "SVC-002", svcName: "ERP SAP S/4HANA Hospedado", concept: "Soporte e Integración SAP S/4HANA", delivery: "2026-06-30", scope: "1 Implantación", demandSoporte: 40, demandInfra: 100, demandMaterial: 0, status: "En Curso" },
+            { id: "PED-CLI-002", name: "Laboratorios Biosol S.A.", type: "Producto", svcId: "ART-001", svcName: "Reactivo Purificador de Agua", concept: "Reactivo purificado especial", delivery: "2026-07-10", scope: "500 kg", demandSoporte: 10, demandInfra: 0, demandMaterial: 500, status: "Planificado" },
+            { id: "PED-CLI-003", name: "Tech Finance Corp", type: "Servicio", svcId: "SVC-004", svcName: "VPN Corporativa SSL/TLS", concept: "Acceso Remoto Seguro VPN", delivery: "2026-06-25", scope: "120 Licencias", demandSoporte: 60, demandInfra: 240, demandMaterial: 0, status: "En Curso" },
+            { id: "PED-CLI-004", name: "Ayuntamiento de Segovia", type: "Servicio", svcId: "SVC-001", svcName: "Servicio de Correo Electrónico Corporativo", concept: "Migración buzones Exchange Online", delivery: "2026-05-10", scope: "250 Buzones", demandSoporte: 30, demandInfra: 50, demandMaterial: 0, status: "Finalizado" }
+        ];
+
+        let catalogoGeneral = [];
+        let clientOrders = [];
+        let currentTab = 'pedidos';
+
+        function init() {
+            // Cargar Catálogo General
+            const catStored = localStorage.getItem('sig_catalogo_general');
+            if (catStored) {
+                catalogoGeneral = JSON.parse(catStored);
+            } else {
+                catalogoGeneral = [
+                    { id: "ART-001", name: "Reactivo Purificador de Agua - Grado A", tipo: "PRODUCTO", cat: "Materias Primas", cost: 300, stock: 250, minStock: 150, unit: "Kg" },
+                    { id: "ART-002", name: "Ampliación Servidores VPS (4vCPU/16GB)", tipo: "PRODUCTO", cat: "Software y TI", cost: 50, stock: 10, minStock: 2, unit: "Uds" },
+                    { id: "ART-003", name: "Licencia Anual ERP SAP S/4HANA", tipo: "PRODUCTO", cat: "Software y TI", cost: 1200, stock: 5, minStock: 1, unit: "Uds" },
+                    { id: "ART-004", name: "Mobiliario y Papelería Corporativa", tipo: "PRODUCTO", cat: "Componentes / Equipamiento", cost: 120, stock: 12, minStock: 3, unit: "Uds" },
+                    { id: "SVC-001", name: "Servicio de Correo Electrónico Corporativo", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "Buzones", SLA_avail: 99.9, SLA_rsp: 5, SLA_res: 4, window: "24×7×365", criticality: "Crítico" },
+                    { id: "SVC-002", name: "ERP SAP S/4HANA Hospedado", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "Instancia", SLA_avail: 99.5, SLA_rsp: 15, SLA_res: 8, window: "L–V 07:00–22:00", criticality: "Crítico" },
+                    { id: "SVC-004", name: "VPN Corporativa SSL/TLS", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "Licencias", SLA_avail: 99.5, SLA_rsp: 10, SLA_res: 4, window: "24×7×365", criticality: "Alto" },
+                    { id: "SVC-006", name: "Backup y Recuperación Veeam", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "TB", SLA_avail: 99.9, SLA_rsp: 15, SLA_res: 8, window: "24×7×365", criticality: "Crítico" }
+                ];
+                localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+            }
+
+            // Cargar Pedidos Clientes
+            const ordersStored = localStorage.getItem('sig_pedidos_clientes');
+            if (ordersStored) {
+                clientOrders = JSON.parse(ordersStored);
+            } else {
+                clientOrders = [...seedPedidosClientes];
+                saveToLocalStorage();
+            }
+
+            render();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_pedidos_clientes', JSON.stringify(clientOrders));
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('sec-pedidos').classList.add('hidden');
+            document.getElementById('sec-dashboard').classList.add('hidden');
+            document.getElementById('sec-analisis').classList.add('hidden');
+            
+            document.getElementById('btn-tab-pedidos').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+            document.getElementById('btn-tab-dashboard').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+            document.getElementById('btn-tab-analisis').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-tab-${tab}`).className = "border-b-2 border-secondary text-secondary py-2 px-1 transition-all";
+            
+            if (tab === 'dashboard') {
+                recalculateCapacityMetrics();
+            }
+            render();
+        }
+
+        function openNewPedidoModal() {
+            onClienteTypeChange();
+
+            document.getElementById('cli-name').value = "";
+            document.getElementById('cli-concept').value = "";
+            document.getElementById('cli-delivery').value = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
+            document.getElementById('cli-scope').value = "1 Proyecto";
+            
+            openModal('modal-pedido-cliente');
+        }
+
+        function onClienteTypeChange() {
+            const type = document.getElementById('cli-type').value;
+            const select = document.getElementById('cli-catalog-id');
+            select.innerHTML = "";
+            
+            const filterType = type === 'Servicio' ? 'SERVICIO' : 'PRODUCTO';
+            const items = catalogoGeneral.filter(item => item.tipo === filterType);
+            
+            items.forEach(item => {
+                select.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+            });
+            
+            if (items.length === 0) {
+                select.innerHTML = `<option value="">-- No hay elementos del tipo seleccionado --</option>`;
+            }
+            
+            onClienteCatalogChange();
+        }
+
+        function onClienteCatalogChange() {
+            const id = document.getElementById('cli-catalog-id').value;
+            const item = catalogoGeneral.find(x => x.id === id);
+            
+            if (!item) return;
+            
+            document.getElementById('cli-concept').value = item.name;
+            
+            // Auto-estimación de recursos recomendados
+            if (item.tipo === 'SERVICIO') {
+                if (item.id === 'SVC-002') { // SAP ERP
+                    document.getElementById('dem-soporte').value = "40";
+                    document.getElementById('dem-infra').value = "120";
+                    document.getElementById('dem-material').value = "0";
+                } else if (item.id === 'SVC-004') { // VPN
+                    document.getElementById('dem-soporte').value = "15";
+                    document.getElementById('dem-infra').value = "60";
+                    document.getElementById('dem-material').value = "0";
+                } else {
+                    document.getElementById('dem-soporte').value = "20";
+                    document.getElementById('dem-infra').value = "40";
+                    document.getElementById('dem-material').value = "0";
+                }
+            } else { // PRODUCTO
+                if (item.id === 'ART-001') { // Reactivo
+                    document.getElementById('dem-soporte').value = "10";
+                    document.getElementById('dem-infra').value = "0";
+                    document.getElementById('dem-material').value = "300";
+                } else {
+                    document.getElementById('dem-soporte').value = "5";
+                    document.getElementById('dem-infra').value = "20";
+                    document.getElementById('dem-material').value = "50";
+                }
+            }
+        }
+
+        function savePedidoCliente(e) {
+            e.preventDefault();
+            const name = document.getElementById('cli-name').value.trim();
+            const type = document.getElementById('cli-type').value;
+            const svcId = document.getElementById('cli-catalog-id').value;
+            const concept = document.getElementById('cli-concept').value.trim();
+            const delivery = document.getElementById('cli-delivery').value;
+            const scope = document.getElementById('cli-scope').value.trim();
+
+            const demandSoporte = parseInt(document.getElementById('dem-soporte').value) || 0;
+            const demandInfra = parseInt(document.getElementById('dem-infra').value) || 0;
+            const demandMaterial = parseInt(document.getElementById('dem-material').value) || 0;
+
+            const selectedSvc = catalogoGeneral.find(s => s.id === svcId);
+            const svcName = selectedSvc ? selectedSvc.name : "Servicios TI";
+
+            let maxSeq = 4;
+            clientOrders.forEach(o => {
+                const parts = o.id.split('-');
+                if (parts.length === 3) {
+                    const seq = parseInt(parts[2]);
+                    if (seq > maxSeq) maxSeq = seq;
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const newId = `PED-CLI-${nextSeq}`;
+
+            // Si es un producto, deducimos el stock actual del catálogo inmediatamente al planificar/poner en curso
+            if (type === 'Producto' && selectedSvc) {
+                const prodIdx = catalogoGeneral.findIndex(x => x.id === selectedSvc.id);
+                if (prodIdx !== -1) {
+                    // Restar stock
+                    const qtyToDeduct = parseInt(scope.match(/\d+/)) || 50; // extrae número o cae en 50
+                    catalogoGeneral[prodIdx].stock = Math.max(0, (catalogoGeneral[prodIdx].stock || 0) - qtyToDeduct);
+                    localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+                }
+            }
+
+            clientOrders.push({
+                id: newId,
+                name,
+                type,
+                svcId,
+                svcName,
+                concept,
+                delivery,
+                scope,
+                demandSoporte,
+                demandInfra,
+                demandMaterial,
+                status: "Planificado"
+            });
+
+            saveToLocalStorage();
+            closeModal('modal-pedido-cliente');
+            render();
+            e.target.reset();
+        }
+
+        // Recalcular métricas
+        function recalculateCapacityMetrics() {
+            let totalSoporte = 0;
+            let totalInfra = 0;
+            let totalMaterial = 0;
+
+            clientOrders.forEach(o => {
+                if (o.status === 'En Curso' || o.status === 'Planificado') {
+                    totalSoporte += (o.demandSoporte || 0);
+                    totalInfra += (o.demandInfra || 0);
+                    totalMaterial += (o.demandMaterial || 0);
+                }
+            });
+
+            const capSoporte = 150;
+            const capInfra = 500;
+            const capMaterial = 1000;
+
+            const pctSoporte = Math.min(100, Math.round((totalSoporte / capSoporte) * 100));
+            const pctInfra = Math.min(100, Math.round((totalInfra / capInfra) * 100));
+            const pctMaterial = Math.min(100, Math.round((totalMaterial / capMaterial) * 100));
+
+            document.getElementById('pct-soporte').innerText = `${pctSoporte}%`;
+            document.getElementById('bar-soporte').style.width = `${pctSoporte}%`;
+            document.getElementById('val-soporte-demand').innerText = `${totalSoporte}h`;
+            setColorClass('bar-soporte', 'pct-soporte', pctSoporte);
+
+            document.getElementById('pct-infra').innerText = `${pctInfra}%`;
+            document.getElementById('bar-infra').style.width = `${pctInfra}%`;
+            document.getElementById('val-infra-demand').innerText = `${totalInfra} vCPUs`;
+            setColorClass('bar-infra', 'pct-infra', pctInfra);
+
+            document.getElementById('pct-stock').innerText = `${pctMaterial}%`;
+            document.getElementById('bar-stock').style.width = `${pctMaterial}%`;
+            document.getElementById('val-stock-demand').innerText = `${totalMaterial} kg`;
+            setColorClass('bar-stock', 'pct-stock', pctMaterial);
+            
+            document.getElementById('bar-current-month').style.height = `${pctSoporte}%`;
+        }
+
+        function setColorClass(barId, textId, pct) {
+            const bar = document.getElementById(barId);
+            const txt = document.getElementById(textId);
+            
+            bar.className = "h-3 rounded-full transition-all duration-500 ";
+            txt.className = "font-mono font-bold text-sm ";
+
+            if (pct >= 90) {
+                bar.classList.add("bg-danger");
+                txt.classList.add("text-danger");
+            } else if (pct >= 70) {
+                bar.classList.add("bg-warning");
+                txt.classList.add("text-warning");
+            } else {
+                bar.classList.add("bg-success");
+                txt.classList.add("text-success");
+            }
+        }
+
+        function triggerPurchaseProposal(resourceId, category, cost) {
+            let proposals = [];
+            const stored = localStorage.getItem('sig_propuestas_compras');
+            if (stored) {
+                try { proposals = JSON.parse(stored); } catch(e) { proposals = []; }
+            }
+
+            // Buscar en catálogo
+            const item = catalogoGeneral.find(x => x.id === resourceId);
+            const name = item ? item.name : resourceId;
+
+            proposals.push({
+                resourceName: name,
+                category: category,
+                estimatedCost: cost,
+                qty: 1,
+                clientOrderId: "PLAN-CAP-2026"
+            });
+
+            localStorage.setItem('sig_propuestas_compras', JSON.stringify(proposals));
+            alert(`Propuesta de compra registrada para el artículo de catálogo: "${name}" (${category}).\nSe ha enviado al departamento de compras para su validación inmediata.`);
+        }
+
+        function triggerPurchaseProposalForOrder(orderId) {
+            const o = clientOrders.find(item => item.id === orderId);
+            if (!o) return;
+            
+            let proposals = [];
+            const stored = localStorage.getItem('sig_propuestas_compras');
+            if (stored) {
+                try { proposals = JSON.parse(stored); } catch(e) { proposals = []; }
+            }
+
+            if (o.demandMaterial > 0) {
+                proposals.push({
+                    resourceName: o.svcId, // Usamos el ID del catálogo directamente
+                    category: "Materias Primas",
+                    estimatedCost: 15000,
+                    qty: o.demandMaterial,
+                    clientOrderId: o.id
+                });
+            } else {
+                proposals.push({
+                    resourceName: "ART-002", // Servidores VPS
+                    category: "Software y TI",
+                    estimatedCost: 50 * Math.ceil(o.demandInfra / 10),
+                    qty: Math.ceil(o.demandInfra / 10) || 1,
+                    clientOrderId: o.id
+                });
+            }
+
+            localStorage.setItem('sig_propuestas_compras', JSON.stringify(proposals));
+            alert(`Propuesta de compra de recursos generada correctamente para el pedido del cliente ${o.id}.\nSuministro asociado creado en el módulo de compras.`);
+        }
+
+        function deletePedido(id) {
+            if (confirm(`¿Eliminar el pedido de cliente ${id}?`)) {
+                clientOrders = clientOrders.filter(o => o.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function finalizarPedido(id) {
+            const idx = clientOrders.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                clientOrders[idx].status = "Finalizado";
+                saveToLocalStorage();
+                render();
+                alert(`Pedido de cliente ${id} finalizado y marcado para entrega de servicio.`);
+            }
+        }
+
+        function render() {
+            if (currentTab === 'pedidos') {
+                const tbody = document.getElementById('tbody-pedidos');
+                const q = document.getElementById('search-pedido').value.toLowerCase().trim();
+                const tipoFilter = document.getElementById('filter-tipo').value;
+                const statusFilter = document.getElementById('filter-estado').value;
+
+                const filtered = clientOrders.filter(o => {
+                    const matchesQuery = o.name.toLowerCase().includes(q) || o.concept.toLowerCase().includes(q) || o.id.toLowerCase().includes(q);
+                    const matchesTipo = tipoFilter === "" || o.type === tipoFilter;
+                    const matchesStatus = statusFilter === "" || o.status === statusFilter;
+                    return matchesQuery && matchesTipo && matchesStatus;
+                });
+
+                tbody.innerHTML = "";
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron pedidos de clientes.</td></tr>`;
+                    return;
+                }
+
+                filtered.forEach(o => {
+                    let badgeClass = "";
+                    if (o.status === "Finalizado") badgeClass = "bg-green-100 text-green-800 border-green-200 font-bold";
+                    else if (o.status === "En Curso") badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
+                    else if (o.status === "Planificado") badgeClass = "bg-gray-100 text-gray-800 border-gray-200";
+                    else badgeClass = "bg-red-100 text-red-800 border-red-200 font-bold";
+
+                    let actionBtn = "";
+                    if (o.status !== "Finalizado") {
+                        actionBtn = `
+                            <button onclick="finalizarPedido('${o.id}')" class="text-success hover:text-green-800 p-1 flex items-center justify-center" title="Finalizar Pedido"><span class="material-symbols-outlined text-[18px]">check_circle</span></button>
+                            <button onclick="triggerPurchaseProposalForOrder('${o.id}')" class="text-secondary hover:text-primary p-1 flex items-center justify-center" title="Generar Propuesta de Compra de Suministros"><span class="material-symbols-outlined text-[18px]">shopping_cart_checkout</span></button>
+                        `;
+                    }
+                    actionBtn += `
+                        <button onclick="deletePedido('${o.id}')" class="text-danger hover:text-red-700 p-1 flex items-center justify-center" title="Eliminar"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+                    `;
+
+                    let demandText = `<div class="space-y-0.5 text-[10px] text-on-surface-variant font-semibold">`;
+                    if (o.demandSoporte > 0) demandText += `<div>Soporte: <strong>${o.demandSoporte}h</strong></div>`;
+                    if (o.demandInfra > 0) demandText += `<div>Cloud: <strong>${o.demandInfra} vCPUs</strong></div>`;
+                    if (o.demandMaterial > 0) demandText += `<div>Material: <strong>${o.demandMaterial} kg</strong></div>`;
+                    if (o.demandSoporte === 0 && o.demandInfra === 0 && o.demandMaterial === 0) demandText += `<em>Sin demanda asignada</em>`;
+                    demandText += `</div>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 text-center font-mono font-bold text-on-surface-variant">${o.id}</td>
+                            <td class="p-3 font-bold text-primary">${o.name}</td>
+                            <td class="p-3 text-center font-medium text-on-surface-variant">${o.type}</td>
+                            <td class="p-3 font-semibold text-secondary">${o.svcName || 'N/A'}</td>
+                            <td class="p-3 text-on-surface-variant">
+                                <div class="font-medium">${o.concept}</div>
+                                <div class="text-[9px] text-on-surface-variant font-normal">Alcance: ${o.scope} [${o.svcId || 'N/A'}]</div>
+                            </td>
+                            <td class="p-3 text-center font-semibold text-primary">${o.delivery}</td>
+                            <td class="p-3">${demandText}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+                                    ${o.status}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-1">
+                                    ${actionBtn}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

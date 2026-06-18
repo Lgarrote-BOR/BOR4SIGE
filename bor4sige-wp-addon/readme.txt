@@ -21,6 +21,9 @@ Muestra toda la suite operativa en el panel de administración (back-office) de 
 * **Investigación de Accidentes de Trabajo Wizard** (ISO 45001:2018).
 * **Gestión Documental del SGI** (ISO 9001 §7.5).
 * **Matriz de Riesgos Multitarea e Integración CAPA** automatizada.
+* **Gestión de Compras e Inspección de Recepción** (ISO 9001 §8.4) con alertas de segregación y flujo CAPA automático.
+* **Producción y Gestión de Capacidad Predictiva** (ISO 20000-1 §6.3 / §8.11) con medidores de carga y proyecciones de tendencias a 6 meses.
+* **Catálogo Unificado de Productos y Servicios** (ISO 20000-1 & ISO 9001 §8.5.1) con niveles de inventario y SLAs integrados.
 
 == Installation ==
 

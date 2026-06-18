@@ -1,14 +1,40 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <script src="../api-sync.js"></script>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Catálogo de Servicios TI — Bor4SIGE</title>
+    <title>Catálogo de Productos y Servicios — Bor4SIGE</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script>tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#0c1445","secondary":"#1d4ed8","background":"#eff6ff","surface":"#ffffff","surface-container-low":"#eff6ff","surface-container":"#dbeafe","outline-variant":"#bfdbfe","on-surface":"#0c1445","on-surface-variant":"#1e40af","success":"#137333","warning":"#b06000","danger":"#c5221f"},fontFamily:{sans:["Inter","sans-serif"]}}}}</script>
+    <script>
+        tailwind.config={
+            darkMode:"class",
+            theme:{
+                extend:{
+                    colors:{
+                        "primary":"#0c1445",
+                        "secondary":"#1d4ed8",
+                        "accent":"#8b5cf6",
+                        "background":"#eff6ff",
+                        "surface":"#ffffff",
+                        "surface-container-low":"#eff6ff",
+                        "surface-container":"#dbeafe",
+                        "outline-variant":"#bfdbfe",
+                        "on-surface":"#0c1445",
+                        "on-surface-variant":"#1e40af",
+                        "success":"#137333",
+                        "warning":"#b06000",
+                        "danger":"#c5221f"
+                    },
+                    fontFamily:{
+                        sans:["Inter","sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body{font-family:'Inter',sans-serif;background:#eff6ff;}
         .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
@@ -25,12 +51,12 @@
 <header class="itsm-header text-white sticky top-0 z-40 flex justify-between items-center px-6 py-3 shrink-0">
     <div class="flex items-center gap-3">
         <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors"><span class="material-symbols-outlined">arrow_back</span></a>
-        <div><h1 class="font-bold text-base leading-none">Bor4SIGE</h1><span class="text-[10px] text-blue-200 font-semibold">Gestión de Servicios TI — ITSM</span></div>
+        <div><h1 class="font-bold text-base leading-none">Bor4SIGE</h1><span class="text-[10px] text-blue-200 font-semibold">Catálogo Unificado — Productos y Servicios</span></div>
     </div>
     <div class="flex items-center gap-2">
         <div class="hidden md:flex items-center border border-blue-400 rounded-full px-3 py-1 bg-white/10 text-blue-100 gap-1.5 text-xs font-semibold">
             <span class="material-symbols-outlined text-sm">dns</span>
-            <span>Catálogo de Servicios TI — ISO 20000-1:2018 §6.3 / §8.3</span>
+            <span>Gestión del Portfolio de Servicios y Artículos (ISO 20000-1)</span>
         </div>
         <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">US</button>
     </div>
@@ -41,82 +67,117 @@
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
         <div>
             <h2 class="font-bold text-2xl text-primary tracking-tight flex items-center gap-2">
-                <span class="material-symbols-outlined text-secondary filled">dns</span>
-                Catálogo de Servicios TI y Acuerdos de Nivel de Servicio
+                <span class="material-symbols-outlined text-secondary filled">inventory_2</span>
+                Catálogo Unificado de Productos y Servicios
             </h2>
-            <p class="text-sm text-on-surface-variant mt-1">Gestión del catálogo de servicios TI con SLAs definidos y seguimiento de cumplimiento. <strong>ISO 20000-1:2018 §6.3 (Catálogo) · §8.3 (SLA) · §8.4 (Reporting)</strong>.</p>
+            <p class="text-sm text-on-surface-variant mt-1">
+                Estructura integral para la trazabilidad de la capacidad operativa y control de suministros. **ISO 20000-1 §6.3 / §8.11**.
+            </p>
         </div>
         <button onclick="openModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0">
-            <span class="material-symbols-outlined text-base">add</span>Nuevo Servicio
+            <span class="material-symbols-outlined text-base">add</span>Nuevo Elemento
         </button>
     </div>
 
     <!-- KPIs -->
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">Servicios</span><span class="material-symbols-outlined text-secondary">inventory_2</span></div><span id="kpi-total" class="font-bold text-2xl text-primary">0</span><p class="text-[11px] text-on-surface-variant mt-1">En catálogo</p></div>
-        <div class="bg-green-50 border border-green-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-green-700 uppercase">Activos</span><span class="material-symbols-outlined text-green-500">check_circle</span></div><span id="kpi-active" class="font-bold text-2xl text-green-700">0</span><p class="text-[11px] text-green-600 mt-1">En producción</p></div>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-amber-700 uppercase">SLA OK</span><span class="material-symbols-outlined text-amber-500">task_alt</span></div><span id="kpi-sla-ok" class="font-bold text-2xl text-amber-700">0</span><p class="text-[11px] text-amber-600 mt-1">Cumplen SLA</p></div>
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-red-700 uppercase">SLA KO</span><span class="material-symbols-outlined text-red-500">cancel</span></div><span id="kpi-sla-ko" class="font-bold text-2xl text-red-700">0</span><p class="text-[11px] text-red-600 mt-1">Incumplen SLA</p></div>
-        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">Disponib. Media</span><span class="material-symbols-outlined text-secondary">percent</span></div><span id="kpi-avail" class="font-bold text-2xl text-primary">—</span><p class="text-[11px] text-on-surface-variant mt-1">% disponibilidad real</p></div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-on-surface-variant uppercase">Elementos</span><span class="material-symbols-outlined text-secondary">category</span></div><span id="kpi-total" class="font-bold text-2xl text-primary">0</span><p class="text-[11px] text-on-surface-variant mt-1">Registrados en catálogo</p></div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-secondary uppercase">Servicios Activos</span><span class="material-symbols-outlined text-secondary">support_agent</span></div><span id="kpi-active-services" class="font-bold text-2xl text-secondary font-bold">0</span><p class="text-[11px] text-on-surface-variant mt-1">En catálogo general</p></div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-primary uppercase">Productos/Artículos</span><span class="material-symbols-outlined text-indigo-700">inventory</span></div><span id="kpi-total-products" class="font-bold text-2xl text-primary">0</span><p class="text-[11px] text-on-surface-variant mt-1">Con control de almacén</p></div>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-red-700 uppercase">Stock Crítico</span><span class="material-symbols-outlined text-red-500 font-bold">running_with_errors</span></div><span id="kpi-stock-alert" class="font-bold text-2xl text-red-700">0</span><p class="text-[11px] text-red-600 mt-1">Bajo mínimo de seguridad</p></div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-4"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-success uppercase">SLA Medio</span><span class="material-symbols-outlined text-success">percent</span></div><span id="kpi-avail" class="font-bold text-2xl text-success">—</span><p class="text-[11px] text-on-surface-variant mt-1">% disponibilidad de servicios</p></div>
+    </div>
+
+    <!-- Pestañas de Filtrado -->
+    <div class="border-b border-outline-variant">
+        <nav class="flex gap-4 -mb-px text-xs font-bold uppercase tracking-wider select-none no-scrollbar overflow-x-auto">
+            <button id="btn-tab-servicios" onclick="switchFilterTab('servicios')" class="border-b-2 border-secondary text-secondary py-2 px-1 transition-all">
+                Servicios TI y SLAs
+            </button>
+            <button id="btn-tab-productos" onclick="switchFilterTab('productos')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                Productos e Inventario
+            </button>
+        </nav>
     </div>
 
     <!-- Filtros y Búsqueda -->
     <div class="flex flex-col sm:flex-row gap-3 items-center bg-surface p-4 border border-outline-variant rounded-xl">
         <div class="relative w-full sm:w-80">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
-            <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar servicio..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+            <input type="text" id="search-input" oninput="renderCards()" placeholder="Buscar elemento..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
         </div>
         <div class="flex gap-2 w-full sm:w-auto justify-end flex-wrap">
             <select id="filter-cat" onchange="renderCards()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
                 <option value="">Todas las Categorías</option>
-                <option>Infraestructura</option><option>Aplicaciones de Negocio</option><option>Comunicaciones</option><option>Seguridad</option><option>Datos y Analytics</option><option>HelpDesk y Soporte</option><option>Cloud y Hosting</option>
-            </select>
-            <select id="filter-st" onchange="renderCards()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
-                <option value="">Todos los Estados</option>
-                <option>Activo</option><option>En Desarrollo</option><option>Mantenimiento</option><option>Deprecado</option>
+                <optgroup label="Servicios">
+                    <option>Infraestructura</option><option>Aplicaciones de Negocio</option><option>Comunicaciones</option><option>Seguridad</option><option>Datos y Analytics</option><option>HelpDesk y Soporte</option><option>Cloud y Hosting</option>
+                </optgroup>
+                <optgroup label="Productos">
+                    <option>Materias Primas</option><option>Componentes / Equipamiento</option><option>Software y TI</option><option>Servicios Profesionales</option><option>Logística e Instalaciones</option>
+                </optgroup>
             </select>
         </div>
     </div>
 
-    <!-- Tarjetas de Servicios -->
+    <!-- Grid de Elementos -->
     <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
 
 </main>
 
-<!-- MODAL -->
+<!-- MODAL REGISTRO ELEMENTO -->
 <div id="modal-svc" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-start justify-center hidden p-4 overflow-y-auto">
     <div class="bg-surface border border-outline-variant rounded-2xl max-w-2xl w-full my-8 p-6 shadow-2xl space-y-4">
         <div class="flex justify-between items-center border-b border-outline-variant pb-3">
-            <h3 id="modal-title" class="font-bold text-base text-primary">Nuevo Servicio TI</h3>
+            <h3 id="modal-title" class="font-bold text-base text-primary">Nuevo Elemento del Catálogo</h3>
             <button onclick="closeModal()" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined">close</span></button>
         </div>
         <form onsubmit="saveSvc(event)" class="space-y-4">
             <input type="hidden" id="svc-id"/>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre del Servicio *</label>
-                    <input id="s-name" required type="text" placeholder="Ej: Servicio de Correo Corporativo" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Categoría *</label>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Nombre del Elemento *</label>
+                    <input id="s-name" required type="text" placeholder="Ej: Reactivo Purificador de Agua" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Tipo de Elemento *</label>
+                    <select id="s-tipo" onchange="onSvcTipoChange()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                        <option value="SERVICIO">Servicio TI / Operación</option>
+                        <option value="PRODUCTO">Producto / Artículo Almacén</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Categoría *</label>
                     <select id="s-cat" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
-                        <option>Infraestructura</option><option>Aplicaciones de Negocio</option><option>Comunicaciones</option><option>Seguridad</option><option>Datos y Analytics</option><option>HelpDesk y Soporte</option><option>Cloud y Hosting</option>
-                    </select></div>
+                        <!-- Cargado dinámicamente según tipo -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Costo Estimado Unitario (€) *</label>
+                    <input id="s-cost" required type="number" step="0.01" value="0.00" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Unidad de Medida *</label>
+                    <input id="s-unit" required type="text" placeholder="Ej: Kg, Horas, Uds" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
             </div>
-            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción del Servicio *</label>
-                <textarea id="s-desc" required rows="2" placeholder="Describir qué hace el servicio, a quién va dirigido y qué valor aporta al negocio..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Propietario del Servicio *</label>
-                    <input id="s-owner" required type="text" placeholder="Ej: Director TI / Responsable de Sistemas" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado *</label>
-                    <select id="s-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
-                        <option>Activo</option><option>En Desarrollo</option><option>Mantenimiento</option><option>Deprecado</option>
-                    </select></div>
+
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción del Elemento *</label>
+                <textarea id="s-desc" required rows="2" placeholder="Describir qué es, qué valor aporta o para qué se utiliza..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
             </div>
-            <div class="border border-outline-variant rounded-xl p-4 space-y-3">
-                <h4 class="font-bold text-xs text-primary">Acuerdo de Nivel de Servicio (SLA)</h4>
+
+            <!-- Campos específicos para SERVICIOS -->
+            <div id="div-campos-servicio" class="border border-outline-variant rounded-xl p-4 space-y-3">
+                <h4 class="font-bold text-xs text-primary flex items-center gap-1"><span class="material-symbols-outlined text-sm text-secondary">support_agent</span>Acuerdo de Nivel de Servicio (SLA)</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div><label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Disponibilidad Objetivo (%)</label>
                         <input id="s-avail-target" type="number" min="0" max="100" step="0.01" value="99.5" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
                     <div><label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Disponibilidad Real (%)</label>
-                        <input id="s-avail-real" type="number" min="0" max="100" step="0.01" value="99.8" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
+                        <input id="s-avail-real" type="number" min="0" max="100" step="0.01" value="99.5" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
                     <div><label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Tiempo Respuesta (min)</label>
                         <input id="s-rsp" type="number" min="0" value="15" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
                     <div><label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Tiempo Resolución (h)</label>
@@ -132,14 +193,39 @@
                             <option>Crítico — Impacto inmediato</option><option>Alto — Impacto significativo</option><option>Medio — Impacto tolerable</option><option>Bajo — Impacto menor</option>
                         </select></div>
                 </div>
+                <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Dependencias Técnicas / Recursos Asociados</label>
+                    <input id="s-deps" type="text" placeholder="Ej: SAP HANA, Active Directory, Oracle DB" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
             </div>
-            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Dependencias Técnicas</label>
-                <input id="s-deps" type="text" placeholder="Ej: Active Directory, Oracle DB, SAP ERP" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/></div>
-            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Notas / Observaciones</label>
+
+            <!-- Campos específicos para PRODUCTOS -->
+            <div id="div-campos-producto" class="hidden border border-outline-variant rounded-xl p-4 space-y-3">
+                <h4 class="font-bold text-xs text-primary flex items-center gap-1"><span class="material-symbols-outlined text-sm text-indigo-700">inventory</span>Control de Inventario y Almacenamiento</h4>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Stock Actual</label>
+                        <input id="p-stock-act" type="number" min="0" value="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Stock de Seguridad (Mínimo)</label>
+                        <input id="p-stock-min" type="number" min="0" value="50" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-on-surface-variant mb-1">Stock de Capacidad Máxima</label>
+                        <input id="p-stock-max" type="number" min="0" value="500" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Ubicación Física en Almacén</label>
+                    <input id="p-location" type="text" placeholder="Ej: Zona A - Estantería 3 - Nivel 2" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+            </div>
+
+            <div><label class="block text-xs font-semibold text-on-surface-variant mb-1">Notas / Observaciones de Configuración</label>
                 <textarea id="s-notes" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea></div>
+            
             <div class="flex justify-end gap-2 border-t border-outline-variant pt-4">
                 <button type="button" onclick="closeModal()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
-                <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Guardar Servicio</button>
+                <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Guardar Elemento</button>
             </div>
         </form>
     </div>
@@ -153,62 +239,164 @@ const CAT_INFO = {
     'Seguridad':{icon:'security',bg:'bg-indigo-50',border:'border-indigo-200',text:'text-indigo-800'},
     'Datos y Analytics':{icon:'bar_chart',bg:'bg-purple-50',border:'border-purple-200',text:'text-purple-800'},
     'HelpDesk y Soporte':{icon:'support_agent',bg:'bg-emerald-50',border:'border-emerald-200',text:'text-emerald-800'},
-    'Cloud y Hosting':{icon:'cloud',bg:'bg-sky-50',border:'border-sky-200',text:'text-sky-800'}
+    'Cloud y Hosting':{icon:'cloud',bg:'bg-sky-50',border:'border-sky-200',text:'text-sky-800'},
+    
+    // Categorías de productos
+    'Materias Primas':{icon:'biotech',bg:'bg-emerald-50',border:'border-emerald-200',text:'text-emerald-800'},
+    'Componentes / Equipamiento':{icon:'hardware',bg:'bg-amber-50',border:'border-amber-200',text:'text-amber-800'},
+    'Software y TI':{icon:'settings_suggest',bg:'bg-blue-50',border:'border-blue-200',text:'text-blue-800'},
+    'Servicios Profesionales':{icon:'groups',bg:'bg-purple-50',border:'border-purple-200',text:'text-purple-800'},
+    'Logística e Instalaciones':{icon:'local_shipping',bg:'bg-slate-50',border:'border-slate-200',text:'text-slate-800'}
 };
-const seed = [
-    {id:'SVC-001',name:'Servicio de Correo Electrónico Corporativo',cat:'Comunicaciones',desc:'Servicio de mensajería electrónica corporativa basado en Microsoft 365 Exchange Online. Incluye buzones, calendarios, contactos y grupos de distribución para todos los empleados.',owner:'Responsable de Sistemas',status:'Activo',availTarget:99.9,availReal:99.95,rspTime:5,resTime:4,window:'24×7×365',criticality:'Crítico — Impacto inmediato',deps:'Microsoft 365, Azure AD, DNS corporativo',notes:''},
-    {id:'SVC-002',name:'ERP — Sistema de Gestión Empresarial (SAP)',cat:'Aplicaciones de Negocio',desc:'Plataforma ERP SAP S/4HANA que centraliza los procesos de finanzas, compras, producción, ventas y recursos humanos de la organización.',owner:'Director TI / Responsable SAP',status:'Activo',availTarget:99.5,availReal:99.2,rspTime:15,resTime:8,window:'L–V 07:00–22:00',criticality:'Crítico — Impacto inmediato',deps:'Servidor SAP-APP01, Oracle DB, SAP HANA',notes:'Actualizaciones programadas último sábado de cada mes 22:00–02:00'},
-    {id:'SVC-003',name:'HelpDesk — Soporte Técnico a Usuarios',cat:'HelpDesk y Soporte',desc:'Servicio de soporte técnico de primer y segundo nivel para todos los usuarios de la organización. Canaliza incidencias, peticiones y consultas a través del portal de autoservicio y teléfono.',owner:'Coordinador HelpDesk',status:'Activo',availTarget:99.0,availReal:98.5,rspTime:15,resTime:24,window:'L–V 08:00–18:00',criticality:'Alto — Impacto significativo',deps:'Sistema de ticketing (GLPI), Active Directory',notes:''},
-    {id:'SVC-004',name:'VPN Corporativa — Acceso Remoto Seguro',cat:'Seguridad',desc:'Servicio de red privada virtual (VPN) que permite el acceso seguro a los recursos de la red corporativa desde ubicaciones remotas. Basado en tecnología SSL/TLS.',owner:'Responsable de Seguridad (CISO)',status:'Activo',availTarget:99.5,availReal:99.7,rspTime:10,resTime:4,window:'24×7×365',criticality:'Alto — Impacto significativo',deps:'Firewall FortiGate, Active Directory, RADIUS',notes:''},
-    {id:'SVC-005',name:'SIEM — Monitorización de Seguridad',cat:'Seguridad',desc:'Plataforma de gestión de eventos e información de seguridad (SIEM) que monitoriza en tiempo real todos los activos críticos y detecta anomalías y amenazas.',owner:'CISO',status:'En Desarrollo',availTarget:99.9,availReal:0,rspTime:0,resTime:0,window:'24×7×365',criticality:'Crítico — Impacto inmediato',deps:'Servidor SIEM-01, feeds de threat intelligence, syslog',notes:'Fase de implementación Q3 2026. Go-live previsto 01/10/2026'},
-    {id:'SVC-006',name:'Backup y Recuperación de Datos',cat:'Infraestructura',desc:'Servicio de copias de seguridad automáticas y recuperación ante desastres. RPO ≤ 4 horas, RTO ≤ 8 horas para sistemas críticos.',owner:'Responsable de Sistemas',status:'Activo',availTarget:99.9,availReal:100,rspTime:0,resTime:480,window:'24×7×365',criticality:'Crítico — Impacto inmediato',deps:'Veeam Backup, NAS-BACKUP-01, almacenamiento cloud',notes:'Prueba de restauración mensual obligatoria'}
-];
 
-let services=[];
+let catalogoGeneral = [];
+let currentFilterTab = 'servicios';
 
 function init(){
-    const stored=localStorage.getItem('sig_catalogo_servicios_ti');
-    services=stored?JSON.parse(stored):[...seed];
-    if(!stored)save();
+    const stored = localStorage.getItem('sig_catalogo_general');
+    if (stored) {
+        catalogoGeneral = JSON.parse(stored);
+    } else {
+        // Semilla por defecto
+        catalogoGeneral = [
+            { id: "ART-001", name: "Reactivo Purificador de Agua - Grado A", tipo: "PRODUCTO", cat: "Materias Primas", desc: "Reactivo de purificación físico-química.", cost: 300, stock: 250, minStock: 150, maxStock: 1000, unit: "Kg", location: "Zona A - Estante 2", notes: "" },
+            { id: "ART-002", name: "Ampliación Servidores VPS (4vCPU/16GB)", tipo: "PRODUCTO", cat: "Software y TI", desc: "Ampliaciones elásticas de CPU y RAM.", cost: 50, stock: 10, minStock: 2, maxStock: 50, unit: "Uds", location: "Datacenter Madrid V1", notes: "" },
+            { id: "ART-003", name: "Licencia Anual ERP SAP S/4HANA", tipo: "PRODUCTO", cat: "Software y TI", desc: "Licencia anual de operación ERP.", cost: 1200, stock: 5, minStock: 1, maxStock: 20, unit: "Uds", location: "Servidor SAP Licencias", notes: "" },
+            { id: "ART-004", name: "Mobiliario y Papelería Corporativa", tipo: "PRODUCTO", cat: "Componentes / Equipamiento", desc: "Suministro general de oficina y ergonomía.", cost: 120, stock: 12, minStock: 3, maxStock: 100, unit: "Uds", location: "Almacén Central", notes: "" },
+            { id: "SVC-001", name: "Servicio de Correo Electrónico Corporativo", tipo: "SERVICIO", cat: "Comunicaciones", desc: "Sistemas Exchange Online.", cost: 0, unit: "Buzones", availTarget: 99.9, availReal: 99.95, rspTime: 5, resTime: 4, window: "24×7×365", criticality: "Crítico — Impacto inmediato", deps: "Azure AD, Office 365", notes: "", owner: "Resp. Sistemas" },
+            { id: "SVC-002", name: "ERP SAP S/4HANA Hospedado", tipo: "SERVICIO", cat: "Aplicaciones de Negocio", desc: "Implantación y soporte transaccional SAP.", cost: 0, unit: "Instancia", availTarget: 99.5, availReal: 99.2, rspTime: 15, resTime: 8, window: "L–V 07:00–22:00", criticality: "Crítico — Impacto inmediato", deps: "Oracle DB, SAP HANA", notes: "", owner: "Resp. SAP" },
+            { id: "SVC-004", name: "VPN Corporativa SSL/TLS", tipo: "SERVICIO", cat: "Seguridad", desc: "Acceso remoto seguro para empleados.", cost: 0, unit: "Licencias", availTarget: 99.5, availReal: 99.7, rspTime: 10, resTime: 4, window: "24×7×365", criticality: "Alto — Impacto significativo", deps: "Fortigate Firewall", notes: "", owner: "Resp. Seguridad" },
+            { id: "SVC-006", name: "Backup y Recuperación Veeam", tipo: "SERVICIO", cat: "Infraestructura", desc: "Soporte de restauración ante desastres.", cost: 0, unit: "TB", availTarget: 99.9, availReal: 100.0, rspTime: 15, resTime: 8, window: "24×7×365", criticality: "Crítico — Impacto inmediato", deps: "Veeam Cloud", notes: "", owner: "Resp. Sistemas" }
+        ];
+        localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+    }
     render();
 }
-function save(){localStorage.setItem('sig_catalogo_servicios_ti',JSON.stringify(services));}
 
-function render(){renderKPIs();renderCards();}
+function save(){
+    localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+}
+
+function switchFilterTab(tab) {
+    currentFilterTab = tab;
+    document.getElementById('btn-tab-servicios').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+    document.getElementById('btn-tab-productos').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+
+    if (tab === 'servicios') {
+        document.getElementById('btn-tab-servicios').className = "border-b-2 border-secondary text-secondary py-2 px-1 transition-all";
+    } else {
+        document.getElementById('btn-tab-productos').className = "border-b-2 border-secondary text-secondary py-2 px-1 transition-all";
+    }
+    renderCards();
+}
+
+function render(){
+    renderKPIs();
+    renderCards();
+}
 
 function renderKPIs(){
-    const total=services.length;
-    const active=services.filter(s=>s.status==='Activo').length;
-    const slaOk=services.filter(s=>s.availReal>=s.availTarget&&s.status==='Activo').length;
-    const slaKo=services.filter(s=>s.availReal<s.availTarget&&s.status==='Activo').length;
-    const activeAvails=services.filter(s=>s.status==='Activo'&&s.availReal>0).map(s=>s.availReal);
-    const avgAvail=activeAvails.length>0?(activeAvails.reduce((a,b)=>a+b,0)/activeAvails.length).toFixed(2)+'%':'—';
-    document.getElementById('kpi-total').textContent=total;
-    document.getElementById('kpi-active').textContent=active;
-    document.getElementById('kpi-sla-ok').textContent=slaOk;
-    document.getElementById('kpi-sla-ko').textContent=slaKo;
-    document.getElementById('kpi-avail').textContent=avgAvail;
+    const total = catalogoGeneral.length;
+    const servicesCount = catalogoGeneral.filter(s => s.tipo === 'SERVICIO').length;
+    const productsCount = catalogoGeneral.filter(s => s.tipo === 'PRODUCTO').length;
+    
+    // Alertas de stock crítico
+    const stockAlertCount = catalogoGeneral.filter(s => s.tipo === 'PRODUCTO' && (s.stock <= s.minStock)).length;
+    
+    // Disponibilidad media
+    const activeAvails = catalogoGeneral.filter(s => s.tipo === 'SERVICIO' && s.availReal > 0).map(s => s.availReal);
+    const avgAvail = activeAvails.length > 0 ? (activeAvails.reduce((a,b) => a+b, 0) / activeAvails.length).toFixed(2) + '%' : '—';
+    
+    document.getElementById('kpi-total').textContent = total;
+    document.getElementById('kpi-active-services').textContent = servicesCount;
+    document.getElementById('kpi-total-products').textContent = productsCount;
+    document.getElementById('kpi-stock-alert').textContent = stockAlertCount;
+    document.getElementById('kpi-avail').textContent = avgAvail;
 }
 
 function renderCards(){
-    const grid=document.getElementById('services-grid');
-    const q=document.getElementById('search-input').value.toLowerCase();
-    const catF=document.getElementById('filter-cat').value;
-    const stF=document.getElementById('filter-st').value;
-    const filtered=services.filter(s=>
-        (s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q)||s.id.toLowerCase().includes(q))&&
-        (!catF||s.cat===catF)&&(!stF||s.status===stF)
+    const grid = document.getElementById('services-grid');
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const catF = document.getElementById('filter-cat').value;
+    
+    // Filtrar según la pestaña activa
+    const isServiceTab = currentFilterTab === 'servicios';
+    const tabFiltered = catalogoGeneral.filter(item => isServiceTab ? item.tipo === 'SERVICIO' : item.tipo === 'PRODUCTO');
+
+    const filtered = tabFiltered.filter(s =>
+        (s.name.toLowerCase().includes(q) || s.cat.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)) &&
+        (!catF || s.cat === catF)
     );
-    grid.innerHTML='';
-    if(!filtered.length){grid.innerHTML=`<div class="col-span-3 py-12 text-center text-on-surface-variant font-medium">Sin servicios que coincidan.</div>`;return;}
-    const stCls={'Activo':'bg-green-100 text-green-800 border-green-200','En Desarrollo':'bg-blue-100 text-blue-800 border-blue-200','Mantenimiento':'bg-amber-100 text-amber-800 border-amber-200','Deprecado':'bg-gray-100 text-gray-600 border-gray-200'};
-    const critCls={'Crítico — Impacto inmediato':'text-danger','Alto — Impacto significativo':'text-warning','Medio — Impacto tolerable':'text-amber-600','Bajo — Impacto menor':'text-success'};
-    filtered.forEach(s=>{
-        const t=CAT_INFO[s.cat]||CAT_INFO['Infraestructura'];
-        const slaOk=s.availReal>=s.availTarget;
-        const availPct=Math.min(100,s.availReal);
-        const barColor=slaOk?'bg-green-500':'bg-red-500';
-        grid.innerHTML+=`
+    
+    grid.innerHTML = '';
+    if (!filtered.length) {
+        grid.innerHTML = `<div class="col-span-3 py-12 text-center text-on-surface-variant font-medium">Sin elementos que coincidan en esta pestaña.</div>`;
+        return;
+    }
+
+    filtered.forEach(s => {
+        const t = CAT_INFO[s.cat] || { icon: 'inventory_2', bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-800' };
+        
+        let cardBodyHtml = '';
+        if (s.tipo === 'SERVICIO') {
+            const slaOk = s.availReal >= s.availTarget;
+            const availPct = Math.min(100, s.availReal);
+            const barColor = slaOk ? 'bg-success' : 'bg-danger';
+            
+            cardBodyHtml = `
+                <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-on-surface-variant">Disponibilidad SLA</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-on-surface-variant">Obj: ${s.availTarget}%</span>
+                            <span class="font-bold text-xs ${slaOk?'text-success':'text-danger'}">${s.availReal > 0 ? s.availReal + '%' : '—'} ${slaOk ? '✓' : '✗'}</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-2">
+                        <div class="${barColor} sla-bar" style="width:${availPct}%"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 text-center text-[10px] text-on-surface-variant">
+                        <div><span class="font-bold text-primary">${s.rspTime ? s.rspTime + 'min' : '—'}</span><br>T. Respuesta</div>
+                        <div><span class="font-bold text-primary">${s.resTime ? s.resTime + 'h' : '—'}</span><br>T. Resolución</div>
+                        <div><span class="font-bold text-primary">${s.window || '—'}</span><br>Ventana</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5 text-[11px] text-on-surface-variant border-t border-outline-variant pt-3">
+                    <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">person</span><span class="truncate">${s.owner || 'Resp. Calidad'}</span></div>
+                    <div class="flex items-center gap-1 text-secondary"><span class="material-symbols-outlined text-[12px]">priority_high</span><span class="truncate font-semibold">${s.criticality || 'Crítico'}</span></div>
+                    ${s.deps ? `<div class="flex items-start gap-1 col-span-2"><span class="material-symbols-outlined text-[12px] mt-0.5">link</span><span class="line-clamp-1">${s.deps}</span></div>` : ''}
+                </div>
+            `;
+        } else {
+            // PRODUCTO
+            const stockOk = s.stock > s.minStock;
+            const stockPct = Math.min(100, Math.round((s.stock / (s.maxStock || 500)) * 100));
+            const barColor = stockOk ? 'bg-success' : 'bg-danger animate-pulse';
+            
+            cardBodyHtml = `
+                <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-on-surface-variant">Nivel de Stock (${s.unit || 'Uds'})</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-on-surface-variant">Mín. Seg: ${s.minStock}</span>
+                            <span class="font-bold text-xs ${stockOk?'text-success':'text-danger'}">${s.stock} / ${s.maxStock || 500} ${stockOk ? '✓' : '⚠️ ALERTA'}</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-2">
+                        <div class="${barColor} sla-bar" style="width:${stockPct}%"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-[10px] text-on-surface-variant">
+                        <div>Costo Unitario:<br><span class="font-bold text-primary text-sm">${parseFloat(s.cost || 0).toFixed(2)} €</span></div>
+                        <div>Ubicación Física:<br><span class="font-mono font-bold text-primary">${s.location || 'Almacén'}</span></div>
+                    </div>
+                </div>
+                <div class="text-[11px] text-on-surface-variant border-t border-outline-variant pt-3">
+                    <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">monetization_on</span><span>Valor total en stock: <strong>${(s.stock * s.cost).toLocaleString('es-ES')} €</strong></span></div>
+                </div>
+            `;
+        }
+
+        grid.innerHTML += `
         <div class="bg-surface border border-outline-variant rounded-2xl p-5 flex flex-col gap-3 fade-up hover:shadow-md transition-all hover:border-secondary/40">
             <div class="flex items-start justify-between">
                 <div class="flex items-center gap-2.5">
@@ -220,35 +408,13 @@ function renderCards(){
                         <p class="text-[11px] font-mono text-secondary font-bold mt-0.5">${s.id}</p>
                     </div>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] border font-bold ${stCls[s.status]||''}">${s.status}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] border font-bold ${s.tipo === 'SERVICIO' ? 'bg-blue-100 text-blue-800' : 'bg-indigo-100 text-indigo-800'}">${s.tipo}</span>
             </div>
             <div>
                 <h4 class="font-bold text-sm text-primary leading-snug">${s.name}</h4>
                 <p class="text-[11px] text-on-surface-variant mt-1 line-clamp-2">${s.desc}</p>
             </div>
-            ${s.status==='Activo'?`
-            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-3 space-y-2">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-on-surface-variant">Disponibilidad SLA</span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-on-surface-variant">Obj: ${s.availTarget}%</span>
-                        <span class="font-bold text-xs ${slaOk?'text-success':'text-danger'}">${s.availReal>0?s.availReal+'%':'—'} ${slaOk?'✓':'✗'}</span>
-                    </div>
-                </div>
-                <div class="w-full bg-surface-container rounded-full h-2">
-                    <div class="${barColor} sla-bar" style="width:${availPct}%"></div>
-                </div>
-                <div class="grid grid-cols-3 gap-1 text-center text-[10px] text-on-surface-variant">
-                    <div><span class="font-bold text-primary">${s.rspTime?s.rspTime+'min':'—'}</span><br>T. Respuesta</div>
-                    <div><span class="font-bold text-primary">${s.resTime?s.resTime+'h':'—'}</span><br>T. Resolución</div>
-                    <div><span class="font-bold text-primary">${s.window||'—'}</span><br>Ventana</div>
-                </div>
-            </div>`:''}
-            <div class="grid grid-cols-2 gap-1.5 text-[11px] text-on-surface-variant border-t border-outline-variant pt-3">
-                <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">person</span><span class="truncate">${s.owner}</span></div>
-                <div class="flex items-center gap-1 ${critCls[s.criticality]||''}"><span class="material-symbols-outlined text-[12px]">priority_high</span><span class="truncate font-semibold">${s.criticality?.split(' — ')[0]||'—'}</span></div>
-                ${s.deps?`<div class="flex items-start gap-1 col-span-2"><span class="material-symbols-outlined text-[12px] mt-0.5">link</span><span class="line-clamp-1">${s.deps}</span></div>`:''}
-            </div>
+            ${cardBodyHtml}
             <div class="flex justify-end gap-2 border-t border-outline-variant pt-2">
                 <button onclick="editSvc('${s.id}')" class="text-secondary hover:text-primary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">edit</span>Editar</button>
                 <button onclick="deleteSvc('${s.id}')" class="text-danger hover:text-red-700 text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">delete</span></button>
@@ -257,49 +423,119 @@ function renderCards(){
     });
 }
 
+function openSvcTipoChange() {
+    const tipo = document.getElementById('s-tipo').value;
+    const selectCat = document.getElementById('s-cat');
+    selectCat.innerHTML = "";
+    
+    const divServ = document.getElementById('div-campos-servicio');
+    const divProd = document.getElementById('div-campos-producto');
+
+    if (tipo === 'SERVICIO') {
+        divServ.classList.remove('hidden');
+        divProd.classList.add('hidden');
+        
+        const cats = ['Infraestructura', 'Aplicaciones de Negocio', 'Comunicaciones', 'Seguridad', 'Datos y Analytics', 'HelpDesk y Soporte', 'Cloud y Hosting'];
+        cats.forEach(c => selectCat.innerHTML += `<option>${c}</option>`);
+        document.getElementById('s-unit').value = "Horas";
+    } else {
+        divServ.classList.add('hidden');
+        divProd.classList.remove('hidden');
+        
+        const cats = ['Materias Primas', 'Componentes / Equipamiento', 'Software y TI', 'Servicios Profesionales', 'Logística e Instalaciones'];
+        cats.forEach(c => selectCat.innerHTML += `<option>${c}</option>`);
+        document.getElementById('s-unit').value = "Uds";
+    }
+}
+
 function openModal(data=null){
-    document.getElementById('modal-title').textContent=data?'Editar Servicio TI':'Nuevo Servicio TI';
+    document.getElementById('modal-title').textContent=data?'Editar Elemento':'Nuevo Elemento';
     document.getElementById('svc-id').value=data?.id||'';
     document.getElementById('s-name').value=data?.name||'';
-    document.getElementById('s-cat').value=data?.cat||'Infraestructura';
+    document.getElementById('s-tipo').value=data?.tipo||'SERVICIO';
+    document.getElementById('s-cost').value=data?.cost||0.00;
+    document.getElementById('s-unit').value=data?.unit||'Horas';
     document.getElementById('s-desc').value=data?.desc||'';
-    document.getElementById('s-owner').value=data?.owner||'';
-    document.getElementById('s-status').value=data?.status||'Activo';
-    document.getElementById('s-avail-target').value=data?.availTarget||99.5;
-    document.getElementById('s-avail-real').value=data?.availReal||99.5;
-    document.getElementById('s-rsp').value=data?.rspTime||15;
-    document.getElementById('s-res').value=data?.resTime||4;
-    document.getElementById('s-window').value=data?.window||'24×7×365';
-    document.getElementById('s-crit').value=data?.criticality||'Alto — Impacto significativo';
-    document.getElementById('s-deps').value=data?.deps||'';
     document.getElementById('s-notes').value=data?.notes||'';
+
+    openSvcTipoChange();
+
+    if (data) {
+        document.getElementById('s-cat').value = data.cat;
+        if (data.tipo === 'SERVICIO') {
+            document.getElementById('s-avail-target').value = data.availTarget || 99.5;
+            document.getElementById('s-avail-real').value = data.availReal || 99.5;
+            document.getElementById('s-rsp').value = data.rspTime || 15;
+            document.getElementById('s-res').value = data.resTime || 4;
+            document.getElementById('s-window').value = data.window || '24×7×365';
+            document.getElementById('s-crit').value = data.criticality || 'Alto — Impacto significativo';
+            document.getElementById('s-deps').value = data.deps || '';
+        } else {
+            document.getElementById('p-stock-act').value = data.stock || 0;
+            document.getElementById('p-stock-min').value = data.minStock || 50;
+            document.getElementById('p-stock-max').value = data.maxStock || 500;
+            document.getElementById('p-location').value = data.location || '';
+        }
+    }
+    
     document.getElementById('modal-svc').classList.remove('hidden');
 }
+
 function closeModal(){document.getElementById('modal-svc').classList.add('hidden');}
+
 function saveSvc(e){
     e.preventDefault();
     const id=document.getElementById('svc-id').value;
+    const tipo=document.getElementById('s-tipo').value;
+    
     const obj={
-        id:id||`SVC-${String(services.length+1).padStart(3,'0')}`,
+        id:id||`${tipo === 'SERVICIO' ? 'SVC' : 'ART'}-${String(catalogoGeneral.length+1).padStart(3,'0')}`,
         name:document.getElementById('s-name').value.trim(),
+        tipo:tipo,
         cat:document.getElementById('s-cat').value,
+        cost:parseFloat(document.getElementById('s-cost').value)||0,
+        unit:document.getElementById('s-unit').value.trim(),
         desc:document.getElementById('s-desc').value.trim(),
-        owner:document.getElementById('s-owner').value.trim(),
-        status:document.getElementById('s-status').value,
-        availTarget:parseFloat(document.getElementById('s-avail-target').value)||99.5,
-        availReal:parseFloat(document.getElementById('s-avail-real').value)||0,
-        rspTime:parseInt(document.getElementById('s-rsp').value)||0,
-        resTime:parseInt(document.getElementById('s-res').value)||0,
-        window:document.getElementById('s-window').value,
-        criticality:document.getElementById('s-crit').value,
-        deps:document.getElementById('s-deps').value.trim(),
         notes:document.getElementById('s-notes').value.trim()
     };
-    if(id){const idx=services.findIndex(s=>s.id===id);if(idx!==-1)services[idx]=obj;}else services.push(obj);
-    save();closeModal();render();
+
+    if (tipo === 'SERVICIO') {
+        obj.availTarget = parseFloat(document.getElementById('s-avail-target').value)||99.5;
+        obj.availReal = parseFloat(document.getElementById('s-avail-real').value)||0;
+        obj.rspTime = parseInt(document.getElementById('s-rsp').value)||0;
+        obj.resTime = parseInt(document.getElementById('s-res').value)||0;
+        obj.window = document.getElementById('s-window').value;
+        obj.criticality = document.getElementById('s-crit').value;
+        obj.deps = document.getElementById('s-deps').value.trim();
+        obj.owner = "Dpto. Operaciones";
+    } else {
+        obj.stock = parseInt(document.getElementById('p-stock-act').value)||0;
+        obj.minStock = parseInt(document.getElementById('p-stock-min').value)||0;
+        obj.maxStock = parseInt(document.getElementById('p-stock-max').value)||0;
+        obj.location = document.getElementById('p-location').value.trim();
+    }
+
+    if(id){
+        const idx=catalogoGeneral.findIndex(s=>s.id===id);
+        if(idx!==-1) catalogoGeneral[idx]=obj;
+    }else{
+        catalogoGeneral.push(obj);
+    }
+    
+    save();
+    closeModal();
+    render();
 }
-function editSvc(id){openModal(services.find(s=>s.id===id));}
-function deleteSvc(id){if(confirm('¿Eliminar este servicio del catálogo?')){services=services.filter(s=>s.id!==id);save();render();}}
+
+function editSvc(id){openModal(catalogoGeneral.find(s=>s.id===id));}
+
+function deleteSvc(id){
+    if(confirm('¿Eliminar este elemento del catálogo general?')){
+        catalogoGeneral=catalogoGeneral.filter(s=>s.id!==id);
+        save();
+        render();
+    }
+}
 
 document.addEventListener('DOMContentLoaded',init);
 </script>

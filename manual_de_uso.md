@@ -14,7 +14,7 @@
 5. [Gestión de Auditorías y Acciones Correctivas (CAPA)](#5-gestión-de-auditorías-y-acciones-correctivas-capa)
 6. [Gestión de Riesgos](#6-gestión-de-riesgos)
 7. [Gestión de Cambios TI (RFC)](#7-gestión-de-cambios-ti-rfc)
-8. [Desempeño de Proveedores](#8-desempeño-de-proveedores)
+8. [Gestión de Compras y Evaluación de Proveedores](#8-gestión-de-compras-y-evaluación-de-proveedores)
 9. [Eficacia de la Formación](#9-eficacia-de-la-formación)
 10. [Satisfacción del Cliente](#10-satisfacción-del-cliente)
 11. [Incidentes de Seguridad](#11-incidentes-de-seguridad)
@@ -25,10 +25,11 @@
 16. [Revisión por la Dirección](#16-revisión-por-la-dirección)
 17. [Mapa de Procesos y KPIs](#17-mapa-de-procesos-y-kpis)
 18. [Análisis DAFO y Partes Interesadas](#18-análisis-dafo-y-partes-interesadas)
-19. [Servicios TI y Catálogo](#19-servicios-ti-y-catálogo)
-20. [Seguimiento por IA — Panel de Cumplimiento Automático](#20-seguimiento-por-ia--panel-de-cumplimiento-automático)
-21. [Asistente Virtual (Chatbot)](#21-asistente-virtual-chatbot)
-22. [Preguntas Frecuentes](#22-preguntas-frecuentes)
+19. [Catálogo Unificado de Productos y Servicios](#19-catálogo-unificado-de-productos-y-servicios)
+20. [Producción y Gestión de Capacidad (ISO 20000-1)](#20-producción-y-gestión-de-capacidad-iso-20000-1)
+21. [Seguimiento por IA — Panel de Cumplimiento Automático](#21-seguimiento-por-ia--panel-de-cumplimiento-automático)
+22. [Asistente Virtual (Chatbot)](#22-asistente-virtual-chatbot)
+23. [Preguntas Frecuentes](#23-preguntas-frecuentes)
 
 ---
 
@@ -264,36 +265,43 @@ Este módulo gestiona todas las solicitudes de cambio en los sistemas informáti
 
 ---
 
-## 8. Desempeño de Proveedores
+## 8. Gestión de Compras y Evaluación de Proveedores
 
-### Cómo evaluar a un proveedor
+Este módulo centraliza la homologación y control de proveedores externos junto con la emisión e inspección de pedidos de compras, garantizando el cumplimiento de **ISO 9001 §8.4**.
 
-1. Accede a **Desempeño de Proveedores** en la barra lateral.
-2. Selecciona el proveedor de la lista o añade uno nuevo con **"+ Nuevo Proveedor"**.
-3. Haz clic en **"Nueva Evaluación"** y puntúa del 1 al 5 cada criterio:
+### Catálogo y Homologación de Proveedores
 
-| Criterio | Qué evalúa |
-|----------|-----------|
-| **Calidad** | Calidad del producto o servicio entregado |
-| **Plazos (SLA)** | Cumplimiento de los tiempos acordados |
-| **Atención y soporte** | Capacidad de respuesta ante incidencias |
-| **Seguridad / ESG** | Seguridad de la información y responsabilidad ambiental |
+1. Accede a **Compras y Proveedores** desde la barra lateral.
+2. Selecciona un proveedor de la lista o añade uno con **"+ Nuevo Proveedor"**.
+3. El sistema evalúa automáticamente el estado de homologación basado en su historial:
+   - **Homologado**: Proveedor apto con nota media alta y suministros conformes.
+   - **Bajo Evaluación**: Proveedor nuevo o en reevaluación.
+   - **Suspendido**: Proveedor no apto debido a incidencias graves o baja calificación.
+   - **Seguimiento Especial**: Proveedor con incidencias pero que es único y crítico (sin alternativas viables).
+   - **Inactivo (Baja)**: Proveedor que ha sido dado de baja por inactividad prolongada (más de 3 años sin suministros). Se incluye un botón **"Control de Inactividad"** para ejecutar el análisis en lote.
 
-4. El sistema calcula automáticamente la **nota media**.
-5. Guarda la evaluación.
+### Registro de Pedidos de Compras
 
-### Qué ocurre si un proveedor suspende
+1. Ve a la pestaña **Pedidos y Compras** y haz clic en **"+ Nuevo Pedido de Compra"**.
+2. Rellena el formulario:
+   - **Proveedor**: Elige de la lista. El sistema filtra por la categoría del producto elegido.
+   - **Origen**: Selecciona entre *Reposición de Almacén* o *Propuesta por Pedido de Cliente* (las propuestas de compra generadas desde Producción se listan y se cargan automáticamente aquí).
+   - **Artículo**: Elige un producto o material del catálogo unificado (`sig_catalogo_general`).
+   - **Cantidad y Costo Unitario**: Se autocalcula el importe total del pedido.
+   - **Requisitos Técnicos (Checklist)**: Especifica si requiere *Ficha Técnica*, *Certificado de Calidad* o *Declaración de Conformidad*.
+3. **Bloqueo de Proveedores No Aprobados**: Si seleccionas un proveedor en estado *Suspendido* o *Inactivo*, el sistema bloqueará el guardado del pedido y mostrará una advertencia. Para proceder por vía excepcional, deberás marcar la casilla **"Autorización de Gerencia"** y documentar detalladamente la justificación obligatoria.
 
-Si la nota media es **inferior a 2.5**, el sistema automáticamente:
-- Cambia el estado del proveedor a **"No Apto / Suspendido"**.
-- Genera una **No Conformidad (CAPA)** automática en el módulo de Auditorías.
-- Envía una alerta al Panel de IA del Dashboard.
+### Inspección de Recepción y Gestión de No Conformidades
 
-En este caso, deberás:
-1. Contactar con el proveedor para comunicar el resultado.
-2. Acordar un plan de mejora.
-3. Realizar una nueva evaluación en el plazo acordado.
-4. Cerrar la CAPA cuando el proveedor supere el umbral mínimo.
+Al recibir el pedido de compra en el almacén:
+1. Haz clic en **"Recibir"** sobre el pedido pendiente de recepción.
+2. Selecciona si la entrega es **Conforme** o **No Conforme**:
+   - Si es **No Conforme**, clasifica la gravedad (*Leve* o *Grave*) y el motivo (ej. *Material defectuoso*, *Plazo incumplido*, *Falta de documentación*). Indica la cantidad de unidades devueltas.
+   - **Albarán de Devolución**: En caso de no conformidad, el sistema genera automáticamente un albarán en rojo destacando la instrucción física obligatoria: *"AVISO OBLIGATORIO: Trasladar material a la zona de 'Material No Conforme' y etiquetar correspondientemente"*.
+3. **Transición Automática de Estados**:
+   - 3 entregas consecutivas conformes homologan automáticamente a un proveedor en evaluación.
+   - Un registro de entrega *No Conforme Grave* degrada automáticamente al proveedor al estado *Suspendido* (si existen alternativas registradas para esa categoría de producto en el catálogo) o a *Seguimiento Especial* (si no hay alternativas). Adicionalmente, se abre automáticamente una **No Conformidad (CAPA)** en el SGI.
+   - La nota media histórica del proveedor se recalcula a partir de los criterios evaluados (Calidad, Plazos, Soporte, ESG). Si la nota cae por debajo de **2.5**, el proveedor pasa a estar suspendido y se genera una CAPA.
 
 ---
 
@@ -520,23 +528,56 @@ Para ver el detalle de un proceso, haz clic sobre él en el mapa. Se abrirá la 
 
 ---
 
-## 19. Servicios TI y Catálogo
+## 19. Catálogo Unificado de Productos y Servicios
 
-### Catálogo de Servicios TI
+El **Catálogo Unificado** (`sig_catalogo_general`) centraliza el portafolio de servicios y productos/artículos de la organización, de conformidad con **ISO 20000-1 §8.11** (Catálogo de Servicios) e **ISO 9001 §8.5.1**.
 
-El **Catálogo de Servicios TI** contiene la descripción de todos los servicios tecnológicos que proporciona el departamento de TI a la organización.
+### Estructura de Elementos en el Catálogo
 
-1. Accede a **Catálogo de Servicios TI** en la barra lateral.
-2. Para cada servicio puedes ver:
-   - Descripción y alcance del servicio.
-   - SLA (nivel de servicio acordado): disponibilidad y tiempo de respuesta.
-   - Responsable técnico.
-   - Estado actual (Operativo / Degradado / No disponible).
-3. Para añadir un nuevo servicio, haz clic en **"+ Nuevo Servicio"** y rellena la ficha.
+El catálogo diferencia entre dos tipos de elementos mediante pestañas dedicadas:
+1. **Servicios TI y Operación**:
+   - **Atributos**: Acuerdo de Nivel de Servicio (SLA) objetivo, disponibilidad real registrada, tiempo de respuesta máximo, tiempo de resolución, ventana horaria de soporte, nivel de criticidad del negocio y dependencias técnicas (ej. bases de datos, redes).
+   - **Trazabilidad**: Asigna la responsabilidad de cada servicio a un rol propietario (ej. Responsable de Sistemas, Responsable de SAP).
+2. **Productos e Inventario (Artículos)**:
+   - **Atributos**: Stock actual de almacén, stock mínimo (seguridad), stock de capacidad máxima, costo unitario de adquisición y ubicación física específica (ej. Zona A - Estantería 3).
+   - **Trazabilidad**: Permite calcular el valor monetario total del inventario y disparar alertas de reposición inmediatas cuando el stock real desciende por debajo del mínimo de seguridad.
+
+### Gestión de Catálogo
+- Para registrar un nuevo elemento, pulsa **"Nuevo Elemento"** y selecciona el tipo (*Servicio* o *Producto*). Esto alternará dinámicamente los campos requeridos en el formulario.
+- Los elementos del catálogo se vinculan directamente al módulo de **Producción** (para recibir pedidos de clientes) y al módulo de **Compras** (para suministrar materiales y licencias).
 
 ---
 
-## 20. Seguimiento por IA — Panel de Cumplimiento Automático
+## 20. Producción y Gestión de Capacidad (ISO 20000-1)
+
+El módulo de **Producción y Gestión de Capacidad** asegura que la organización dispone de los recursos técnicos, materiales y de personal necesarios para prestar los servicios y suministrar los productos demandados por los clientes, cumpliendo con **ISO 20000-1 §6.3** (Planificación de capacidad).
+
+### Registro de Pedidos de Clientes y Demanda de Recursos
+1. Accede a **Producción y Capacidad** en la barra lateral.
+2. Ve a la pestaña **Pedidos de Clientes** y haz clic en **"Nuevo Pedido de Cliente"**.
+3. Rellena los datos de la demanda del cliente:
+   - Selecciona el artículo o servicio correspondiente de tu Catálogo General.
+   - Especifica las demandas de recursos asociadas al pedido: *Horas de soporte técnico*, *Capacidad de infraestructura (vCPUs)* y *Materias primas (Kg / Uds)*.
+4. Al guardar el pedido:
+   - Si es un producto del catálogo, el sistema **descuenta automáticamente** la cantidad pedida del stock de inventario en el Catálogo.
+   - Si no hay suficiente stock en almacén, aparecerá una alerta destacada y se habilitará un botón de **"Propuesta de Compra"** (icono de carrito) para enviar una solicitud de suministro directamente a Compras.
+
+### Dashboard de Capacidad e Indicadores en Tiempo Real
+En la pestaña **Dashboard de Capacidad y Disponibilidad**, el sistema procesa los pedidos activos y muestra:
+1. **Medidores de Capacidad (Gauges)**:
+   - **Soporte Técnico (Banda de Horas)**: Nivel de ocupación de la plantilla (ej. sobre 150h semanales).
+   - **Infraestructura Cloud / Servidores**: Uso de vCPUs en los entornos productivos (ej. sobre 500 vCPUs).
+   - **Materias Primas / Componentes**: Capacidad física de almacenamiento o inventario disponible.
+2. **Análisis Predictivo de Tendencias (6 Meses)**:
+   - Gráfico de barras temporales que proyecta el consumo acumulado de recursos basado en el histórico y las entregas futuras de los pedidos de clientes.
+   - **Alertas de Saturación**: Si el consumo proyectado supera el umbral crítico de capacidad (70%), el gráfico activará una línea de advertencia discontinua con alertas preventivas para anticipar la contratación de personal o ampliación de infraestructura.
+3. **Estudios de Carga e Incidencias de Capacidad**:
+   - Listado interactivo de cuellos de botella detectados (ej. almacenamiento NAS saturado, túneles VPN saturados).
+   - Permite lanzar solicitudes de compra de infraestructura de forma integrada con Compras para corregir desviaciones.
+
+---
+
+## 21. Seguimiento por IA — Panel de Cumplimiento Automático
 
 El **Panel de Cumplimiento por IA** está integrado en el Cuadro de Mando y realiza un análisis automático y continuo de los datos del sistema para detectar incumplimientos.
 
@@ -549,6 +590,7 @@ El motor de IA escanea los siguientes aspectos de forma periódica:
 | **Cambios TI** | Detecta RFCs sin Plan de Pruebas o sin Plan de Rollback |
 | **Proveedores** | Verifica que los proveedores con nota < 2.5 tienen CAPA abierta |
 | **Formación** | Comprueba que las formaciones no eficaces tienen acción de mejora |
+| **Capacidad y Stock** | Alerta de roturas de stock en el catálogo e incidencias de capacidad crítica activas sin propuesta de compra |
 | **ENS** | Detecta medidas de seguridad obligatorias no implantadas |
 
 ### Cómo interpretar las alertas
@@ -574,12 +616,12 @@ Cada detección queda registrada con fecha y hora en el **Log de Auditoría IA**
 
 ---
 
-## 21. Asistente Virtual (Chatbot)
+## 22. Asistente Virtual (Chatbot)
 
 El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esquina inferior derecha de la pantalla. Puedes consultarle sobre:
 
-- **Cómo realizar tareas** en la aplicación (ej: *"¿Cómo registro una no conformidad?"*).
-- **Requisitos de las normas ISO y ENS** (ej: *"¿Qué dice ISO 9001 sobre la evaluación de proveedores?"*).
+- **Cómo realizar tareas** en la aplicación (ej: *"¿Cómo registro una no conformidad?"* o *"¿Cómo añado un pedido de cliente y consulto la capacidad?"*).
+- **Requisitos de las normas ISO y ENS** (ej: *"¿Qué dice ISO 9001 sobre la evaluación de proveedores?"* o *"¿Cuáles son los requisitos de capacidad de ISO 20000-1?"*).
 - **Navegación asistida**: Al responder, el chatbot incluye botones que te llevan directamente al módulo correspondiente con un solo clic.
 
 ### Cómo usar el chatbot
@@ -595,13 +637,13 @@ El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esqu
 - *"¿Cómo abro una RFC?"*
 - *"¿Qué es el modelo Kirkpatrick?"*
 - *"¿Cómo evalúo a un proveedor?"*
-- *"¿Qué medidas obligatorias exige el ENS?"*
+- *"¿Cómo analizo la capacidad y disponibilidad en ISO 20000-1?"*
 - *"¿Dónde registro un accidente laboral?"*
-- *"¿Cuándo hay que notificar una brecha de datos?"*
+- *"¿Cómo solicito una propuesta de compra de almacén?"*
 
 ---
 
-## 22. Preguntas Frecuentes
+## 23. Preguntas Frecuentes
 
 **¿Puedo usar Bor4SIGE sin conexión a internet?**
 Sí. Bor4SIGE está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.

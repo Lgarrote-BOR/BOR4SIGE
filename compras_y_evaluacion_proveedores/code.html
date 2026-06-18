@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light">
 <head>
     <!-- Interceptor de LocalStorage para sincronización con el servidor -->
@@ -61,6 +61,13 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        @keyframes scaleUp {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-animate {
+            animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
@@ -80,7 +87,7 @@
         <div class="flex items-center gap-2">
             <div class="hidden md:flex items-center border border-secondary rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
                 <span class="material-symbols-outlined text-sm">shopping_cart</span>
-                <span>Gestión de Compras y Control de Proveedores</span>
+                <span>Gestión de Compras y Control de Proveedores (ISO 20000-1)</span>
             </div>
             <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
                 US
@@ -95,14 +102,18 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
             <div>
                 <h2 class="font-bold text-2xl text-primary tracking-tight">Compras y Evaluación de Proveedores</h2>
-                <p class="text-sm text-on-surface-variant mt-1">Homologación de proveedores externos, compras activas y controles de calidad de suministros (ISO 9001:2015 §8.4).</p>
+                <p class="text-sm text-on-surface-variant mt-1">Homologación de proveedores externos, compras controladas y gestión de incidencias de calidad (ISO 9001 §8.4 / ISO 20000-1 §8.11).</p>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="openModal('modal-pedido')" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
+                <button onclick="executeInactivityCheck()" class="flex items-center gap-1.5 px-3 py-2 bg-surface border border-outline-variant text-amber-700 hover:bg-amber-50 text-xs font-bold rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-base">running_with_errors</span>
+                    Control Inactividad
+                </button>
+                <button onclick="openPedidoModal()" class="flex items-center gap-1.5 px-4 py-2 bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-base">receipt_long</span>
                     Nuevo Pedido
                 </button>
-                <button onclick="openModal('modal-proveedor')" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
+                <button onclick="openNewProveedorModal()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white hover:bg-primary text-xs font-bold rounded-lg transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-base">person_add</span>
                     Añadir Proveedor
                 </button>
@@ -125,12 +136,12 @@
             <!-- KPI 2 -->
             <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Proveedores Homologados</span>
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Homologados / Activos</span>
                     <span class="material-symbols-outlined text-success">verified</span>
                 </div>
                 <div>
                     <span id="kpi-homologados" class="font-bold text-2xl text-success">0 / 0</span>
-                    <p class="text-[11px] text-on-surface-variant mt-1">Aptos para suministrar</p>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Proveedores aprobados vigentes</p>
                 </div>
             </div>
             <!-- KPI 3 -->
@@ -147,12 +158,12 @@
             <!-- KPI 4 -->
             <div class="bg-surface rounded-xl border border-outline-variant p-4 flex flex-col justify-between hover:shadow-[0px_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Evaluaciones Pendientes</span>
-                    <span class="material-symbols-outlined text-danger">event_busy</span>
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Incidencias Críticas</span>
+                    <span class="material-symbols-outlined text-danger">report_problem</span>
                 </div>
                 <div>
-                    <span id="kpi-pendientes" class="font-bold text-2xl text-danger">0</span>
-                    <p class="text-[11px] text-on-surface-variant mt-1">Vencimiento superior a 12 meses</p>
+                    <span id="kpi-incidencias" class="font-bold text-2xl text-danger">0</span>
+                    <p class="text-[11px] text-on-surface-variant mt-1">Faltas graves de entrega</p>
                 </div>
             </div>
         </div>
@@ -168,6 +179,9 @@
                 </button>
                 <button id="btn-tab-evaluaciones" onclick="switchTab('evaluaciones')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
                     Historial de Evaluaciones
+                </button>
+                <button id="btn-tab-incidencias" onclick="switchTab('incidencias')" class="border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all">
+                    Registro de Incidencias (R-8-02)
                 </button>
             </nav>
         </div>
@@ -186,9 +200,11 @@
                     <select id="filter-estado" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
                         <option value="">Todos los Estados</option>
                         <option value="Homologado">Homologado</option>
+                        <option value="Aprobado Condicional">Aprobado Condicional</option>
                         <option value="En Evaluación">En Evaluación</option>
-                        <option value="Suspendido">Suspendido</option>
-                        <option value="No Apto">No Apto</option>
+                        <option value="Seguimiento Especial">Seguimiento Especial</option>
+                        <option value="Suspendido">Suspendido / Rechazado</option>
+                        <option value="Baja por Inactividad">Baja por Inactividad</option>
                     </select>
                     
                     <select id="filter-cat" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
@@ -210,10 +226,12 @@
                             <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
                                 <th class="p-3 w-16 text-center">ID</th>
                                 <th class="p-3">Empresa</th>
-                                <th class="p-3 w-32">NIF</th>
-                                <th class="p-3 w-48">Categoría</th>
-                                <th class="p-3 w-40 text-center">Estado Homologación</th>
-                                <th class="p-3 w-28 text-center">Última Nota</th>
+                                <th class="p-3 w-28">NIF</th>
+                                <th class="p-3 w-36">Categoría</th>
+                                <th class="p-3 w-32 text-center">Método Eval.</th>
+                                <th class="p-3 w-32 text-center">Estado Homologación</th>
+                                <th class="p-3 w-28 text-center">Consecutivos</th>
+                                <th class="p-3 w-20 text-center">Nota</th>
                                 <th class="p-3 w-36 text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -238,7 +256,9 @@
                         <option value="">Todos los Estados</option>
                         <option value="En Tránsito">En Tránsito</option>
                         <option value="Entregado">Entregado</option>
+                        <option value="Entregado con Incidencia">Entregado con Incidencia</option>
                         <option value="Retrasado">Retrasado</option>
+                        <option value="Devuelto">Devuelto / Rechazado</option>
                         <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
@@ -253,8 +273,10 @@
                                 <th class="p-3 w-24">Cód Pedido</th>
                                 <th class="p-3">Proveedor</th>
                                 <th class="p-3">Concepto/Detalle</th>
-                                <th class="p-3 w-32 text-center font-bold">Importe</th>
-                                <th class="p-3 w-32 text-center">Fecha Pedido</th>
+                                <th class="p-3 w-28 text-center font-bold">Importe</th>
+                                <th class="p-3 w-24 text-center">Plazo</th>
+                                <th class="p-3 w-28">Origen / Detalles</th>
+                                <th class="p-3 w-24 text-center">Checklist</th>
                                 <th class="p-3 w-32 text-center">Estado de Entrega</th>
                                 <th class="p-3 w-28 text-center">Acciones</th>
                             </tr>
@@ -294,11 +316,36 @@
             </div>
         </section>
 
+        <!-- SECCIÓN 4: REGISTRO DE INCIDENCIAS (R-8-02) -->
+        <section id="sec-incidencias" class="space-y-4 hidden">
+            <!-- Tabla de Incidencias -->
+            <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                                <th class="p-3 w-28 text-center font-bold">Fecha</th>
+                                <th class="p-3">Proveedor</th>
+                                <th class="p-3 w-24 text-center">Severidad</th>
+                                <th class="p-3 w-56">Clasificación de la Falta</th>
+                                <th class="p-3 w-24 text-center">Ped. Origen</th>
+                                <th class="p-3 w-32 text-center">Nº No Conformidad</th>
+                                <th class="p-3">Detalle / Acción Correctiva</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-incidencias" class="text-xs text-on-surface divide-y divide-outline-variant">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- MODAL 1: PROVEEDOR (Crear / Editar) -->
     <div id="modal-proveedor" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl modal-animate">
             <div class="flex justify-between items-center border-b border-outline-variant pb-3">
                 <h3 id="prov-modal-title" class="font-bold text-base text-primary">Registrar Nuevo Proveedor</h3>
                 <button onclick="closeModal('modal-proveedor')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
@@ -340,7 +387,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-on-surface-variant mb-1">Teléfono</label>
-                        <input id="prov-phone" type="tel" placeholder="Ej: +34 912 345 678" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                        <input id="prov-phone" type="tel" placeholder="Ej: +34 600 000 000" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-on-surface-variant mb-1">Email de Contacto</label>
@@ -348,13 +395,38 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface-container-low p-2 rounded-lg border border-outline-variant">
+                    <div>
+                        <label class="block text-[11px] font-bold text-primary mb-1">Criticidad ISO</label>
+                        <select id="prov-criticidad" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs font-semibold text-primary outline-none cursor-pointer">
+                            <option value="si">Crítico (Impacto alto)</option>
+                            <option value="no">No Crítico (Impacto menor)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-primary mb-1">Método de Selección</label>
+                        <select id="prov-metodo" onchange="toggleCertificadoInput()" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs font-semibold text-primary outline-none cursor-pointer">
+                            <option value="CONTROL_PRODUCTOS">Control en Recepción (3 pedidos)</option>
+                            <option value="CERTIFICACION">Certificación de Calidad (ISO 9001)</option>
+                            <option value="CUESTIONARIO">Evaluación por Cuestionario</option>
+                            <option value="HISTORICO">Datos Históricos (Mín. 2 años)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="div-certificado" class="hidden">
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Certificado Vigente de Calidad (e.g. AENOR, SGS)</label>
+                    <input id="prov-cert" type="text" placeholder="Ej: Certificado ISO 9001 Nº ES09/14562" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado Inicial de Homologación</label>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado de Homologación</label>
                     <select id="prov-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
-                        <option value="En Evaluación">En Evaluación (Pendiente de auditoría / entrega inicial)</option>
-                        <option value="Homologado">Homologado (Apto para emitir pedidos)</option>
-                        <option value="Suspendido">Suspendido (Por incidencias graves detectadas)</option>
-                        <option value="No Apto">No Apto (No cumple especificaciones mínimas)</option>
+                        <option value="En Evaluación">En Evaluación (Pendiente de control o auditoría inicial)</option>
+                        <option value="Homologado">Homologado (Aprobado para suministros)</option>
+                        <option value="Aprobado Condicional">Aprobado Condicional (Pendiente de consolidar conformidades)</option>
+                        <option value="Seguimiento Especial">Seguimiento Especial (Proveedor único con incidencias)</option>
+                        <option value="Suspendido">Suspendido / Rechazado (Deshomologado por fallos graves)</option>
                     </select>
                 </div>
 
@@ -370,9 +442,287 @@
         </div>
     </div>
 
-    <!-- MODAL 2: EVALUACIÓN ISO 9001 -->
+    <!-- MODAL 2: REGISTRAR PEDIDO DE COMPRA -->
+    <div id="modal-pedido" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl modal-animate">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Registrar Pedido de Compra</h3>
+                <button onclick="closeModal('modal-pedido')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="savePedido(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Producto / Artículo del Catálogo</label>
+                    <select id="ped-concept" onchange="onPedidoProductChange()" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <!-- Cargados dinámicamente del catálogo -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Proveedor Externo</label>
+                    <select id="ped-prov-id" onchange="onPedidoProveedorChange()" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <!-- Cargados dinámicamente y filtrados -->
+                    </select>
+                </div>
+
+                <!-- Alerta si el proveedor no está aprobado -->
+                <div id="prov-alert-block" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-2 text-xs text-amber-800">
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-amber-600 text-sm">warning</span>
+                        <div>
+                            <span class="font-bold">PROVEEDOR NO HOMOLOGADO VIGENTE:</span> Se encuentra bloqueado temporalmente. Se requiere autorización explícita de Gerencia para emitir este pedido especial.
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 pt-1">
+                        <input type="checkbox" id="ped-auth-gerencia" onchange="onAuthGerenciaChange()" class="rounded border-outline-variant text-secondary focus:ring-secondary h-4 w-4"/>
+                        <label for="ped-auth-gerencia" class="font-bold text-primary select-none cursor-pointer">Autorización de Gerencia Otorgada</label>
+                    </div>
+                    <div id="div-justificacion-gerencia" class="hidden space-y-1">
+                        <label class="block font-bold text-primary text-[10px]">Justificación / Excepción Autorizada *</label>
+                        <textarea id="ped-justificacion" rows="2" placeholder="Describa el motivo de la compra excepcional a este proveedor..." class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-[11px] focus:outline-none focus:border-secondary"></textarea>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Motivo / Origen del Pedido</label>
+                        <select id="ped-reason" onchange="onPedidoReasonChange()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Reposición de almacén">Reposición de almacén</option>
+                            <option value="Propuesta de pedido de un cliente">Propuesta de pedido de un cliente</option>
+                        </select>
+                    </div>
+                    <div id="div-client-order-id" class="hidden">
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">ID Pedido Cliente Vinculado</label>
+                        <input id="ped-client-order" type="text" placeholder="Ej: PED-CLI-024" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Cantidad Solicitada</label>
+                        <input id="ped-qty" oninput="onPedidoProductChange()" required type="number" min="1" placeholder="Ej: 50" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Importe Calculado (€)</label>
+                        <input id="ped-amount" required type="number" step="0.01" placeholder="Ej: 14500" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Plazo de Entrega (Fecha Límite)</label>
+                        <input id="ped-deadline" required type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 space-y-2">
+                    <span class="block text-[11px] font-bold text-primary">Especificaciones Técnicas Exigidas (Checklist)</span>
+                    <div class="grid grid-cols-3 gap-2 text-[10px] text-on-surface-variant">
+                        <label class="flex items-center gap-1.5 select-none cursor-pointer">
+                            <input type="checkbox" id="ped-chk-ft" class="rounded border-outline-variant text-secondary focus:ring-secondary h-3.5 w-3.5"/>
+                            <span>Ficha Técnica</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 select-none cursor-pointer">
+                            <input type="checkbox" id="ped-chk-cc" class="rounded border-outline-variant text-secondary focus:ring-secondary h-3.5 w-3.5"/>
+                            <span>Certificado Calidad</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 select-none cursor-pointer">
+                            <input type="checkbox" id="ped-chk-dc" class="rounded border-outline-variant text-secondary focus:ring-secondary h-3.5 w-3.5"/>
+                            <span>Decl. Conformidad</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Observaciones del Pedido</label>
+                    <textarea id="ped-obs" rows="2" placeholder="Firma de compras, acuerdos especiales o especificaciones particulares..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-pedido')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-submit-pedido" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar e Imprimir Pedido
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: REGISTRAR RECEPCIÓN (INSPECCIÓN Y CONTROL DE CALIDAD) -->
+    <div id="modal-recepcion" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl modal-animate">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Inspección de Recepción de Pedido</h3>
+                <button onclick="closeModal('modal-recepcion')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form onsubmit="saveRecepcion(event)" class="space-y-4">
+                <input type="hidden" id="rec-pedido-id" value=""/>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Código de Pedido</label>
+                        <input id="rec-pedido-code" type="text" readonly class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-bold text-primary cursor-not-allowed outline-none"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Fecha de Recepción</label>
+                        <input id="rec-date" required type="date" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Juicio de Conformidad del Suministro</label>
+                    <select id="rec-conforme" onchange="onConformidadChange()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                        <option value="CONFORME">✓ Conforme (Cumple especificaciones y plazos)</option>
+                        <option value="NO_CONFORME">✗ No Conforme (Presenta incidencias / no apto)</option>
+                    </select>
+                </div>
+
+                <!-- Campos específicos de No Conformidad -->
+                <div id="div-incidencia-detalles" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 space-y-3 text-xs text-red-800">
+                    <span class="font-bold flex items-center gap-1.5 text-danger"><span class="material-symbols-outlined text-sm">error</span>Registro de Incidencia (R-8-02)</span>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-on-surface-variant mb-1">Severidad</label>
+                            <select id="rec-inc-gravedad" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs text-primary outline-none cursor-pointer">
+                                <option value="LEVE">Incidencia Leve</option>
+                                <option value="GRAVE">Incidencia Grave (Generará INC en Calidad)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-on-surface-variant mb-1">Cantidad Devuelta</label>
+                            <input id="rec-inc-qty" type="number" min="0" placeholder="Ej: 10" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs text-primary outline-none"/>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">Clasificación de la Falta</label>
+                        <select id="rec-inc-tipo" class="w-full bg-surface border border-outline-variant rounded px-2 py-1 text-xs text-primary outline-none cursor-pointer">
+                            <option value="Incidencia en cuestiones administrativas">Incidencia en cuestiones administrativas (Leve)</option>
+                            <option value="Pedido incompleto o retrasado y no afecta al servicio">Pedido incompleto o retrasado y no afecta al servicio (Leve)</option>
+                            <option value="Pedido incompleto o retrasado y afecta al servicio">Pedido incompleto o retrasado y afecta al servicio (Grave)</option>
+                            <option value="Material defectuoso">Material defectuoso (Grave)</option>
+                            <option value="Embalaje en mal estado y afecta al material">Embalaje en mal estado y afecta al material (Grave)</option>
+                            <option value="Identificación del material errónea">Identificación del material errónea (Leve)</option>
+                        </select>
+                    </div>
+
+                    <p class="text-[10px] text-danger font-semibold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px]">info</span>
+                        Al registrar se auto-generará un Albarán de Devolución para el retiro del material.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Observaciones / Anotaciones del Inspector</label>
+                    <textarea id="rec-obs" rows="2" placeholder="Detalles de la entrega, firma del receptor, incidencias administrativas..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-recepcion')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar Recepción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ALBARÁN DE DEVOLUCIÓN A PROVEEDOR -->
+    <div id="modal-devolucion" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border-2 border-danger rounded-xl max-w-xl w-full p-6 flex flex-col gap-4 shadow-2xl modal-animate overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-danger/20 pb-3">
+                <div class="flex items-center gap-2 text-danger">
+                    <span class="material-symbols-outlined text-2xl font-bold">assignment_return</span>
+                    <h3 class="font-bold text-lg">Albarán de Devolución a Proveedor</h3>
+                </div>
+                <button onclick="closeModal('modal-devolucion')" class="text-on-surface-variant hover:text-danger p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Estructura del Albarán -->
+            <div class="border border-outline-variant rounded-lg p-4 bg-surface-container-low/30 space-y-4 font-sans text-xs text-primary">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-sm text-primary">BOR4D ENTERPRISES S.L.</h4>
+                        <p class="text-[10px] text-on-surface-variant">Dpto. Calidad y Operaciones SIG</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-mono font-bold text-danger" id="dev-code">DEV-2026-001</p>
+                        <p class="text-[10px] text-on-surface-variant" id="dev-date">Fecha: 18/06/2026</p>
+                    </div>
+                </div>
+
+                <hr class="border-outline-variant"/>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h5 class="font-bold text-[10px] text-on-surface-variant uppercase">Proveedor de Suministro:</h5>
+                        <p class="font-bold mt-1" id="dev-prov-name">Global Logística y Distribución</p>
+                        <p id="dev-prov-nif">NIF: B28987412</p>
+                        <p id="dev-prov-contact">Contacto: Carlos Ramos</p>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-[10px] text-on-surface-variant uppercase">Pedido de Origen:</h5>
+                        <p class="font-bold mt-1" id="dev-orig-ped">PED-2026-002</p>
+                        <p id="dev-orig-concept">Concepto: Servidores de desarrollo</p>
+                    </div>
+                </div>
+
+                <hr class="border-outline-variant"/>
+
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <h5 class="font-bold text-danger uppercase text-[10px]">Detalle de No Conformidad:</h5>
+                    <p class="font-medium mt-1 text-on-surface" id="dev-inc-desc">Material defectuoso en un lote de aditivos.</p>
+                    <p class="font-bold mt-1 text-danger">Cantidad a Devolver: <span id="dev-inc-qty-val">10</span> unidades</p>
+                </div>
+
+                <!-- AVISO ISO CRÍTICO DE ALMACÉN -->
+                <div class="border-2 border-dashed border-danger bg-red-100/50 rounded-lg p-3 flex gap-2">
+                    <span class="material-symbols-outlined text-danger text-2xl shrink-0 font-bold">warning</span>
+                    <div>
+                        <h5 class="font-bold text-danger text-[11px] uppercase">AVISO OBLIGATORIO DE CONTROL INTERNO:</h5>
+                        <p class="text-on-surface font-semibold text-[10px] mt-0.5">El material afectado debe ser colocado de forma inmediata en la zona delimitada de "MATERIAL NO CONFORME" y etiquetado con este documento de devolución para evitar su inserción accidental en producción.</p>
+                    </div>
+                </div>
+
+                <!-- Firmas -->
+                <div class="grid grid-cols-2 gap-8 pt-6">
+                    <div class="text-center">
+                        <div class="border-b border-primary/40 h-12"></div>
+                        <p class="text-[9px] text-on-surface-variant mt-1">Firma: Responsable de Compras</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="border-b border-primary/40 h-12"></div>
+                        <p class="text-[9px] text-on-surface-variant mt-1">Firma / Sello: Proveedor (Recepción)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 border-t border-outline-variant pt-3">
+                <button onclick="window.print()" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">print</span> Imprimir
+                </button>
+                <button onclick="closeModal('modal-devolucion')" class="bg-danger text-white hover:bg-red-800 text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                    Cerrar Albarán
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: EVALUACIÓN ISO 9001 -->
     <div id="modal-evaluacion" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl modal-animate">
             <div class="flex justify-between items-center border-b border-outline-variant pb-3">
                 <h3 class="font-bold text-base text-primary">Evaluación / Homologación de Proveedor</h3>
                 <button onclick="closeModal('modal-evaluacion')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
@@ -450,70 +800,21 @@
         </div>
     </div>
 
-    <!-- MODAL 3: PEDIDO (Registrar) -->
-    <div id="modal-pedido" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl">
-            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
-                <h3 class="font-bold text-base text-primary">Registrar Pedido de Compra</h3>
-                <button onclick="closeModal('modal-pedido')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            
-            <form onsubmit="savePedido(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Proveedor Asignado</label>
-                    <select id="ped-prov-id" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
-                        <!-- Cargar dinámicamente -->
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Concepto / Detalle del Suministro</label>
-                    <input id="ped-concept" required type="text" placeholder="Ej: Adquisición de servidores de desarrollo, 500Kg materia prima" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Importe del Pedido (€)</label>
-                        <input id="ped-amount" required type="number" step="0.01" placeholder="Ej: 14500" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Estado de Entrega Inicial</label>
-                        <select id="ped-status" required class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
-                            <option value="En Tránsito">En Tránsito (Emitido y enviado)</option>
-                            <option value="Entregado">Entregado (Validado por operaciones)</option>
-                            <option value="Retrasado">Retrasado (Incidencia en plazo)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
-                    <button type="button" onclick="closeModal('modal-pedido')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="bg-secondary text-white hover:bg-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
-                        Registrar Pedido
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Script de Gestión e Interactividad -->
     <script>
-        // Datos de semilla para iniciar
+        // Semillas adaptadas a la nueva lógica e histórico
         const seedProveedores = [
-            { id: "PROV-001", name: "Global Logística y Distribución", nif: "B28987412", cat: "Logística e Instalaciones", contact: "Carlos Ramos", phone: "+34 600 112 233", email: "contacto@globallog.es", status: "Homologado", note: 4.8 },
-            { id: "PROV-002", name: "Servidores & Cloud Madrid", nif: "A82741963", cat: "Software y TI", contact: "Elena Torres", phone: "+34 915 556 677", email: "soporte@servcloud.com", status: "Homologado", note: 4.3 },
-            { id: "PROV-003", name: "Químicas del Norte S.A.", nif: "A48159357", cat: "Materias Primas", contact: "Pedro Sánchez", phone: "+34 944 100 200", email: "ventas@quimicnorte.com", status: "En Evaluación", note: 3.5 },
-            { id: "PROV-004", name: "Papelera y Suministros Centro", nif: "B86951347", cat: "Componentes / Equipamiento", contact: "Marta Gil", phone: "+34 918 412 110", email: "ventas@papelcenter.es", status: "Suspendido", note: 2.3 }
+            { id: "PROV-001", name: "Global Logística y Distribución", nif: "B28987412", cat: "Logística e Instalaciones", contact: "Carlos Ramos", phone: "+34 600 112 233", email: "contacto@globallog.es", status: "Homologado", note: 4.8, esCritico: "si", metodo: "CERTIFICACION", cert: "AENOR ISO 9001 / 14001", fechaUltimoSuministro: "2026-06-15", contadorConsecutivos: 3 },
+            { id: "PROV-002", name: "Servidores & Cloud Madrid", nif: "A82741963", cat: "Software y TI", contact: "Elena Torres", phone: "+34 915 556 677", email: "soporte@servcloud.com", status: "Homologado", note: 4.3, esCritico: "si", metodo: "CONTROL_PRODUCTOS", cert: "", fechaUltimoSuministro: "2026-06-01", contadorConsecutivos: 3 },
+            { id: "PROV-003", name: "Químicas del Norte S.A.", nif: "A48159357", cat: "Materias Primas", contact: "Pedro Sánchez", phone: "+34 944 100 200", email: "ventas@quimicnorte.com", status: "En Evaluación", note: 3.5, esCritico: "si", metodo: "CONTROL_PRODUCTOS", cert: "", fechaUltimoSuministro: "2026-06-08", contadorConsecutivos: 1 },
+            { id: "PROV-004", name: "Papelera y Suministros Centro", nif: "B86951347", cat: "Componentes / Equipamiento", contact: "Marta Gil", phone: "+34 918 412 110", email: "ventas@papelcenter.es", status: "Suspendido", note: 2.3, esCritico: "no", metodo: "CUESTIONARIO", cert: "", fechaUltimoSuministro: "2025-02-14", contadorConsecutivos: 0 },
+            { id: "PROV-005", name: "Servicios TI Legacy", nif: "B82415963", cat: "Software y TI", contact: "Juan Pérez", phone: "+34 911 223 344", email: "legacy@servti.com", status: "Homologado", note: 3.0, esCritico: "no", metodo: "HISTORICO", cert: "", fechaUltimoSuministro: "2022-05-10", contadorConsecutivos: 3 }
         ];
 
         const seedPedidos = [
-            { id: "PED-2026-001", provId: "PROV-002", provName: "Servidores & Cloud Madrid", concept: "Renovación Hosting e Infraestructura Virtual", amount: 4890.00, date: "2026-06-01", status: "Entregado" },
-            { id: "PED-2026-002", provId: "PROV-003", provName: "Químicas del Norte S.A.", concept: "Lote de aditivos de purificación", amount: 15400.00, date: "2026-06-08", status: "En Tránsito" },
-            { id: "PED-2026-003", provId: "PROV-004", provName: "Papelera y Suministros Centro", concept: "Suministro mobiliario y papelería corporativa", amount: 1200.00, date: "2026-05-15", status: "Retrasado" }
+            { id: "PED-2026-001", provId: "PROV-002", provName: "Servidores & Cloud Madrid", concept: "Ampliación Servidores VPS (4vCPU/16GB)", amount: 4890.00, date: "2026-06-01", status: "Entregado", qty: 1, deadline: "2026-06-05", reason: "Reposición de almacén", checkFT: true, checkCC: true, checkDC: false, clientOrder: "", prodId: "ART-002" },
+            { id: "PED-2026-002", provId: "PROV-003", provName: "Químicas del Norte S.A.", concept: "Reactivo Purificador de Agua - Grado A", amount: 15400.00, date: "2026-06-08", status: "En Tránsito", qty: 50, deadline: "2026-06-25", reason: "Propuesta de pedido de un cliente", checkFT: true, checkCC: false, checkDC: true, clientOrder: "PED-CLI-024", prodId: "ART-001" },
+            { id: "PED-2026-003", provId: "PROV-004", provName: "Papelera y Suministros Centro", concept: "Mobiliario y Papelería Corporativa", amount: 1200.00, date: "2026-05-15", status: "Retrasado", qty: 10, deadline: "2026-05-30", reason: "Reposición de almacén", checkFT: false, checkCC: false, checkDC: false, clientOrder: "", prodId: "ART-004" }
         ];
 
         const seedEvaluaciones = [
@@ -522,26 +823,132 @@
             { date: "2026-05-18", provName: "Papelera y Suministros Centro", calidad: 2, plazos: 2, soporte: 3, ambiental: 2, avg: 2.3, obs: "Múltiples retrasos en la entrega y calidad de embalaje deficiente." }
         ];
 
+        const seedIncidencias = [
+            { date: "2026-05-18", provName: "Papelera y Suministros Centro", severity: "GRAVE", type: "Material defectuoso", pedidoId: "PED-2026-003", ncNum: "INC-2026-009", desc: "Mobiliario con ralladuras estructurales. Se colocó en la zona de Material No Conforme." }
+        ];
+
         let proveedores = [];
         let pedidos = [];
         let evaluaciones = [];
+        let incidencias = [];
+        let catalogoGeneral = [];
         let currentTab = 'proveedores';
 
         // Inicializar datos cargando de localStorage o semilla
         function init() {
+            // Cargar Catálogo General
+            const catStored = localStorage.getItem('sig_catalogo_general');
+            if (catStored) {
+                catalogoGeneral = JSON.parse(catStored);
+            } else {
+                catalogoGeneral = [
+                    { id: "ART-001", name: "Reactivo Purificador de Agua - Grado A", tipo: "PRODUCTO", cat: "Materias Primas", cost: 300, stock: 250, minStock: 150, unit: "Kg" },
+                    { id: "ART-002", name: "Ampliación Servidores VPS (4vCPU/16GB)", tipo: "PRODUCTO", cat: "Software y TI", cost: 50, stock: 10, minStock: 2, unit: "Uds" },
+                    { id: "ART-003", name: "Licencia Anual ERP SAP S/4HANA", tipo: "PRODUCTO", cat: "Software y TI", cost: 1200, stock: 5, minStock: 1, unit: "Uds" },
+                    { id: "ART-004", name: "Mobiliario y Papelería Corporativa", tipo: "PRODUCTO", cat: "Componentes / Equipamiento", cost: 120, stock: 12, minStock: 3, unit: "Uds" },
+                    { id: "SVC-001", name: "Servicio de Correo Electrónico Corporativo", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "Buzones", SLA_avail: 99.9, SLA_rsp: 5, SLA_res: 4, window: "24×7×365", criticality: "Crítico" },
+                    { id: "SVC-002", name: "ERP SAP S/4HANA Hospedado", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "Instancia", SLA_avail: 99.5, SLA_rsp: 15, SLA_res: 8, window: "L–V 07:00–22:00", criticality: "Crítico" },
+                    { id: "SVC-004", name: "VPN Corporativa SSL/TLS", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "Licencias", SLA_avail: 99.5, SLA_rsp: 10, SLA_res: 4, window: "24×7×365", criticality: "Alto" },
+                    { id: "SVC-006", name: "Backup y Recuperación Veeam", tipo: "SERVICIO", cat: "Software y TI", cost: 0, unit: "TB", SLA_avail: 99.9, SLA_rsp: 15, SLA_res: 8, window: "24×7×365", criticality: "Crítico" }
+                ];
+                localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+            }
+
             const data = localStorage.getItem('sig_compras_proveedores_data');
             if (data) {
                 const parsed = JSON.parse(data);
                 proveedores = parsed.proveedores || [];
                 pedidos = parsed.pedidos || [];
                 evaluaciones = parsed.evaluaciones || [];
+                incidencias = parsed.incidencias || [];
             } else {
                 proveedores = [...seedProveedores];
                 pedidos = [...seedPedidos];
                 evaluaciones = [...seedEvaluaciones];
+                incidencias = [...seedIncidencias];
                 saveToLocalStorage();
             }
+            
+            // Sincronizar con propuestas del catálogo
+            processProposedPurchases();
+            
             render();
+        }
+
+        // Leer propuestas generadas por el nuevo módulo de producción
+        function processProposedPurchases() {
+            const proposalsStr = localStorage.getItem('sig_propuestas_compras');
+            if (proposalsStr) {
+                try {
+                    const proposals = JSON.parse(proposalsStr);
+                    if (proposals && proposals.length > 0) {
+                        proposals.forEach(prop => {
+                            // Validar si es un recurso con ID de catálogo o buscar por nombre
+                            let product = catalogoGeneral.find(item => item.name === prop.resourceName || item.id === prop.resourceName);
+                            if (!product) {
+                                // Fallback: crear producto temporal en catálogo
+                                product = {
+                                    id: `ART-TMP-${String(catalogoGeneral.length + 1).padStart(3, '0')}`,
+                                    name: prop.resourceName,
+                                    tipo: "PRODUCTO",
+                                    cat: prop.category || "Componentes / Equipamiento",
+                                    cost: prop.estimatedCost || 100,
+                                    stock: 0,
+                                    minStock: 2,
+                                    unit: "Uds"
+                                };
+                                catalogoGeneral.push(product);
+                                localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+                            }
+                            
+                            // Validar que no se haya añadido ya
+                            const exists = pedidos.some(p => p.prodId === product.id && p.clientOrder === prop.clientOrderId);
+                            if (!exists) {
+                                // Encontrar proveedor para la categoría
+                                let prov = proveedores.find(p => p.cat === product.cat && (p.status === 'Homologado' || p.status === 'Aprobado Condicional'));
+                                if (!prov) {
+                                    prov = proveedores.find(p => p.status === 'Homologado' || p.status === 'Aprobado Condicional') || proveedores[0];
+                                }
+                                
+                                // Generar ID
+                                let maxSeq = 3;
+                                pedidos.forEach(item => {
+                                    const parts = item.id.split('-');
+                                    if (parts.length === 3) {
+                                        const seq = parseInt(parts[2]);
+                                        if (seq > maxSeq) maxSeq = seq;
+                                    }
+                                });
+                                const nextSeq = String(maxSeq + 1).padStart(3, '0');
+                                const newId = `PED-2026-${nextSeq}`;
+                                
+                                pedidos.push({
+                                    id: newId,
+                                    provId: prov.id,
+                                    provName: prov.name,
+                                    concept: product.name,
+                                    prodId: product.id,
+                                    amount: (product.cost || 100) * (prop.qty || 1),
+                                    date: new Date().toISOString().split('T')[0],
+                                    status: "En Tránsito",
+                                    qty: prop.qty || 1,
+                                    deadline: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
+                                    reason: "Propuesta de pedido de un cliente",
+                                    checkFT: true,
+                                    checkCC: false,
+                                    checkDC: false,
+                                    clientOrder: prop.clientOrderId
+                                });
+                            }
+                        });
+                        // Limpiar cola de propuestas
+                        localStorage.removeItem('sig_propuestas_compras');
+                        saveToLocalStorage();
+                    }
+                } catch(e) {
+                    console.error("Error procesando propuestas de compras:", e);
+                }
+            }
         }
 
         // Guardar estado en LocalStorage
@@ -549,7 +956,8 @@
             localStorage.setItem('sig_compras_proveedores_data', JSON.stringify({
                 proveedores,
                 pedidos,
-                evaluaciones
+                evaluaciones,
+                incidencias
             }));
         }
 
@@ -557,28 +965,27 @@
         function switchTab(tab) {
             currentTab = tab;
             
-            // Ocultar todas las secciones
             document.getElementById('sec-proveedores').classList.add('hidden');
             document.getElementById('sec-pedidos').classList.add('hidden');
             document.getElementById('sec-evaluaciones').classList.add('hidden');
+            document.getElementById('sec-incidencias').classList.add('hidden');
             
-            // Desmarcar todas las pestañas
             document.getElementById('btn-tab-proveedores').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
             document.getElementById('btn-tab-pedidos').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
             document.getElementById('btn-tab-evaluaciones').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
+            document.getElementById('btn-tab-incidencias').className = "border-b-2 border-transparent text-on-surface-variant hover:text-primary py-2 px-1 transition-all";
 
-            // Mostrar activa
             document.getElementById(`sec-${tab}`).classList.remove('hidden');
             document.getElementById(`btn-tab-${tab}`).className = "border-b-2 border-secondary text-secondary py-2 px-1 transition-all";
+            render();
         }
 
         // Calcular y mostrar KPIs
         function renderKPIs() {
             const totalProvs = proveedores.length;
-            const homologados = proveedores.filter(p => p.status === 'Homologado').length;
+            const homologados = proveedores.filter(p => p.status === 'Homologado' || p.status === 'Aprobado Condicional').length;
             const activos = pedidos.filter(p => p.status === 'En Tránsito' || p.status === 'Retrasado').length;
             
-            // Calificación Media
             let sumNotes = 0;
             let countNotes = 0;
             proveedores.forEach(p => {
@@ -588,14 +995,12 @@
                 }
             });
             const avg = countNotes > 0 ? (sumNotes / countNotes).toFixed(1) : "0.0";
-            
-            // Evaluaciones Pendientes (Simulamos que los proveedores En Evaluación o los que no tienen notas son pendientes)
-            const pendientes = proveedores.filter(p => p.status === 'En Evaluación' || !p.note).length;
+            const gravesCount = incidencias.filter(i => i.severity === 'GRAVE').length;
 
             document.getElementById('kpi-calif').innerText = `${avg} / 5`;
             document.getElementById('kpi-homologados').innerText = `${homologados} / ${totalProvs}`;
             document.getElementById('kpi-pedidos').innerText = activos;
-            document.getElementById('kpi-pendientes').innerText = pendientes;
+            document.getElementById('kpi-incidencias').innerText = gravesCount;
         }
 
         // Renderizar vistas según pestaña actual
@@ -617,33 +1022,41 @@
                 
                 tbody.innerHTML = "";
                 if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron proveedores.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron proveedores.</td></tr>`;
                     return;
                 }
                 
                 filtered.forEach(p => {
                     let badgeClass = "";
                     if (p.status === "Homologado") badgeClass = "bg-green-100 text-green-800 border-green-200 font-bold";
+                    else if (p.status === "Aprobado Condicional") badgeClass = "bg-sky-100 text-sky-800 border-sky-200 font-semibold";
                     else if (p.status === "En Evaluación") badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
-                    else if (p.status === "Suspendido") badgeClass = "bg-amber-100 text-amber-800 border-amber-200 font-bold";
-                    else badgeClass = "bg-red-100 text-red-800 border-red-200";
+                    else if (p.status === "Seguimiento Especial") badgeClass = "bg-indigo-100 text-indigo-800 border-indigo-200 font-bold animate-pulse";
+                    else if (p.status === "Suspendido") badgeClass = "bg-red-100 text-red-800 border-red-200 font-bold";
+                    else badgeClass = "bg-gray-100 text-gray-800 border-gray-200";
 
-                    let noteText = p.note ? `${p.note.toFixed(1)} ⭐` : "Sin Evaluar";
+                    let noteText = p.note ? `${parseFloat(p.note).toFixed(1)} ⭐` : "Sin Evaluar";
+                    let criticoText = p.esCritico === "si" ? 
+                        `<span class="ml-1 bg-red-100 text-red-800 border border-red-200 text-[9px] px-1 py-0.2 rounded font-bold uppercase">Crítico</span>` : '';
                     
+                    let countConsec = (p.status === 'Homologado') ? '3 / 3 ✓' : `${p.contadorConsecutivos || 0} / 3`;
+
                     tbody.innerHTML += `
                         <tr class="hover:bg-surface-container-low transition-colors">
                             <td class="p-3 text-center font-semibold text-on-surface-variant">${p.id}</td>
                             <td class="p-3 font-bold text-primary">
-                                <div>${p.name}</div>
+                                <div class="flex items-center gap-1.5">${p.name} ${criticoText}</div>
                                 <div class="text-[10px] text-on-surface-variant font-normal">Contacto: ${p.contact || 'N/A'} - Tel: ${p.phone || 'N/A'}</div>
                             </td>
                             <td class="p-3 font-mono text-[11px]">${p.nif}</td>
                             <td class="p-3 text-on-surface-variant font-medium">${p.cat}</td>
+                            <td class="p-3 text-center text-[10px] font-semibold text-on-surface-variant">${p.metodo || 'CONTROL_PRODUCTOS'}</td>
                             <td class="p-3 text-center">
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
                                     ${p.status}
                                 </span>
                             </td>
+                            <td class="p-3 text-center font-mono text-[11px] text-on-surface-variant">${countConsec}</td>
                             <td class="p-3 text-center font-semibold text-primary">${noteText}</td>
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-2">
@@ -675,28 +1088,55 @@
                 
                 tbody.innerHTML = "";
                 if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron compras/pedidos.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-on-surface-variant font-medium">No se encontraron compras/pedidos.</td></tr>`;
                     return;
                 }
                 
                 filtered.forEach(p => {
                     let badgeClass = "";
                     if (p.status === "Entregado") badgeClass = "bg-green-100 text-green-800 border-green-200 font-bold";
+                    else if (p.status === "Entregado con Incidencia") badgeClass = "bg-amber-100 text-amber-800 border-amber-200 font-semibold";
                     else if (p.status === "En Tránsito") badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
                     else if (p.status === "Retrasado") badgeClass = "bg-amber-100 text-amber-800 border-amber-200 font-bold";
-                    else badgeClass = "bg-red-100 text-red-800 border-red-200";
+                    else if (p.status === "Devuelto" || p.status === "Devuelto / Rechazado") badgeClass = "bg-red-100 text-red-800 border-red-200 font-bold";
+                    else badgeClass = "bg-gray-100 text-gray-800 border-gray-200";
 
-                    let actionBtn = p.status !== "Entregado" ? 
-                        `<button onclick="entregarPedido('${p.id}')" class="bg-success text-white hover:bg-green-800 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors" title="Confirmar recepción">Entregado</button>` : 
-                        `<span class="text-[10px] text-success font-semibold flex items-center justify-center gap-0.5"><span class="material-symbols-outlined text-xs">done_all</span>Recibido</span>`;
+                    let actionBtn = "";
+                    if (p.status === "En Tránsito" || p.status === "Retrasado") {
+                        actionBtn = `<button onclick="openRecepcionModal('${p.id}')" class="bg-success text-white hover:bg-green-800 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors" title="Confirmar recepción">Recibir</button>`;
+                    } else if (p.status === "Devuelto" || p.status === "Devuelto / Rechazado" || p.status === "Entregado con Incidencia") {
+                        const hasDev = incidencias.some(inc => inc.pedidoId === p.id);
+                        if (hasDev) {
+                            actionBtn = `<button onclick="openDevolucionModal('${p.id}')" class="bg-danger text-white hover:bg-red-800 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors flex items-center gap-0.5" title="Ver Albarán de Devolución"><span class="material-symbols-outlined text-xs">assignment_return</span> Albarán</button>`;
+                        } else {
+                            actionBtn = `<span class="text-[10px] text-danger font-semibold">Devuelto</span>`;
+                        }
+                    } else {
+                        actionBtn = `<span class="text-[10px] text-success font-semibold flex items-center justify-center gap-0.5"><span class="material-symbols-outlined text-xs">done_all</span>Recibido OK</span>`;
+                    }
+
+                    let checkFT = p.checkFT ? '✓FT' : '✗FT';
+                    let checkCC = p.checkCC ? '✓CC' : '✗CC';
+                    let checkDC = p.checkDC ? '✓DC' : '✗DC';
+                    let checklistText = `<span class="font-mono text-[9px] bg-surface-container px-1 py-0.5 rounded text-on-surface-variant font-semibold select-none" title="FT: Ficha Técnica, CC: Cert. Calidad, DC: Decl. Conformidad">${checkFT} ${checkCC} ${checkDC}</span>`;
+
+                    let originText = `<strong>${p.reason || 'Reposición'}</strong>`;
+                    if (p.clientOrder) {
+                        originText += `<br><span class="text-[9px] text-secondary font-semibold">Cliente: ${p.clientOrder}</span>`;
+                    }
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-surface-container-low transition-colors">
                             <td class="p-3 font-mono font-bold text-on-surface-variant">${p.id}</td>
                             <td class="p-3 font-bold text-primary">${p.provName}</td>
-                            <td class="p-3 text-on-surface-variant font-medium">${p.concept}</td>
+                            <td class="p-3 text-on-surface-variant font-medium">
+                                <div>${p.concept}</div>
+                                <div class="text-[10px] text-on-surface-variant font-normal">Cant: ${p.qty || 1} uds. [${p.prodId || 'N/A'}]</div>
+                            </td>
                             <td class="p-3 text-center font-bold text-primary">${parseFloat(p.amount).toLocaleString('es-ES', { minimumFractionDigits: 2 })} €</td>
-                            <td class="p-3 text-center text-on-surface-variant">${p.date}</td>
+                            <td class="p-3 text-center text-on-surface-variant font-medium">${p.deadline || p.date}</td>
+                            <td class="p-3 text-[11px] text-on-surface-variant">${originText}</td>
+                            <td class="p-3 text-center">${checklistText}</td>
                             <td class="p-3 text-center">
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${badgeClass}">
                                     ${p.status}
@@ -718,7 +1158,6 @@
                     return;
                 }
                 
-                // Ordenar por fecha descendente
                 const sorted = [...evaluaciones].sort((a, b) => new Date(b.date) - new Date(a.date));
                 
                 sorted.forEach((e, idx) => {
@@ -740,27 +1179,245 @@
                         </tr>
                     `;
                 });
+                
+            } else if (currentTab === 'incidencias') {
+                const tbody = document.getElementById('tbody-incidencias');
+                tbody.innerHTML = "";
+                
+                if (incidencias.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant font-medium">No se han registrado incidencias todavía.</td></tr>`;
+                    return;
+                }
+                
+                const sorted = [...incidencias].sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                sorted.forEach((i) => {
+                    let sevBadge = i.severity === 'GRAVE' ? 
+                        '<span class="bg-red-100 text-red-800 border border-red-200 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Grave</span>' :
+                        '<span class="bg-amber-100 text-amber-800 border border-amber-200 text-[10px] px-2 py-0.5 rounded font-semibold">Leve</span>';
+                    
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-3 font-semibold text-on-surface-variant text-center">${i.date}</td>
+                            <td class="p-3 font-bold text-primary">${i.provName}</td>
+                            <td class="p-3 text-center">${sevBadge}</td>
+                            <td class="p-3 text-on-surface-variant font-semibold text-[11px]">${i.type}</td>
+                            <td class="p-3 text-center font-mono text-[11px]">${i.pedidoId}</td>
+                            <td class="p-3 text-center font-mono font-bold text-danger">${i.ncNum || 'N/A'}</td>
+                            <td class="p-3 text-on-surface-variant text-[11px]" title="${i.desc}">${i.desc}</td>
+                        </tr>
+                    `;
+                });
             }
         }
 
         // Modales
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
-            if (id === 'modal-pedido') {
-                // Rellenar select de proveedores
-                const select = document.getElementById('ped-prov-id');
-                select.innerHTML = "";
-                proveedores.filter(p => p.status === 'Homologado').forEach(p => {
-                    select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-                });
-                if (select.children.length === 0) {
-                    select.innerHTML = `<option value="">-- No hay proveedores homologados --</option>`;
-                }
-            }
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
+        }
+
+        function openNewProveedorModal() {
+            document.getElementById('prov-modal-title').innerText = "Registrar Nuevo Proveedor";
+            document.getElementById('prov-id').value = "";
+            document.getElementById('prov-name').value = "";
+            document.getElementById('prov-nif').value = "";
+            document.getElementById('prov-cat').value = "Materias Primas";
+            document.getElementById('prov-contact').value = "";
+            document.getElementById('prov-phone').value = "";
+            document.getElementById('prov-email').value = "";
+            document.getElementById('prov-criticidad').value = "no";
+            document.getElementById('prov-metodo').value = "CONTROL_PRODUCTOS";
+            document.getElementById('prov-cert').value = "";
+            document.getElementById('prov-status').value = "En Evaluación";
+            
+            toggleCertificadoInput();
+            openModal('modal-proveedor');
+        }
+
+        function toggleCertificadoInput() {
+            const metodo = document.getElementById('prov-metodo').value;
+            const divCert = document.getElementById('div-certificado');
+            if (metodo === 'CERTIFICACION') {
+                divCert.classList.remove('hidden');
+            } else {
+                divCert.classList.add('hidden');
+            }
+        }
+
+        function openPedidoModal() {
+            // Rellenar select de productos de la semilla o del local
+            const prodSelect = document.getElementById('ped-concept');
+            prodSelect.innerHTML = "";
+            
+            catalogoGeneral.filter(item => item.tipo === 'PRODUCTO').forEach(item => {
+                prodSelect.innerHTML += `<option value="${item.id}">${item.name} (${item.cat})</option>`;
+            });
+            if (prodSelect.children.length === 0) {
+                prodSelect.innerHTML = `<option value="">-- No hay productos en catálogo --</option>`;
+            }
+
+            document.getElementById('ped-qty').value = "10";
+            document.getElementById('ped-deadline').value = new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0];
+            document.getElementById('ped-reason').value = "Reposición de almacén";
+            document.getElementById('ped-client-order').value = "";
+            document.getElementById('ped-chk-ft').checked = false;
+            document.getElementById('ped-chk-cc').checked = false;
+            document.getElementById('ped-chk-dc').checked = false;
+            document.getElementById('ped-obs').value = "";
+            
+            onPedidoProductChange();
+            onPedidoReasonChange();
+            openModal('modal-pedido');
+        }
+
+        function onPedidoProductChange() {
+            const prodId = document.getElementById('ped-concept').value;
+            const product = catalogoGeneral.find(item => item.id === prodId);
+            
+            if (!product) return;
+            
+            // Auto-calcular importe
+            const qty = parseInt(document.getElementById('ped-qty').value) || 1;
+            document.getElementById('ped-amount').value = (product.cost || 0) * qty;
+            
+            // Filtrar proveedores por la categoría del producto
+            const selectProv = document.getElementById('ped-prov-id');
+            selectProv.innerHTML = "";
+            const filteredProvs = proveedores.filter(p => p.cat === product.cat);
+            
+            filteredProvs.forEach(p => {
+                selectProv.innerHTML += `<option value="${p.id}">${p.name} (${p.status}${p.esCritico === 'si' ? ' - Crítico' : ''})</option>`;
+            });
+            
+            // Si no hay proveedores específicos, mostrar todos
+            if (filteredProvs.length === 0) {
+                proveedores.forEach(p => {
+                    selectProv.innerHTML += `<option value="${p.id}">${p.name} (${p.status}${p.esCritico === 'si' ? ' - Crítico' : ''})</option>`;
+                });
+            }
+            
+            onPedidoProveedorChange();
+        }
+
+        function onPedidoProveedorChange() {
+            const provId = document.getElementById('ped-prov-id').value;
+            const provAlertBlock = document.getElementById('prov-alert-block');
+            const submitBtn = document.getElementById('btn-submit-pedido');
+            
+            if (!provId) {
+                provAlertBlock.classList.add('hidden');
+                submitBtn.disabled = false;
+                return;
+            }
+
+            const p = proveedores.find(item => item.id === provId);
+            const isApproved = p.status === 'Homologado' || p.status === 'Aprobado Condicional' || p.status === 'Seguimiento Especial';
+            
+            if (!isApproved) {
+                provAlertBlock.classList.remove('hidden');
+                document.getElementById('ped-auth-gerencia').checked = false;
+                document.getElementById('ped-justificacion').value = "";
+                document.getElementById('div-justificacion-gerencia').classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                provAlertBlock.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function onAuthGerenciaChange() {
+            const authorized = document.getElementById('ped-auth-gerencia').checked;
+            const divJust = document.getElementById('div-justificacion-gerencia');
+            const submitBtn = document.getElementById('btn-submit-pedido');
+            
+            if (authorized) {
+                divJust.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                divJust.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function onPedidoReasonChange() {
+            const reason = document.getElementById('ped-reason').value;
+            const divClientOrder = document.getElementById('div-client-order-id');
+            if (reason === 'Propuesta de pedido de un cliente') {
+                divClientOrder.classList.remove('hidden');
+                document.getElementById('ped-client-order').required = true;
+            } else {
+                divClientOrder.classList.add('hidden');
+                document.getElementById('ped-client-order').required = false;
+                document.getElementById('ped-client-order').value = "";
+            }
+        }
+
+        function openRecepcionModal(pedidoId) {
+            const p = pedidos.find(item => item.id === pedidoId);
+            if (p) {
+                document.getElementById('rec-pedido-id').value = p.id;
+                document.getElementById('rec-pedido-code').value = `${p.id} - ${p.concept}`;
+                document.getElementById('rec-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('rec-conforme').value = "CONFORME";
+                document.getElementById('rec-obs').value = "";
+                
+                onConformidadChange();
+                openModal('modal-recepcion');
+            }
+        }
+
+        function onConformidadChange() {
+            const val = document.getElementById('rec-conforme').value;
+            const divInc = document.getElementById('div-incidencia-detalles');
+            
+            if (val === 'NO_CONFORME') {
+                divInc.classList.remove('hidden');
+                document.getElementById('rec-inc-qty').required = true;
+                const pedId = document.getElementById('rec-pedido-id').value;
+                const p = pedidos.find(item => item.id === pedId);
+                if (p) {
+                    document.getElementById('rec-inc-qty').value = p.qty || 1;
+                }
+            } else {
+                divInc.classList.add('hidden');
+                document.getElementById('rec-inc-qty').required = false;
+                document.getElementById('rec-inc-qty').value = "0";
+            }
+        }
+
+        // Ejecutar Control de Inactividad (3 años)
+        function executeInactivityCheck() {
+            const limitDate = new Date();
+            limitDate.setFullYear(limitDate.getFullYear() - 3);
+            
+            let deactivations = 0;
+            
+            proveedores.forEach(p => {
+                if (p.status === 'Homologado' || p.status === 'Aprobado Condicional' || p.status === 'Seguimiento Especial') {
+                    const lastSupply = p.fechaUltimoSuministro ? new Date(p.fechaUltimoSuministro) : new Date(Date.now() - 4*365*24*60*60*1000);
+                    if (lastSupply < limitDate) {
+                        p.status = 'Baja por Inactividad';
+                        p.contadorConsecutivos = 0;
+                        deactivations++;
+                    }
+                }
+            });
+            
+            if (deactivations > 0) {
+                saveToLocalStorage();
+                render();
+                alert(`Control de inactividad finalizado. Se han dado de baja ${deactivations} proveedores que no registran suministros en los últimos 3 años.`);
+            } else {
+                alert("Control de inactividad finalizado. Todos los proveedores se encuentran vigentes (con suministros recientes < 3 años).");
+            }
         }
 
         // Guardar/Registrar Proveedor
@@ -773,17 +1430,21 @@
             const contact = document.getElementById('prov-contact').value.trim();
             const phone = document.getElementById('prov-phone').value.trim();
             const email = document.getElementById('prov-email').value.trim();
+            const esCritico = document.getElementById('prov-criticidad').value;
+            const metodo = document.getElementById('prov-metodo').value;
+            const cert = document.getElementById('prov-cert').value.trim();
             const status = document.getElementById('prov-status').value;
 
             if (id) {
-                // Editar
                 const idx = proveedores.findIndex(p => p.id === id);
                 if (idx !== -1) {
-                    proveedores[idx] = { ...proveedores[idx], name, nif, cat, contact, phone, email, status };
+                    proveedores[idx] = { 
+                        ...proveedores[idx], 
+                        name, nif, cat, contact, phone, email, status, esCritico, metodo, cert 
+                    };
                 }
             } else {
-                // Generar ID
-                let maxSeq = 4;
+                let maxSeq = 5;
                 proveedores.forEach(p => {
                     const parts = p.id.split('-');
                     if (parts.length === 2) {
@@ -793,13 +1454,28 @@
                 });
                 const nextSeq = String(maxSeq + 1).padStart(3, '0');
                 const newId = `PROV-${nextSeq}`;
-                proveedores.push({ id: newId, name, nif, cat, contact, phone, email, status, note: 0 });
+                
+                let initialStatus = status;
+                if (metodo === 'CERTIFICACION' && cert !== "") {
+                    initialStatus = "Homologado";
+                }
+                
+                proveedores.push({ 
+                    id: newId, 
+                    name, nif, cat, contact, phone, email, 
+                    status: initialStatus, 
+                    note: initialStatus === "Homologado" ? 5.0 : 0.0,
+                    esCritico,
+                    metodo,
+                    cert,
+                    fechaUltimoSuministro: "",
+                    contadorConsecutivos: initialStatus === "Homologado" ? 3 : 0
+                });
             }
 
             saveToLocalStorage();
             closeModal('modal-proveedor');
             render();
-            document.getElementById('prov-id').value = "";
             e.target.reset();
         }
 
@@ -814,7 +1490,12 @@
                 document.getElementById('prov-contact').value = p.contact || '';
                 document.getElementById('prov-phone').value = p.phone || '';
                 document.getElementById('prov-email').value = p.email || '';
+                document.getElementById('prov-criticidad').value = p.esCritico || 'no';
+                document.getElementById('prov-metodo').value = p.metodo || 'CONTROL_PRODUCTOS';
+                document.getElementById('prov-cert').value = p.cert || '';
                 document.getElementById('prov-status').value = p.status;
+                
+                toggleCertificadoInput();
                 openModal('modal-proveedor');
             }
         }
@@ -826,6 +1507,7 @@
                 pedidos = pedidos.filter(ped => ped.provId !== id);
                 if (p) {
                     evaluaciones = evaluaciones.filter(e => e.provName !== p.name);
+                    incidencias = incidencias.filter(i => i.provName !== p.name);
                 }
                 saveToLocalStorage();
                 render();
@@ -869,7 +1551,6 @@
             const obs = document.getElementById('eval-obs').value.trim();
             const today = new Date().toISOString().split('T')[0];
 
-            // Registrar en historial
             evaluaciones.push({
                 date: today,
                 provName: name,
@@ -881,17 +1562,18 @@
                 obs: obs
             });
 
-            // Actualizar nota media del proveedor y su estado según reglas ISO 9001
             const idx = proveedores.findIndex(item => item.id === id);
             if (idx !== -1) {
                 proveedores[idx].note = avg;
-                // Homologación según calificación
-                if (avg >= 3.5) {
-                    proveedores[idx].status = "Homologado";
-                } else if (avg >= 2.5) {
-                    proveedores[idx].status = "En Evaluación";
-                } else {
-                    proveedores[idx].status = "Suspendido";
+                if (proveedores[idx].metodo !== 'CONTROL_PRODUCTOS') {
+                    if (avg >= 3.5) {
+                        proveedores[idx].status = "Homologado";
+                    } else if (avg >= 2.5) {
+                        proveedores[idx].status = "Aprobado Condicional";
+                    } else {
+                        proveedores[idx].status = "Suspendido";
+                        triggerCorrectiveAction(proveedores[idx], `Evaluación de desempeño muy deficiente (${avg.toFixed(1)} estrellas).`);
+                    }
                 }
             }
 
@@ -904,10 +1586,8 @@
             if (confirm("¿Seguro que desea eliminar esta evaluación del historial?")) {
                 const sorted = [...evaluaciones].sort((a, b) => new Date(b.date) - new Date(a.date));
                 const target = sorted[idx];
-                // Eliminar del array real
                 evaluaciones = evaluaciones.filter(item => item !== target);
                 
-                // Recalcular nota media del proveedor
                 proveedores.forEach(p => {
                     const provEvals = evaluaciones.filter(ev => ev.provName === p.name);
                     if (provEvals.length > 0) {
@@ -928,19 +1608,29 @@
         function savePedido(e) {
             e.preventDefault();
             const provId = document.getElementById('ped-prov-id').value;
-            const concept = document.getElementById('ped-concept').value.trim();
+            const prodId = document.getElementById('ped-concept').value;
+            const qty = parseInt(document.getElementById('ped-qty').value) || 1;
             const amount = parseFloat(document.getElementById('ped-amount').value);
-            const status = document.getElementById('ped-status').value;
+            const deadline = document.getElementById('ped-deadline').value;
+            const reason = document.getElementById('ped-reason').value;
+            const clientOrder = document.getElementById('ped-client-order').value.trim();
+            
+            const checkFT = document.getElementById('ped-chk-ft').checked;
+            const checkCC = document.getElementById('ped-chk-cc').checked;
+            const checkDC = document.getElementById('ped-chk-dc').checked;
+            
+            const obs = document.getElementById('ped-obs').value.trim();
             const today = new Date().toISOString().split('T')[0];
 
             if (!provId) {
-                alert("Debe seleccionar un proveedor homologado activo.");
+                alert("Debe seleccionar un proveedor.");
                 return;
             }
 
             const p = proveedores.find(item => item.id === provId);
-            
-            // Generar ID Pedido
+            const product = catalogoGeneral.find(item => item.id === prodId);
+            const concept = product ? product.name : "Producto";
+
             let maxSeq = 3;
             pedidos.forEach(item => {
                 const parts = item.id.split('-');
@@ -952,32 +1642,200 @@
             const nextSeq = String(maxSeq + 1).padStart(3, '0');
             const newId = `PED-2026-${nextSeq}`;
 
+            let finalObs = obs;
+            const isApproved = p.status === 'Homologado' || p.status === 'Aprobado Condicional' || p.status === 'Seguimiento Especial';
+            if (!isApproved) {
+                const just = document.getElementById('ped-justificacion').value.trim();
+                finalObs = `[AUTORIZADO GERENCIA - Excepción]: ${just}. \n${obs}`;
+            }
+
             pedidos.push({
                 id: newId,
                 provId: provId,
                 provName: p.name,
                 concept: concept,
+                prodId: prodId,
                 amount: amount,
                 date: today,
-                status: status
+                status: "En Tránsito",
+                qty: qty,
+                deadline: deadline,
+                reason: reason,
+                checkFT: checkFT,
+                checkCC: checkCC,
+                checkDC: checkDC,
+                clientOrder: clientOrder,
+                obs: finalObs
             });
 
             saveToLocalStorage();
             closeModal('modal-pedido');
             render();
+            
+            alert(`Pedido de Compra ${newId} registrado correctamente.\nProveedor: ${p.name}\nSe ha enviado confirmación por correo electrónico automáticamente.`);
             e.target.reset();
         }
 
-        function entregarPedido(id) {
-            const idx = pedidos.findIndex(p => p.id === id);
-            if (idx !== -1) {
-                pedidos[idx].status = "Entregado";
+        // Guardar Recepción
+        function saveRecepcion(e) {
+            e.preventDefault();
+            const pedidoId = document.getElementById('rec-pedido-id').value;
+            const conforme = document.getElementById('rec-conforme').value;
+            const date = document.getElementById('rec-date').value;
+            const obs = document.getElementById('rec-obs').value.trim();
+            
+            const pIdx = pedidos.findIndex(p => p.id === pedidoId);
+            if (pIdx === -1) return;
+            
+            const ped = pedidos[pIdx];
+            const prov = proveedores.find(pr => pr.id === ped.provId);
+            
+            if (conforme === 'CONFORME') {
+                pedidos[pIdx].status = "Entregado";
+                
+                // Actualizar stock del producto
+                if (ped.prodId) {
+                    const prodIdx = catalogoGeneral.findIndex(item => item.id === ped.prodId);
+                    if (prodIdx !== -1) {
+                        catalogoGeneral[prodIdx].stock = (catalogoGeneral[prodIdx].stock || 0) + (ped.qty || 0);
+                        localStorage.setItem('sig_catalogo_general', JSON.stringify(catalogoGeneral));
+                    }
+                }
+                
+                if (prov) {
+                    prov.fechaUltimoSuministro = date;
+                    if (prov.metodo === 'CONTROL_PRODUCTOS') {
+                        prov.contadorConsecutivos = (prov.contadorConsecutivos || 0) + 1;
+                        if (prov.contadorConsecutivos >= 3) {
+                            prov.status = "Homologado";
+                            prov.note = 5.0;
+                        } else {
+                            prov.status = "Aprobado Condicional";
+                            prov.note = 3.5;
+                        }
+                    }
+                }
+                
                 saveToLocalStorage();
+                closeModal('modal-recepcion');
                 render();
+                alert(`Recepción conforme registrada para el pedido ${pedidoId}. Stock actualizado en el catálogo general.`);
+            } else {
+                const severity = document.getElementById('rec-inc-gravedad').value;
+                const type = document.getElementById('rec-inc-tipo').value;
+                const returnQty = parseInt(document.getElementById('rec-inc-qty').value) || ped.qty;
+                
+                pedidos[pIdx].status = severity === 'GRAVE' ? "Devuelto / Rechazado" : "Entregado con Incidencia";
+                
+                let maxInc = 1;
+                incidencias.forEach(inc => {
+                    const parts = (inc.ncNum || '').split('-');
+                    if (parts.length === 3) {
+                        const seq = parseInt(parts[2]);
+                        if (seq > maxInc) maxInc = seq;
+                    }
+                });
+                const nextIncSeq = String(maxInc + 1).padStart(3, '0');
+                const ncCode = severity === 'GRAVE' ? `INC-2026-${nextIncSeq}` : '';
+                
+                const newInc = {
+                    date: date,
+                    provName: ped.provName,
+                    severity: severity,
+                    type: type,
+                    pedidoId: ped.id,
+                    ncNum: ncCode,
+                    desc: `Devolución de ${returnQty}/${ped.qty} uds. Motivo: ${type}. Observación: ${obs}`
+                };
+                incidencias.push(newInc);
+
+                if (prov) {
+                    prov.fechaUltimoSuministro = date;
+                    prov.contadorConsecutivos = 0;
+                    
+                    if (severity === 'GRAVE') {
+                        const hasAlternatives = proveedores.some(item => 
+                            item.id !== prov.id && 
+                            item.cat === prov.cat && 
+                            (item.status === 'Homologado' || item.status === 'Aprobado Condicional')
+                        );
+                        
+                        if (hasAlternatives) {
+                            prov.status = "Suspendido";
+                            prov.note = 1.0;
+                            triggerCorrectiveAction(prov, `Incidencia Grave en recepción del pedido ${ped.id}. Motivo: ${type}. El proveedor ha sido deshomologado debido a que existen proveedores homologados alternativos.`);
+                        } else {
+                            prov.status = "Seguimiento Especial";
+                            prov.note = 2.5;
+                            triggerCorrectiveAction(prov, `Incidencia Grave en recepción del pedido ${ped.id}. Motivo: ${type}. Se mantiene en Seguimiento Especial al ser proveedor crítico único en su categoría.`);
+                        }
+                    } else {
+                        prov.status = "Aprobado Condicional";
+                        if (prov.note > 3.0) prov.note = 3.0;
+                    }
+                }
+                
+                saveToLocalStorage();
+                closeModal('modal-recepcion');
+                render();
+                
+                showDevolucionSlip(newInc, ped, prov, returnQty);
             }
         }
 
-        // Iniciar al cargar
+        // Crear No Conformidad (CAPA) en DAFO/NC
+        function triggerCorrectiveAction(prov, detail) {
+            const ncStr = localStorage.getItem('sig_incidencias_nc_data');
+            let ncData = { incidencias: [] };
+            if (ncStr) {
+                try {
+                    ncData = JSON.parse(ncStr);
+                } catch(e) {
+                    console.error("Error al leer no conformidades para CAPA:", e);
+                }
+            }
+
+            const newNC = {
+                id: `NC-PROV-${String(ncData.incidencias.length + 1).padStart(3, '0')}`,
+                title: `Bajo desempeño de Proveedor: ${prov.name}`,
+                origin: `Control de Recepción - Calidad de Suministro`,
+                desc: `${detail}. Requiere plan de acción correctivo y reevaluación.`,
+                status: 'Abierta',
+                date: new Date().toISOString().split('T')[0],
+                owner: 'Ana Rodríguez Silva (Quality Manager)',
+                actions: []
+            };
+
+            ncData.incidencias.push(newNC);
+            localStorage.setItem('sig_incidencias_nc_data', JSON.stringify(ncData));
+        }
+
+        // Mostrar Albarán de Devolución
+        function showDevolucionSlip(incObj, ped, prov, returnQty) {
+            document.getElementById('dev-code').innerText = incObj.ncNum ? `DEV-${incObj.ncNum.replace('INC-', '')}` : `DEV-2026-TMP`;
+            document.getElementById('dev-date').innerText = `Fecha: ${incObj.date}`;
+            document.getElementById('dev-prov-name').innerText = prov.name;
+            document.getElementById('dev-prov-nif').innerText = `NIF: ${prov.nif}`;
+            document.getElementById('dev-prov-contact').innerText = `Contacto: ${prov.contact || 'N/A'} - Tel: ${prov.phone || 'N/A'}`;
+            
+            document.getElementById('dev-orig-ped').innerText = ped.id;
+            document.getElementById('dev-orig-concept').innerText = `Concepto: ${ped.concept} (${ped.qty} unidades solicitadas)`;
+            
+            document.getElementById('dev-inc-desc').innerText = `Incidencia: ${incObj.type}. Detalle: ${incObj.desc}`;
+            document.getElementById('dev-inc-qty-val').innerText = returnQty;
+            
+            openModal('modal-devolucion');
+        }
+
+        function openDevolucionModal(pedidoId) {
+            const ped = pedidos.find(item => item.id === pedidoId);
+            const inc = incidencias.find(item => item.pedidoId === pedidoId);
+            const prov = proveedores.find(item => item.id === ped.provId);
+            if (ped && inc && prov) {
+                showDevolucionSlip(inc, ped, prov, ped.qty);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             init();
         });

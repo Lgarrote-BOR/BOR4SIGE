@@ -245,7 +245,8 @@
                 icon: "dns",
                 items: [
                     { name: "Catálogo de Servicios TI", path: "./cat_logo_servicios_ti/code.html", icon: "dns" },
-                    { name: "Gestión de Cambios TI", path: "./gesti_n_de_cambios_ti/code.html", icon: "published_with_changes" }
+                    { name: "Gestión de Cambios TI", path: "./gesti_n_de_cambios_ti/code.html", icon: "published_with_changes" },
+                    { name: "Producción y Capacidad", path: "./produccion_y_capacidad/code.html", icon: "precision_manufacturing" }
                 ]
             },
             {
@@ -881,6 +882,12 @@
 
         // Lógica del Chatbot
         const chatbotResponses = [
+            {
+                keywords: ["capacidad", "producción", "produccion", "disponibilidad", "pedido cliente", "recursos"],
+                answer: "Bajo la norma ISO 20000-1, la Gestión de Capacidad y Disponibilidad asegura que la organización dispone de los recursos (humanos, técnicos y materiales) para satisfacer la demanda de los clientes de forma proactiva. Puedes registrar pedidos de clientes, estimar recursos y ver gráficos de tendencias predictivas en el nuevo panel de Producción y Capacidad.",
+                path: "./produccion_y_capacidad/code.html",
+                btnText: "Ir a Producción y Capacidad"
+            },
             {
                 keywords: ["ens", "esquema nacional", "seguridad nacional", "rd 311"],
                 answer: "El Esquema Nacional de Seguridad (ENS RD 311/2022) establece los principios y requisitos para la protección de la información en el sector público en España. Se divide en categorías (Baja, Media, Alta) calculadas según las dimensiones CIDAT (Confidencialidad, Integridad, Disponibilidad, Autenticidad, Trazabilidad). Puedes ver su catálogo en el portal.",
