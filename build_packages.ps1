@@ -4,9 +4,9 @@
 
 $ErrorActionPreference = "Stop"
 
-# Directorios de origen y destino
-$sourceDir = "c:\Users\Bor\OneDrive\Documentos\Antigravity\BOR4SIGE"
-$targetDir = "c:\Users\Bor\OneDrive\Documentos\Antigravity\SIG 2.0"
+# Directorios de origen y destino (resueltos dinámicamente)
+$sourceDir = $PSScriptRoot
+$targetDir = Join-Path (Split-Path $sourceDir -Parent) "SIG 2.0"
 
 Write-Host "===================================================" -ForegroundColor Cyan
 Write-Host "[INFO] Iniciando empaquetado y sincronizacion de Bor4SIGE..." -ForegroundColor Cyan

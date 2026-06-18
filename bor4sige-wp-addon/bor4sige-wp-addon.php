@@ -120,7 +120,13 @@ add_shortcode('bor4sige_app', 'bor4sige_app_shortcode');
 /**
  * Shortcode [bor4sige_landing] para insertar la landing page de presentación premium.
  */
-function bor4sige_landing_shortcode() {
+function bor4sige_landing_shortcode($atts) {
+    $a = shortcode_atts(array(
+        'lang' => '' // 'es', 'en', o vacío para dinámico con conmutador
+    ), $atts);
+
+    $sige_lang = sanitize_text_field(strtolower($a['lang']));
+
     ob_start();
     include BOR4SIGE_PLUGIN_DIR . 'templates/landing-template.php';
     return ob_get_clean();
