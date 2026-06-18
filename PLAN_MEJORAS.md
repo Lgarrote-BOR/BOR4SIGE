@@ -6,17 +6,17 @@
 |---|-----------|--------|
 | 1.1 | Aislamiento Multi-Tenant en api-sync.js | ✅ **YA IMPLEMENTADO** |
 | 1.2 | Agente IA centralizado en index.html | ✅ **YA IMPLEMENTADO** |
-| 1.3 | Limpiar nav duplicada de submódulos | 🔴 Pendiente |
+| 1.3 | Limpiar nav duplicada de submódulos | ✅ **YA IMPLEMENTADO** |
 | 2.1 | Chatbot Ollama + RAG | ✅ **YA IMPLEMENTADO** |
-| 2.2 | Reglas IA adicionales (Auditorías §9.2, EIME) | 🔴 Pendiente |
-| 3.1 | BCP: BIA dinámico + Simulacros | 🔴 Pendiente |
-| 3.2 | Canal Denuncias: Tracking + CAPA | 🔴 Pendiente |
-| 3.3 | Investigación SST: 5 Porqués + Ishikawa | 🔴 Pendiente |
-| 3.4 | Ambientales: Significancia dinámica + CC | 🔴 Pendiente |
-| 4.1 | Módulo Políticas del SGI | 🔴 Pendiente |
-| 4.2 | Módulo Satisfacción de Clientes | 🔴 Pendiente |
-| 4.3 | Módulo Consulta/Participación Trabajadores | 🔴 Pendiente |
-| 4.4 | Módulo SoA ISO 27001 | 🔴 Pendiente |
+| 2.2 | Reglas IA adicionales (Auditorías §9.2, EIME) | ✅ **YA IMPLEMENTADO** |
+| 3.1 | BCP: BIA dinámico + Simulacros | ✅ **YA IMPLEMENTADO** |
+| 3.2 | Canal Denuncias: Tracking + CAPA | ✅ **YA IMPLEMENTADO** |
+| 3.3 | Investigación SST: 5 Porqués + Ishikawa | ✅ **YA IMPLEMENTADO** |
+| 3.4 | Ambientales: Significancia dinámica + CC | ✅ **YA IMPLEMENTADO** |
+| 4.1 | Módulo Políticas del SGI | ✅ **YA IMPLEMENTADO** |
+| 4.2 | Módulo Satisfacción de Clientes | ✅ **YA IMPLEMENTADO** |
+| 4.3 | Módulo Consulta/Participación Trabajadores | ✅ **YA IMPLEMENTADO** |
+| 4.4 | Módulo SoA ISO 27001 | ✅ **YA IMPLEMENTADO** |
 
 ## Orden de Ejecución
 

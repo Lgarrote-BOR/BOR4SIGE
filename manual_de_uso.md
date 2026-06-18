@@ -28,9 +28,10 @@
 19. [Catálogo Unificado de Productos y Servicios](#19-catálogo-unificado-de-productos-y-servicios)
 20. [Producción y Gestión de Capacidad (ISO 20000-1)](#20-producción-y-gestión-de-capacidad-iso-20000-1)
 21. [Análisis de Clima Laboral (ISO 45001 & ISO 9001)](#21-análisis-de-clima-laboral-iso-45001-iso-9001)
-22. [Seguimiento por IA — Panel de Cumplimiento Automático](#22-seguimiento-por-ia--panel-de-cumplimiento-automático)
-23. [Asistente Virtual (Chatbot)](#23-asistente-virtual-chatbot)
-24. [Preguntas Frecuentes](#24-preguntas-frecuentes)
+22. [Protección de Datos (RGPD)](#22-protección-de-datos-rgpd)
+23. [Seguimiento por IA — Panel de Cumplimiento Automático](#23-seguimiento-por-ia--panel-de-cumplimiento-automático)
+24. [Asistente Virtual (Chatbot)](#24-asistente-virtual-chatbot)
+25. [Preguntas Frecuentes](#25-preguntas-frecuentes)
 
 ---
 
@@ -614,7 +615,36 @@ En la pestaña **Dashboard y Resultados**, el sistema calcula:
 
 ---
 
-## 22. Seguimiento por IA — Panel de Cumplimiento Automático
+## 22. Protección de Datos (RGPD)
+
+El módulo de **Protección de Datos (RGPD)** permite gestionar el cumplimiento del Reglamento General de Protección de Datos (RGPD) y la LOPDGDD, asegurando la privacidad de la información bajo la norma **ISO 27701**.
+
+### Registro de Actividades de Tratamiento (RAT)
+El RAT es obligatorio bajo el **Artículo 30 del RGPD**. Para registrar un tratamiento:
+1. Ve a la pestaña **RAT (Actividades de Tratamiento)** y pulsa **"+ Nuevo Tratamiento"**.
+2. Especifica: nombre del tratamiento, finalidad, base jurídica (consentimiento, contrato, interés legítimo), colectivos afectados (empleados, clientes), categorías de datos y plazos de conservación.
+3. Asigna si hay cesiones de datos o transferencias internacionales.
+
+### Evaluación de Impacto de Protección de Datos (EIPD / PIA)
+Obligatoria bajo el **Artículo 35 del RGPD** para tratamientos de alto riesgo:
+1. Ve a la pestaña **EIPD (Evaluaciones de Impacto)**.
+2. Registra una nueva evaluación valorando la probabilidad y el impacto en los derechos y libertades de las personas.
+3. El sistema calcula el nivel de riesgo intrínseco y muestra una matriz visual interactiva.
+4. Documenta las medidas correctoras para reducir el riesgo a un nivel residual aceptable.
+
+### Ejercicio de Derechos (ARSULIPO)
+Gestiona las solicitudes de derechos de los ciudadanos (Acceso, Rectificación, Supresión, Limitación, Portabilidad, Oposición):
+1. Registra una solicitud de derecho en la pestaña **Derechos Ejercidos**.
+2. El sistema inicia una **cuenta atrás legal de 30 días** con una barra de progreso visual (verde, naranja si se acerca la fecha límite, roja si vence).
+3. Adjunta la resolución y marca el derecho como resuelto para detener el temporizador legal.
+
+### Brechas de Seguridad y Encargados
+- **Brechas de Seguridad**: Permite documentar brechas de datos personales. Un cronómetro dinámico resalta las **72 horas límite** para su notificación obligatoria a la Agencia Española de Protección de Datos (AEPD) bajo el **Artículo 33 del RGPD**.
+- **Encargados del Tratamiento**: Control de contratos bajo el **Artículo 28 del RGPD** con proveedores que acceden a datos personales, verificando su firma y cumplimiento.
+
+---
+
+## 23. Seguimiento por IA — Panel de Cumplimiento Automático
 
 El **Panel de Cumplimiento por IA** está integrado en el Cuadro de Mando y realiza un análisis automático y continuo de los datos del sistema para detectar incumplimientos.
 
@@ -653,7 +683,7 @@ Cada detección queda registrada con fecha y hora en el **Log de Auditoría IA**
 
 ---
 
-## 23. Asistente Virtual (Chatbot)
+## 24. Asistente Virtual (Chatbot)
 
 El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esquina inferior derecha de la pantalla. Puedes consultarle sobre:
 
@@ -680,7 +710,7 @@ El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esqu
 
 ---
 
-## 24. Preguntas Frecuentes
+## 25. Preguntas Frecuentes
 
 **¿Puedo usar Bor4SIGE sin conexión a internet?**
 Sí. Bor4SIGE está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.

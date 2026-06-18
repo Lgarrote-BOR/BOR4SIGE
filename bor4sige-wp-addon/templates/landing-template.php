@@ -432,6 +432,18 @@
           <div class="s-ftags"><span class="s-ftag">ISO 45001</span><span class="s-ftag">Investigación accidentes</span></div>
         </div>
         <div class="s-fcard s-reveal">
+          <div class="s-fcard-icon" style="background:rgba(6,182,212,0.15)">🔒</div>
+          <div class="s-fcard-title">Protección de Datos &amp; RGPD</div>
+          <div class="s-fcard-desc">RAT completo (Art. 30), evaluaciones EIPD/PIA, control de brechas de seguridad (72h) y seguimiento de derechos ARSULIPO con cuenta atrás legal.</div>
+          <div class="s-ftags"><span class="s-ftag">RGPD / LOPDGDD</span><span class="s-ftag">ISO 27701</span><span class="s-ftag">Privacidad</span></div>
+        </div>
+        <div class="s-fcard s-reveal">
+          <div class="s-fcard-icon" style="background:rgba(59,130,246,0.15)">📈</div>
+          <div class="s-fcard-title">Capacidad &amp; Clima Laboral</div>
+          <div class="s-fcard-desc">Planificación de capacidad (vCPUs, horas) con proyección a 6 meses, medidores de carga y encuestas Likert interactivas de Clima Laboral.</div>
+          <div class="s-ftags"><span class="s-ftag">ISO 20000-1 §6.3</span><span class="s-ftag">ISO 45001 §5.4</span><span class="s-ftag">ICL</span></div>
+        </div>
+        <div class="s-fcard s-reveal">
           <div class="s-fcard-icon" style="background:rgba(139,92,246,.15)">💬</div>
           <div class="s-fcard-title">Chatbot Asistente Virtual</div>
           <div class="s-fcard-desc">Asistente inteligente integrado para consultas sobre operativa de la aplicación y requisitos normativos. Disponible en todo momento.</div>
@@ -473,6 +485,10 @@
         <div class="s-mcard"><div class="s-mcard-icon">🎓</div><div class="s-mcard-title">Eficacia de Formación</div><div class="s-mcard-norm">Kirkpatrick 4 niveles</div></div>
         <div class="s-mcard"><div class="s-mcard-icon">🛒</div><div class="s-mcard-title">Evaluación Proveedores</div><div class="s-mcard-norm">ISO 9001 §8.4</div></div>
         <div class="s-mcard"><div class="s-mcard-icon">🔒</div><div class="s-mcard-title">Incidentes de Seguridad</div><div class="s-mcard-norm">ISO 27001</div></div>
+        <div class="s-mcard"><div class="s-mcard-icon">🛡️</div><div class="s-mcard-title">Protección de Datos</div><div class="s-mcard-norm">RGPD / ISO 27701</div></div>
+        <div class="s-mcard"><div class="s-mcard-icon">⚙️</div><div class="s-mcard-title">Producción y Capacidad</div><div class="s-mcard-norm">ISO 20000-1 §6.3</div></div>
+        <div class="s-mcard"><div class="s-mcard-icon">😊</div><div class="s-mcard-title">Clima Laboral</div><div class="s-mcard-norm">ISO 45001 / ICL</div></div>
+        <div class="s-mcard"><div class="s-mcard-icon">📜</div><div class="s-mcard-title">Declaración de Aplicabilidad</div><div class="s-mcard-norm">SoA ISO 27001</div></div>
         <div class="s-mcard"><div class="s-mcard-icon">💻</div><div class="s-mcard-title">Cambios TI</div><div class="s-mcard-norm">ISO 20000 / ITIL</div></div>
         <div class="s-mcard"><div class="s-mcard-icon">📋</div><div class="s-mcard-title">Catálogo de Servicios TI</div><div class="s-mcard-norm">ISO 20000</div></div>
         <div class="s-mcard"><div class="s-mcard-icon">🌱</div><div class="s-mcard-title">Aspectos Ambientales</div><div class="s-mcard-norm">ISO 14001 §6.1.2</div></div>

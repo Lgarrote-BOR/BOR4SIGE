@@ -1203,7 +1203,7 @@
                             <td class="p-3 text-center">${sevBadge}</td>
                             <td class="p-3 text-on-surface-variant font-semibold text-[11px]">${i.type}</td>
                             <td class="p-3 text-center font-mono text-[11px]">${i.pedidoId}</td>
-                            <td class="p-3 text-center font-mono font-bold text-danger">${i.ncNum || 'N/A'}</td>
+                            <td class="p-3 text-center font-mono font-bold text-danger">${i.ncNum ? `<a href="#" onclick="navigateToNC('${i.ncNum}'); return false;" class="underline hover:text-red-900 cursor-pointer" title="Ver en registro central de Incidencias">${i.ncNum}</a>` : 'N/A'}</td>
                             <td class="p-3 text-on-surface-variant text-[11px]" title="${i.desc}">${i.desc}</td>
                         </tr>
                     `;
@@ -1833,6 +1833,16 @@
             const prov = proveedores.find(item => item.id === ped.provId);
             if (ped && inc && prov) {
                 showDevolucionSlip(inc, ped, prov, ped.qty);
+            }
+        }
+
+        // Navegar al registro central de Incidencias/NC del SGI con deep-link
+        function navigateToNC(ncCode) {
+            localStorage.setItem('sig_search_nc', ncCode);
+            if (window.parent && typeof window.parent.navigateToPath === 'function') {
+                window.parent.navigateToPath('./incidencias_y_no_conformidades/code.html');
+            } else {
+                window.location.href = '../incidencias_y_no_conformidades/code.html';
             }
         }
 

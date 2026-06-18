@@ -1,325 +1,517 @@
 <!DOCTYPE html>
-
-<html lang="es"><head>
+<html lang="es" class="light">
+<head>
     <!-- Interceptor de LocalStorage para sincronización con el servidor -->
     <script src="../api-sync.js"></script>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Gestión SIG - Incidencias</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "inverse-on-surface": "#eaf1ff",
-                    "surface-container-lowest": "#ffffff",
-                    "on-primary-container": "#7c839b",
-                    "secondary-fixed-dim": "#b4c5ff",
-                    "on-tertiary-fixed-variant": "#444749",
-                    "on-secondary-fixed": "#00174b",
-                    "on-primary": "#ffffff",
-                    "surface-container-high": "#dce9ff",
-                    "surface-bright": "#f8f9ff",
-                    "on-secondary": "#ffffff",
-                    "surface-dim": "#cbdbf5",
-                    "surface-container-low": "#eff4ff",
-                    "secondary-fixed": "#dbe1ff",
-                    "on-error": "#ffffff",
-                    "inverse-surface": "#213145",
-                    "outline-variant": "#c6c6cd",
-                    "on-surface-variant": "#45464d",
-                    "primary": "#000000",
-                    "on-tertiary-fixed": "#191c1e",
-                    "tertiary-fixed": "#e0e3e5",
-                    "on-tertiary": "#ffffff",
-                    "tertiary-container": "#191c1e",
-                    "on-error-container": "#93000a",
-                    "on-secondary-container": "#fefcff",
-                    "tertiary": "#000000",
-                    "on-tertiary-container": "#818486",
-                    "inverse-primary": "#bec6e0",
-                    "primary-container": "#131b2e",
-                    "secondary-container": "#316bf3",
-                    "on-primary-fixed-variant": "#3f465c",
-                    "error-container": "#ffdad6",
-                    "on-surface": "#0b1c30",
-                    "on-background": "#0b1c30",
-                    "background": "#f8f9ff",
-                    "surface-tint": "#565e74",
-                    "surface": "#f8f9ff",
-                    "primary-fixed-dim": "#bec6e0",
-                    "secondary": "#0051d5",
-                    "primary-fixed": "#dae2fd",
-                    "on-secondary-fixed-variant": "#003ea8",
-                    "tertiary-fixed-dim": "#c4c7c9",
-                    "surface-container-highest": "#d3e4fe",
-                    "surface-container": "#e5eeff",
-                    "outline": "#76777d",
-                    "surface-variant": "#d3e4fe",
-                    "on-primary-fixed": "#131b2e",
-                    "error": "#ba1a1a"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.125rem",
-                    "lg": "0.25rem",
-                    "xl": "0.5rem",
-                    "full": "0.75rem"
-            },
-            "spacing": {
-                    "lg": "24px",
-                    "md": "16px",
-                    "sm": "8px",
-                    "xl": "32px",
-                    "base": "4px",
-                    "xs": "4px",
-                    "max-width": "1440px",
-                    "margin": "24px",
-                    "gutter": "16px"
-            },
-            "fontFamily": {
-                    "display-lg": ["Inter"],
-                    "body-lg": ["Inter"],
-                    "code-sm": ["JetBrains Mono"],
-                    "label-md": ["Inter"],
-                    "body-md": ["Inter"],
-                    "headline-sm": ["Inter"],
-                    "headline-md": ["Inter"],
-                    "body-sm": ["Inter"]
-            },
-            "fontSize": {
-                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Incidencias y No Conformidades - SGI Bor4SIGE</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0c1445",
+                        "secondary": "#1d4ed8",
+                        "accent": "#6366f1",
+                        "background": "#f0f4ff",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#eff6ff",
+                        "surface-container": "#dbeafe",
+                        "outline-variant": "#bfdbfe",
+                        "on-surface": "#0c1445",
+                        "on-surface-variant": "#1e40af",
+                        "success": "#16a34a",
+                        "warning": "#ca8a04",
+                        "danger": "#dc2626"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"]
+                    }
+                }
             }
-          }
         }
-      }
     </script>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background text-on-background font-body-md antialiased flex flex-col md:flex-row min-h-screen">
-<!-- TopAppBar (Mobile) / Nav Header (Desktop) -->
-<header class="md:hidden bg-surface text-primary border-b border-outline-variant fixed top-0 w-full z-50 flex items-center justify-between px-md h-16 w-full">
-<button class="text-primary p-2 rounded-full hover:bg-surface-container-low transition-colors duration-200">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<span class="font-headline-md text-headline-md font-bold text-primary">Gestión SIG</span>
-<button aria-label="Perfil de usuario" class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant bg-surface-container-high flex items-center justify-center hover:bg-surface-container-low transition-colors duration-200">
-<img alt="Perfil de usuario" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdkQZa1eIrNPfitikazElVhZ8Zh31_F_-e5pAp_WtBeuWb_i3WwqkKDW6PPHK1ap0_6UyKmn2dCKmm8zpxVtxUIuTeNwQ0PV34U1b-2484ECERHKr5vmRXix9BAR7TbVz_8wxQE04289cXr42aHXmQbUbHU_EnjHeePc2kt1Ap6xqMA0_AfhoHrt2ZfGBHzgBZds97INSzPuc8MnGSSokAt57B-IKt3px4PG61lb4PRa95vP2ppxnt3wawW8JLkDWiA3A1Exn5yDU"/>
-</button>
-</header>
-<!-- NavigationDrawer (Web) -->
-<aside class="hidden md:flex bg-surface-container-low flex flex-col h-full w-60 fixed left-0 top-0 z-40 py-lg shadow-lg">
-<div class="px-md mb-xl flex items-center gap-sm">
-<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shield</span>
-<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Gestión SIG</span>
-</div>
-<div class="px-md mb-lg">
-<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest flex items-center gap-sm">
-<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high shrink-0">
-<img alt="Usuario SIG" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADYlL4lDhcEeXmhdR4pzMhlykI11X0A1rBJxCX5HfVoa4anfoGq7nqbpJPZcMK_GBYjHoofjD31Q1XAgEEF-oVwxefYwIF-lEYx6J0M8Ypu4O9qx9lWkxe5kU5_NtdkTTyvsvm6Ep21cR0ITwylZ3RhupAcqKnz3raD7BQJYFnbohB_ySF2E8SlSPgyCIR-kS4ZjPCotIMQCBXfVoF6gtSu1HUBWCWM-3YMwpuhXHPt65S66Z676mh85eYIrdYAOxcNwxIltYu2qs"/>
-</div>
-<div class="flex-1 min-w-0">
-<div class="font-label-md text-label-md text-on-surface truncate">Gestor de Calidad</div>
-<div class="font-code-sm text-code-sm text-on-surface-variant truncate">Entorno Producción</div>
-</div>
-</div>
-<div class="mt-xs text-right px-sm font-code-sm text-code-sm text-on-surface-variant">v2.4.0</div>
-</div>
-<nav class="flex-1 overflow-y-auto font-label-md text-label-md text-secondary">
-<a class="flex items-center gap-sm px-4 py-3 bg-secondary-container text-on-secondary-container rounded-full mx-2 my-1 scale-95 active:scale-100 hover:bg-surface-container-highest transition-all" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">report_problem</span>
-                Incidencias
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4ff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        @keyframes scaleUp {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-animate {
+            animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes flashHighlight {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: #fef3c7; }
+        }
+        .flash-highlight {
+            animation: flashHighlight 1.5s ease-in-out 2;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+
+    <!-- TopAppBar -->
+    <header class="bg-[#0c1445] text-white w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors" title="Volver al Portal">
+                <span class="material-symbols-outlined">arrow_back</span>
             </a>
-<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full scale-95 active:scale-100 hover:bg-surface-container-highest transition-all" href="#">
-<span class="material-symbols-outlined">task_alt</span>
-                Acciones Correctivas
-            </a>
-<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full scale-95 active:scale-100 hover:bg-surface-container-highest transition-all" href="#">
-<span class="material-symbols-outlined">trending_up</span>
-                Acciones de Mejora
-            </a>
-<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-high mx-2 my-1 rounded-full scale-95 active:scale-100 hover:bg-surface-container-highest transition-all" href="#">
-<span class="material-symbols-outlined">track_changes</span>
-                Objetivos
-            </a>
-</nav>
-</aside>
-<!-- Main Content Canvas -->
-<main class="flex-1 w-full md:ml-60 pt-16 md:pt-0 pb-20 md:pb-0 min-h-screen flex flex-col">
-<!-- Page Header & Actions -->
-<div class="px-md md:px-lg py-lg bg-surface-container-lowest border-b border-outline-variant sticky top-16 md:top-0 z-30">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-md max-w-7xl mx-auto w-full">
-<div>
-<h1 class="font-display-lg text-display-lg text-on-surface">Incidencias</h1>
-<p class="font-body-md text-body-md text-on-surface-variant mt-1">Registro y control de no conformidades del sistema.</p>
-</div>
-<div class="flex items-center gap-sm self-start md:self-auto">
-<button class="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-label-md text-label-md flex items-center gap-sm hover:bg-opacity-90 transition-colors shadow-sm">
-<span class="material-symbols-outlined text-[18px]">add</span>
-                        Nueva Incidencia
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-none text-white">Bor4SIGE</h1>
+                <span class="text-[10px] text-blue-200 font-semibold">Incidencias y No Conformidades</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-blue-400 rounded-full px-3 py-1 bg-white/10 text-blue-100 gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">report_problem</span>
+                <span>ISO 9001 §10.2 / ISO 14001 §10.2 / ISO 45001 §10.2</span>
+            </div>
+            <button class="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">US</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-6 max-w-7xl mx-auto w-full space-y-6">
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
+            <div>
+                <h2 class="font-bold text-2xl text-primary tracking-tight">Registro de Incidencias y No Conformidades</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Control centralizado de no conformidades, incidencias de proveedores y hallazgos de auditoría del SGI.</p>
+            </div>
+            <button onclick="openNewIncidenciaModal()" class="flex items-center gap-1.5 px-4 py-2 bg-danger hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0">
+                <span class="material-symbols-outlined text-base">add</span>
+                Nueva Incidencia / NC
+            </button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Registradas</span>
+                <span id="kpi-total" class="text-2xl font-bold text-primary">0</span>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-danger"></span>Abiertas</span>
+                <span id="kpi-abiertas" class="text-2xl font-bold text-danger">0</span>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-warning"></span>En Análisis</span>
+                <span id="kpi-analisis" class="text-2xl font-bold text-warning">0</span>
+            </div>
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-success"></span>Cerradas</span>
+                <span id="kpi-cerradas" class="text-2xl font-bold text-success">0</span>
+            </div>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface p-4 border border-outline-variant rounded-xl">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input type="text" id="search-nc" oninput="render()" placeholder="Buscar por código, título o proveedor..." class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all">
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <select id="filter-status" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                    <option value="">Todos los Estados</option>
+                    <option value="Abierta">Abierta</option>
+                    <option value="En Análisis">En Análisis</option>
+                    <option value="Cerrada">Cerrada</option>
+                </select>
+                <select id="filter-origin" onchange="render()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                    <option value="">Todos los Orígenes</option>
+                    <option value="Recepción de Compras">Recepción de Compras</option>
+                    <option value="Auditoría Interna">Auditoría Interna</option>
+                    <option value="Desempeño Proveedor">Desempeño Proveedor</option>
+                    <option value="Operación">Operación</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Incidences List -->
+        <div id="nc-list" class="space-y-3">
+            <!-- Inyectado dinámicamente -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-12 text-on-surface-variant">
+            <span class="material-symbols-outlined text-5xl text-outline-variant">inbox</span>
+            <p class="mt-2 font-semibold text-sm">No se encontraron incidencias con los filtros actuales.</p>
+        </div>
+
+    </main>
+
+    <!-- MODAL: Nueva Incidencia -->
+    <div id="modal-nueva-nc" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl max-w-lg w-full p-6 flex flex-col gap-4 shadow-xl modal-animate overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                <h3 class="font-bold text-base text-primary">Registrar Nueva Incidencia / No Conformidad</h3>
+                <button onclick="closeModal('modal-nueva-nc')" class="text-on-surface-variant hover:text-primary p-1 rounded-full hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form onsubmit="saveNewIncidencia(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Título de la Incidencia / NC *</label>
+                    <input id="nc-title" required type="text" placeholder="Ej: Fallo en calibración de sensor T-402" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Origen</label>
+                        <select id="nc-origin" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Operación">Operación</option>
+                            <option value="Auditoría Interna">Auditoría Interna</option>
+                            <option value="Recepción de Compras">Recepción de Compras</option>
+                            <option value="Desempeño Proveedor">Desempeño Proveedor</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant mb-1">Criticidad</label>
+                        <select id="nc-severity" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold text-primary outline-none focus:ring-1 focus:ring-secondary focus:border-secondary cursor-pointer">
+                            <option value="Alta">Alta</option>
+                            <option value="Media">Media</option>
+                            <option value="Baja">Baja</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Descripción detallada *</label>
+                    <textarea id="nc-desc" required rows="3" placeholder="Descripción de la no conformidad detectada..." class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1">Responsable Asignado</label>
+                    <input id="nc-owner" type="text" placeholder="Ej: Ana Rodríguez Silva (Quality Manager)" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary"/>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-outline-variant pt-3 mt-4">
+                    <button type="button" onclick="closeModal('modal-nueva-nc')" class="bg-surface border border-outline-variant text-on-surface hover:bg-surface-container-low text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                        Cancelar
                     </button>
-</div>
-</div>
-<!-- Filters -->
-<div class="mt-lg max-w-7xl mx-auto w-full flex flex-wrap gap-sm">
-<button class="px-md py-xs rounded-full border border-secondary text-secondary bg-surface-container-lowest font-label-md text-label-md hover:bg-surface-container-low transition-colors">
-                    Todos
-                </button>
-<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md hover:bg-surface-container-low transition-colors">
-                    Abierta
-                </button>
-<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md hover:bg-surface-container-low transition-colors">
-                    En Análisis
-                </button>
-<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md hover:bg-surface-container-low transition-colors">
-                    Cerrada
-                </button>
-<div class="ml-auto flex items-center gap-xs text-on-surface-variant">
-<span class="material-symbols-outlined text-[20px]">filter_list</span>
-<span class="font-label-md text-label-md">Filtros Avanzados</span>
-</div>
-</div>
-</div>
-<!-- Content Area -->
-<div class="flex-1 p-md md:p-lg bg-surface max-w-7xl mx-auto w-full">
-<!-- Bento Grid Layout for KPI & Lists -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-md md:gap-lg">
-<!-- KPI Summary (Spans 4 cols on desktop) -->
-<div class="lg:col-span-4 flex flex-col gap-md">
-<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant">
-<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wider">Tasa de Resolución</h3>
-<div class="flex items-end gap-sm mb-xs">
-<span class="font-display-lg text-display-lg text-on-surface">82%</span>
-<span class="font-label-md text-label-md text-secondary mb-1 flex items-center">
-<span class="material-symbols-outlined text-[16px]">arrow_upward</span> 4%
-                            </span>
-</div>
-<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-<div class="bg-secondary h-full" style="width: 82%"></div>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant">
-<h3 class="font-label-md text-label-md text-on-surface-variant mb-md uppercase tracking-wider">Incidencias por Estado</h3>
-<div class="space-y-sm">
-<div class="flex justify-between items-center font-body-sm text-body-sm">
-<span class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-error"></span> Abiertas</span>
-<span class="font-code-sm font-semibold">12</span>
-</div>
-<div class="flex justify-between items-center font-body-sm text-body-sm">
-<span class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-[#f59e0b]"></span> En Análisis</span>
-<span class="font-code-sm font-semibold">8</span>
-</div>
-<div class="flex justify-between items-center font-body-sm text-body-sm">
-<span class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-[#10b981]"></span> Cerradas</span>
-<span class="font-code-sm font-semibold">45</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Incidence List (Spans 8 cols on desktop) -->
-<div class="lg:col-span-8 flex flex-col gap-sm">
-<!-- Card 1: Abierta, Alta Criticidad -->
-<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col md:flex-row gap-md items-start md:items-center">
-<div class="flex-1 min-w-0">
-<div class="flex items-center gap-sm mb-xs">
-<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">INC-2023-089</span>
-<span class="px-2 py-0.5 rounded-full font-label-md text-[10px] bg-error-container text-on-error-container border border-error/20">Abierta</span>
-</div>
-<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Fallo en calibración de sensor T-402</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">El sensor de temperatura de la línea 3 muestra desviaciones fuera del rango permitido según normativa ISO 9001.</p>
-</div>
-<div class="flex md:flex-col items-center md:items-end gap-md md:gap-xs w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t border-outline-variant md:border-t-0">
-<div class="flex items-center gap-xs text-error font-label-md text-label-md">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">warning</span>
-                                Alta
-                            </div>
-<div class="font-code-sm text-code-sm text-on-surface-variant ml-auto md:ml-0">
-                                24 Oct 2023
-                            </div>
-</div>
-</div>
-<!-- Card 2: En Análisis, Media Criticidad -->
-<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col md:flex-row gap-md items-start md:items-center">
-<div class="flex-1 min-w-0">
-<div class="flex items-center gap-sm mb-xs">
-<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">INC-2023-088</span>
-<span class="px-2 py-0.5 rounded-full font-label-md text-[10px] bg-[#fef3c7] text-[#92400e] border border-[#f59e0b]/20">En Análisis</span>
-</div>
-<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Retraso en entrega de proveedor logístico</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Se ha registrado un retraso sistemático en las entregas del proveedor principal durante las últimas 3 semanas.</p>
-</div>
-<div class="flex md:flex-col items-center md:items-end gap-md md:gap-xs w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t border-outline-variant md:border-t-0">
-<div class="flex items-center gap-xs text-[#d97706] font-label-md text-label-md">
-<span class="material-symbols-outlined text-[16px]">error</span>
-                                Media
-                            </div>
-<div class="font-code-sm text-code-sm text-on-surface-variant ml-auto md:ml-0">
-                                22 Oct 2023
-                            </div>
-</div>
-</div>
-<!-- Card 3: Cerrada, Baja Criticidad -->
-<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col md:flex-row gap-md items-start md:items-center opacity-80">
-<div class="flex-1 min-w-0">
-<div class="flex items-center gap-sm mb-xs">
-<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">INC-2023-087</span>
-<span class="px-2 py-0.5 rounded-full font-label-md text-[10px] bg-[#d1fae5] text-[#065f46] border border-[#10b981]/20">Cerrada</span>
-</div>
-<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Actualización de manual de PRL pendiente</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Documentación requerida para la auditoría interna actualizada e integrada en el repositorio central.</p>
-</div>
-<div class="flex md:flex-col items-center md:items-end gap-md md:gap-xs w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t border-outline-variant md:border-t-0">
-<div class="flex items-center gap-xs text-[#059669] font-label-md text-label-md">
-<span class="material-symbols-outlined text-[16px]">info</span>
-                                Baja
-                            </div>
-<div class="font-code-sm text-code-sm text-on-surface-variant ml-auto md:ml-0">
-                                18 Oct 2023
-                            </div>
-</div>
-</div>
-<!-- Pagination / Load More -->
-<div class="mt-md flex justify-center">
-<button class="px-lg py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">
-                             Cargar más incidencias
-                         </button>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- BottomNavBar (Mobile) -->
-<nav class="md:hidden bg-surface text-primary font-label-md text-label-md fixed bottom-0 w-full z-50 border-t border-outline-variant flex justify-around items-center h-20 px-sm pb-safe">
-<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-150" href="#">
-<span class="material-symbols-outlined">home</span>
-<span>Inicio</span>
-</a>
-<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">list_alt</span>
-<span>Incidencias</span>
-</a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-150" href="#">
-<span class="material-symbols-outlined">bolt</span>
-<span>Mejoras</span>
-</a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-150" href="#">
-<span class="material-symbols-outlined">flag</span>
-<span>Metas</span>
-</a>
-</nav>
-</body></html>
+                    <button type="submit" class="bg-danger text-white hover:bg-red-700 text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Registrar Incidencia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        const seedIncidencias = [
+            {
+                id: "NC-PROV-001",
+                title: "Bajo desempeño de Proveedor: Papelera y Suministros Centro",
+                origin: "Control de Recepción - Calidad de Suministro",
+                desc: "Incidencia Grave en recepción del pedido PED-2026-003. Motivo: Material defectuoso. El proveedor ha sido deshomologado debido a que existen proveedores homologados alternativos. Requiere plan de acción correctivo y reevaluación.",
+                status: "Abierta",
+                date: "2026-05-18",
+                owner: "Ana Rodríguez Silva (Quality Manager)",
+                severity: "Alta",
+                actions: []
+            },
+            {
+                id: "INC-2023-089",
+                title: "Fallo en calibración de sensor T-402",
+                origin: "Operación",
+                desc: "El sensor de temperatura de la línea 3 muestra desviaciones fuera del rango permitido según normativa ISO 9001.",
+                status: "Abierta",
+                date: "2023-10-24",
+                owner: "Laura M. (Responsable de Calibraciones)",
+                severity: "Alta",
+                actions: []
+            },
+            {
+                id: "INC-2023-088",
+                title: "Retraso en entrega de proveedor logístico",
+                origin: "Desempeño Proveedor",
+                desc: "Se ha registrado un retraso sistemático en las entregas del proveedor principal durante las últimas 3 semanas.",
+                status: "En Análisis",
+                date: "2023-10-22",
+                owner: "Carlos Ruiz (Auditor Líder ISO 9001)",
+                severity: "Media",
+                actions: []
+            },
+            {
+                id: "INC-2023-087",
+                title: "Actualización de manual de PRL pendiente",
+                origin: "Auditoría Interna",
+                desc: "Documentación requerida para la auditoría interna actualizada e integrada en el repositorio central.",
+                status: "Cerrada",
+                date: "2023-10-18",
+                owner: "Elena Montes (Directora de Calidad)",
+                severity: "Baja",
+                actions: []
+            }
+        ];
+
+        let incidenciasData = { incidencias: [] };
+        let highlightNc = null;
+
+        function init() {
+            // Cargar datos desde localStorage
+            const stored = localStorage.getItem('sig_incidencias_nc_data');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    incidenciasData = parsed;
+                    // Asegurar que tiene estructura correcta
+                    if (!incidenciasData.incidencias) {
+                        incidenciasData = { incidencias: Array.isArray(parsed) ? parsed : [] };
+                    }
+                } catch (e) {
+                    console.error("Error al parsear incidencias NC:", e);
+                    incidenciasData = { incidencias: [...seedIncidencias] };
+                }
+            } else {
+                incidenciasData = { incidencias: [...seedIncidencias] };
+            }
+
+            // Merge seed data si faltan (evita perder las semillas ante un reset parcial)
+            seedIncidencias.forEach(seed => {
+                if (!incidenciasData.incidencias.some(i => i.id === seed.id)) {
+                    incidenciasData.incidencias.push(seed);
+                }
+            });
+
+            saveToLocalStorage();
+
+            // Deep-link: comprobar si viene de Compras con un código NC específico
+            const searchNc = localStorage.getItem('sig_search_nc');
+            if (searchNc) {
+                highlightNc = searchNc;
+                document.getElementById('search-nc').value = searchNc;
+                localStorage.removeItem('sig_search_nc');
+            }
+
+            render();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sig_incidencias_nc_data', JSON.stringify(incidenciasData));
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function openNewIncidenciaModal() {
+            document.getElementById('nc-title').value = "";
+            document.getElementById('nc-origin').value = "Operación";
+            document.getElementById('nc-severity').value = "Media";
+            document.getElementById('nc-desc').value = "";
+            document.getElementById('nc-owner').value = "";
+            openModal('modal-nueva-nc');
+        }
+
+        function saveNewIncidencia(e) {
+            e.preventDefault();
+            const title = document.getElementById('nc-title').value.trim();
+            const origin = document.getElementById('nc-origin').value;
+            const severity = document.getElementById('nc-severity').value;
+            const desc = document.getElementById('nc-desc').value.trim();
+            const owner = document.getElementById('nc-owner').value.trim() || 'Sin asignar';
+            const today = new Date().toISOString().split('T')[0];
+
+            // Generar ID secuencial
+            let maxSeq = 0;
+            incidenciasData.incidencias.forEach(i => {
+                const parts = (i.id || '').split('-');
+                if (parts.length >= 3) {
+                    const seq = parseInt(parts[parts.length - 1]);
+                    if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const newId = `NC-${today.substring(0, 4)}-${nextSeq}`;
+
+            incidenciasData.incidencias.push({
+                id: newId,
+                title: title,
+                origin: origin,
+                desc: desc,
+                status: "Abierta",
+                date: today,
+                owner: owner,
+                severity: severity,
+                actions: []
+            });
+
+            saveToLocalStorage();
+            closeModal('modal-nueva-nc');
+            render();
+            e.target.reset();
+        }
+
+        function toggleStatus(id) {
+            const idx = incidenciasData.incidencias.findIndex(i => i.id === id);
+            if (idx === -1) return;
+
+            const current = incidenciasData.incidencias[idx].status;
+            if (current === 'Abierta') {
+                incidenciasData.incidencias[idx].status = 'En Análisis';
+            } else if (current === 'En Análisis') {
+                incidenciasData.incidencias[idx].status = 'Cerrada';
+            } else {
+                incidenciasData.incidencias[idx].status = 'Abierta';
+            }
+
+            saveToLocalStorage();
+            render();
+        }
+
+        function deleteIncidencia(id) {
+            if (confirm(`¿Está seguro de que desea eliminar la incidencia ${id}?`)) {
+                incidenciasData.incidencias = incidenciasData.incidencias.filter(i => i.id !== id);
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function renderKPIs() {
+            const all = incidenciasData.incidencias;
+            document.getElementById('kpi-total').innerText = all.length;
+            document.getElementById('kpi-abiertas').innerText = all.filter(i => i.status === 'Abierta').length;
+            document.getElementById('kpi-analisis').innerText = all.filter(i => i.status === 'En Análisis').length;
+            document.getElementById('kpi-cerradas').innerText = all.filter(i => i.status === 'Cerrada').length;
+        }
+
+        function render() {
+            renderKPIs();
+
+            const query = document.getElementById('search-nc').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('filter-status').value;
+            const originFilter = document.getElementById('filter-origin').value;
+
+            const filtered = incidenciasData.incidencias.filter(i => {
+                const matchesQuery = (i.id || '').toLowerCase().includes(query) ||
+                    (i.title || '').toLowerCase().includes(query) ||
+                    (i.desc || '').toLowerCase().includes(query) ||
+                    (i.owner || '').toLowerCase().includes(query) ||
+                    (i.origin || '').toLowerCase().includes(query);
+                const matchesStatus = statusFilter === "" || i.status === statusFilter;
+                const matchesOrigin = originFilter === "" || (i.origin || '').includes(originFilter);
+                return matchesQuery && matchesStatus && matchesOrigin;
+            });
+
+            // Sort by date descending
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const container = document.getElementById('nc-list');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                container.innerHTML = "";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = "";
+
+            filtered.forEach(i => {
+                // Status badge
+                let statusBadge = "";
+                if (i.status === "Abierta") {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">Abierta</span>`;
+                } else if (i.status === "En Análisis") {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">En Análisis</span>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">Cerrada</span>`;
+                }
+
+                // Severity badge
+                let sevIcon = "", sevColor = "", sevText = i.severity || "Media";
+                if (sevText === "Alta") { sevIcon = "warning"; sevColor = "text-danger"; }
+                else if (sevText === "Media") { sevIcon = "error"; sevColor = "text-amber-600"; }
+                else { sevIcon = "info"; sevColor = "text-success"; }
+
+                // Action button text
+                let actionBtnText = "";
+                if (i.status === "Abierta") actionBtnText = "Pasar a Análisis";
+                else if (i.status === "En Análisis") actionBtnText = "Cerrar NC";
+                else actionBtnText = "Reabrir";
+
+                // Highlight flash for deep-link
+                const isHighlighted = (highlightNc && i.id === highlightNc);
+                const highlightClass = isHighlighted ? "flash-highlight border-amber-400 border-2" : "";
+
+                const card = document.createElement('div');
+                card.className = `bg-surface border border-outline-variant rounded-xl p-4 hover:shadow-md transition-shadow duration-200 flex flex-col md:flex-row gap-4 items-start md:items-center ${highlightClass} ${i.status === 'Cerrada' ? 'opacity-70' : ''}`;
+                card.id = `nc-card-${i.id}`;
+
+                card.innerHTML = `
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                            <span class="font-mono text-[11px] text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded font-semibold">${i.id}</span>
+                            ${statusBadge}
+                            <span class="text-[9px] font-bold text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded uppercase">${i.origin || 'N/D'}</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-primary truncate">${i.title}</h4>
+                        <p class="text-xs text-on-surface-variant mt-1 line-clamp-2">${i.desc}</p>
+                        <div class="flex items-center gap-3 mt-2 text-[10px] text-on-surface-variant font-medium">
+                            <span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]">person</span>${i.owner || 'Sin asignar'}</span>
+                            <span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]">calendar_today</span>${i.date}</span>
+                        </div>
+                    </div>
+                    <div class="flex md:flex-col items-center md:items-end gap-3 md:gap-2 w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t border-outline-variant md:border-t-0 shrink-0">
+                        <div class="flex items-center gap-1 ${sevColor} text-xs font-bold">
+                            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">${sevIcon}</span>
+                            ${sevText}
+                        </div>
+                        <div class="flex items-center gap-1 ml-auto md:ml-0">
+                            <button onclick="toggleStatus('${i.id}')" class="bg-secondary/10 text-secondary hover:bg-secondary/20 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors" title="${actionBtnText}">${actionBtnText}</button>
+                            <button onclick="deleteIncidencia('${i.id}')" class="text-danger hover:text-red-700 transition-colors p-1" title="Eliminar">
+                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            // Scroll to highlighted card if present
+            if (highlightNc) {
+                const targetCard = document.getElementById(`nc-card-${highlightNc}`);
+                if (targetCard) {
+                    setTimeout(() => {
+                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }
+                highlightNc = null; // Clear after first render
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

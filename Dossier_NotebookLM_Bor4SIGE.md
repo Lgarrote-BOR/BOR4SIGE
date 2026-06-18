@@ -45,11 +45,12 @@ El núcleo de Bor4SIGE está diseñado para dar cumplimiento directo a cláusula
 
 | Estándar de Referencia | Área de Aplicación | Módulo Relacionado | Cláusula Específica y Cumplimiento |
 | :--- | :--- | :--- | :--- |
-| **ISO 9001:2015** | Gestión de Calidad | `compras_y_evaluacion_proveedores`, `satisfaccion_cliente_ims`, `gestor_de_auditor_as`, `auditor_as_y_acciones` | * **§7.1.5**: Recursos de seguimiento y medición (equipos).<br>* **§8.4**: Control de procesos suministrados externamente (proveedores).<br>* **§9.1.2**: Satisfacción del cliente.<br>* **§9.2**: Auditorías internas.<br>* **§10.2**: No conformidades y acciones correctivas (CAPA). |
-| **ISO 14001:2015** | Gestión Ambiental | `evaluaci_n_aspectos_ambientales`, `control_de_operaciones_ambientales`, `riesgos_cambio_climatico` | * **§6.1.2**: Aspectos ambientales significativos.<br>* **§6.1.3**: Requisitos legales ambientales.<br>* **§8.1**: Planificación y control operacional. |
-| **ISO 45001:2018** | Seguridad y Salud Laboral | `participacion_trabajadores`, `investigaci_n_accidentes_sst` | * **§5.4**: Consulta y participación de los trabajadores.<br>* **§10.2**: Incidentes, no conformidades y acciones correctivas. |
-| **ISO 27001:2022** | Seguridad de la Información | `requisitos_legales_y_ens`, `incidentes_de_seguridad`, `declaracion_aplicabilidad` | * **§A.5.7**: Inteligencia de amenazas.<br>* **§A.5.24**: Gestión de incidentes de seguridad de la información.<br>* **§A.5.36**: Cumplimiento de requisitos legales y contractuales. |
-| **ISO 27701:2019 / RGPD** | Privacidad de los Datos | `proteccion_datos_rgpd`, `canal_de_denuncias` | * **Art. 30 RGPD**: Registro de Actividades de Tratamiento (RAT).<br>* **Art. 33 RGPD**: Notificación de brechas de seguridad a la AEPD en un plazo máximo de 72 horas.<br>* **Art. 35 RGPD**: Evaluación de Impacto relativa a la Protección de Datos (EIPD / PIA).<br>* **Derechos ARCO-POL**: Registro de solicitudes con cuenta atrás legal de 30 días para respuesta.<br>* **Art. 28 RGPD**: Contratos con encargados de tratamiento (proveedores). |
+| **ISO 9001:2015** | Gestión de Calidad | `compras_y_evaluacion_proveedores`, `satisfaccion_cliente_ims`, `gestor_de_auditor_as`, `auditor_as_y_acciones` | * **§7.1.5**: Recursos de seguimiento y medición (equipos).<br>* **§8.4**: Control de proveedores.<br>* **§9.1.2**: Satisfacción del cliente.<br>* **§9.2**: Auditorías internas.<br>* **§10.2**: No conformidades y acciones correctivas (CAPA). |
+| **ISO 14001:2015** | Gestión Ambiental | `evaluaci_n_aspectos_ambientales`, `control_de_operaciones_ambientales`, `riesgos_cambio_climatico` | * **§6.1.2**: Aspectos ambientales significativos.<br>* **§6.1.3**: Requisitos legales.<br>* **§8.1**: Control operacional. |
+| **ISO 45001:2018** | Seguridad y Salud Laboral | `participacion_trabajadores`, `investigaci_n_accidentes_sst`, `directorio_de_personal/clima_laboral.html` | * **§5.4**: Consulta y participación (Clima Laboral Likert).<br>* **§10.2**: Incidentes y acciones correctivas. |
+| **ISO 27001:2022** | Seguridad de la Información | `requisitos_legales_y_ens`, `incidentes_de_seguridad`, `declaracion_aplicabilidad` | * **§A.5.7**: Inteligencia de amenazas.<br>* **§A.5.24**: Gestión de incidentes.<br>* **§A.5.36**: Cumplimiento legal.<br>* **§A.5.9-A.5.14**: Declaración de Aplicabilidad (SoA). |
+| **ISO 20000-1:2018** | Gestión de Servicios TI | `produccion_y_capacidad`, `cat_logo_servicios_ti`, `gesti_n_de_cambios_ti` | * **§6.3**: Planificación y control de la capacidad.<br>* **§8.11**: Catálogo de servicios y SLAs.<br>* **§8.2.2**: Gestión de la demanda. |
+| **ISO 27701:2019 / RGPD** | Privacidad de los Datos | `proteccion_datos_rgpd`, `canal_de_denuncias` | * **Art. 30 RGPD**: RAT (Registro de Actividades de Tratamiento).<br>* **Art. 33 RGPD**: Notificación de brechas a la AEPD (72h).<br>* **Art. 35 RGPD**: Evaluación de impacto (EIPD / PIA).<br>* **Derechos ARCO-POL**: Temporizador legal de 30 días para respuesta.<br>* **Art. 28 RGPD**: Contratos con encargados (proveedores). |
 | **ENS (España)** | Esquema Nacional de Seguridad | `requisitos_legales_y_ens` | * Cumplimiento de la declaración de aplicabilidad de medidas de seguridad organizativas y técnicas exigidas para proveedores del sector público. |
 
 ---
@@ -60,10 +61,20 @@ El portal consta de las siguientes pantallas principales integradas:
 
 * **Portal Principal (`index.html`)**: Contenedor maestro con menú de navegación, selector multi-tenant y un *compliance scanner* automático que analiza el estado general del sistema, alertando sobre auditorías vencidas, descalibraciones o brechas RGPD activas.
 * **Módulo RGPD (`proteccion_datos_rgpd/code.html`)**:
-  * **RAT**: Formulario y tabla de tratamiento de datos personales.
-  * **EIPD / PIA**: Evaluaciones de riesgo de privacidad con matrices visuales.
-  * **Derechos ARCO-POL**: Seguimiento en tiempo real de derechos ejercidos con una barra de progreso que indica los días restantes frente al plazo legal de 30 días.
-  * **Encargados de Tratamiento**: Gestión de contratos y firma bajo el Art. 28 del RGPD.
+  * **RAT**: Formulario y tabla de tratamiento de datos personales corporativos (Art. 30).
+  * **EIPD / PIA**: Evaluaciones de riesgo de privacidad con matrices visuales interactivas (Art. 35).
+  * **Derechos ARCO-POL**: Registro y control de solicitudes con cuenta atrás legal de 30 días.
+  * **Encargados de Tratamiento**: Control de contratos del Art. 28 del RGPD con proveedores.
+* **Producción y Gestión de Capacidad (`produccion_y_capacidad/code.html`)**:
+  * **Planificación de Capacidad**: Nivel de ocupación de soporte (horas), infraestructura (vCPUs) e inventario.
+  * **Análisis Predictivo**: Proyecciones a 6 meses con línea de advertencia por encima de saturación (70%).
+  * **Estudios de Carga**: Registro de cuellos de botella y propuestas de compra automatizadas.
+* **Análisis de Clima Laboral (`directorio_de_personal/clima_laboral.html`)**:
+  * **Encuesta Likert**: 8 preguntas cuantitativas y cualitativas de satisfacción y salud laboral (ISO 45001 §5.4).
+  * **Dashboard ICL**: Índice de Clima Laboral global semaforizado e histórico de evolución.
+  * **Tablón de Ideas**: Registro de fortalezas y sugerencias de mejora.
+* **Declaración de Aplicabilidad (SoA) (`declaracion_aplicabilidad/code.html`)**:
+  * **Autoevaluación**: Nivel de madurez de salvaguardas ISO 27001 (L0 a L5).
 * **Incidentes de Seguridad (`incidentes_de_seguridad/code.html`)**:
   * Registro detallado de brechas de seguridad de datos.
   * Cronómetro visual dinámico que resalta las 72 horas legales para la notificación a la AEPD.

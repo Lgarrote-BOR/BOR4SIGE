@@ -651,15 +651,32 @@
                 } catch(e) { console.error("Error al auditar RFCs:", e); }
             }
 
-            // 2. Escanear proveedores
-            const provKey = `sig_desempeno_proveedores_${tenant}`;
-            const provsStr = window.sigDbState[provKey] || window.sigDbState['sig_desempeno_proveedores'];
+            // 2. Escanear proveedores — busca en módulo Compras (sig_compras_proveedores_data) y en Desempeño
+            let provsStr = null;
+            const comprasKey = `sig_compras_proveedores_data_${tenant}`;
+            const comprasData = window.sigDbState[comprasKey] || window.sigDbState['sig_compras_proveedores_data'];
+            if (comprasData) {
+                // El módulo de Compras guarda { proveedores, pedidos, evaluaciones, incidencias }
+                try {
+                    const parsed = typeof comprasData === 'string' ? JSON.parse(comprasData) : comprasData;
+                    if (parsed && parsed.proveedores) {
+                        // Normalizar al formato { name, avg: note } para reutilizar la lógica
+                        const normalized = parsed.proveedores.map(p => ({ name: p.name, avg: parseFloat(p.note) || 0 }));
+                        provsStr = JSON.stringify(normalized);
+                    }
+                } catch(e) { console.error("Error al parsear compras_proveedores_data:", e); }
+            }
+            // Fallback al módulo legacy de Desempeño de Proveedores
+            if (!provsStr) {
+                const provKey = `sig_desempeno_proveedores_${tenant}`;
+                provsStr = window.sigDbState[provKey] || window.sigDbState['sig_desempeno_proveedores'] || null;
+            }
             if (provsStr) {
                 try {
                     const provs = typeof provsStr === 'string' ? JSON.parse(provsStr) : provsStr;
                     const lowProvs = provs.filter(p => p.avg < 3.0);
                     if (lowProvs.length > 0) {
-                        addLog(`[Escáner] Encontrados ${lowProvs.length} proveedores con nota baja. Verificando CAPA (ISO 9001 §8.4)...`);
+                        addLog(`[Escáner] Encontrados ${lowProvs.length} proveedores con nota baja (módulo Compras). Verificando CAPA (ISO 9001 §8.4)...`);
                         lowProvs.forEach(p => {
                             const ncKey = `sig_incidencias_nc_data_${tenant}`;
                             const ncStr = window.sigDbState[ncKey] || window.sigDbState['sig_incidencias_nc_data'];
@@ -671,7 +688,7 @@
                                 } catch(e) {}
                             }
                             if (!hasNc) {
-                                addLog(`⚠️ ADVERTENCIA (ISO 9001 §8.4): Proveedor '${p.name}' con calificación deficiente (${p.avg} estrellas) sin plan de acción CAPA registrado.`);
+                                addLog(`⚠️ ADVERTENCIA (ISO 9001 §8.4): Proveedor '${p.name}' con calificación deficiente (${(p.avg||0).toFixed(1)} ★) sin plan de acción CAPA registrado.`);
                             } else {
                                 addLog(`✓ Verificación (ISO 9001 §8.4): Proveedor '${p.name}' bajo plan CAPA activo.`);
                             }

@@ -87,7 +87,7 @@
             const sidebarSelectors = [
                 'nav.sidebar', 'aside.sidebar', '.sidebar',
                 '[aria-label="Main Navigation"]',
-                'header.app-header', 'header.dashboard-header', 'header.module-header',
+                'header', 'header.app-header', 'header.dashboard-header', 'header.module-header',
                 '.app-header', '.module-header', '.dashboard-header'
             ];
 

@@ -19,19 +19,19 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#0c1445",       // Azul Oscuro
-                        "secondary": "#1d4ed8",     // Azul Eléctrico
-                        "accent": "#6366f1",        // Indigo
-                        "background": "#f0f4ff",    // Fondo muy claro
+                        "primary": "#003366",       // Azul Marino Profundo (Core Bor4SIGE)
+                        "secondary": "#0060ac",     // Azul Interactivo (Core Bor4SIGE)
+                        "background": "#f8f9fb",    // Fondo gris (Core Bor4SIGE)
                         "surface": "#ffffff",       // Blanco
-                        "surface-container-low": "#eff6ff",
-                        "surface-container": "#dbeafe",
-                        "outline-variant": "#bfdbfe",
-                        "on-surface": "#0c1445",
-                        "on-surface-variant": "#1e40af",
-                        "success": "#16a34a",
-                        "warning": "#ca8a04",
-                        "danger": "#dc2626"
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "outline-variant": "#c3c6d1",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474f",
+                        "success": "#137333",
+                        "warning": "#b06000",
+                        "danger": "#c5221f"
                     },
                     fontFamily: {
                         sans: ["Inter", "sans-serif"]
@@ -44,7 +44,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4ff;
+            background-color: #f8f9fb;
         }
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -69,15 +69,28 @@
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
 
-    <!-- TopAppBar -->
-    <header class="bg-[#0c1445] text-white w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+    <!-- TopAppBar — compatible con iframe del portal Bor4SIGE -->
+    <header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-2 flex items-center justify-center transition-colors" title="Volver al Portal">
+            <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
                 <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <div>
-                <h1 class="font-bold text-base tracking-tight leading-none text-white">Bor4SIGE</h1>
-                <span class="text-[10px] text-blue-200 font-semibold">Producción y Gestión de Capacidad</span>
+                <h1 class="font-bold text-base tracking-tight leading-none text-primary">Bor4SIGE</h1>
+                <span class="text-[10px] text-on-surface-variant font-semibold">Producción y Gestión de Capacidad</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center border border-secondary/40 rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
+                <span>ISO 20000-1:2018 §8.1 / §8.3 / §8.4</span>
+            </div>
+            <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">
+                US
+            </button>
+        </div>
+    </header>
             </div>
         </div>
         
@@ -345,53 +358,21 @@
 
         <!-- SECCIÓN 3: ESTUDIOS DE CARGA E INCIDENCIAS DE CAPACIDAD -->
         <section id="sec-analisis" class="space-y-4 hidden">
-            <div class="bg-white border border-outline-variant rounded-xl p-4 flex gap-3 text-xs text-primary">
+            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex gap-3 text-xs text-primary">
                 <span class="material-symbols-outlined text-secondary shrink-0">info</span>
                 <div>
                     <p class="font-bold">Análisis Proactivo de Elementos de Servicio (ISO 20000-1 §8.11):</p>
-                    <p class="mt-0.5">Permite identificar y solventar de forma anticipada la falta de disponibilidad de elementos de servicio antes de que afecten a la prestación a clientes.</p>
+                    <p class="mt-0.5">Identifica automáticamente artículos del catálogo que han caído por debajo del stock mínimo de seguridad, para activar propuestas de compra preventivas antes de que afecten a la prestación a clientes.</p>
                 </div>
             </div>
 
-            <!-- Listado de Alertas de Capacidad de los Elementos -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                <!-- Alerta 1 -->
-                <div class="bg-surface border border-outline-variant rounded-xl p-4 flex items-start gap-3 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="p-2 bg-red-100 text-red-700 rounded-lg">
-                        <span class="material-symbols-outlined text-lg font-bold">sd_storage</span>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <h4 class="font-bold text-sm text-primary">Capacidad Crítica de Almacenamiento NAS</h4>
-                            <span class="bg-red-100 text-red-800 text-[9px] px-1.5 py-0.2 rounded font-bold">95% de carga</span>
-                        </div>
-                        <p class="text-xs text-on-surface-variant">El volumen `NAS-BACKUP-01` está al 95% (9.5 TB de 10 TB). El plan de backups corre riesgo de detenerse en 72 horas.</p>
-                        <button onclick="triggerPurchaseProposal('ART-002', 'Software y TI', 1800)" class="text-xs font-bold text-secondary hover:text-primary flex items-center gap-0.5 pt-1.5">
-                            <span class="material-symbols-outlined text-[13px]">shopping_cart</span>
-                            Solicitar compra de ampliación (Servidor VPS)
-                        </button>
-                    </div>
+            <!-- Listado dinámico de alertas de stock bajo -->
+            <div id="alertas-capacidad-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Inyectado dinámicamente desde el catálogo -->
+                <div class="col-span-full text-center text-xs text-on-surface-variant py-8">
+                    <span class="material-symbols-outlined text-3xl block mb-2 text-success">check_circle</span>
+                    Cargando análisis de stock...
                 </div>
-
-                <!-- Alerta 2 -->
-                <div class="bg-surface border border-outline-variant rounded-xl p-4 flex items-start gap-3 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="p-2 bg-amber-100 text-amber-700 rounded-lg">
-                        <span class="material-symbols-outlined text-lg font-bold">biotech</span>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <h4 class="font-bold text-sm text-primary">Stock Mínimo de Seguridad Aditivos Químicos</h4>
-                            <span class="bg-amber-100 text-amber-800 text-[9px] px-1.5 py-0.2 rounded font-bold">85% de carga</span>
-                        </div>
-                        <p class="text-xs text-on-surface-variant">El stock de reactivo de purificación es de 130 kg (umbral mínimo de seguridad: 150 kg). Consumo acelerado por pedido PED-CLI-002.</p>
-                        <button onclick="triggerPurchaseProposal('ART-001', 'Materias Primas', 3200)" class="text-xs font-bold text-secondary hover:text-primary flex items-center gap-0.5 pt-1.5">
-                            <span class="material-symbols-outlined text-[13px]">shopping_cart</span>
-                            Solicitar compra de reactivos
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </section>
 
@@ -519,6 +500,7 @@
             }
 
             render();
+            renderAlertasCapacidad();
         }
 
         function saveToLocalStorage() {
@@ -540,6 +522,9 @@
             
             if (tab === 'dashboard') {
                 recalculateCapacityMetrics();
+            }
+            if (tab === 'analisis') {
+                renderAlertasCapacidad();
             }
             render();
         }
@@ -738,6 +723,13 @@
             // Buscar en catálogo
             const item = catalogoGeneral.find(x => x.id === resourceId);
             const name = item ? item.name : resourceId;
+            
+            // Evitar duplicados en la cola
+            const alreadyQueued = proposals.some(p => p.resourceName === name && p.clientOrderId === 'PLAN-CAP-2026');
+            if (alreadyQueued) {
+                alert(`La propuesta de compra para "${name}" ya está encolada en el módulo de Compras.`);
+                return;
+            }
 
             proposals.push({
                 resourceName: name,
@@ -748,7 +740,14 @@
             });
 
             localStorage.setItem('sig_propuestas_compras', JSON.stringify(proposals));
-            alert(`Propuesta de compra registrada para el artículo de catálogo: "${name}" (${category}).\nSe ha enviado al departamento de compras para su validación inmediata.`);
+            
+            // Navegar al módulo de compras para que el usuario vea y valide el pedido propuesto
+            if (window.parent && typeof window.parent.navigateToPath === 'function') {
+                window.parent.navigateToPath('./compras_y_evaluacion_proveedores/code.html');
+            } else {
+                alert(`Propuesta de compra registrada para "${name}" (${category}).\nNavegando al módulo de Compras para su validación...`);
+                window.location.href = '../compras_y_evaluacion_proveedores/code.html';
+            }
         }
 
         function triggerPurchaseProposalForOrder(orderId) {
@@ -872,6 +871,59 @@
                     `;
                 });
             }
+        }
+
+        // Renderizar alertas dinámicas desde el catálogo real
+        function renderAlertasCapacidad() {
+            const grid = document.getElementById('alertas-capacidad-grid');
+            if (!grid) return;
+            
+            const productosBajos = catalogoGeneral.filter(item =>
+                item.tipo === 'PRODUCTO' && typeof item.stock === 'number' && typeof item.minStock === 'number' && item.stock < item.minStock
+            );
+            
+            if (productosBajos.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center text-xs text-on-surface-variant py-10">
+                        <span class="material-symbols-outlined text-3xl block mb-2 text-success">check_circle</span>
+                        <p class="font-bold text-success">Todos los artículos se encuentran por encima del stock mínimo de seguridad.</p>
+                        <p class="mt-1">No hay alertas de capacidad activas en este momento.</p>
+                    </div>`;
+                return;
+            }
+            
+            grid.innerHTML = productosBajos.map(item => {
+                const pct = item.minStock > 0 ? Math.round((item.stock / item.minStock) * 100) : 0;
+                const deficit = item.minStock - item.stock;
+                const isCritical = pct <= 50;
+                const iconBg = isCritical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700';
+                const icon = isCritical ? 'sd_storage' : 'inventory';
+                const badgeCls = isCritical ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800';
+                const label = isCritical ? 'CRÍTICO' : 'ALERTA';
+                
+                return `
+                <div class="bg-surface border border-outline-variant rounded-xl p-4 flex items-start gap-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="p-2 ${iconBg} rounded-lg shrink-0">
+                        <span class="material-symbols-outlined text-lg font-bold">${icon}</span>
+                    </div>
+                    <div class="space-y-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h4 class="font-bold text-sm text-primary">${item.name}</h4>
+                            <span class="${badgeCls} text-[9px] px-1.5 py-0.5 rounded font-bold">${label} — ${pct}% del mínimo</span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant">
+                            Stock actual: <strong class="text-danger">${item.stock} ${item.unit}</strong> &mdash; 
+                            Stock mínimo requerido: <strong>${item.minStock} ${item.unit}</strong>. 
+                            Déficit: <strong>${deficit} ${item.unit}</strong>.
+                        </p>
+                        <button onclick="triggerPurchaseProposal('${item.id}', '${item.cat}', ${(item.cost || 100) * deficit})" 
+                            class="text-xs font-bold text-secondary hover:text-primary flex items-center gap-0.5 pt-1.5 transition-colors">
+                            <span class="material-symbols-outlined text-[13px]">shopping_cart_checkout</span>
+                            Solicitar reposición (${deficit} ${item.unit}) → Módulo Compras
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         document.addEventListener('DOMContentLoaded', () => {

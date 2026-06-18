@@ -65,89 +65,31 @@
         }
     </style>
 </head>
-<body class="bg-background text-on-background antialiased min-h-screen flex">
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
 
-<!-- NavigationDrawer -->
-<nav aria-label="Main Navigation" class="hidden md:flex w-[240px] h-full fixed left-0 top-0 border-r border-outline-variant bg-surface flex-col p-4 z-30">
-    <!-- Brand/Header -->
-    <div class="mb-8 flex items-center justify-start space-x-2">
-        <a href="../index.html" class="flex items-center space-x-2">
-            <span class="material-symbols-outlined text-secondary icon-fill" style="font-size: 32px;">assured_workload</span>
-            <div>
-                <h1 class="font-bold text-lg text-primary">Bor4SIGE</h1>
-            </div>
+<!-- TopAppBar — compatible con iframe del portal Bor4SIGE -->
+<header class="bg-surface text-primary w-full sticky top-0 border-b border-outline-variant transition-colors duration-200 z-40 flex justify-between items-center px-6 py-3 shrink-0">
+    <div class="flex items-center gap-3">
+        <a href="../index.html" class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 flex items-center justify-center transition-colors duration-200" title="Volver al Portal">
+            <span class="material-symbols-outlined">arrow_back</span>
         </a>
-    </div>
-    <!-- Environment Switcher -->
-    <div class="mb-6 p-3 border-l-4 border-secondary bg-surface-container-low rounded-r-lg">
-        <p class="text-[10px] font-bold text-on-surface-variant uppercase">Entorno</p>
-        <p class="text-sm font-bold text-on-background">Producción</p>
-    </div>
-    <!-- Navigation Links -->
-    <ul class="space-y-1 flex-1">
-        <li>
-            <a class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors" href="../index.html">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span class="text-sm font-medium">Dashboard</span>
-            </a>
-        </li>
-        <li>
-            <a class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors" href="./code.html">
-                <span class="material-symbols-outlined">groups</span>
-                <span class="text-sm font-medium">Directorio Personal</span>
-            </a>
-        </li>
-        <li>
-            <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-secondary font-bold border-r-4 border-secondary bg-surface-container-low transition-colors" href="#">
-                <span class="material-symbols-outlined icon-fill">sentiment_very_satisfied</span>
-                <span class="text-sm font-medium">Clima Laboral</span>
-            </a>
-        </li>
-        <li>
-            <a class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors" href="../index.html#riesgos">
-                <span class="material-symbols-outlined">warning</span>
-                <span class="text-sm font-medium">Riesgos SGI</span>
-            </a>
-        </li>
-        <li>
-            <a class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors" href="../index.html#auditorias">
-                <span class="material-symbols-outlined">fact_check</span>
-                <span class="text-sm font-medium">Auditorías</span>
-            </a>
-        </li>
-    </ul>
-    <!-- Profile Section -->
-    <div class="mt-auto pt-4 border-t border-outline-variant flex items-center space-x-2">
-        <img alt="Gestor de Cumplimiento" class="w-10 h-10 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvvlJbvZEy98D-lOaT38QGYNvf33EWJ2WyWAlTBBmPcd7Z2_IYZcuBPWMkrbs0t3VW12e6x1wydLgpr-WRA3_QlTO_bJzLL-LrCWkD7iKpKEMGn5b7tNd0T2NRS0wkvrdvxbl4a3_aPuVUxv2DtWN8ZZ6oNv1x0nkoKsdFOhaydz2L90FmHRDgjvGU7R42buqpLO0N3HhpBzLOgYA2Zrk4RCsACYcKFh6SmqGdreI6EYYJno17N-jNt7fXPbu_d3q7oZicltnPlMo"/>
-        <div class="overflow-hidden">
-            <p class="text-sm font-bold truncate">Gestor de Cumplimiento</p>
-            <p class="text-xs text-on-surface-variant truncate">SGI & ISO 45001</p>
+        <div>
+            <h1 class="font-bold text-base tracking-tight leading-none text-primary">Bor4SIGE</h1>
+            <span class="text-[10px] text-on-surface-variant font-semibold">Análisis de Clima Laboral</span>
         </div>
     </div>
-</nav>
-
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-20 bg-surface border-b border-outline-variant flex items-center justify-between px-6 h-[64px] ml-0 md:ml-[240px] md:w-[calc(100%-240px)]">
-    <div class="flex items-center space-x-2">
-        <a href="../index.html" class="md:hidden p-1 rounded-full hover:bg-surface-container-low">
-            <span class="material-symbols-outlined text-primary">arrow_back</span>
-        </a>
-        <h2 class="text-lg font-bold text-primary flex items-center gap-2">
-            <span class="material-symbols-outlined text-secondary icon-fill">sentiment_very_satisfied</span>
-            Análisis de Clima Laboral
-        </h2>
-    </div>
-    <div class="flex items-center gap-4">
-        <div class="hidden lg:flex items-center border border-secondary/20 rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
+    <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center border border-secondary/40 rounded-full px-3 py-1 bg-surface-container-low text-secondary gap-1.5 text-xs font-semibold">
             <span class="material-symbols-outlined text-sm">assignment_turned_in</span>
             <span>Participación y Consulta — ISO 45001 §5.4</span>
         </div>
+        <button aria-label="Usuario" class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">US</button>
     </div>
 </header>
 
 <!-- Main Content Canvas -->
-<main class="flex-1 ml-0 md:ml-[240px] pt-[64px] px-6 pb-8 overflow-y-auto w-full">
-    <div class="max-w-[1280px] mx-auto py-6 space-y-6">
+<main class="flex-1 overflow-y-auto p-6 w-full">
+    <div class="max-w-7xl mx-auto py-4 space-y-6">
         
         <!-- Pestañas de Navegación del Módulo -->
         <div class="border-b border-outline-variant">
