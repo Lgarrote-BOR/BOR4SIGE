@@ -1,11 +1,11 @@
-# Informe de Auditoría y Análisis del Diseño de la Base de Datos — Bor4SIGE
+# Informe de Auditoría y Análisis del Diseño de la Base de Datos — Bor4SIGE (Versión Actualizada)
 
-Este documento contiene un análisis técnico exhaustivo del diseño físico y lógico de la base de datos de **Bor4SIGE**, evaluando su integridad referencial, el modelo de datos, la gestión de excepciones, el rendimiento y la seguridad.
+Este documento contiene un análisis técnico exhaustivo del diseño físico y lógico de la base de datos de **Bor4SIGE**, evaluando su integridad referencial, el modelo de datos, la gestión de excepciones, el rendimiento (incluyendo el sistema de paginación recientemente implementado) y la seguridad de las conexiones.
 
 ---
 
-## 1. Bases de Datos Utilizadas
-El ecosistema de Bor4SIGE implementa una estrategia híbrida de persistencia (online/offline):
+## 1. Motores de Persistencia y Bases de Datos Utilizadas
+El ecosistema de Bor4SIGE implementa una estrategia híbrida de persistencia (online/offline) de alta disponibilidad:
 
 1. **MariaDB (Motor InnoDB) [Primaria - Servidor]:**
    * Es el motor relacional principal del backend Node.js (`server.js`). 
@@ -144,14 +144,12 @@ El backend administra la interacción con la base de datos de manera atómica y 
 
 ---
 
-## 5. Auditoría de Seguridad y Rendimiento
+## 5. Auditoría de Seguridad, Rendimiento y Conexión
 
 ### Puntos Fuertes (Alineación con Buenas Prácticas)
 * **Inyección SQL Imposible:** No hay concatenación de cadenas de texto en las consultas de SQL. Todas las lecturas y escrituras se ejecutan mediante marcadores de parámetros parametrizados (`connection.query(sql, [params])`), lo que mitiga por completo los riesgos de inyección SQL (SQLi).
 * **Inserción Atómica Dinámica (Upsert):** El uso de `INSERT INTO ... ON DUPLICATE KEY UPDATE` permite actualizar registros existentes o insertarlos en una sola llamada de ida y vuelta a MariaDB, reduciendo la latencia de red.
 * **Resolución Automática de Catálogos:** La función helper `rid()` realiza una validación e inserción al vuelo (upserting) para valores lookup que no existan previamente en la caché en memoria, manteniendo la consistencia de los diccionarios de datos de forma dinámica.
-
-### Oportunidades de Mejora / Recomendaciones
-1. **Partición de Memoria en Lecturas Masivas:** Actualmente, `loadAllData` lee todas las tablas de MariaDB completas a memoria (`SELECT *`) para formatearlas y servirlas al cliente SPA en un único payload JSON gigante. Esto es extremadamente rápido para entornos medianos, pero a medida que el volumen de datos de múltiples inquilinos crezca, se recomienda implementar paginación o endpoints de lectura parciales y bajo demanda.
-2. **Cifrado de PII en Reposo:** Aunque los correos de usuario y nombres de personal se guardan estructurados, si se manejan datos personales de alta sensibilidad en producción, es aconsejable implementar cifrado transparente de datos (TDE) en MariaDB o cifrar campos específicos de forma simétrica (AES-256) a nivel de aplicación en el backend.
-3. **Credenciales en Producción:** Se debe asegurar que las credenciales por defecto (`root` sin contraseña) en el archivo `.env` se reemplacen en entornos productivos por un usuario MariaDB con privilegios limitados (únicamente `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre la base de datos `bor4sige`).
+* **Aislamiento de Privilegios en Base de Datos (Nuevo):** El sistema ha dejado de utilizar el usuario `root` de administración global del sistema. Se ha creado y configurado el usuario restringido `sige_user` con permisos limitados exclusivamente a operaciones DML (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `REFERENCES` y `CREATE TEMPORARY TABLES`) sobre la base de datos `bor4sige`, mitigando el riesgo de escalada de privilegios o destrucción accidental del esquema en producción.
+* **API de Lectura Paginada (Nuevo):** Implementada la función `loadPaginatedData` y el endpoint `/api/store/paginated`. Esto permite a los clientes SPA cargar slices de registros bajo demanda (`page` y `limit`), reduciendo drásticamente el consumo de memoria en el backend y los tiempos de transferencia de red para bases de datos de alto volumen.
+* **Caché Eficiente de Diccionarios:** Los catálogos lookup se cachean en memoria para lecturas rápidas y se invalidan dinámicamente (`invalidateLookupCache`) únicamente después de escrituras de catálogos nuevos, combinando velocidad y frescura de datos.
