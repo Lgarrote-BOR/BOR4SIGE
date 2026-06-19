@@ -1,55 +1,85 @@
-﻿# Bor4SIGE - Sistema de Gestión Integrado y Compliance (Webapp)
+# 🛡️ Bor4SIGE — Proyecto Integral
 
-Esta es la versión Webapp lista para producción del Sistema de Gestión Integrado (Bor4SIGE). Permite un despliegue multiusuario en servidor (o local compartido) manteniendo todas las interfaces premium interactivas desarrolladas.
-
----
-
-## 📋 Requisitos Previos
-
-Antes de ejecutar la aplicación, asegúrate de tener instalado **Node.js** en tu sistema:
-* Descargar e instalar desde: [https://nodejs.org/](https://nodejs.org/) (se recomienda la versión LTS).
+**Sistema Integrado de Gestión Empresarial, Compliance y Automatización con IA**
 
 ---
 
-## 🚀 Instrucciones de Instalación y Ejecución
+## 📁 Estructura del Proyecto
 
-### Opción A: Despliegue Automatizado (Recomendado)
-
-#### En Windows:
-1. Haz doble clic en el archivo **`iniciar_servidor.bat`** en la raíz de esta carpeta.
-2. El script detectará si faltan las dependencias, las instalará de forma automática (`npm install`), levantará el servidor backend y abrirá el portal SGI en tu navegador web por defecto en la dirección: **`http://localhost:3000`**.
-
-#### En macOS o Linux:
-1. Abre una terminal en la carpeta de la aplicación.
-2. Da permisos de ejecución al script:
-   ```bash
-   chmod +x iniciar_servidor.sh
-   ```
-3. Ejecuta el script:
-   ```bash
-   ./iniciar_servidor.sh
-   ```
+```
+BOR4SIGE/
+│
+├── 1_App_BOR4SIGE/           ← Aplicación completa (servidor + portal + módulos)
+├── 2_Instalable_BOR4SIGE/    ← Paquetes instalables listos para producción
+├── 3_Plugin_WordPress/       ← Plugin de integración con WordPress / Divi 5
+├── 4_Documentos/             ← Documentación, manuales, normas y dossiers
+├── 5_Web_Corporativa/        ← Landing web de presentación de Bor4D
+│
+├── build_packages.ps1        ← Script de empaquetado y sincronización
+├── .gitignore
+└── README.md                 ← Este archivo
+```
 
 ---
 
-### Opción B: Ejecución Manual por Consola
+## 📦 Descripción de cada Carpeta
 
-Si prefieres ejecutar los comandos manualmente:
+### 1️⃣ `1_App_BOR4SIGE/`
+El corazón del sistema. Contiene el portal SGI completo con +60 módulos operativos, el servidor Express (Node.js) y la API REST multi-tenant.
 
-1. Instala las dependencias en la terminal:
-   ```bash
-   npm install
-   ```
-2. Inicia la aplicación:
-   ```bash
-   npm start
-   ```
-3. Accede al sistema desde tu navegador en la dirección: [http://localhost:3000](http://localhost:3000)
+**Para ejecutar la aplicación:**
+```bash
+cd 1_App_BOR4SIGE
+npm install
+npm start
+# Abre http://localhost:3000
+```
+
+O simplemente haz doble clic en `1_App_BOR4SIGE/iniciar_servidor.bat` (Windows).
 
 ---
 
-## 💾 Persistencia de Datos y Despliegue en Servidores
+### 2️⃣ `2_Instalable_BOR4SIGE/`
+Paquetes `.zip` listos para desplegar en servidores de producción o distribución a clientes.
 
-* **Base de Datos:** Los datos introducidos en los diferentes formularios (auditorías, no conformidades, aspectos ambientales, control documental, compras, etc.) se almacenan de forma segura y centralizada en el archivo físico **`db.json`** en la raíz del servidor.
-* **Despliegue en Servidor Remoto:** Para desplegar esta Webapp en un servidor web en la nube, basta con copiar esta carpeta (excluyendo `node_modules` para agilizar el proceso), ejecutar `npm install` en el servidor y configurar un gestor de procesos como **PM2** o levantar el servicio mediante Node.js en el puerto deseado (`PORT=3000 npm start`).
-* **Ejecución Local Estática (Fallback):** Si por algún motivo abres el archivo `index.html` directamente (bajo protocolo `file://`) sin tener activo el servidor de Node.js, la aplicación detectará el entorno y caerá de forma segura en persistencia aislada de **`localStorage`**, funcionando de manera 100% autónoma.
+| Archivo | Descripción |
+|---|---|
+| `bor4sige_webapp_instalable.zip` | Paquete completo con PDFs de normas (~56 MB) |
+| `bor4sige_webapp_instalable_sgi.zip` | Versión ligera sin PDFs (~29 MB) |
+| `bor4sige_webapp_instalable/` | Directorio fuente del instalable |
+
+---
+
+### 3️⃣ `3_Plugin_WordPress/`
+Plugin oficial de integración con WordPress y Divi 5. Permite embeber BOR4SIGE en el backoffice de WP y publicar la landing corporativa con shortcodes.
+
+| Shortcode | Resultado |
+|---|---|
+| `[bor4sige_landing]` | Landing de presentación corporativa bilingüe |
+| `[bor4sige_app]` | Portal completo del SGI |
+| `[bor4sige_app module="canal_de_denuncias"]` | Módulo específico |
+
+---
+
+### 4️⃣ `4_Documentos/`
+Toda la documentación del proyecto: manual de uso, plan de mejoras, dossier corporativo y PDFs de normativas legales.
+
+---
+
+### 5️⃣ `5_Web_Corporativa/`
+Landing page estática de presentación de Bor4D y BOR4SIGE, lista para desplegar en un servidor web (Nginx en Hetzner). Incluye guía de deploy y configuración SSL.
+
+---
+
+## ⚙️ Script de Empaquetado
+
+```powershell
+# Desde la raíz del proyecto:
+.\build_packages.ps1
+```
+
+Genera los 4 paquetes `.zip` y sincroniza con el directorio espejo `SIG 2.0`.
+
+---
+
+*Bor4SIGE © 2026 — Bor4D Technology & Professional Services*
