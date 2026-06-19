@@ -1,4 +1,4 @@
-﻿# Bor4SIGE - Sistema de Gestión Integrado y Compliance (Webapp)
+# Bor4SIGE - Sistema de Gestión Integrado y Compliance (Webapp)
 
 Esta es la versión Webapp lista para producción del Sistema de Gestión Integrado (Bor4SIGE). Permite un despliegue multiusuario en servidor (o local compartido) manteniendo todas las interfaces premium interactivas desarrolladas.
 
@@ -50,6 +50,6 @@ Si prefieres ejecutar los comandos manualmente:
 
 ## 💾 Persistencia de Datos y Despliegue en Servidores
 
-* **Base de Datos:** Los datos introducidos en los diferentes formularios (auditorías, no conformidades, aspectos ambientales, control documental, compras, etc.) se almacenan de forma segura y centralizada en el archivo físico **`db.json`** en la raíz del servidor.
-* **Despliegue en Servidor Remoto:** Para desplegar esta Webapp en un servidor web en la nube, basta con copiar esta carpeta (excluyendo `node_modules` para agilizar el proceso), ejecutar `npm install` en el servidor y configurar un gestor de procesos como **PM2** o levantar el servicio mediante Node.js en el puerto deseado (`PORT=3000 npm start`).
-* **Ejecución Local Estática (Fallback):** Si por algún motivo abres el archivo `index.html` directamente (bajo protocolo `file://`) sin tener activo el servidor de Node.js, la aplicación detectará el entorno y caerá de forma segura en persistencia aislada de **`localStorage`**, funcionando de manera 100% autónoma.
+* **Base de Datos:** La persistencia de datos se realiza en una base de datos relacional de **MariaDB** de forma centralizada y robusta. Los parámetros de conexión de red se configuran en el archivo `.env` del backend (utilizando las variables `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` y `DB_NAME`). El esquema físico cuenta con restricciones en cascada e índices secundarios óptimos.
+* **Despliegue en Servidor Remoto:** Para desplegar esta Webapp en producción, copia esta carpeta al servidor, configura las variables en tu archivo `.env`, asegura que la base de datos MariaDB esté activa y ejecuta `npm install` y `npm start` (o levanta el servicio mediante un gestor de procesos como **PM2**).
+* **Ejecución Local Estática (Fallback):** Si se abre la interfaz estática (`index.html`) directamente (bajo protocolo `file://`) sin el backend activo, el interceptor `api-sync.js` derivará la persistencia a la memoria local (`localStorage`) de manera offline y autónoma.

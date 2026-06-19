@@ -10,4 +10,15 @@ PDF Normas.pdf
 bor4sige_webapp_instalable/
 stitch_gesti_n_integral_multi_norma/
 
+# MariaDB & Apache locales portable
+xampp/
+
+# Ficheros sensibles de entorno y backups locales
+.env
+.env.local
+.env.*
+db.json.bak
+*.bak
+*.tmp
+
 

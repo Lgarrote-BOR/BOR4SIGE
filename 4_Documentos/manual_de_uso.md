@@ -716,16 +716,16 @@ El **Asistente Virtual** de Bor4SIGE está disponible en todo momento en la esqu
 Sí. Bor4SIGE está diseñado para funcionar completamente offline. Los datos se guardan en tu navegador (localStorage) o en el servidor local si usas el script de arranque.
 
 **¿Los datos se pierden si cierro el navegador?**
-No, siempre que hayas arrancado el servidor con `iniciar_servidor.bat`. Los datos se guardan en `db.json`. Si usas el modo directo (sin servidor), los datos permanecen en el navegador hasta que se borre el caché.
+No, siempre que hayas arrancado el servidor con `iniciar_servidor.bat` y tengas activo el servidor MariaDB. Los datos se persisten de manera centralizada en las tablas relacionales de la base de datos MariaDB. Si usas el modo directo (abriendo index.html directamente sin el servidor), los datos permanecen únicamente en la memoria local (localStorage) del navegador actual.
 
 **¿Puedo acceder desde varios equipos a la vez?**
 Sí, si el servidor está en red. Varios usuarios pueden acceder simultáneamente desde distintos equipos apuntando a la IP del servidor en su navegador.
 
 **¿Qué hago si un módulo no carga?**
-Intenta recargar la página (F5). Si el problema persiste, comprueba que el servidor está activo (la consola del servidor debe estar abierta y sin errores).
+Intenta recargar la página (F5). Si el problema persiste, comprueba que el servidor de Node y el servicio MariaDB están activos.
 
 **¿Cómo sé si mis datos se están guardando en el servidor o solo en mi navegador?**
-Si el servidor está activo, verás el mensaje *"Estado cargado desde el servidor"* en la consola del navegador (F12 → Consola). Si aparece el mensaje de *fallback local*, significa que el servidor no está disponible y los datos se están guardando solo en ese navegador.
+Si el servidor de backend y la base de datos MariaDB están activos, verás el mensaje *"Estado cargado desde el servidor"* en la consola de tu navegador web (F12 -> Consola). Si por el contrario se muestra el mensaje de *fallback local*, significa que el servidor no está disponible y las modificaciones se están realizando provisionalmente en el almacenamiento local de tu navegador.
 
 **¿Cómo puedo exportar o imprimir un informe?**
 Accede al módulo **Previsualización de Informes** en la barra lateral. Desde allí puedes generar informes de auditoría y revisión por la dirección listos para imprimir o guardar como PDF usando la función de impresión del navegador (Ctrl+P).

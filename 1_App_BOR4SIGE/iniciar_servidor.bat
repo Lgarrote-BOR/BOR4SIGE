@@ -24,6 +24,17 @@ if not exist "node_modules\" (
     call npm install
 )
 
+:: Verificar si MariaDB está corriendo en el puerto 3306
+netstat -ano | findstr :3306 >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ===================================================================
+    echo [AVISO] No se detecta MariaDB activo en el puerto 3306.
+    echo Asegurese de arrancar MariaDB/Apache en XAMPP Control Panel
+    echo para que la Webapp pueda conectar con la base de datos local.
+    echo ===================================================================
+    echo.
+)
+
 :: Iniciar el servidor Express en una ventana separada
 echo [INFO] Iniciando el servidor en http://localhost:3000...
 start "Servidor SGI 2.0 Backend" cmd /k "node server.js"

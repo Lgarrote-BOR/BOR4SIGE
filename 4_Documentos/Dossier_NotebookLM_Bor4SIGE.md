@@ -31,11 +31,11 @@ El sistema opera bajo un enfoque desacoplado y ligero que maximiza la compatibil
 * **Aislamiento Multi-Tenant**: Si el módulo corre embebido en un `iframe` dentro del portal principal, `api-sync.js` añade automáticamente un sufijo correspondiente a la organización activa (por defecto, `alfa`). Esto asegura que múltiples empresas o sucursales almacenen sus datos de forma totalmente independiente bajo el mismo navegador.
 * **Fallback Seguro**: Si el servidor API está inactivo o el módulo se abre de manera independiente, el script reconduce el almacenamiento al `localStorage` tradicional del navegador, asegurando que el sistema permanezca operativo (offline).
 
-### C. Servidor Backend (`server.js`) y Base de Datos (`db.json`)
+### C. Servidor Backend (`server.js`) y Base de Datos Relacional (MariaDB)
 * **Servidor Node.js**: Un servicio Express ligero en el puerto `3000` gestiona las APIs del sistema.
-* **Base de Datos Plana (`db.json`)**: Los datos del sistema se almacenan en un archivo JSON en disco. Para maximizar la velocidad de respuesta, el servidor carga los datos en memoria caché (`dbCache`).
-* **Escritura Atómica**: Cada modificación genera una escritura en un archivo temporal (`db.json.tmp`) que luego se renombra de manera atómica para evitar cualquier pérdida o corrupción de datos si ocurre un corte eléctrico.
-* **Integración con Inteligencia Artificial**: El backend incluye un endpoint `/api/generate` que conecta de forma transparente con un servidor local de modelos de lenguaje (como Ollama) para generar automáticamente análisis de conformidad y propuestas de planes de acción correctiva (CAPA).
+* **Capa de Datos Relacional (MariaDB)**: El sistema utiliza una base de datos relacional MariaDB para la persistencia de datos. Las tablas de entidades están normalizadas y el acceso se realiza mediante una capa de traducción relacional en [db_operations.js](file:///c:/Users/lgarrote/OneDrive/Escritorio/BOR4SIGE/1_App_BOR4SIGE/db_operations.js) que mapea de forma atómica y consistente el formato del cliente SPA a transacciones SQL relacionales (usando `mysql2/promise`).
+* **Integridad Referencial y Restricciones**: La base de datos está implementada bajo el motor InnoDB, asegurando consistencia transaccional, índices optimizados para búsquedas multi-tenant y reglas de integridad en cascada (`ON DELETE CASCADE` y `ON UPDATE CASCADE`).
+* **Integración con Inteligencia Artificial**: El backend incluye un endpoint `/api/chat` que conecta de forma transparente con la API oficial de Google Gemini (usando el modelo `gemini-1.5-flash`) para generar automáticamente respuestas inteligentes en el Chatbot y asistir a los usuarios.
 
 ---
 
@@ -107,7 +107,7 @@ Una vez subido este documento a tu libreta corporativa de NotebookLM, puedes uti
 * **Auditoría de Cumplimiento**:
   > *"Actúa como un auditor de sistemas de gestión. Basándote en el módulo RGPD de Bor4SIGE, ¿qué campos e información de seguimiento me ofrece el sistema para garantizar el cumplimiento del Artículo 30 del RGPD (Registro de Actividades de Tratamiento) y cómo se asegura el control de los plazos de respuesta ante un derecho de acceso ARCO?"*
 * **Guía Operativa**:
-  > *"Explícame cómo interactúan el script de sincronización `api-sync.js` y la base de datos `db.json` en el backend para permitir que múltiples sucursales de mi empresa operen de forma independiente (aislamiento multi-tenant) sin mezclar sus registros."*
+  > *"Explícame cómo interactúan el script de sincronización `api-sync.js` y la base de datos MariaDB en el backend para permitir que múltiples sucursales de mi empresa operen de forma independiente (aislamiento multi-tenant) mediante la traducción relacional y claves compuestas sin mezclar sus registros."*
 * **Pregunta de Certificación**:
   > *"¿Cómo apoya el módulo de incidentes de seguridad de Bor4SIGE al cumplimiento de la norma ISO 27001:2022 y la directriz del RGPD sobre las 72 horas para notificar brechas de datos?"*
 * **Generación de Podcast**:

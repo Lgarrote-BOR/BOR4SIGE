@@ -1137,7 +1137,7 @@ ${databaseContext}`;
             let responseText = "";
             let apiSuccess = false;
 
-            // Intentar primero a través del proxy local del backend
+            // Intentar primero a través del proxy local del backend (ahora con Gemini)
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -1151,32 +1151,15 @@ ${databaseContext}`;
                     const resJson = await response.json();
                     responseText = resJson.text;
                     apiSuccess = true;
+                } else {
+                    const errJson = await response.json().catch(() => ({}));
+                    if (errJson.error) {
+                        responseText = `⚠️ **Error de IA**: ${errJson.error}\n\n${errJson.details || ''}`;
+                        apiSuccess = true; // Mostramos el error directamente en la interfaz del chat
+                    }
                 }
             } catch (err) {
-                console.warn("Fallo en proxy API, intentando conexión directa a Ollama local:", err);
-            }
-
-            // Fallback: conexión directa a Ollama en puerto 11434
-            if (!apiSuccess) {
-                try {
-                    const response = await fetch('http://localhost:11434/api/generate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: 'llama3',
-                            prompt: query,
-                            system: systemPrompt,
-                            stream: false
-                        })
-                    });
-                    if (response.ok) {
-                        const resJson = await response.json();
-                        responseText = resJson.response;
-                        apiSuccess = true;
-                    }
-                } catch (err) {
-                    console.warn("Ollama local no disponible directamente. Usando fallback estático:", err);
-                }
+                console.warn("Fallo en proxy API de chat:", err);
             }
 
             // Eliminar indicador de pensamiento
@@ -1227,7 +1210,7 @@ ${databaseContext}`;
                 if (found) {
                     addBotMessage(found.answer, found.path, found.btnText);
                 } else {
-                    addBotMessage("Disculpa, no he podido contactar con el motor de IA local de Ollama (localhost:11434) y tu consulta no coincide con mis respuestas prefijadas. Puedes preguntarme sobre el ENS, cómo registrar Cambios TI (RFC), evaluación de proveedores, eficacia formativa o el Agente de IA.");
+                    addBotMessage("Disculpa, no he podido contactar con el servidor de IA (Gemini). Por favor, asegúrate de que el servidor local está iniciado mediante 'iniciar_servidor.bat' y de haber configurado tu clave API (GEMINI_API_KEY) en el archivo .env.");
                 }
             }
         }

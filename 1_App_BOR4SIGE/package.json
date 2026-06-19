@@ -9,8 +9,10 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
-    "cors": "^2.8.5"
+    "mysql2": "^3.22.5"
   },
   "devDependencies": {
     "vite": "^5.0.0"

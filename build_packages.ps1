@@ -48,7 +48,7 @@ foreach ($mod in $modules) {
 }
 
 # Copiar archivos raíz obligatorios del instalador
-$rootFiles = @("index.html", "api-sync.js", "server.js", "iniciar_servidor.bat", "iniciar_servidor.sh", "package.json", "package-lock.json")
+$rootFiles = @("index.html", "api-sync.js", "server.js", "iniciar_servidor.bat", "iniciar_servidor.sh", "package.json", "package-lock.json", "db_operations.js", "db_migration.js")
 foreach ($file in $rootFiles) {
     $src = Join-Path $appDir $file
     if (Test-Path $src) {
