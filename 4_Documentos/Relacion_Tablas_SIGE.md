@@ -2,201 +2,259 @@
 
 Este documento describe el diccionario físico de datos del esquema relacional puro implementado en **MariaDB** para la persistencia del Sistema Integrado de Gestión (SGI) y Compliance de **Bor4SIGE**.
 
-## Arquitectura General
+## Arquitectura de Persistencia Avanzada (Modelo E-R Puro)
 * **Motor de persistencia:** MariaDB (Motor InnoDB).
-* **Aislamiento Multi-tenant:** Implementado mediante claves primarias compuestas `PRIMARY KEY (id, tenant_id)` y relaciones foráneas vinculadas a la tabla maestra `organizations`.
-* **Integridad Referencial:** Restricciones de claves foráneas con propagación en cascada (`ON DELETE CASCADE ON UPDATE CASCADE`) para garantizar la consistencia relacional.
+* **Identificadores UUID:** Todas las tablas maestras utilizan claves primarias basadas en UUID (`CHAR(36)`) generadas de forma única.
+* **Separación Clave-Valor (Tablas de Lookup):** Los campos que representan estados, categorías o tipos fijos no se guardan como cadenas de texto libres en las tablas maestras, sino que están normalizados en tablas de catálogo/lookup (`lkp_*`) asociadas por su identificador autoincremental (`INT UNSIGNED`).
+* **Aislamiento Multi-tenant:** Implementado mediante claves primarias compuestas `PRIMARY KEY (id, tenant_id)` y relaciones foráneas vinculadas a la tabla maestra `organizations` (que actúa como la raíz de inquilinos).
+* **Integridad Referencial:** Restricciones de claves foráneas con propagación en cascada (`ON DELETE CASCADE ON UPDATE CASCADE`) para tablas hijas, y resolución segura (`ON DELETE SET NULL ON UPDATE CASCADE`) para referencias a tablas lookup.
 
 ---
 
-## 1. Tablas Maestras y de Configuración
+## 1. Tablas de Catálogo / Lookup (Clave-Valor)
+Todas las tablas de lookup (`lkp_*`) comparten la siguiente estructura física común:
+* **`id`** `INT UNSIGNED AUTO_INCREMENT PRIMARY KEY`: Identificador único autoincremental de la clave.
+* **`code`** `VARCHAR(100) UNIQUE KEY`: Código interno normalizado (ej: `activo`, `baja`, `urgente`).
+* **`label`** `VARCHAR(255)`: Etiqueta descriptiva en lenguaje humano visible en la interfaz de usuario (ej: `Activo`, `Baja`, `Urgente`).
+* **`description`** `TEXT`: Detalle opcional de la opción.
+* **`active`** `TINYINT(1)`: Estado activo/inactivo (1 por defecto).
+* **`sort_order`** `INT UNSIGNED`: Orden de visualización en selectores.
+* **`created_at`** `TIMESTAMP`: Marca de tiempo de creación.
+
+### Catálogos Existentes:
+1. **`lkp_status`**: Estados de registros (`Activo`, `Pendiente`, `Cerrado`, `En Proceso`, `Baja`, etc.).
+2. **`lkp_tipo_documento`**: Tipos de documentos del SGI (`Procedimiento`, `Instrucción`, `Manual`, `Registro`, etc.).
+3. **`lkp_tipo_requisito`**: Tipos de requisitos legales (`Nacional`, `Autonómico`, `Local`, `Sectorial`).
+4. **`lkp_tipo_proceso`**: Tipos de procesos de negocio (`Estratégico`, `Clave`, `Soporte`).
+5. **`lkp_tipo_catalogo`**: Tipos de catálogo general (`Producto`, `Servicio`).
+6. **`lkp_categoria_catalogo`**: Categorías de productos (`Soporte`, `Infraestructura`, `Licencia`, etc.).
+7. **`lkp_unidad_catalogo`**: Unidades de medida del inventario (`Unidad`, `Hora`, `Licencia`, `Mes`).
+8. **`lkp_tipo_dafo`**: Clasificación DAFO (`Debilidad`, `Amenaza`, `Fortaleza`, `Oportunidad`).
+9. **`lkp_prioridad`**: Niveles de prioridad (`Alta`, `Media`, `Baja`).
+10. **`lkp_nivel_impacto`**: Niveles de impacto, influencia, criticidad o riesgo (`Alto`, `Medio`, `Bajo`).
+11. **`lkp_categoria_parte_interesada`**: Categorías de partes interesadas (`Cliente`, `Proveedor`, `Regulador`, `Empleado`).
+12. **`lkp_tipo_parte_interesada`**: Clasificación de partes interesadas (`Interna`, `Externa`).
+13. **`lkp_tipo_cambio_ti`**: Tipos de cambios RFC en TI (`Estándar`, `Normal`, `Emergencia`).
+14. **`lkp_nivel_ens`**: Niveles del Esquema Nacional de Seguridad (`Bajo`, `Medio`, `Alto`, `No Aplica`).
+15. **`lkp_pilar_ens`**: Pilares/Dimensiones del ENS (`Marco Organizativo`, `Marco Operacional`, `Medidas de Protección`).
+16. **`lkp_tipo_pedido`**: Tipos de pedidos de clientes (`Nuevo`, `Ampliación`, `Mantenimiento`).
+17. **`lkp_rol_usuario`**: Roles de acceso del sistema (`Superadmin`, `Admin`, `Responsable`, `Consultor`).
+18. **`lkp_departamento`**: Departamentos de la empresa (`TI`, `Calidad`, `Operaciones`, `Recursos Humanos`, etc.).
+
+---
+
+## 2. Tablas Maestras (Estructura Relacional con UUID)
 
 ### 🏢 Tabla: `organizations`
-Almacena las organizaciones/inquilinos del sistema y sus métricas de alto nivel.
-* **Clave Primaria:** `id` (VARCHAR)
-* **Campos:**
-  * `id` VARCHAR(50) [PK]: Identificador del inquilino (ej: `alfa`, `omega`).
-  * `name` VARCHAR(255): Nombre corporativo de la organización.
-  * `compliance` INT: Porcentaje general de cumplimiento (0-100%).
-  * `trend` VARCHAR(50): Tendencia de rendimiento.
-  * `trend_up` BOOLEAN: Indicador si la tendencia es alcista.
-  * `capa_total`, `capa_criticas`, `capa_abiertas` INT: Contadores de no conformidades (CAPA).
-  * `risks_total`, `risks_mitigated`, `risks_unmitigated` INT: Contadores de gestión de riesgos.
-  * `audits_planned`, `audits_retrasada` INT: Métricas de auditorías.
-  * `ens_c`, `ens_i`, `ens_d`, `ens_a`, `ens_t` VARCHAR(50): Niveles de seguridad ENS.
-  * `scores_iso9001` ... `scores_ens` INT: Puntuaciones específicas por norma.
-  * `activities` JSON: Historial de actividad reciente.
-  * `alerts` JSON: Alertas de cumplimiento activas.
-  * `systems` JSON: Estado de disponibilidad de sistemas.
+Inquilino raíz del sistema.
+* **`id`** `CHAR(36) NOT NULL PRIMARY KEY`: UUID identificativo de la organización.
+* **`name`** `VARCHAR(255) NOT NULL`: Nombre de la organización.
+* **`compliance`** `INT`: Porcentaje general de cumplimiento.
+* **`trend`** `VARCHAR(50)`: Tendencia.
+* **`trend_up`** `TINYINT(1)`: Dirección de la tendencia.
+* **`capa_total`, `capa_criticas`, `capa_abiertas`, `risks_total`, `risks_mitigated`, `risks_unmitigated`, `audits_planned`, `audits_retrasada`** `INT`: Contadores métricos agregados.
+* **`ens_c_id`, `ens_i_id`, `ens_d_id`, `ens_a_id`, `ens_t_id`** `INT UNSIGNED` (FK): Referencias a `lkp_nivel_ens(id)`.
+* **`scores_iso9001` ... `scores_ens`** `INT`: Puntuaciones de cumplimiento por norma.
+* **`activities`, `alerts`, `systems`** `JSON`: Registros internos estructurados.
 
 ### 👤 Tabla: `users`
-Contiene las cuentas de usuario de la plataforma y su vinculación de tenant.
-* **Clave Primaria:** `id` (VARCHAR)
-* **Clave Foránea:** `tenant_id` -> `organizations(id)` `ON DELETE SET NULL ON UPDATE CASCADE`.
-* **Campos:**
-  * `id` VARCHAR(50) [PK]: ID del usuario.
-  * `name` VARCHAR(255): Nombre del usuario.
-  * `email` VARCHAR(255) [UNIQUE]: Correo electrónico de acceso.
-  * `role` VARCHAR(100): Rol funcional (ej: `admin`, `editor`).
-  * `department` VARCHAR(255): Departamento asociado.
-  * `tenant_id` VARCHAR(50): ID del inquilino asociado.
-  * `status` VARCHAR(50): Estado de cuenta (ej: `Activo`).
-  * `is_superadmin` BOOLEAN: Indicador de permisos globales del sistema.
+Cuentas de usuario de la plataforma.
+* **`id`** `CHAR(36) NOT NULL PRIMARY KEY`: UUID de usuario.
+* **`name`** `VARCHAR(255) NOT NULL`: Nombre completo.
+* **`email`** `VARCHAR(255) NOT NULL UNIQUE`: Correo de acceso.
+* **`role_id`** `INT UNSIGNED` (FK): Referencia a `lkp_rol_usuario(id)`.
+* **`department_id`** `INT UNSIGNED` (FK): Referencia a `lkp_departamento(id)`.
+* **`tenant_id`** `CHAR(36)` (FK): Referencia a `organizations(id)`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
+* **`is_superadmin`** `TINYINT(1)`: Indicador de superadministrador global.
 
 ### 👥 Tabla: `personal`
-Catálogo general del personal / colaboradores de la empresa.
-* **Clave Primaria:** `id` (VARCHAR)
-* **Campos:**
-  * `id` VARCHAR(50) [PK]: ID del colaborador.
-  * `name` VARCHAR(255): Nombre completo.
-  * `role` VARCHAR(255): Cargo.
-  * `dept` VARCHAR(100): Departamento.
-  * `status` VARCHAR(50): Estado laboral.
-  * `photo` TEXT: Imagen o avatar.
+Colaboradores de la organización.
+* **`id`** `CHAR(36) NOT NULL PRIMARY KEY`: UUID del colaborador.
+* **`name`** `VARCHAR(255) NOT NULL`: Nombre y apellidos.
+* **`role`** `VARCHAR(255)`: Cargo descriptivo.
+* **`dept_id`** `INT UNSIGNED` (FK): Referencia a `lkp_departamento(id)`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
+* **`photo`** `TEXT`: URL o base64 de la fotografía.
 
 ### ⚙️ Tabla: `sige_settings`
-Configuración global persistente y logs del sistema.
-* **Clave Primaria:** `setting_key` (VARCHAR)
-* **Campos:**
-  * `setting_key` VARCHAR(255) [PK]
-  * `setting_value` LONGTEXT: Valor configurado o cadenas de texto/JSON.
+Configuración global persistente de clave-valor.
+* **`setting_key`** `VARCHAR(255) NOT NULL PRIMARY KEY`: Clave de configuración.
+* **`setting_value`** `LONGTEXT`: Valor almacenado (JSON o texto plano).
 
 ---
 
-## 2. Tablas Multi-Tenant (Relación Estricta de Negocio)
-*Todas estas tablas cuentan con `PRIMARY KEY (id, tenant_id)` y `FOREIGN KEY (tenant_id) REFERENCES organizations(id) ON DELETE CASCADE ON UPDATE CASCADE`.*
+## 3. Tablas Operativas Multi-Tenant (Clave Primaria Compuesta)
+*Todas estas tablas tienen la PK compuesta `(id, tenant_id)` y `tenant_id` referencia a `organizations(id) ON DELETE CASCADE ON UPDATE CASCADE`.*
 
-### 📄 Tabla: `documents`
-Control documental exigido por ISO 9001 §7.5.
-* **Campos:** `id` [PK], `tenant_id` [PK], `code` VARCHAR(100) [UNIQUE], `tipo` VARCHAR(100), `title` VARCHAR(255), `version` VARCHAR(50), `date` VARCHAR(50), `ambito` VARCHAR(255), `status` VARCHAR(50), `resp` VARCHAR(255).
+### 📄 Tabla: `documents` (Control Documental - ISO 9001 §7.5)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`code`** `VARCHAR(100)`: Código del documento.
+* **`tipo_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_documento(id)`.
+* **`title`** `VARCHAR(255)`: Título del documento.
+* **`version`, `date`, `ambito`, `resp`** `VARCHAR(255)`: Metadatos.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### ⚖️ Tabla: `requisitos_legales`
-Matriz de requisitos legales y cumplimiento (ISO 27001 §A.5.36 / ISO 14001).
-* **Campos:** `id` [PK], `tenant_id` [PK], `tipo` VARCHAR(100), `titulo` VARCHAR(255), `desc` TEXT, `ambito` VARCHAR(255), `norma` VARCHAR(255), `estado` VARCHAR(50), `fecha_rev` VARCHAR(50), `responsable` VARCHAR(255), `enlace` TEXT.
+### ⚖️ Tabla: `requisitos_legales` (Cumplimiento Legal - ISO 27001 §A.5.36)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`tipo_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_requisito(id)`.
+* **`titulo`** `VARCHAR(255)`: Título de la norma.
+* **`desc`** `TEXT`: Descripción de obligaciones.
+* **`ambito`, `norma`, `responsable`** `VARCHAR(255)`: Metadatos operacionales.
+* **`estado_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
+* **`fecha_rev`** `VARCHAR(50)`, **`enlace`** `TEXT`.
 
-### 📊 Tabla: `dafo`
-Factores del análisis estratégico DAFO.
-* **Campos:** `id` [PK], `tenant_id` [PK], `type` VARCHAR(100), `title` VARCHAR(255), `desc` TEXT, `impact` VARCHAR(50), `action` VARCHAR(255).
+### 📊 Tabla: `dafo` (Análisis Estratégico DAFO)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`type_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_dafo(id)`.
+* **`title`** `VARCHAR(255)`: Nombre del factor.
+* **`desc`** `TEXT`: Descripción.
+* **`impact_id`** `INT UNSIGNED` (FK): Referencia a `lkp_nivel_impacto(id)`.
+* **`action`** `TEXT`: Acción correctiva/preventiva propuesta.
 
-### 🤝 Tabla: `partes_interesadas`
-Necesidades y expectativas de partes interesadas (ISO 9001 §4.2).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `category` VARCHAR(100), `type` VARCHAR(100), `influence` VARCHAR(50), `impact` VARCHAR(50), `requirements` JSON, `action_plan` TEXT, `last_evaluation` VARCHAR(50), `next_evaluation` VARCHAR(50), `periodicity` INT, `history` JSON.
+### 🤝 Tabla: `partes_interesadas` (Requisitos de Partes Interesadas - ISO 9001 §4.2)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`** `VARCHAR(255)`: Nombre de la entidad.
+* **`category_id`** `INT UNSIGNED` (FK): Referencia a `lkp_categoria_parte_interesada(id)`.
+* **`type_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_parte_interesada(id)`.
+* **`influence_id`** `INT UNSIGNED` (FK): Referencia a `lkp_nivel_impacto(id)`.
+* **`impact_id`** `INT UNSIGNED` (FK): Referencia a `lkp_nivel_impacto(id)`.
+* **`requirements`** `JSON`: Requisitos acordados.
+* **`action_plan`** `TEXT`, **`last_evaluation`**, **`next_evaluation`** `VARCHAR(50)`, **`periodicity`** `INT`, **`history`** `JSON`.
 
-### 🔌 Tabla: `cambios_ti`
-Solicitudes de cambio en infraestructura y TI (RFC - ISO 20000-1).
-* **Campos:** `id` [PK], `tenant_id` [PK], `title` VARCHAR(255), `type` VARCHAR(100), `desc` TEXT, `ci` VARCHAR(255), `owner` VARCHAR(255), `impact` VARCHAR(50), `risk` VARCHAR(50), `date` VARCHAR(50), `tests` TEXT, `rollback` TEXT, `approver` VARCHAR(255), `status` VARCHAR(50).
+### 🔌 Tabla: `cambios_ti` (Gestión de Cambios RFC - ISO 20000-1)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`title`** `VARCHAR(255)`: Título del cambio.
+* **`type_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_cambio_ti(id)`.
+* **`desc`** `TEXT`: Descripción y justificación.
+* **`ci`, `owner`, `date`, `approver`** `VARCHAR(255)`: Metadatos.
+* **`impact_id`** `INT UNSIGNED` (FK): Referencia a `lkp_nivel_impacto(id)`.
+* **`risk_id`** `INT UNSIGNED` (FK): Referencia a `lkp_nivel_impacto(id)`.
+* **`tests`, `rollback`** `TEXT`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### 📈 Tabla: `bcp_processes`
-Procesos de continuidad del negocio (BIA - ISO 22301).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `mtpd` INT, `rto` INT, `rpo` INT, `imp_fin` INT, `imp_op` INT, `imp_rep` INT.
+### 📈 Tabla: `bcp_processes` (BIA Continuidad - ISO 22301)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`** `VARCHAR(255)`: Proceso de negocio.
+* **`mtpd`, `rto`, `rpo`, `imp_fin`, `imp_op`, `imp_rep`** `INT`: Métricas BIA.
 
-### 🏃 Tabla: `bcp_exercises`
-Ejercicios y simulacros de continuidad de negocio (ISO 22301 §8.5).
-* **Campos:** `id` [PK], `tenant_id` [PK], `title` VARCHAR(255), `date` VARCHAR(50), `scenario` TEXT, `target_rto` INT, `actual_rto` INT, `status` VARCHAR(50), `notes` TEXT.
+### 🏃 Tabla: `bcp_exercises` (Simulacros Continuidad - ISO 22301 §8.5)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`title`** `VARCHAR(255)`: Nombre del ejercicio.
+* **`date`** `VARCHAR(50)`, **`scenario`** `TEXT`.
+* **`target_rto`, `actual_rto`** `INT`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
+* **`notes`** `TEXT`.
 
-### 🔴 Tabla: `acciones_correctivas`
-No conformidades y acciones correctivas (CAPA - ISO 9001 §10.2).
-* **Campos:** `id` [PK], `tenant_id` [PK], `origen` VARCHAR(100), `resumen` VARCHAR(255), `responsable` VARCHAR(255), `estado` VARCHAR(50).
+### 🔴 Tabla: `acciones_correctivas` (CAPA - ISO 9001 §10.2)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`origen`, `responsable`** `VARCHAR(255)`.
+* **`resumen`** `TEXT`.
+* **`estado_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### 🔍 Tabla: `audits_actions`
-Hallazgos y acciones de auditoría (ISO 9001 §9.2).
-* **Campos:** `id` [PK], `tenant_id` [PK], `audit_id` VARCHAR(50), `finding` VARCHAR(255), `desc` TEXT, `resp` VARCHAR(255), `deadline` VARCHAR(50), `status` VARCHAR(50).
+### 🔍 Tabla: `audits_actions` (Acciones de Auditoría - ISO 9001 §9.2)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`audit_id`** `VARCHAR(50)`: ID de la auditoría asociada.
+* **`finding`, `desc`** `TEXT`.
+* **`resp`, `deadline`** `VARCHAR(255)`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### 🚨 Tabla: `canal_denuncias`
-Canal ético y de denuncias confidencial (Ley 2/2023).
-* **Campos:** `id` [PK], `tenant_id` [PK], `date` VARCHAR(50), `cat` VARCHAR(100), `priority` VARCHAR(50), `desc` TEXT, `dept` VARCHAR(255), `responsible` VARCHAR(255), `anonymous` BOOLEAN, `reporter_name` VARCHAR(255), `reporter_contact` VARCHAR(255), `status` VARCHAR(50), `notes` TEXT, `closed_date` VARCHAR(50), `track_code` VARCHAR(100).
+### 🚨 Tabla: `canal_denuncias` (Ley 2/2023 & ISO 37002)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`date`, `cat`, `dept`, `responsible`, `reporter_name`, `reporter_contact`, `closed_date`, `track_code`** `VARCHAR(255)`.
+* **`priority_id`** `INT UNSIGNED` (FK): Referencia a `lkp_prioridad(id)`.
+* **`desc`, `notes`** `TEXT`.
+* **`anonymous`** `TINYINT(1)`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### ⚙️ Tabla: `procesos`
-Fichas y actividades de procesos del SGI (ISO 9001 §4.4).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `type` VARCHAR(50), `compliance` INT, `ok_kpis` INT, `warn_kpis` INT, `crit_kpis` INT, `owner` VARCHAR(255), `inputs` TEXT, `outputs` TEXT, `risks` JSON, `activities` JSON.
+### ⚙️ Tabla: `procesos` (Fichas de Proceso - ISO 9001 §4.4)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `owner`** `VARCHAR(255)`.
+* **`type_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_proceso(id)`.
+* **`compliance`, `ok_kpis`, `warn_kpis`, `crit_kpis`** `INT`.
+* **`inputs`, `outputs`** `TEXT`.
+* **`risks`, `activities`** `JSON`.
 
-### 🛡️ Tabla: `politicas_sgi`
-Políticas corporativas aprobadas para el SGI (ISO 9001 §5.2).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `norm` VARCHAR(100), `version` VARCHAR(50), `date` VARCHAR(50), `review` VARCHAR(50), `owner` VARCHAR(255), `status` VARCHAR(50), `scope` TEXT, `content` LONGTEXT, `evidences` JSON.
+### 🛡️ Tabla: `politicas_sgi` (Políticas SGI - ISO 9001 §5.2)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `norm`, `version`, `date`, `review`, `owner`** `VARCHAR(255)`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
+* **`scope`, `content`** `TEXT`.
+* **`evidences`** `JSON`.
 
-### 📦 Tabla: `pedidos_clientes`
-Pedidos de clientes y demanda asociada a recursos (ISO 20000-1).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `type` VARCHAR(100), `svc_id` VARCHAR(50), `svc_name` VARCHAR(255), `concept` TEXT, `delivery` VARCHAR(50), `scope` VARCHAR(100), `demand_soporte` INT, `demand_infra` INT, `demand_material` INT, `status` VARCHAR(50).
+### 📦 Tabla: `pedidos_clientes` (Gestión de Pedidos - ISO 20000-1)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `svc_id`, `svc_name`, `delivery`** `VARCHAR(255)`.
+* **`type_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_pedido(id)`.
+* **`concept`, `scope`** `TEXT`.
+* **`demand_soporte`, `demand_infra`, `demand_material`** `INT`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### 🏷️ Tabla: `catalogo_general`
-Productos e inventarios unificados (ISO 9001 §8.5.1).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `tipo` VARCHAR(50), `cat` VARCHAR(100), `cost` DECIMAL(10,2), `stock` INT, `min_stock` INT, `unit` VARCHAR(50).
+### 🏷️ Tabla: `catalogo_general` (Productos e Inventarios - ISO 9001 §8.5.1)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`** `VARCHAR(255)`.
+* **`tipo_id`** `INT UNSIGNED` (FK): Referencia a `lkp_tipo_catalogo(id)`.
+* **`cat_id`** `INT UNSIGNED` (FK): Referencia a `lkp_categoria_catalogo(id)`.
+* **`cost`** `DECIMAL(10,2)`.
+* **`stock`, `min_stock`** `INT`.
+* **`unit_id`** `INT UNSIGNED` (FK): Referencia a `lkp_unidad_catalogo(id)`.
 
-### 📈 Tabla: `desempeno_proveedores`
-Evaluación histórica y SLAs de proveedores (ISO 9001 §8.4.2).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `date` VARCHAR(50), `quality` DECIMAL(3,2), `delivery` DECIMAL(3,2), `support` DECIMAL(3,2), `compliance` DECIMAL(3,2), `avg` DECIMAL(3,2), `sla` DECIMAL(5,2), `owner` VARCHAR(255), `obs` TEXT.
+### 📈 Tabla: `desempeno_proveedores` (SLA Proveedores - ISO 9001 §8.4.2)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `date`, `owner`** `VARCHAR(255)`.
+* **`quality`, `delivery`, `support`, `compliance`, `avg`, `sla`** `DECIMAL(5,2)`.
+* **`obs`** `TEXT`.
 
-### 🛠️ Tabla: `inventario_equipos`
-Equipos de seguimiento, medición e infraestructura (EIME - ISO 9001 §7.1.5).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `model` VARCHAR(255), `last_cal` VARCHAR(50), `next_cal` VARCHAR(50), `status` VARCHAR(50), `section` VARCHAR(255), `criticidad` VARCHAR(50).
+### 🛠️ Tabla: `inventario_equipos` (EIME e Infraestructura - ISO 9001 §7.1.5)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `model`, `last_cal`, `next_cal`, `section`** `VARCHAR(255)`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
+* **`criticidad_id`** `INT UNSIGNED` (FK): Referencia a `lkp_nivel_impacto(id)`.
 
-### 💬 Tabla: `clima_laboral_encuestas`
-Encuestas cuantitativas Likert y feedback cualitativo (ISO 45001 §5.4).
-* **Campos:** `id` [PK], `tenant_id` [PK], `fecha` VARCHAR(50), `periodo` VARCHAR(50), `empleado` VARCHAR(255), `respuestas` JSON, `comentarios` JSON, `score` DECIMAL(3,2).
+### 💬 Tabla: `clima_laboral_encuestas` (ISO 45001 §5.4)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`fecha`, `periodo`, `empleado`** `VARCHAR(255)`.
+* **`respuestas`, `comentarios`** `JSON`.
+* **`score`** `DECIMAL(5,2)`.
 
-### 🎓 Tabla: `perfiles_cualificacion`
-Perfiles del puesto y competencias profesionales (ISO 9001 §7.2).
-* **Campos:** `id` [PK], `tenant_id` [PK], `name` VARCHAR(255), `dept` VARCHAR(255), `description` TEXT, `normas` JSON, `status` VARCHAR(50), `competencias` JSON, `educacion` TEXT, `experiencia` TEXT.
+### 🎓 Tabla: `perfiles_cualificacion` (Competencias - ISO 9001 §7.2)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `dept`** `VARCHAR(255)`.
+* **`description`, `educacion`, `experiencia`** `TEXT`.
+* **`normas`, `competencias`** `JSON`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
-### 🛡️ Tabla: `ens_checklist`
-Autoevaluación de cumplimiento con medidas del Esquema Nacional de Seguridad (ENS).
-* **Campos:** `id` [PK], `tenant_id` [PK], `pilar` VARCHAR(100), `name` VARCHAR(255), `desc` TEXT, `val` VARCHAR(100), `note` TEXT, `evidence` TEXT, `status` VARCHAR(50).
+### 🛡️ Tabla: `ens_checklist` (Cumplimiento Medidas ENS)
+* **`id`** `CHAR(36) NOT NULL`, **`tenant_id`** `CHAR(36) NOT NULL` (PK).
+* **`name`, `val`** `VARCHAR(255)`.
+* **`pilar_id`** `INT UNSIGNED` (FK): Referencia a `lkp_pilar_ens(id)`.
+* **`desc`, `note`, `evidence`** `TEXT`.
+* **`status_id`** `INT UNSIGNED` (FK): Referencia a `lkp_status(id)`.
 
 ---
 
-## 3. Tablas de Relación Única o Integrada por Tenant
+## 4. Tablas Especiales Integradas por Inquilino (PK Compuesta Singular)
+*Estas tablas persisten conjuntos serializados agregados y no llevan UUID secundario.*
 
 ### 🛒 Tabla: `compras_proveedores_data`
-Persistencia de los listados completos de compras y homologaciones integrados por inquilino.
-* **Clave Primaria:** `tenant_id` (VARCHAR)
-* **Campos:**
-  * `tenant_id` VARCHAR(50) [PK]
-  * `proveedores` JSON: Listado histórico de proveedores del inquilino.
-  * `pedidos` JSON: Listado histórico de pedidos de compra emitidos.
-  * `evaluaciones` JSON: Listado de evaluaciones de compras.
-  * `incidencias` JSON: Listado de incidencias/devoluciones de pedidos.
+* **`tenant_id`** `CHAR(36) NOT NULL PRIMARY KEY` (FK a `organizations(id)`).
+* **`proveedores`, `pedidos`, `evaluaciones`, `incidencias`** `JSON`.
 
 ### ⚠️ Tabla: `incidencias_nc_data`
-Histórico de incidencias y no conformidades globales a nivel de inquilino.
-* **Clave Primaria:** `tenant_id` (VARCHAR)
-* **Campos:**
-  * `tenant_id` VARCHAR(50) [PK]
-  * `incidencias` JSON: Objetos de incidencias operativas registradas.
+* **`tenant_id`** `CHAR(36) NOT NULL PRIMARY KEY` (FK a `organizations(id)`).
+* **`incidencias`** `JSON`.
 
 ### 📋 Tabla: `management_review`
-Acta y decisiones tomadas en la revisión anual por dirección (ISO 9001 §9.3).
-* **Clave Primaria:** `tenant_id` (VARCHAR)
-* **Campos:**
-  * `tenant_id` VARCHAR(50) [PK]
-  * `periodo` VARCHAR(50)
-  * `desempeno` DECIMAL(5,2)
-  * `trend` VARCHAR(50)
-  * `meta` DECIMAL(5,2)
-  * `aud_planificadas`, `aud_ejecutadas` INT
-  * `capa_abiertas`, `capa_cerradas` INT
-  * `capa_eficacia` DECIMAL(5,2)
-  * `resolucion` TEXT
-  * `estado_sistema` VARCHAR(100)
-  * `proxima_revision` VARCHAR(50)
-  * `objetivos` JSON
-  * `riesgos` JSON
+* **`tenant_id`** `CHAR(36) NOT NULL PRIMARY KEY` (FK a `organizations(id)`).
+* **`periodo`, `trend`, `estado_sistema`, `proxima_revision`** `VARCHAR(255)`.
+* **`desempeno`, `meta`, `capa_eficacia`** `DECIMAL(5,2)`.
+* **`aud_planificadas`, `aud_ejecutadas`, `capa_abiertas`, `capa_cerradas`** `INT`.
+* **`resolucion`** `TEXT`.
+* **`objetivos`, `riesgos`** `JSON`.
 
 ---
 
-## 4. Índices Secundarios de Rendimiento (Optimización de Consultas)
-
-Se implementaron índices específicos sobre las columnas de mayor uso operacional:
-* `idx_users_tenant` en `users(tenant_id)`
-* `idx_documents_tenant_status` en `documents(tenant_id, status)`
-* `idx_requisitos_tenant_estado` en `requisitos_legales(tenant_id, estado)`
-* `idx_dafo_tenant` en `dafo(tenant_id)`
-* `idx_partes_tenant` en `partes_interesadas(tenant_id)`
-* `idx_cambios_tenant_status` en `cambios_ti(tenant_id, status)`
-* `idx_acciones_corr_tenant_estado` en `acciones_correctivas(tenant_id, estado)`
-* `idx_canal_denuncias_tenant` en `canal_denuncias(tenant_id, status)`
-* `idx_pedidos_tenant` en `pedidos_clientes(tenant_id)`
-* `idx_catalogo_tenant` en `catalogo_general(tenant_id)`
-* `idx_desempeno_tenant` en `desempeno_proveedores(tenant_id)`
-* `idx_inventario_tenant` en `inventario_equipos(tenant_id)`
-* `idx_clima_tenant` en `clima_laboral_encuestas(tenant_id)`
-* `idx_ens_tenant` en `ens_checklist(tenant_id)`
+## 5. Índices de Base de Datos y Claves Foráneas
+La base de datos utiliza índices optimizados en cascada para agilizar el aislamiento por inquilino y la integridad del negocio:
+* Las claves primarias compuestas `PRIMARY KEY (id, tenant_id)` indexan por defecto las consultas filtradas por inquilino.
+* Se añaden índices adicionales sobre claves foráneas y columnas clave (`tenant_id`, `status_id`, `role_id`, `department_id`, etc.) para un óptimo rendimiento en joins relacionales.
