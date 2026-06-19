@@ -58,7 +58,6 @@ pool.getConnection()
         console.error("❌ Error crítico conectando a MariaDB:", err);
     });
 
-// Endpoints de la API
 app.get('/api/store', async (req, res) => {
     try {
         const data = await dbOps.loadAllData(pool);
@@ -68,6 +67,21 @@ app.get('/api/store', async (req, res) => {
         res.status(500).json({ error: "Error interno al recuperar los datos del SGI." });
     }
 });
+
+app.get('/api/store/paginated', async (req, res) => {
+    const { key, tenant, page, limit } = req.query;
+    if (!key) {
+        return res.status(400).json({ error: "Falta el parámetro 'key'." });
+    }
+    try {
+        const result = await dbOps.loadPaginatedData(pool, key, tenant || '1', page, limit);
+        res.json(result);
+    } catch (err) {
+        console.error(`Error al obtener los datos paginados de la clave '${key}' en MariaDB:`, err);
+        res.status(500).json({ error: `Error interno al recuperar los datos paginados.` });
+    }
+});
+
 
 app.post('/api/store', async (req, res) => {
     const { key, value } = req.body;

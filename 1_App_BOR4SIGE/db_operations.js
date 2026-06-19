@@ -889,4 +889,293 @@ async function syncTenantTable(connection, cache, baseKey, tenantId, data) {
     }
 }
 
-module.exports = { loadAllData, saveDataKey };
+async function loadPaginatedData(pool, baseKey, tenantId, page = 1, limit = 50) {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const lkp = await loadLookupCache(connection);
+
+        const tableMap = {
+            'sig_organizations': 'organizations',
+            'sig_users': 'users',
+            'sig_personal': 'personal',
+            'sig_document_manager': 'documents',
+            'sig_requisitos_legales': 'requisitos_legales',
+            'sig_dafo': 'dafo',
+            'sig_partes_interesadas': 'partes_interesadas',
+            'sig_cambios_ti': 'cambios_ti',
+            'sig_bcp_processes': 'bcp_processes',
+            'sig_bcp_exercises': 'bcp_exercises',
+            'sig_acciones_correctivas': 'acciones_correctivas',
+            'sig_audits_actions': 'audits_actions',
+            'sig_canal_denuncias': 'canal_denuncias',
+            'sig_procesos': 'procesos',
+            'sig_politicas_sgi': 'politicas_sgi',
+            'sig_compras_proveedores_data': 'compras_proveedores_data',
+            'sig_incidencias_nc_data': 'incidencias_nc_data',
+            'sig_pedidos_clientes': 'pedidos_clientes',
+            'sig_catalogo_general': 'catalogo_general',
+            'sig_desempeno_proveedores': 'desempeno_proveedores',
+            'sig_inventario_equipos': 'inventario_equipos',
+            'sig_clima_laboral_encuestas': 'clima_laboral_encuestas',
+            'sig_perfiles_cualificacion': 'perfiles_cualificacion',
+            'sig_ens_checklist': 'ens_checklist',
+            'sig_management_review': 'management_review'
+        };
+
+        const table = tableMap[baseKey];
+        if (!table) {
+            throw new Error(`Clave base no mapeable a tabla MariaDB: ${baseKey}`);
+        }
+
+        const limitInt = Math.max(1, parseInt(limit) || 50);
+        const pageInt = Math.max(1, parseInt(page) || 1);
+        const offset = (pageInt - 1) * limitInt;
+
+        const isGlobal = ['organizations', 'users', 'personal', 'sige_settings'].includes(table);
+
+        let countSql = `SELECT COUNT(*) as total FROM \`${table}\``;
+        let selectSql = `SELECT * FROM \`${table}\``;
+        const params = [];
+
+        if (!isGlobal) {
+            countSql += ` WHERE tenant_id = ?`;
+            selectSql += ` WHERE tenant_id = ?`;
+            params.push(tenantId);
+        }
+
+        selectSql += ` LIMIT ? OFFSET ?`;
+
+        const [countRows] = await connection.query(countSql, isGlobal ? [] : [tenantId]);
+        const total = countRows[0].total;
+
+        const [rows] = await connection.query(selectSql, [...params, limitInt, offset]);
+
+        let formattedData = [];
+        if (baseKey === 'sig_organizations') {
+            formattedData = rows.map(row => ({
+                id: row.id,
+                name: row.name,
+                compliance: row.compliance,
+                trend: row.trend,
+                trendUp: row.trend_up === 1,
+                capa: { total: row.capa_total, criticas: row.capa_criticas, abiertas: row.capa_abiertas },
+                risks: { total: row.risks_total, mitigated: row.risks_mitigated, unmitigated: row.risks_unmitigated },
+                audits: { planned: row.audits_planned, retrasada: row.audits_retrasada },
+                ens: {
+                    c: resolveLabel(lkp, 'lkp_nivel_ens', row.ens_c_id) || 'Bajo',
+                    i: resolveLabel(lkp, 'lkp_nivel_ens', row.ens_i_id) || 'Bajo',
+                    d: resolveLabel(lkp, 'lkp_nivel_ens', row.ens_d_id) || 'Bajo',
+                    a: resolveLabel(lkp, 'lkp_nivel_ens', row.ens_a_id) || 'Bajo',
+                    t: resolveLabel(lkp, 'lkp_nivel_ens', row.ens_t_id) || 'Bajo',
+                },
+                scores: {
+                    iso9001: row.scores_iso9001, iso14001: row.scores_iso14001, iso45001: row.scores_iso45001,
+                    iso27001: row.scores_iso27001, iso22301: row.scores_iso22301, iso37001: row.scores_iso37001,
+                    iso37301: row.scores_iso37301, iso20000: row.scores_iso20000, iso27701: row.scores_iso27701,
+                    ens: row.scores_ens
+                },
+                activities: typeof row.activities === 'string' ? JSON.parse(row.activities) : row.activities || [],
+                alerts: typeof row.alerts === 'string' ? JSON.parse(row.alerts) : row.alerts || [],
+                systems: typeof row.systems === 'string' ? JSON.parse(row.systems) : row.systems || {}
+            }));
+        } else if (baseKey === 'sig_users') {
+            formattedData = rows.map(row => ({
+                id: row.id,
+                name: row.name,
+                email: row.email,
+                role: resolveLabel(lkp, 'lkp_rol_usuario', row.role_id) || '',
+                department: resolveLabel(lkp, 'lkp_departamento', row.department_id) || '',
+                tenantId: row.tenant_id,
+                status: resolveLabel(lkp, 'lkp_status', row.status_id) || 'Activo',
+                isSuperadmin: row.is_superadmin === 1
+            }));
+        } else if (baseKey === 'sig_personal') {
+            formattedData = rows.map(row => ({
+                id: row.id,
+                name: row.name,
+                role: row.role,
+                dept: resolveLabel(lkp, 'lkp_departamento', row.dept_id) || '',
+                status: resolveLabel(lkp, 'lkp_status', row.status_id) || 'Activo',
+                photo: row.photo
+            }));
+        } else if (baseKey === 'sig_document_manager') {
+            formattedData = rows.map(r => ({
+                id: r.id, code: r.code, tipo: resolveLabel(lkp, 'lkp_tipo_documento', r.tipo_id) || '',
+                title: r.title, version: r.version, date: r.date, ambito: r.ambito,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || '', resp: r.resp
+            }));
+        } else if (baseKey === 'sig_requisitos_legales') {
+            formattedData = rows.map(r => ({
+                id: r.id, tipo: resolveLabel(lkp, 'lkp_tipo_requisito', r.tipo_id) || '',
+                titulo: r.titulo, desc: r.desc, ambito: r.ambito, norma: r.norma,
+                estado: resolveLabel(lkp, 'lkp_status', r.estado_id) || '',
+                fechaRev: r.fecha_rev, responsable: r.responsable, enlace: r.enlace
+            }));
+        } else if (baseKey === 'sig_dafo') {
+            formattedData = rows.map(r => ({
+                id: r.id, type: resolveLabel(lkp, 'lkp_tipo_dafo', r.type_id) || '',
+                title: r.title, desc: r.desc,
+                impact: resolveLabel(lkp, 'lkp_nivel_impacto', r.impact_id) || '',
+                action: r.action
+            }));
+        } else if (baseKey === 'sig_partes_interesadas') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name,
+                category: resolveLabel(lkp, 'lkp_categoria_parte_interesada', r.category_id) || '',
+                type: resolveLabel(lkp, 'lkp_tipo_parte_interesada', r.type_id) || '',
+                influence: resolveLabel(lkp, 'lkp_nivel_impacto', r.influence_id) || '',
+                impact: resolveLabel(lkp, 'lkp_nivel_impacto', r.impact_id) || '',
+                requirements: typeof r.requirements === 'string' ? JSON.parse(r.requirements) : r.requirements,
+                actionPlan: r.action_plan, lastEvaluation: r.last_evaluation, nextEvaluation: r.next_evaluation,
+                periodicity: r.periodicity,
+                history: typeof r.history === 'string' ? JSON.parse(r.history) : r.history
+            }));
+        } else if (baseKey === 'sig_cambios_ti') {
+            formattedData = rows.map(r => ({
+                id: r.id, title: r.title,
+                type: resolveLabel(lkp, 'lkp_tipo_cambio_ti', r.type_id) || '',
+                desc: r.desc, ci: r.ci, owner: r.owner,
+                impact: resolveLabel(lkp, 'lkp_nivel_impacto', r.impact_id) || '',
+                risk: resolveLabel(lkp, 'lkp_nivel_impacto', r.risk_id) || '',
+                date: r.date, tests: r.tests, rollback: r.rollback, approver: r.approver,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || ''
+            }));
+        } else if (baseKey === 'sig_bcp_processes') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name, mtpd: r.mtpd, rto: r.rto, rpo: r.rpo,
+                impFin: r.imp_fin, impOp: r.imp_op, impRep: r.imp_rep
+            }));
+        } else if (baseKey === 'sig_bcp_exercises') {
+            formattedData = rows.map(r => ({
+                id: r.id, title: r.title, date: r.date, scenario: r.scenario,
+                targetRto: r.target_rto, actualRto: r.actual_rto,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || '',
+                notes: r.notes
+            }));
+        } else if (baseKey === 'sig_acciones_correctivas') {
+            formattedData = rows.map(r => ({
+                id: r.id, origen: r.origen, resumen: r.resumen, responsable: r.responsable,
+                estado: resolveLabel(lkp, 'lkp_status', r.estado_id) || ''
+            }));
+        } else if (baseKey === 'sig_audits_actions') {
+            formattedData = rows.map(r => ({
+                id: r.id, auditId: r.audit_id, finding: r.finding, desc: r.desc, resp: r.resp, deadline: r.deadline,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || ''
+            }));
+        } else if (baseKey === 'sig_canal_denuncias') {
+            formattedData = rows.map(r => ({
+                id: r.id, date: r.date, cat: r.cat,
+                priority: resolveLabel(lkp, 'lkp_prioridad', r.priority_id) || '',
+                desc: r.desc, dept: r.dept, responsible: r.responsible,
+                anonymous: r.anonymous === 1, reporterName: r.reporter_name, reporterContact: r.reporter_contact,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || '',
+                notes: r.notes, closedDate: r.closed_date, trackCode: r.track_code
+            }));
+        } else if (baseKey === 'sig_procesos') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name,
+                type: resolveLabel(lkp, 'lkp_tipo_proceso', r.type_id) || '',
+                compliance: r.compliance, okKpis: r.ok_kpis, warnKpis: r.warn_kpis, critKpis: r.crit_kpis,
+                owner: r.owner, inputs: r.inputs, outputs: r.outputs,
+                risks: typeof r.risks === 'string' ? JSON.parse(r.risks) : r.risks,
+                activities: typeof r.activities === 'string' ? JSON.parse(r.activities) : r.activities
+            }));
+        } else if (baseKey === 'sig_politicas_sgi') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name, norm: r.norm, version: r.version, date: r.date, review: r.review, owner: r.owner,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || '',
+                scope: r.scope, content: r.content,
+                evidences: typeof r.evidences === 'string' ? JSON.parse(r.evidences) : r.evidences
+            }));
+        } else if (baseKey === 'sig_compras_proveedores_data') {
+            formattedData = rows.map(r => ({
+                proveedores: typeof r.proveedores === 'string' ? JSON.parse(r.proveedores) : r.proveedores || [],
+                pedidos: typeof r.pedidos === 'string' ? JSON.parse(r.pedidos) : r.pedidos || [],
+                evaluaciones: typeof r.evaluaciones === 'string' ? JSON.parse(r.evaluaciones) : r.evaluaciones || [],
+                incidencias: typeof r.incidencias === 'string' ? JSON.parse(r.incidencias) : r.incidencias || []
+            }));
+        } else if (baseKey === 'sig_incidencias_nc_data') {
+            formattedData = rows.map(r => ({
+                incidencias: typeof r.incidencias === 'string' ? JSON.parse(r.incidencias) : r.incidencias || []
+            }));
+        } else if (baseKey === 'sig_pedidos_clientes') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name,
+                type: resolveLabel(lkp, 'lkp_tipo_pedido', r.type_id) || '',
+                svcId: r.svc_id, svcName: r.svc_name, concept: r.concept, delivery: r.delivery, scope: r.scope,
+                demandSoporte: r.demand_soporte, demandInfra: r.demand_infra, demandMaterial: r.demand_material,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || ''
+            }));
+        } else if (baseKey === 'sig_catalogo_general') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name,
+                tipo: resolveLabel(lkp, 'lkp_tipo_catalogo', r.tipo_id) || '',
+                cat: resolveLabel(lkp, 'lkp_categoria_catalogo', r.cat_id) || '',
+                cost: parseFloat(r.cost), stock: r.stock, minStock: r.min_stock,
+                unit: resolveLabel(lkp, 'lkp_unidad_catalogo', r.unit_id) || ''
+            }));
+        } else if (baseKey === 'sig_desempeno_proveedores') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name, date: r.date,
+                quality: parseFloat(r.quality), delivery: parseFloat(r.delivery), support: parseFloat(r.support),
+                compliance: parseFloat(r.compliance), avg: parseFloat(r.avg), sla: parseFloat(r.sla),
+                owner: r.owner, obs: r.obs
+            }));
+        } else if (baseKey === 'sig_inventario_equipos') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name, model: r.model, lastCal: r.last_cal, nextCal: r.next_cal,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || '',
+                section: r.section,
+                criticidad: resolveLabel(lkp, 'lkp_nivel_impacto', r.criticidad_id) || ''
+            }));
+        } else if (baseKey === 'sig_clima_laboral_encuestas') {
+            formattedData = rows.map(r => ({
+                id: r.id, fecha: r.fecha, periodo: r.periodo, empleado: r.empleado,
+                respuestas: typeof r.respuestas === 'string' ? JSON.parse(r.respuestas) : r.respuestas,
+                comentarios: typeof r.comentarios === 'string' ? JSON.parse(r.comentarios) : r.comentarios,
+                score: parseFloat(r.score)
+            }));
+        } else if (baseKey === 'sig_perfiles_cualificacion') {
+            formattedData = rows.map(r => ({
+                id: r.id, name: r.name, dept: r.dept, description: r.description,
+                normas: typeof r.normas === 'string' ? JSON.parse(r.normas) : r.normas,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || '',
+                competencias: typeof r.competencias === 'string' ? JSON.parse(r.competencias) : r.competencias,
+                educacion: r.educacion, experiencia: r.experiencia
+            }));
+        } else if (baseKey === 'sig_ens_checklist') {
+            formattedData = rows.map(r => ({
+                id: r.id,
+                pilar: resolveLabel(lkp, 'lkp_pilar_ens', r.pilar_id) || '',
+                name: r.name, desc: r.desc, val: r.val, note: r.note, evidence: r.evidence,
+                status: resolveLabel(lkp, 'lkp_status', r.status_id) || ''
+            }));
+        } else if (baseKey === 'sig_management_review') {
+            formattedData = rows.map(r => ({
+                periodo: r.periodo, desempeno: parseFloat(r.desempeno), trend: r.trend, meta: parseFloat(r.meta),
+                audPlanificadas: r.aud_planificadas, audEjecutadas: r.aud_ejecutadas,
+                capaAbiertas: r.capa_abiertas, capaCerradas: r.capa_cerradas, capaEficacia: parseFloat(r.capa_eficacia),
+                resolucion: r.resolucion, estadoSistema: r.estado_sistema, proximaRevision: r.proxima_revision,
+                objetivos: typeof r.objetivos === 'string' ? JSON.parse(r.objetivos) : r.objetivos,
+                riesgos: typeof r.riesgos === 'string' ? JSON.parse(r.riesgos) : r.riesgos
+            }));
+        }
+
+        return {
+            total,
+            page: pageInt,
+            limit: limitInt,
+            totalPages: Math.ceil(total / limitInt),
+            data: formattedData
+        };
+
+    } catch (e) {
+        console.error(`Error cargando datos paginados para ${baseKey}:`, e);
+        throw e;
+    } finally {
+        if (connection) connection.release();
+    }
+}
+
+module.exports = { loadAllData, saveDataKey, loadPaginatedData };
