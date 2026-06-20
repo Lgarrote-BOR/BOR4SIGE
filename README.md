@@ -31,11 +31,16 @@ El corazón del sistema. Contiene el portal SGI completo con +60 módulos operat
 ```bash
 cd 1_App_BOR4SIGE
 npm install
+cp .env.example .env      # configura tus secretos y la clave de Gemini
+npm run setup             # crea las tablas de autenticación (requiere MariaDB)
+node db_migration.js      # crea el esquema relacional de módulos (requiere MariaDB)
 npm start
 # Abre http://localhost:3000
 ```
 
-O simplemente haz doble clic en `1_App_BOR4SIGE/iniciar_servidor.bat` (Windows).
+O simplemente haz doble clic en `1_App_BOR4SIGE/iniciar_servidor.bat` (Windows). Sin MariaDB, la app arranca igualmente con un almacén en memoria de respaldo.
+
+> 🔐 **Seguridad:** la app usa autenticación JWT, cifrado AES-256-GCM del canal de denuncias y aislamiento multi-tenant. Configura `JWT_SECRET`, `ENCRYPTION_KEY`, `GEMINI_API_KEY` y `CORS_ORIGINS` en `.env` (nunca lo subas al repo). Pruebas: `npm test`.
 
 ---
 

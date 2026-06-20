@@ -55,6 +55,26 @@
 
 > **Tip:** Se recomienda usar siempre el servidor local (`iniciar_servidor.bat`) para que todos los datos se guarden correctamente y sean accesibles por otros usuarios de la misma red.
 
+### Iniciar sesión (acceso seguro)
+
+El portal exige autenticación. Al abrirlo verás la ventana **“Acceso Seguro Bor4SIGE”**:
+
+1. Introduce tu **correo electrónico** y **contraseña** y pulsa *Iniciar Sesión Seguro*.
+2. La sesión es válida durante **2 horas** (por seguridad, ISO 27001); transcurrido ese tiempo deberás volver a identificarte.
+3. Si introduces credenciales incorrectas varias veces seguidas, el sistema bloqueará temporalmente los intentos (protección anti-fuerza bruta).
+
+**Usuarios de demostración** (solo en entornos de prueba; en producción los crea el administrador):
+
+| Correo | Rol | Organización |
+| :--- | :--- | :--- |
+| `bor@bor4d.com` | Superadministrador | alfa |
+| `a.rodriguez@bor4d.com` | Quality Manager | alfa |
+| `c.gomez@bor4d.com` | Auditor Interno | beta |
+
+> **Importante (seguridad):** Las contraseñas de demostración deben cambiarse antes de cualquier uso real. Cada usuario puede cambiar su contraseña (mínimo 10 caracteres, con letras y números). El administrador configura los secretos del servidor (`JWT_SECRET`, `ENCRYPTION_KEY`) y la clave de IA en el archivo `.env`, que nunca debe compartirse ni subirse a repositorios.
+
+> **Cambio de organización (multi-tenant):** solo el **superadministrador** puede conmutar entre organizaciones. El resto de usuarios solo ven y editan los datos de su propia organización.
+
 ---
 
 ## 2. Navegación general

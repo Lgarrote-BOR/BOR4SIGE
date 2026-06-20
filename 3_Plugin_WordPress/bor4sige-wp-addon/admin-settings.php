@@ -202,6 +202,18 @@ function bor4sige_render_settings_page() {
                 </table>
             </div>
 
+            <div class="sige-card" style="background:#fff7ed;border-color:#fed7aa;">
+                <h3 style="color:#9a3412;border-color:#fed7aa;">⚠️ Requisitos del backend (versión segura)</h3>
+                <div style="font-size:13px;color:#7c2d12;line-height:1.6;">
+                    <p>Desde la versión con autenticación JWT y cabeceras de seguridad (Helmet/CSP), el servidor Bor4SIGE debe estar configurado para permitir el embebido desde este sitio:</p>
+                    <ul style="margin:8px 0 0 18px;list-style:disc;">
+                        <li>En el <code>.env</code> del servidor, añada el dominio de este WordPress a <code>CORS_ORIGINS</code> (separado por comas). Sin esto, el navegador bloqueará el iframe por la política <em>frame-ancestors</em>.</li>
+                        <li>El portal exige <strong>inicio de sesión</strong> (JWT). El SSO automático desde WordPress aún no está disponible: el usuario deberá autenticarse en el portal.</li>
+                        <li>Use <strong>HTTPS</strong> en producción tanto en WordPress como en el servidor Bor4SIGE.</li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="sige-card">
                 <h3>📖 Shortcodes Disponibles</h3>
                 <div class="sige-shortcodes-list" style="line-height: 2;">

@@ -33,9 +33,15 @@ El sistema opera bajo un enfoque desacoplado y ligero que maximiza la compatibil
 
 ### C. Servidor Backend (`server.js`) y Base de Datos Relacional (MariaDB)
 * **Servidor Node.js**: Un servicio Express ligero en el puerto `3000` gestiona las APIs del sistema.
-* **Capa de Datos Relacional (MariaDB - E-R Puro)**: El sistema utiliza una base de datos relacional MariaDB estructurada en un modelo entidad-relación puro. Las tablas maestras utilizan identificadores UUID (`CHAR(36)`) como clave primaria y admiten aislamiento multi-tenant mediante claves compuestas `PRIMARY KEY (id, tenant_id)`. Los catálogos, estados, tipos y roles se normalizan en tablas lookup clave-valor (`lkp_*`) con ID autoincremental, enlazados mediante claves foráneas. El acceso se realiza por una capa de traducción relacional en [db_operations.js](file:///c:/Users/lgarrote/OneDrive/Escritorio/BOR4SIGE/1_App_BOR4SIGE/db_operations.js) mediante transacciones SQL con `mysql2/promise`.
+* **Capa de Datos Relacional (MariaDB - E-R Puro)**: El sistema utiliza una base de datos relacional MariaDB estructurada en un modelo entidad-relación puro. Las tablas maestras utilizan identificadores UUID (`CHAR(36)`) como clave primaria y admiten aislamiento multi-tenant mediante claves compuestas `PRIMARY KEY (id, tenant_id)`. Los catálogos, estados, tipos y roles se normalizan en tablas lookup clave-valor (`lkp_*`) con ID autoincremental, enlazados mediante claves foráneas. El acceso se realiza por una capa de traducción relacional en `1_App_BOR4SIGE/db_operations.js` mediante transacciones SQL con `mysql2/promise`. Si MariaDB no está disponible, el backend conmuta de forma transparente a un almacén clave-valor con simulador en memoria para no interrumpir el desarrollo.
 * **Integridad Referencial y Restricciones**: La base de datos está implementada bajo el motor InnoDB, asegurando consistencia transaccional, índices optimizados para búsquedas multi-tenant y reglas de integridad en cascada (`ON DELETE CASCADE` para registros multi-tenant, y `ON DELETE SET NULL` para relaciones lookup).
-* **Integración con Inteligencia Artificial**: El backend incluye un endpoint `/api/chat` que conecta de forma transparente con la API oficial de Google Gemini (usando el modelo `gemini-1.5-flash`) para generar automáticamente respuestas inteligentes en el Chatbot y asistir a los usuarios.
+* **Integración con Inteligencia Artificial**: El backend incluye un endpoint `/api/chat` que conecta de forma transparente con la API oficial de Google Gemini (usando el modelo `gemini-1.5-flash`) para generar automáticamente respuestas inteligentes en el Chatbot y asistir a los usuarios. Este endpoint está **autenticado** y limitado por tasa para evitar el abuso de la clave de API.
+
+### D. Seguridad y Autenticación (`auth.js`, `encryption.js`)
+* **Autenticación JWT**: El acceso a todas las APIs (salvo el login) requiere un token JWT firmado, con sesiones finitas de 2 horas (ISO 27001). Las contraseñas se almacenan con hash `bcrypt` y existe una política de robustez y un endpoint de cambio de contraseña.
+* **Control de acceso y aislamiento multi-tenant**: El servidor inyecta el `tenant_id` desde el token; las claves globales sensibles (usuarios, organizaciones) solo las puede modificar un superadministrador, y ningún usuario puede leer ni escribir datos de otra organización. El superadministrador puede conmutar de organización de forma controlada.
+* **Cifrado extremo a extremo (E2E)**: El canal de denuncias cifra descripción y pruebas con **AES-256-GCM** y derivación de clave `scrypt` con salt por registro (`encryption.js`), conforme a la Directiva de Denunciantes de la UE y al ENS.
+* **Endurecimiento HTTP**: Cabeceras de seguridad mediante **Helmet** (incluida una CSP), **CORS con lista blanca** de orígenes (`CORS_ORIGINS`) y **rate-limiting** en login, IA y API general. Los secretos (`JWT_SECRET`, `ENCRYPTION_KEY`, `GEMINI_API_KEY`) se gestionan por variables de entorno (`.env`, nunca versionado) y en producción el servidor no arranca si faltan.
 
 ---
 
@@ -81,7 +87,7 @@ El portal consta de las siguientes pantallas principales integradas:
 * **Requisitos Legales y ENS (`requisitos_legales_y_ens/code.html`)**:
   * Matriz de cumplimiento legal específica que incluye las normas del Esquema Nacional de Seguridad.
 * **Canal de Denuncias (`canal_de_denuncias/code.html`)**:
-  * Interfaz confidencial y segura con cifrado visual para denuncias internas anónimas conforme a la Directiva de Denunciantes (EU Whistleblowing Directive).
+  * Interfaz confidencial para denuncias internas anónimas con **cifrado extremo a extremo AES-256-GCM** de la descripción y las pruebas en el backend, conforme a la Directiva de Denunciantes de la UE (EU Whistleblowing Directive) y la Ley 2/2023.
 * **Gestor de Auditorías e Informes (`gestor_de_auditor_as/code.html`)**:
   * Programación de auditorías internas, asignación de auditores y control de hallazgos.
 * **Acciones Correctivas y CAPA (`auditor_as_y_acciones/code.html`)**:

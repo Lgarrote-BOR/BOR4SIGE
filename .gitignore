@@ -2,6 +2,10 @@ node_modules/
 *.zip
 db.json
 dist/
+.env
+.env.local
+*.env
+!.env.example
 PDF Normas.pdf
 .tempmediaStorage/
 *.png

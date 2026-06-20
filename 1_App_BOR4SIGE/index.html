@@ -64,8 +64,60 @@
             background: #737780;
         }
     </style>
+    <script src="./api-sync.js"></script>
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Modal de Login Premium (ISO 27001/ENS) -->
+    <div id="sig-login-modal" class="hidden fixed inset-0 bg-[#001f3f]/80 backdrop-blur-md z-[9999] flex items-center justify-center transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-200/50 flex flex-col gap-6 mx-4 relative overflow-hidden">
+            <!-- Decoración Premium -->
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#003366] to-[#0060ac]"></div>
+            
+            <div class="flex flex-col items-center gap-3 mt-2 text-center">
+                <div class="w-14 h-14 rounded-full bg-[#003366]/10 flex items-center justify-center text-[#003366]">
+                    <span class="material-symbols-outlined font-bold text-3xl">verified_user</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-[#003366] font-sans">Acceso Seguro Bor4SIGE</h3>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Gestión Integrada de Sistemas y Cumplimiento</p>
+                </div>
+            </div>
+
+            <!-- Alerta de sesión expirada o credenciales erróneas -->
+            <div id="login-alert-container" class="hidden p-3 bg-red-50 border-l-4 border-red-500 rounded text-red-700 text-xs font-semibold flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm font-bold">warning</span>
+                <span id="login-alert-message">Credenciales incorrectas.</span>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-[#003366] uppercase tracking-wider" for="login-email">Correo Electrónico</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">mail</span>
+                        <input type="email" id="login-email" required placeholder="ejemplo@bor4d.com" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#0060ac] focus:ring-1 focus:ring-[#0060ac] transition-all">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-[#003366] uppercase tracking-wider" for="login-password">Contraseña</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">lock</span>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#0060ac] focus:ring-1 focus:ring-[#0060ac] transition-all">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-[#003366] hover:bg-[#0060ac] text-white font-bold text-xs rounded-lg transition-all duration-200 shadow-md hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 cursor-pointer mt-2">
+                    <span class="material-symbols-outlined text-sm font-bold">login</span>
+                    <span>Iniciar Sesión Seguro</span>
+                </button>
+            </form>
+            
+            <div class="text-[10px] text-center text-slate-400 font-semibold border-t border-slate-100 pt-4">
+                Bor4SIGE cumple estrictamente con el ENS y las Directivas de la UE (ISO 27001).
+            </div>
+        </div>
+    </div>
 
     <!-- Menú Lateral (Navigation Drawer) - Desktop -->
     <aside id="sidebar" class="hidden md:flex flex-col bg-surface border-r border-outline-variant w-[280px] shrink-0 h-screen z-30 transition-all duration-300">
@@ -467,11 +519,22 @@
         window.sigDbState = {};
         window.isServerActive = false;
 
+        // Claves de estado por sesión/cliente: nunca se envían al servidor compartido.
+        window.SIG_CLIENT_ONLY_KEYS = ['sig_current_user', 'sig_active_tenant'];
+
         window.saveKeyToServer = function(key, value) {
             if (value === null) {
                 delete window.sigDbState[key];
             } else {
                 window.sigDbState[key] = value;
+            }
+
+            // El estado por sesión se persiste solo en local, nunca en el servidor
+            // (evita que distintos usuarios se sobrescriban entre sí).
+            if (window.SIG_CLIENT_ONLY_KEYS.includes(key)) {
+                if (value === null) localStorage.removeItem(key);
+                else localStorage.setItem(key, value);
+                return;
             }
 
             if (window.isServerActive) {
@@ -847,7 +910,69 @@
             window.saveKeyToServer('sig_ai_compliance_logs', JSON.stringify(logs));
         }
 
+        async function handleLoginSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const alertEl = document.getElementById('login-alert-container');
+            const alertMsgEl = document.getElementById('login-alert-message');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('sig_jwt_token', data.token);
+                    localStorage.setItem('sig_active_tenant', data.user.tenantId);
+                    
+                    // Inicializar cache local del portal
+                    window.sigDbState = {};
+                    window.sigDbState['sig_current_user'] = JSON.stringify(data.user);
+                    
+                    // Ocultar modal de login
+                    document.getElementById('sig-login-modal').classList.add('hidden');
+                    
+                    // Arrancar la aplicación
+                    initApp();
+                } else {
+                    const errData = await response.json();
+                    alertMsgEl.innerText = errData.error || "Credenciales incorrectas.";
+                    alertEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Error al conectar con la API de login:", err);
+                alertMsgEl.innerText = "Error de conexión con el servidor backend.";
+                alertEl.classList.remove('hidden');
+            }
+        }
+
         async function initApp() {
+            const token = localStorage.getItem('sig_jwt_token');
+            const alertMsg = localStorage.getItem('sig_login_alert');
+            const alertEl = document.getElementById('login-alert-container');
+            const alertMsgEl = document.getElementById('login-alert-message');
+            
+            if (alertMsg) {
+                if (alertEl && alertMsgEl) {
+                    alertMsgEl.innerText = alertMsg;
+                    alertEl.classList.remove('hidden');
+                }
+                localStorage.removeItem('sig_login_alert');
+            }
+
+            if (!token) {
+                // Mostrar el modal de login y detener inicio
+                document.getElementById('sig-login-modal').classList.remove('hidden');
+                return;
+            }
+
+            // Ocultar modal si ya tenemos token
+            document.getElementById('sig-login-modal').classList.add('hidden');
+
             renderNavigation();
             const iframe = document.getElementById("content-iframe");
             
@@ -861,7 +986,7 @@
                     throw new Error("El servidor no devolvió un estado válido.");
                 }
             } catch (err) {
-                console.warn("Bor4SIGE Local: Servidor inactivo. Usando localStorage como fallback:", err);
+                console.warn("Bor4SIGE Local: Servidor inactivo o fuera de línea. Usando localStorage como fallback:", err);
                 window.sigDbState = {};
                 window.isServerActive = false;
                 
@@ -885,10 +1010,34 @@
                 window.saveKeyToServer('sig_users', JSON.stringify(seedUsers));
             }
 
-            // Inicializar usuario actual si no existe
+            // Cargar el usuario autenticado desde el servidor (identidad real del JWT).
+            if (window.isServerActive) {
+                try {
+                    const meRes = await fetch('/api/auth/me');
+                    if (meRes.ok) {
+                        const me = await meRes.json();
+                        window.saveKeyToServer('sig_current_user', JSON.stringify(me));
+                        if (me.tenantId) {
+                            localStorage.setItem('sig_active_tenant', me.isSuperadmin
+                                ? (localStorage.getItem('sig_active_tenant') || me.tenantId)
+                                : me.tenantId);
+                            window.sigDbState['sig_active_tenant'] = localStorage.getItem('sig_active_tenant');
+                        }
+                    }
+                } catch (e) {
+                    console.warn("No se pudo recuperar el perfil del usuario (/me):", e);
+                }
+            }
+
+            // Recuperar usuario actual del estado local si aún no está (fallback offline).
             if (!window.sigDbState['sig_current_user']) {
-                let uSeed = JSON.parse(window.sigDbState['sig_users']);
-                window.saveKeyToServer('sig_current_user', JSON.stringify(uSeed[0]));
+                const localUser = localStorage.getItem('sig_current_user');
+                if (localUser) {
+                    window.sigDbState['sig_current_user'] = localUser;
+                } else if (window.sigDbState['sig_users']) {
+                    let uSeed = JSON.parse(window.sigDbState['sig_users']);
+                    window.saveKeyToServer('sig_current_user', JSON.stringify(uSeed[0]));
+                }
             }
 
             renderUserProfile();
@@ -957,7 +1106,7 @@
             {
                 keywords: ["continuidad", "bcp", "negocio", "recuperación", "desastre", "22301"],
                 answer: "La norma ISO 22301 define los requisitos para la continuidad del negocio. El plan BCP de Bor4SIGE incluye simulacros anuales, análisis BIA y planes de contingencia para restaurar operaciones críticas.",
-                path: "./plan_de_continidad_de_negocio/code.html",
+                path: "./plan_de_continuidad_de_negocio/code.html",
                 btnText: "Ir a Continuidad de Negocio"
             }
         ];
@@ -1000,7 +1149,7 @@
 
             msgDiv.innerHTML = `
                 <div class="w-7 h-7 rounded-full bg-[#003366] flex items-center justify-center text-white shrink-0 shadow-sm">
-                    <span class="material-symbols-outlined text-sm font-bold">robot</span>
+                    <span class="material-symbols-outlined text-sm font-bold">smart_toy</span>
                 </div>
                 <div class="bg-white text-on-surface text-xs p-3 rounded-lg border border-[#c3c6d1] shadow-sm max-w-[80%] leading-relaxed">
                     <p>${text}</p>
@@ -1042,7 +1191,7 @@
             thinkingDiv.className = "flex gap-2 items-start";
             thinkingDiv.innerHTML = `
                 <div class="w-7 h-7 rounded-full bg-[#003366] flex items-center justify-center text-white shrink-0 shadow-sm">
-                    <span class="material-symbols-outlined text-sm font-bold">robot</span>
+                    <span class="material-symbols-outlined text-sm font-bold">smart_toy</span>
                 </div>
                 <div class="bg-white text-on-surface-variant text-xs p-2.5 rounded-lg border border-[#c3c6d1] shadow-sm flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 bg-[#737780] rounded-full animate-bounce"></span>
@@ -1242,7 +1391,7 @@ ${databaseContext}`;
         <!-- Header -->
         <div class="bg-[#003366] text-white p-4 flex justify-between items-center shrink-0">
             <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined font-bold text-xl">robot</span>
+                <span class="material-symbols-outlined font-bold text-xl">smart_toy</span>
                 <div>
                     <h3 class="font-bold text-sm leading-none">Asistente Virtual Bor4SIGE</h3>
                     <span class="text-[9px] text-slate-300 font-medium">Soporte Operativo & Normativo</span>

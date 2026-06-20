@@ -3,7 +3,7 @@ Contributors: sige-compliance
 Tags: iso, compliance, sgi, audit, security, ens
 Requires at least: 5.5
 Tested up to: 6.5
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 
 Addon oficial de Bor4SIGE para integrar la suite de Sistema de Gestión Integrado y Compliance en entornos WordPress.
@@ -43,6 +43,11 @@ El plugin registra los siguientes shortcodes para ser utilizados en páginas pú
 * `[bor4sige_app module="canal_de_denuncias"]` — Muestra únicamente la página pública para registrar y dar seguimiento a denuncias de forma anónima.
 
 == Changelog ==
+
+= 1.2.0 =
+* Compatibilidad con el backend endurecido: autenticación JWT, cabeceras de seguridad (Helmet/CSP) y CORS con lista blanca.
+* Nuevo aviso en Ajustes: el dominio de WordPress debe incluirse en `CORS_ORIGINS` del servidor para permitir el embebido (política frame-ancestors), y el portal requiere inicio de sesión.
+* Recomendación de uso de HTTPS en producción.
 
 = 1.1.0 =
 * Soporte nativo para base de datos relacional MariaDB en el backend, sustituyendo la persistencia antigua basada en archivo db.json.

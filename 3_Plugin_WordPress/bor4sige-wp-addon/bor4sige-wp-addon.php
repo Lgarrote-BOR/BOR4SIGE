@@ -3,7 +3,7 @@
  * Plugin Name: Bor4SIGE Addon
  * Plugin URI: https://sige-compliance.com
  * Description: Addon de integración para embeber y gestionar la suite Bor4SIGE (SGI & Compliance) dentro de WordPress de forma multi-tenant y centralizada.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Bor4SIGE Compliance
  * Author URI: https://sige-compliance.com
  * License: GPL2

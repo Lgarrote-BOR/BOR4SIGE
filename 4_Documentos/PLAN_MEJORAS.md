@@ -7,7 +7,7 @@
 | 1.1 | Aislamiento Multi-Tenant en api-sync.js | ✅ **YA IMPLEMENTADO** |
 | 1.2 | Agente IA centralizado en index.html | ✅ **YA IMPLEMENTADO** |
 | 1.3 | Limpiar nav duplicada de submódulos | ✅ **YA IMPLEMENTADO** |
-| 2.1 | Chatbot Ollama + RAG | ✅ **YA IMPLEMENTADO** |
+| 2.1 | Chatbot Gemini + RAG (proxy backend autenticado) | ✅ **YA IMPLEMENTADO** |
 | 2.2 | Reglas IA adicionales (Auditorías §9.2, EIME) | ✅ **YA IMPLEMENTADO** |
 | 3.1 | BCP: BIA dinámico + Simulacros | ✅ **YA IMPLEMENTADO** |
 | 3.2 | Canal Denuncias: Tracking + CAPA | ✅ **YA IMPLEMENTADO** |
@@ -42,3 +42,30 @@
 - **Datos:** Usar `localStorage` con claves tenantizadas `sig_<modulo>_<tenant>` (ya funcionando).
 - **Sin frameworks nuevos:** Mantener HTML + Tailwind + JS vanilla para coherencia con la base existente.
 - **Estilo:** Reutilizar el sistema de diseño de Bor4SIGE (azul marino `#003366`, IBM Plex Sans, Material Symbols).
+
+---
+
+## Auditoría 2026-06-20 — Correcciones aplicadas
+
+Ver detalle completo en [`INFORME_AUDITORIA_2026-06-20.md`](INFORME_AUDITORIA_2026-06-20.md).
+
+| # | Corrección | Estado |
+|---|------------|--------|
+| 2.1 | `.env` sacado de git + `.gitignore` + `.env.example` | ✅ Aplicado |
+| 2.2 | Secretos JWT/cifrado rotados; sin fallback en producción | ✅ Aplicado |
+| 2.3 | Control de rol en claves globales de `/api/store` (anti-escalada) | ✅ Aplicado |
+| 2.4 | `/api/chat` autenticado + rate-limiting + validación de entrada | ✅ Aplicado |
+| 2.5 | Helmet (CSP), CORS allowlist, rate-limit en login | ✅ Aplicado |
+| 2.6 | Sembrado de credenciales demo bloqueado en producción + cambio de contraseña | ✅ Aplicado |
+| 2.7 | Cifrado con scrypt + salt por registro | ✅ Aplicado |
+| 3.1 | Fallback en memoria reparado (consulta alineada) | ✅ Aplicado |
+| 3.2 | Recursión en `api-sync.js` corregida | ✅ Aplicado |
+| 3.3 | Conmutación de tenant del superadmin en backend | ✅ Aplicado |
+| 3.4 | `sig_current_user` como estado por sesión (`/api/auth/me`) | ✅ Aplicado |
+| 3.5/3.6 | Enlace `continuidad` e iconos `smart_toy` corregidos | ✅ Aplicado |
+| 4.2 | `build_packages.ps1` incluye módulos backend en el instalable | ✅ Aplicado |
+| 4.1 | Instalable sincronizado con la versión segura | ✅ Aplicado |
+| 5.3/5.4 | `dotenv` + pruebas automatizadas (`npm test`) | ✅ Aplicado |
+| 5.1 | Migración a modelo relacional (`db_operations`/`db_migration` + paginación) | ✅ Integrado (verificar con MariaDB) |
+| 4.3 | SSO real desde WordPress | ⏳ Pendiente (requiere diseño de secreto compartido) |
+| 5.2 | Build de producción con Tailwind compilado (sin CDN) | ⏳ Roadmap |

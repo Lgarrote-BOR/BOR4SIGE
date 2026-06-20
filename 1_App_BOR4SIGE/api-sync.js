@@ -1,17 +1,250 @@
 /**
  * api-sync.js
- * Interceptor transparente de localStorage para sincronización cliente-servidor en Bor4SIGE.
- * Si detecta que está corriendo dentro del portal (iframe) y el servidor está activo, 
- * redirige las consultas a la base de datos centralizada de la Webapp en el parent.
- * De lo contrario, cae en el comportamiento por defecto de localStorage de forma segura.
- * Incorpora aislamiento de datos multi-tenant para cada organización activa.
+ * Interceptor de red y almacenamiento para Bor4SIGE.
+ * Gestiona:
+ * 1. Inyección de JWT y X-Tenant-ID en cabeceras de peticiones.
+ * 2. Redirección y limpieza ante errores 401/403.
+ * 3. Cola offline (FIFO) para resiliencia ante cortes de red o errores 5xx.
+ * 4. Aislamiento lógico multi-tenant en iframes y resolución de conflictos visual.
  */
 (function() {
-    // Verificar si estamos dentro del iframe del portal y el parent tiene el estado de base de datos
+    // Inyectar animación de CSS para el modal flotante
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .sig-conflict-modal {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 10000;
+            width: 380px;
+            background: #ffffff;
+            border-left: 5px solid #0060ac;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Inter', sans-serif;
+            animation: slideUp 0.3s ease-out;
+        }
+    `;
+    document.head.appendChild(style);
+
+    const originalFetch = window.fetch;
+    let isSyncing = false;
+
+    // --- INTERCEPTOR DE PETICIONES (FETCH) ---
+    window.fetch = async function(resource, options = {}) {
+        const urlStr = typeof resource === 'string' ? resource : resource.url;
+        
+        // Inyectar tokens solo si es petición interna a la API y no es el login
+        if (urlStr.includes('/api/') && !urlStr.includes('/api/auth/login')) {
+            options.headers = options.headers || {};
+            const token = localStorage.getItem('sig_jwt_token');
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+            const tenant = localStorage.getItem('sig_active_tenant') || 'alfa';
+            options.headers['X-Tenant-ID'] = tenant;
+        }
+
+        try {
+            const response = await originalFetch(resource, options);
+
+            // Interceptor de respuesta 401/403 (Sesión Expirada)
+            if ((response.status === 401 || response.status === 403) && !urlStr.includes('/api/auth/login')) {
+                handleUnauthorized();
+                return response;
+            }
+
+            // Interceptor de errores 5xx para encolar operaciones de escritura
+            if (response.status >= 500 && response.status < 600) {
+                const method = options.method || 'GET';
+                if (['POST', 'PUT', 'DELETE'].includes(method.toUpperCase())) {
+                    enqueueOfflineRequest(method, urlStr, options.body);
+                }
+            }
+
+            // Interceptor de resolución de conflictos en GET /api/store
+            if (urlStr.includes('/api/store') && (!options.method || options.method.toUpperCase() === 'GET') && response.ok) {
+                const clone = response.clone();
+                clone.json().then(data => {
+                    const metadata = data.sig_metadata || {};
+                    for (const [key, serverVal] of Object.entries(data)) {
+                        if (key === 'sig_metadata') continue;
+                        
+                        const localVal = localStorage.getItem(key);
+                        const localTime = localStorage.getItem(`sig_time_${key}`);
+                        const serverTime = metadata[key];
+
+                        if (localVal && localTime && serverTime && localVal !== serverVal) {
+                            if (new Date(serverTime) > new Date(localTime)) {
+                                showConflictModal(key, localVal, serverVal);
+                            }
+                        }
+                    }
+                }).catch(e => console.error("Error al auditar conflictos en segundo plano:", e));
+            }
+
+            return response;
+        } catch (err) {
+            // Petición fallida por pérdida de conexión (offline)
+            const method = options.method || 'GET';
+            if (['POST', 'PUT', 'DELETE'].includes(method.toUpperCase())) {
+                enqueueOfflineRequest(method, urlStr, options.body);
+            }
+            throw err;
+        }
+    };
+
+    // --- COLA DE SINCRONIZACIÓN OFFLINE (FIFO) ---
+    function enqueueOfflineRequest(method, url, body) {
+        let queue = [];
+        try {
+            queue = JSON.parse(localStorage.getItem('sig_offline_queue')) || [];
+        } catch (e) {
+            queue = [];
+        }
+
+        const newRequest = {
+            method,
+            url,
+            body: typeof body === 'string' ? body : JSON.stringify(body),
+            timestamp: new Date().toISOString()
+        };
+
+        // Evitar encolar duplicados exactos seguidos
+        if (queue.length > 0) {
+            const last = queue[queue.length - 1];
+            if (last.url === newRequest.url && last.body === newRequest.body) return;
+        }
+
+        queue.push(newRequest);
+        localStorage.setItem('sig_offline_queue', JSON.stringify(queue));
+        console.log("📥 Petición de escritura encolada en sig_offline_queue:", newRequest);
+    }
+
+    async function syncOfflineQueue() {
+        if (isSyncing) return;
+        let queue = [];
+        try {
+            queue = JSON.parse(localStorage.getItem('sig_offline_queue')) || [];
+        } catch (e) {
+            queue = [];
+        }
+
+        if (queue.length === 0) return;
+
+        isSyncing = true;
+        console.log(`🔄 Reconexión detectada. Enviando ${queue.length} peticiones pendientes al backend...`);
+
+        while (queue.length > 0) {
+            const req = queue[0];
+            try {
+                const token = localStorage.getItem('sig_jwt_token');
+                const tenant = localStorage.getItem('sig_active_tenant') || 'alfa';
+                
+                const response = await originalFetch(req.url, {
+                    method: req.method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'X-Tenant-ID': tenant
+                    },
+                    body: req.body
+                });
+
+                if (response.ok) {
+                    queue.shift(); // Eliminar de la cola tras éxito
+                    localStorage.setItem('sig_offline_queue', JSON.stringify(queue));
+                } else if (response.status === 401 || response.status === 403) {
+                    handleUnauthorized();
+                    break;
+                } else {
+                    console.warn(`⚠️ Error del servidor (${response.status}) procesando cola. Deteniendo reintentos.`);
+                    break;
+                }
+            } catch (err) {
+                console.error("🔌 Fallo de conexión durante reenvío FIFO:", err.message);
+                break;
+            }
+        }
+        isSyncing = false;
+    }
+
+    window.addEventListener('online', syncOfflineQueue);
+
+    // --- MANEJO DE DESAUTENTICACIÓN ---
+    function handleUnauthorized() {
+        localStorage.setItem('sig_login_alert', 'Sesión expirada por motivos de seguridad.');
+        localStorage.removeItem('sig_jwt_token');
+        localStorage.removeItem('sig_offline_queue');
+        
+        if (window.parent && window.parent.sigDbState) {
+            window.parent.sigDbState = {};
+            window.parent.isServerActive = false;
+        }
+
+        const topLocation = window.top ? window.top.location : window.location;
+        if (!topLocation.pathname.endsWith('/index.html') && !topLocation.pathname.endsWith('/')) {
+            topLocation.href = '/index.html';
+        }
+    }
+
+    // --- RESOLUCIÓN DE CONFLICTOS (MODAL PREMIUM FLOTANTE) ---
+    function showConflictModal(key, localVal, serverVal) {
+        if (document.getElementById('sig-conflict-modal')) return;
+
+        const modal = document.createElement('div');
+        modal.id = 'sig-conflict-modal';
+        modal.className = 'sig-conflict-modal';
+        
+        modal.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span class="material-symbols-outlined" style="color:#0060ac;font-size:24px;">sync_problem</span>
+                <h4 style="margin:0;color:#003366;font-size:14px;font-weight:700;">Conflicto de Sincronización</h4>
+            </div>
+            <p style="margin:0 0-12px 0;font-size:11px;color:#555;line-height:1.4;">
+                La clave <strong>${key}</strong> tiene cambios más recientes en el servidor. ¿Desea mantener su versión local o cargar la del servidor?
+            </p>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+                <button id="btn-keep-local" style="background:#f1f3f9;color:#003366;border:none;padding:6px 12px;font-size:10px;font-weight:700;border-radius:4px;cursor:pointer;">Conservar Mío</button>
+                <button id="btn-load-server" style="background:#003366;color:#ffffff;border:none;padding:6px 12px;font-size:10px;font-weight:700;border-radius:4px;cursor:pointer;">Cargar Servidor</button>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        document.getElementById('btn-keep-local').addEventListener('click', () => {
+            window.saveKeyToServer(key, localVal);
+            modal.remove();
+        });
+
+        document.getElementById('btn-load-server').addEventListener('click', () => {
+            localStorage.setItem(key, serverVal);
+            if (window.parent && window.parent.sigDbState) {
+                window.parent.sigDbState[key] = serverVal;
+            }
+            modal.remove();
+            
+            // Recargar iframe del módulo para refrescar la UI con los datos del servidor
+            const iframe = document.getElementById('content-iframe');
+            if (iframe) iframe.src = iframe.src;
+        });
+    }
+
+    // --- AISLAMIENTO MULTI-TENANT EN IFRAMES (PROTOTYPE STORAGE) ---
     if (window.parent && window.parent !== window && window.parent.sigDbState) {
         const db = window.parent.sigDbState;
 
-        // Claves globales compartidas entre todas las organizaciones
+        // Capturar los métodos NATIVOS antes de sobrescribir el prototipo, para usarlos
+        // con las claves internas (marcas de tiempo) sin reentrar en el interceptor.
+        const nativeGetItem = Storage.prototype.getItem;
+        const nativeSetItem = Storage.prototype.setItem;
+        const nativeRemoveItem = Storage.prototype.removeItem;
+
         const globalKeys = [
             'sig_current_user',
             'sig_users',
@@ -24,11 +257,14 @@
             'sig_ai_last_check'
         ];
 
-        // Función auxiliar para obtener la clave tenantizada
+        // Claves que NO deben tenantizarse ni interceptarse (timestamps internos y no-sig).
+        function isInternalKey(key) {
+            return !key || key.indexOf('sig_time_') === 0 || key.indexOf('sig_') !== 0;
+        }
+
         function getTenantKey(key) {
-            if (key && key.startsWith('sig_') && !globalKeys.includes(key)) {
+            if (key && key.indexOf('sig_') === 0 && key.indexOf('sig_time_') !== 0 && !globalKeys.includes(key)) {
                 const tenant = db['sig_active_tenant'] || 'alfa';
-                // Si la clave no termina ya en _<tenant>, añadir el sufijo
                 if (!key.endsWith(`_${tenant}`)) {
                     return `${key}_${tenant}`;
                 }
@@ -36,8 +272,11 @@
             return key;
         }
 
-        // Sobreescribir getItem
         Storage.prototype.getItem = function(key) {
+            // Claves internas o ajenas al SGI: usar el almacenamiento real.
+            if (isInternalKey(key)) {
+                return nativeGetItem.call(this, key);
+            }
             const tenantKey = getTenantKey(key);
             if (tenantKey in db) {
                 return db[tenantKey];
@@ -45,124 +284,46 @@
             return null;
         };
 
-        // Sobreescribir setItem
         Storage.prototype.setItem = function(key, value) {
+            if (isInternalKey(key)) {
+                return nativeSetItem.call(this, key, value);
+            }
             const tenantKey = getTenantKey(key);
             db[tenantKey] = value;
-            // Notificar al portal para guardar en el backend
+
+            // Marca de tiempo local mediante el método nativo (evita recursión).
+            nativeSetItem.call(this, `sig_time_${tenantKey}`, new Date().toISOString());
+
             if (typeof window.parent.saveKeyToServer === 'function') {
                 window.parent.saveKeyToServer(tenantKey, value);
             }
         };
 
-        // Sobreescribir removeItem
         Storage.prototype.removeItem = function(key) {
+            if (isInternalKey(key)) {
+                return nativeRemoveItem.call(this, key);
+            }
             const tenantKey = getTenantKey(key);
             delete db[tenantKey];
+
+            nativeRemoveItem.call(this, `sig_time_${tenantKey}`);
+
             if (typeof window.parent.saveKeyToServer === 'function') {
                 window.parent.saveKeyToServer(tenantKey, null);
             }
         };
 
-        // Sobreescribir clear
         Storage.prototype.clear = function() {
             const tenant = db['sig_active_tenant'] || 'alfa';
             for (let key in db) {
-                // Solo borrar claves que correspondan al tenant activo y no sean globales
                 if (key.startsWith('sig_') && key.endsWith(`_${tenant}`) && !globalKeys.includes(key)) {
                     delete db[key];
+                    nativeRemoveItem.call(this, `sig_time_${key}`);
                     if (typeof window.parent.saveKeyToServer === 'function') {
                         window.parent.saveKeyToServer(key, null);
                     }
                 }
             }
         };
-
-        // Auto-limpieza de cabeceras y barras laterales duplicadas cuando se renderiza dentro del iframe del portal
-        function cleanDuplicateChrome() {
-            // Si no estamos dentro de un iframe, no hacemos nada
-            if (window.self === window.top) return;
-
-            // Selectores de los elementos duplicados a ocultar
-            const sidebarSelectors = [
-                'nav.sidebar', 'aside.sidebar', '.sidebar',
-                '[aria-label="Main Navigation"]',
-                'header', 'header.app-header', 'header.dashboard-header', 'header.module-header',
-                '.app-header', '.module-header', '.dashboard-header'
-            ];
-
-            sidebarSelectors.forEach(sel => {
-                document.querySelectorAll(sel).forEach(el => {
-                    el.style.display = 'none';
-                });
-            });
-
-            // Ajustar contenedor principal para que aproveche el espacio liberado
-            const mainCandidates = document.querySelectorAll('main, .main-content, .content, body > div > div, body > div');
-            mainCandidates.forEach(el => {
-                if (el.tagName === 'MAIN' || el.classList.contains('main-content') || el.classList.contains('content')) {
-                    el.style.paddingLeft = '0';
-                    el.style.marginLeft = '0';
-                    el.style.width = '100%';
-                }
-            });
-
-            // Inyectar banner sutil de pertenencia al portal
-            if (!document.getElementById('sig-iframe-badge')) {
-                const badge = document.createElement('div');
-                badge.id = 'sig-iframe-badge';
-                badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:linear-gradient(135deg,#003366,#0060ac);color:#fff;font-family:Inter,IBM Plex Sans,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.4px;border-radius:0 0 8px 8px;box-shadow:0 2px 6px rgba(0,0,0,0.15)"><span class="material-symbols-outlined" style="font-size:14px">verified_user</span> Bor4SIGE — ' + (document.title || 'Módulo SGI') + '</span>';
-                badge.style.cssText = 'position:fixed;top:0;left:16px;z-index:9999;pointer-events:none;';
-                document.body.appendChild(badge);
-            }
-        }
-
-        // Interceptar clics en los enlaces de navegación de la barra lateral del sub-módulo
-        // para redirigirlos a la navegación principal del parent (index.html)
-        document.addEventListener("DOMContentLoaded", function() {
-            // Limpiar UI duplicada al cargar y tras pequeñas esperas (por si hay renderizado diferido)
-            cleanDuplicateChrome();
-            setTimeout(cleanDuplicateChrome, 250);
-            setTimeout(cleanDuplicateChrome, 800);
-            // Observar el DOM para limpiar elementos que aparezcan dinámicamente
-            try {
-                const observer = new MutationObserver(() => cleanDuplicateChrome());
-                observer.observe(document.body, { childList: true, subtree: true });
-            } catch(e) { /* navegador sin MutationObserver */ }
-            setTimeout(() => {
-                const links = document.querySelectorAll("nav a, aside a, .sidebar a, [aria-label='Main Navigation'] a");
-                links.forEach(link => {
-                    const text = link.textContent.trim().toLowerCase();
-                    const iconSpan = link.querySelector(".material-symbols-outlined");
-                    const iconName = iconSpan ? iconSpan.textContent.trim().toLowerCase() : "";
-                    
-                    let targetPath = null;
-                    if (text.includes("interesadas") || text.includes("partes int") || iconName === "group_work") {
-                        targetPath = "./gesti_n_de_partes_interesadas/code.html";
-                    } else if (text.includes("dafo") || text.includes("d.a.f.o.")) {
-                        targetPath = "./an_lisis_dafo_estrat_gico/code.html";
-                    } else if (text.includes("dashboard") || iconName === "dashboard" || text.includes("inicio") || iconName === "grid_view") {
-                        targetPath = "./dashboard_de_gesti_n_sig/code.html";
-                    } else if (text.includes("personas") || iconName === "groups" || text.includes("personal")) {
-                        targetPath = "./directorio_de_personal/code.html";
-                    } else if (text.includes("riesgos") || iconName === "warning" || iconName === "shield" || text.includes("riesgo")) {
-                        targetPath = "./matriz_de_riesgos_es_v2/code.html";
-                    } else if (text.includes("auditorías") || text.includes("auditorias") || iconName === "fact_check" || iconName === "task_alt" || iconName === "rule") {
-                        targetPath = "./gestor_de_auditor_as/code.html";
-                    } else if (text.includes("configuración") || text.includes("configuracion") || text.includes("perfil") || iconName === "settings" || iconName === "person") {
-                        targetPath = "./roles_y_permisos/code.html";
-                    }
-                    
-                    if (targetPath) {
-                        link.addEventListener("click", function(e) {
-                            if (window.parent && typeof window.parent.navigateToPath === "function") {
-                                e.preventDefault();
-                                window.parent.navigateToPath(targetPath);
-                            }
-                        });
-                    }
-                });
-            }, 100);
-        });
     }
 })();

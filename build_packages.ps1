@@ -47,13 +47,28 @@ foreach ($mod in $modules) {
     }
 }
 
-# Copiar archivos raíz obligatorios del instalador
-$rootFiles = @("index.html", "api-sync.js", "server.js", "iniciar_servidor.bat", "iniciar_servidor.sh", "package.json", "package-lock.json", "db_operations.js", "db_migration.js")
+# Copiar archivos raíz obligatorios del instalador.
+# IMPORTANTE: incluir los módulos backend (auth/database/encryption/setup_db/db_operations/db_migration) que requiere
+# el nuevo server.js; de lo contrario el instalable falla al arrancar con MODULE_NOT_FOUND.
+$rootFiles = @(
+    "index.html", "api-sync.js", "server.js",
+    "auth.js", "database.js", "encryption.js", "setup_db.js", "db_operations.js", "db_migration.js", "test_endpoints.js",
+    ".env.example",
+    "iniciar_servidor.bat", "iniciar_servidor.sh", "package.json", "package-lock.json"
+)
+
 foreach ($file in $rootFiles) {
     $src = Join-Path $appDir $file
     if (Test-Path $src) {
         Copy-Item $src (Join-Path $instalableDir $file) -Force
     }
+}
+
+# NUNCA empaquetar el .env real con secretos. Eliminarlo del instalador si se hubiera colado.
+$leakedEnv = Join-Path $instalableDir ".env"
+if (Test-Path $leakedEnv) {
+    Remove-Item $leakedEnv -Force
+    Write-Host "   [SEGURIDAD] Eliminado .env del instalador (no debe distribuirse)." -ForegroundColor Yellow
 }
 
 # Copiar manual de uso al instalador
