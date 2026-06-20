@@ -436,12 +436,12 @@
 
     // Inicializar localStorage
     function initData() {
-        const stored = localStorage.getItem('sig_acciones_correctivas');
+        const stored = sigGet('sig_acciones_correctivas', { parse: false });
         if (stored) {
             actions = JSON.parse(stored);
         } else {
             actions = [...seedCorrectiveActions];
-            localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+            sigSet('sig_acciones_correctivas', JSON.stringify(actions), { raw: true });
         }
         updateKPIs();
         renderTable();
@@ -619,7 +619,7 @@
             else if (curState === 'eficaz') nextState = 'no_eficaz';
             
             actions[actionIdx].estado = nextState;
-            localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+            sigSet('sig_acciones_correctivas', JSON.stringify(actions), { raw: true });
             updateKPIs();
             renderTable();
         }
@@ -669,7 +669,7 @@
         };
 
         actions.unshift(newAction); // Insertar al inicio
-        localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+        sigSet('sig_acciones_correctivas', JSON.stringify(actions), { raw: true });
         
         updateKPIs();
         currentPage = 1;

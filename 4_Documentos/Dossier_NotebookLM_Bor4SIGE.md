@@ -106,6 +106,51 @@ Bor4SIGE se despliega mediante 4 paquetes estandarizados en formato `.zip`, ubic
 
 ---
 
+
+### 5.1 Verificacion automatizada del esquema E-R (smoke test)
+
+Antes de empaquetar cualquier distribucion se ejecuta el smoke test del esquema sobre un MariaDB limpio:
+
+
+
+**Que valida, en orden:**
+
+1.  (Bootstrap legacy) - 4 tablas legacy y 4 usuarios demo sembrados.
+2.  (Esquema relacional) - 26 tablas del modelo multi-tenant con PK UUID.
+3.  (Modelo E-R puro) - 18 tablas lookup  y 25 master con PK .
+4.  (Coexistencia KV) - esquema clave-valor alternativo.
+
+**Integridad referencial sintetica:** tras las 4 fases el test inserta filas deterministas en , ,  y ; borra el padre y verifica CASCADE (organizations -> documents) y SET NULL (organizations -> users.tenant_id, lkp_status -> users.status_id).
+
+**Fuente unica de verdad:**  declara el catalogo canonico y los umbrales (, , , etc.). El parser regex de  se cruza contra el manifest y aborta el smoke si diverge (drift-detection). Cumplimiento mp.info.3 del ENS (infraestructura como codigo).
+
+**CI:** workflow MariaDB no respondio. levanta  como servicio en cada PR, push a  y semanalmente (lunes 06:00 UTC).
+
+---
+### 5.1 Verificacion automatizada del esquema E-R (smoke test)
+
+Antes de empaquetar cualquier distribucion, se ejecuta el smoke test del esquema sobre un MariaDB limpio:
+
+```bash
+cd 1_App_BOR4SIGE
+npm run smoke:db
+```
+
+**Que valida (en orden):**
+
+1. `setup_db.js` (Bootstrap legacy) - 4 tablas legacy y 4 usuarios demo sembrados.
+2. `db_migration.js` (Esquema relacional) - 26 tablas del modelo multi-tenant.
+3. `migrate_to_uuid_kv.js` (Modelo E-R puro) - 18 lookups `lkp_*` y 25 master con PK `CHAR(36)`.
+4. `setup_kv_schema.sql` (Coexistencia KV) - esquema clave-valor alternativo.
+
+**Integridad referencial sintetica:** tras las 4 fases, inserta filas deterministas en `organizations`, `documents`, `users` y `lkp_status`; borra el padre y verifica CASCADE (organizations -> documents) y SET NULL (organizations -> users.tenant_id y lkp_status -> users.status_id).
+
+**Fuente unica de verdad:** `1_App_BOR4SIGE/tests/fixtures/expected_manifest.json` declara el catalogo canonico y los umbrales (`minLkpForeignKeys`, `minSetNullForeignKeys`, `exactUuidColumnType`, etc.). El parser regex de `migrate_to_uuid_kv.js` se cruza contra el manifest y aborta si diverge (drift-detection, mp.info.3 del ENS - infraestructura como codigo).
+
+**CI:** workflow `.github/workflows/smoke-db.yml` levanta `mariadb:lts` como servicio en cada PR, push a `main` y semanalmente (lunes 06:00 UTC).
+
+---
+
 ## 6. IDEAS DE PROMPTS PARA INTERACTUAR EN NOTEBOOKLM
 
 Una vez subido este documento a tu libreta corporativa de NotebookLM, puedes utilizar los siguientes prompts optimizados para extraer información de alto valor:

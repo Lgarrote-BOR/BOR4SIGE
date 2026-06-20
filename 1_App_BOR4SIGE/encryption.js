@@ -11,21 +11,74 @@ const crypto = require('crypto');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
+// Tamaño mínimo aceptado para la clave de cifrado E2E (128 bits en caracteres).
+const ENCRYPTION_KEY_MIN_LENGTH = 16;
+
+// Lista negra de placeholders comunes: si la variable coincide, se rechaza el arranque en producción.
+const ENCRYPTION_FAILSAFE_DENYLIST = new Set([
+    '',
+    'change-me',
+    'encryption-key',
+    'clave-de-cifrado',
+    'bor4sige',
+    'dev-only-key'
+]);
+
+/**
+ * Valida un valor concreto de ENCRYPTION_KEY:
+ *  - En producción: debe existir y ser >=16 caracteres (y no estar en la lista negra).
+ *  - En desarrollo: si falta o es débil, devuelve una clave de fallback claramente marcada.
+ * @param {string|undefined|null} value
+ * @param {boolean} isProd
+ * @returns {string} passphrase utilizable (ya sea la del entorno o el fallback de desarrollo).
+ */
+function validateEncryptionKey(value, isProd) {
+    const asString = value == null ? '' : String(value);
+    const lower = asString.toLowerCase();
+
+    if (ENCRYPTION_FAILSAFE_DENYLIST.has(lower)) {
+        const msg = `FATAL: ENCRYPTION_KEY coincide con un valor de la lista negra (${asString}).`;
+        if (isProd) {
+            console.error(msg);
+            throw new Error(msg);
+        }
+        console.warn(`⚠️ ${msg} Se usará la clave de desarrollo.`);
+        return 'Bor4SIGE-Compliance-Dev-Only-Key';
+    }
+
+    if (asString.length >= ENCRYPTION_KEY_MIN_LENGTH) {
+        return asString;
+    }
+
+    if (isProd) {
+        const reason = !asString
+            ? 'ENCRYPTION_KEY ausente en producción.'
+            : `ENCRYPTION_KEY demasiado corta (${asString.length}<${ENCRYPTION_KEY_MIN_LENGTH}) en producción.`;
+        const msg = `FATAL: ${reason} Defina un valor robusto (>= ${ENCRYPTION_KEY_MIN_LENGTH} caracteres aleatorios).`;
+        console.error(msg);
+        throw new Error(msg);
+    }
+
+    if (asString) {
+        console.warn(`⚠️ ENCRYPTION_KEY demasiado corta (${asString.length}<${ENCRYPTION_KEY_MIN_LENGTH}). Usando clave de desarrollo.`);
+    } else {
+        console.warn("⚠️ ALERTA DE SEGURIDAD (ENS): ENCRYPTION_KEY no configurada. Usando clave de desarrollo temporal (NO usar en producción).");
+    }
+    return 'Bor4SIGE-Compliance-Dev-Only-Key';
+}
+
 /**
  * Obtiene el passphrase base de cifrado.
  * En producción es OBLIGATORIO definir ENCRYPTION_KEY (o suministrar customKey);
  * de lo contrario se lanza un error para evitar cifrar con una clave conocida.
  */
 function getPassphrase(customKey = null) {
-    const keySource = customKey || process.env.ENCRYPTION_KEY;
-    if (!keySource) {
-        if (IS_PROD) {
-            throw new Error("ENCRYPTION_KEY no configurada: el cifrado E2E es obligatorio en producción.");
-        }
-        console.warn("⚠️ ALERTA DE SEGURIDAD (ENS): ENCRYPTION_KEY no configurada. Usando clave de desarrollo temporal (NO usar en producción).");
-        return 'Bor4SIGE-Compliance-Dev-Only-Key';
+    // Si se inyectó una clave explícita por sesión (customKey), se respeta tal cual
+    // (su robustez la garantiza el flujo de Oficial de Cumplimiento).
+    if (customKey != null) {
+        return customKey;
     }
-    return keySource;
+    return validateEncryptionKey(process.env.ENCRYPTION_KEY, IS_PROD);
 }
 
 /**
@@ -106,5 +159,8 @@ function decrypt(cipherText, customKey = null) {
 
 module.exports = {
     encrypt,
-    decrypt
+    decrypt,
+    getPassphrase,
+    validateEncryptionKey,
+    ENCRYPTION_KEY_MIN_LENGTH
 };

@@ -86,7 +86,7 @@ const PRIVILEGED_GLOBAL_KEYS = ['sig_users', 'sig_organizations', 'sig_personal'
 // Claves de estado por sesión/cliente: NO se persisten en el servidor (evita que los
 // usuarios se pisen entre sí). El cliente las gestiona en su propio estado local.
 const CLIENT_ONLY_KEYS = ['sig_current_user', 'sig_active_tenant'];
-// Claves globales operativas (contadores/logs del agente IA): escribibles por cualquier usuario.
+// Claves globales operativas (contores/logs del agente IA): escribibles por cualquier usuario.
 const GLOBAL_OPERATIONAL_KEYS = ['sig_ai_compliance_active', 'sig_ai_compliance_logs', 'sig_ai_actions_count', 'sig_ai_last_check'];
 
 const GLOBAL_KEYS = [...PRIVILEGED_GLOBAL_KEYS, ...GLOBAL_OPERATIONAL_KEYS];
@@ -133,6 +133,67 @@ function filterCacheByTenant(fullCache, tenantId) {
         // resto: pertenece a otro tenant -> excluido
     }
     return out;
+}
+
+/**
+ * Normaliza req.is_superadmin a booleano estricto para uso en middlewares posteriores.
+ * Acepta true / 1 / "1" y rechaza cualquier otro valor.
+ */
+function normalizeIsSuperadmin(req) {
+    const v = req.is_superadmin;
+    const ok = v === true || v === 1 || v === '1';
+    req.is_superadmin = ok;
+    return ok;
+}
+
+/**
+ * Evalúa si una escritura en /api/store debe permitirse.
+ * Función pura (sin side effects) exportada para tests.
+ * Devuelve `null` si la escritura está permitida, un objeto de detalle si la denegación
+ * es categórica (403/409), o un sentinela `{ code: 'CLIENT_ONLY_SKIP', skip: true }` para
+ * señales que el caller debe traducir (por ejemplo, no persistir clave de sesión).
+ *
+ * Defense in depth: aunque el handler real cortocircuita las claves client-only ANTES
+ * de invocar esta función, el guard las sigue reconociendo para evitar que cualquier nuevo
+ * caller (plugin, worker, script) las persista por error.
+ *
+ * @param {string} key                   Clave solicitada.
+ * @param {boolean} isSuperadmin         Estado de superadmin del llamante (ya normalizado).
+ * @param {string} tenantId              Tenant efectivo del llamante (no el del token).
+ * @returns {null|{code:string,error?:string,status?:number,skip?:boolean}}
+ */
+function evaluateStoreWriteGuard(key, isSuperadmin, tenantId) {
+    if (CLIENT_ONLY_KEYS.includes(key)) {
+        return { code: 'CLIENT_ONLY_SKIP', skip: true };
+    }
+    if (PRIVILEGED_GLOBAL_KEYS.includes(key) && !isSuperadmin) {
+        return {
+            code: 'PRIVILEGED_GLOBAL_KEY_FORBIDDEN',
+            error: 'Solo un superadministrador puede modificar esta configuración global.',
+            status: 403
+        };
+    }
+    if (!isSuperadmin) {
+        const isGlobal = GLOBAL_KEYS.includes(key);
+        const isOwnTenant = key.endsWith(`_${tenantId}`);
+        if (!isGlobal && !isOwnTenant) {
+            return {
+                code: 'CROSS_TENANT_WRITE_FORBIDDEN',
+                error: 'No autorizado a escribir datos fuera de su organización.',
+                status: 403
+            };
+        }
+    }
+    return null;
+}
+
+/**
+ * Trunca una clave para registro en auditoría y evita DoS por valores gigantes.
+ * El sufijo es ASCII '...' (3 bytes) para compatibilidad con agregadores de logs y grep.
+ */
+function safeKeyForLog(key, max = 64) {
+    if (typeof key !== 'string') return String(key).slice(0, max);
+    return key.length > max ? key.slice(0, max) + '...' : key;
 }
 
 // --- Almacén clave-valor (fallback con simulador en memoria) ---
@@ -201,25 +262,37 @@ app.post('/api/store', auth.enforceTenant, async (req, res) => {
         return res.status(400).json({ error: "Falta la clave 'key'." });
     }
 
-    // Estado por sesión: no se persiste (lo gestiona el cliente).
-    if (CLIENT_ONLY_KEYS.includes(key)) {
-        return res.json({ success: true, skipped: "client-only" });
+    // Defensa en profundidad: normalizar req.is_superadmin a booleano estricto
+    // ANTES de evaluar cualquier regla.
+    const callerIsSuperadmin = normalizeIsSuperadmin(req);
+
+    const verdict = evaluateStoreWriteGuard(key, callerIsSuperadmin, req.tenant_id);
+
+    if (verdict && verdict.skip) {
+        // Clave client-only: el handler responde 200 sin persistir. La guarda devuelve
+        // el sentinela 'CLIENT_ONLY_SKIP' (interno), pero la respuesta JSON conserva el
+        // literal historico 'client-only' para no romper a los consumidores del frontend.
+        return res.json({ success: true, skipped: 'client-only' });
     }
 
-    // Claves globales sensibles: solo superadministrador.
-    if (PRIVILEGED_GLOBAL_KEYS.includes(key) && !req.is_superadmin) {
-        return res.status(403).json({ error: "Solo un superadministrador puede modificar esta configuración global." });
-    }
-
-    // Aislamiento de escritura: un usuario no superadmin solo puede escribir claves
-    // globales conocidas o claves sufijadas con SU propio tenant. Cualquier otra clave
-    // (sufijada con otro tenant, o sin sufijo y no global) se rechaza.
-    if (!req.is_superadmin) {
-        const isGlobal = GLOBAL_KEYS.includes(key);
-        const isOwnTenant = key.endsWith(`_${req.tenant_id}`);
-        if (!isGlobal && !isOwnTenant) {
-            return res.status(403).json({ error: "No autorizado a escribir datos fuera de su organización." });
-        }
+    if (verdict) {
+        // Auditoría estructurada con clave truncada (previene log-flood DoS).
+        console.warn(JSON.stringify({
+            event: 'store.write.forbidden',
+            ts: new Date().toISOString(),
+            code: verdict.code,
+            user_id: req.user_id || null,
+            user_role: req.user_role || null,
+            tenant_id: req.tenant_id || null,
+            key: safeKeyForLog(key),
+            ip: req.ip || (req.headers && req.headers['x-forwarded-for']) || null,
+            userAgent: req.headers && req.headers['user-agent'] ? req.headers['user-agent'].slice(0, 120) : null
+        }));
+        return res.status(verdict.status).json({
+            error: verdict.error,
+            code: verdict.code,
+            key
+        });
     }
 
     if (preferRelational) {
@@ -419,13 +492,27 @@ app.get('*', (req, res, next) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-    console.log(`===================================================`);
-    console.log(`🚀 Bor4SIGE Backend Multi-Tenant activo.`);
-    console.log(`   Entorno: ${IS_PROD ? 'PRODUCCIÓN' : 'desarrollo'}`);
-    console.log(`   Almacén: relacional (db_operations) con fallback clave-valor`);
-    console.log(`   CORS: ${corsOrigins.length ? corsOrigins.join(', ') : 'solo mismo origen'}`);
-    console.log(`   Desplegado localmente en: http://localhost:${PORT}`);
-    console.log(`===================================================`);
-});
+// Iniciar servidor solo si este archivo se ejecuta como entry-point.
+// Evita que `require('./server')` (típico en tests) abra un puerto HTTP.
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`===================================================`);
+        console.log(`🚀 Bor4SIGE Backend Multi-Tenant activo.`);
+        console.log(`   Entorno: ${IS_PROD ? 'PRODUCCIÓN' : 'desarrollo'}`);
+        console.log(`   Almacén: relacional (db_operations) con fallback clave-valor`);
+        console.log(`   CORS: ${corsOrigins.length ? corsOrigins.join(', ') : 'solo mismo origen'}`);
+        console.log(`   Desplegado localmente en: http://localhost:${PORT}`);
+        console.log(`===================================================`);
+    });
+}
+
+module.exports = {
+    app,
+    evaluateStoreWriteGuard,
+    normalizeIsSuperadmin,
+    safeKeyForLog,
+    PRIVILEGED_GLOBAL_KEYS,
+    CLIENT_ONLY_KEYS,
+    GLOBAL_OPERATIONAL_KEYS,
+    GLOBAL_KEYS
+};

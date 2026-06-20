@@ -1,0 +1,100 @@
+name: Smoke DB integrity check
+
+# Recorre los 4 scripts canonicos del esquema de Bor4SIGE
+# (setup_db.js -> db_migration.js -> migrate_to_uuid_kv.js -> setup_kv_schema.sql)
+# sobre un MariaDB limpio y valida que el modelo E-R final sea coherente
+# contra tests/fixtures/expected_manifest.json.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '1_App_BOR4SIGE/setup_db.js'
+      - '1_App_BOR4SIGE/db_migration.js'
+      - '1_App_BOR4SIGE/migrate_to_uuid_kv.js'
+      - '1_App_BOR4SIGE/setup_kv_schema.sql'
+      - '1_App_BOR4SIGE/tests/fixtures/expected_manifest.json'
+      - '1_App_BOR4SIGE/scripts/smoke_test_db.js'
+      - '1_App_BOR4SIGE/package.json'
+      - '.github/workflows/smoke-db.yml'
+  pull_request:
+    paths:
+      - '1_App_BOR4SIGE/**'
+      - '.github/workflows/smoke-db.yml'
+  workflow_dispatch:
+  schedule:
+    # Lunes 06:00 UTC = proteccion contra drift silencioso del esquema.
+    - cron: '0 6 * * 1'
+
+jobs:
+  smoke-db:
+    name: Run npm run smoke:db against MariaDB:lts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mariadb:
+        image: mariadb:lts
+        env:
+          MARIADB_ROOT_PASSWORD: ''
+          MARIADB_DATABASE: bor4sige
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping --host=127.0.0.1 --port=3306"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_USER: root
+      DB_PASSWORD: ''
+      DB_NAME: bor4sige
+      NODE_ENV: development
+      SEED_DEMO: 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 1_App_BOR4SIGE/package-lock.json
+
+      - name: Wait for MariaDB
+        run: |
+          for i in $(seq 1 60); do
+            if mariadb -h 127.0.0.1 -uroot -e 'SELECT 1' >/dev/null 2>&1; then
+              echo "MariaDB responder tras $i intento(s)."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "MariaDB no respondio."
+          exit 1
+        shell: bash
+
+      - name: Install dependencies (1_App_BOR4SIGE)
+        working-directory: 1_App_BOR4SIGE
+        run: npm ci || npm install
+
+      - name: Run smoke test (npm run smoke:db)
+        working-directory: 1_App_BOR4SIGE
+        run: npm run smoke:db
+        # Exit 0 = todo en verde; el job falla si hay regresion.
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-db-logs
+          path: |
+            1_App_BOR4SIGE/.smoketest_owns_dbjson_bak
+            1_App_BOR4SIGE/db.json.smoketest-backup
+          if-no-files-found: ignore

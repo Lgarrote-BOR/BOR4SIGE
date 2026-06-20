@@ -88,3 +88,16 @@ Genera los 4 paquetes `.zip` y sincroniza con el directorio espejo `SIG 2.0`.
 ---
 
 *Bor4SIGE © 2026 — Bor4D Technology & Professional Services*
+
+---
+
+## Smoke test del esquema E-R (Fase 3.1)
+
+Para validar que el modelo entidad-relación, las restricciones CASCADE / SET NULL y los 4 scripts canónicos del esquema (setup_db.js -> db_migration.js -> migrate_to_uuid_kv.js -> setup_kv_schema.sql) son coherentes con el manifiesto canonico:
+
+```bash
+cd 1_App_BOR4SIGE
+npm run smoke:db
+```
+
+La ejecucion automatizada en CI vive en `.github/workflows/smoke-db.yml` y corre `mariadb:lts` como servicio en cada PR, push a `main` y semanalmente (lunes 06:00 UTC). Cualquier regresion rompe el PR antes del merge. Anade o renombra tablas `lkp_*` / master / multi-tenant editando `tests/fixtures/expected_manifest.json` (fuente unica de verdad) y reejecuta el smoke.

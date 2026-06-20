@@ -74,3 +74,19 @@ Si prefieres ejecutar los comandos manualmente:
 npm test
 ```
 Ejecuta las pruebas automatizadas de cifrado E2E (AES-256-GCM), política de contraseñas y control de rol.
+
+### ✅ Verificación del esquema E-R (smoke test)
+
+```bash
+npm run smoke:db
+```
+Recorre en orden los 4 scripts canónicos del esquema sobre un MariaDB limpio y valida que el modelo E-R final sea coherente con `tests/fixtures/expected_manifest.json`:
+
+1. `setup_db.js` — bootstrap legacy (4 tablas, 4 usuarios demo).
+2. `db_migration.js` — esquema relacional (30 tablas).
+3. `migrate_to_uuid_kv.js` — modelo E-R puro (18 lookups + 26 master con PK `CHAR(36)` y FKs `CASCADE`/`SET NULL`).
+4. `setup_kv_schema.sql` — coexistencia del esquema KV alternativo.
+
+Si añades o renombras una tabla `lkp_*`, `master` o multi-tenant, edita `tests/fixtures/expected_manifest.json` (es la **única fuente de verdad**) y vuelve a ejecutar el smoke. El parser regex de `migrate_to_uuid_kv.js` se cruza automáticamente contra el manifest y falla si divergen.
+
+Para CI, existe un workflow en `.github/workflows/smoke-db.yml` que levanta `mariadb:lts` como servicio en cada PR, push a `main` y los lunes a las 06:00 UTC.

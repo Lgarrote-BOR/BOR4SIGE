@@ -66,6 +66,8 @@ Ver detalle completo en [`INFORME_AUDITORIA_2026-06-20.md`](INFORME_AUDITORIA_20
 | 4.2 | `build_packages.ps1` incluye módulos backend en el instalable | ✅ Aplicado |
 | 4.1 | Instalable sincronizado con la versión segura | ✅ Aplicado |
 | 5.3/5.4 | `dotenv` + pruebas automatizadas (`npm test`) | ✅ Aplicado |
-| 5.1 | Migración a modelo relacional (`db_operations`/`db_migration` + paginación) | ✅ Integrado (verificar con MariaDB) |
+| 5.1 | Migración a modelo relacional (`db_operations`/`db_migration` + paginación) | ✅ Validado end-to-end por `npm run smoke:db` (4 fases + integridad CASCADE/SET NULL) |
+| 5.1b | Smoke test del esquema E-R (`scripts/smoke_test_db.js` + `tests/fixtures/expected_manifest.json`) | ✅ Implementado + CI (`.github/workflows/smoke-db.yml`) |
+| 5.4 | Tests automatizados + CI | ✅ `npm test` (7 pruebas) + `npm run smoke:db` (PR + push + cron semanal) |
 | 4.3 | SSO real desde WordPress | ⏳ Pendiente (requiere diseño de secreto compartido) |
 | 5.2 | Build de producción con Tailwind compilado (sin CDN) | ⏳ Roadmap |

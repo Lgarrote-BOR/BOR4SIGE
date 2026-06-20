@@ -53,6 +53,8 @@ foreach ($mod in $modules) {
 $rootFiles = @(
     "index.html", "api-sync.js", "server.js",
     "auth.js", "database.js", "encryption.js", "setup_db.js", "db_operations.js", "db_migration.js", "test_endpoints.js",
+    "scripts/smoke_test_db.js",
+    "tests/fixtures/expected_manifest.json",
     ".env.example",
     "iniciar_servidor.bat", "iniciar_servidor.sh", "package.json", "package-lock.json"
 )
@@ -60,7 +62,15 @@ $rootFiles = @(
 foreach ($file in $rootFiles) {
     $src = Join-Path $appDir $file
     if (Test-Path $src) {
-        Copy-Item $src (Join-Path $instalableDir $file) -Force
+        # Preservar subdirectorios (p.ej. tests/fixtures/expected_manifest.json).
+        # Sin esto, Copy-Item aplana la ruta y copia el archivo al nivel raiz
+        # del instalable, rompiendo el smoke test del zip distribuido.
+        $dstPath = Join-Path $instalableDir $file
+        $dstParent = Split-Path -Path $dstPath -Parent
+        if ($dstParent -ne $instalableDir -and -not (Test-Path $dstParent)) {
+            New-Item -ItemType Directory -Path $dstParent -Force | Out-Null
+        }
+        Copy-Item $src $dstPath -Force
     }
 }
 

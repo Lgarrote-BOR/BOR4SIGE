@@ -351,7 +351,7 @@
         let tempTrackCode = "";
 
         function init() {
-            const stored = localStorage.getItem('sig_canal_denuncias');
+            const stored = sigGet('sig_canal_denuncias', { parse: false });
             reports = stored ? JSON.parse(stored) : [...seed];
             if (!stored) save();
 
@@ -363,7 +363,7 @@
         }
 
         function save() {
-            localStorage.setItem('sig_canal_denuncias', JSON.stringify(reports));
+            sigSet('sig_canal_denuncias', JSON.stringify(reports), { raw: true });
         }
 
         function render() {
@@ -558,7 +558,7 @@
 
         function createCapaAction(originId, summaryText) {
             let actions = [];
-            const stored = localStorage.getItem('sig_acciones_correctivas');
+            const stored = sigGet('sig_acciones_correctivas', { parse: false });
             if (stored) {
                 try { actions = JSON.parse(stored); } catch(e) { actions = []; }
             }
@@ -588,7 +588,7 @@
             };
 
             actions.unshift(newAction);
-            localStorage.setItem('sig_acciones_correctivas', JSON.stringify(actions));
+            sigSet('sig_acciones_correctivas', JSON.stringify(actions), { raw: true });
             alert(`⚠️ Se ha generado automáticamente la Acción Correctiva ${newId} en el módulo CAPA.`);
         }
 

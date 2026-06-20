@@ -11,21 +11,77 @@ const db = require('./database');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
-// Resolución del secreto JWT:
-//  - Producción: OBLIGATORIO definir JWT_SECRET (si falta, el proceso aborta).
-//  - Desarrollo: si falta, se genera un secreto efímero (las sesiones se invalidan al reiniciar).
-function resolveJwtSecret() {
-    const fromEnv = process.env.JWT_SECRET;
-    if (fromEnv && fromEnv.length >= 32) return fromEnv;
-    if (IS_PROD) {
-        console.error("FATAL: JWT_SECRET ausente o demasiado corto (mínimo 32 caracteres) en producción.");
-        process.exit(1);
+// Tamaño mínimo aceptado para secretos de JWT (256 bits encoded en base64url).
+const JWT_SECRET_MIN_LENGTH = 32;
+
+/**
+ * Valida un valor concreto de JWT_SECRET contra la política:
+ *  - Producción: OBLIGATORIO >=32 caracteres. Si no, lanza Error (caller decide).
+ *  - Desarrollo: si falta o es corto, devuelve un secreto efímero (las sesiones caducan al reiniciar).
+ *  - Cualquier entorno: claves en la lista negra FAILSAFE_DENYLIST se rechazan siempre.
+ * @param {string|undefined|null} value  Valor bruto leído de process.env.JWT_SECRET.
+ * @param {boolean} isProd                Estado de entorno (true = producción).
+ * @param {object} [opts]                 Opciones de inyección para tests.
+ * @param {Function} [opts.randomBytes]   Generador de bytes aleatorios (sustituible en tests).
+ */
+function validateJwtSecret(value, isProd, opts = {}) {
+    const FAILSAFE_DENYLIST = new Set([
+        '',
+        'change-me',
+        'secret',
+        'changeme',
+        'bor4sige',
+        'bor4sige-secret'
+    ]);
+    const rand = opts.randomBytes || ((n) => crypto.randomBytes(n).toString('base64url'));
+
+    if (value && FAILSAFE_DENYLIST.has(String(value).toLowerCase())) {
+        const msg = `FATAL: JWT_SECRET coincide con un valor de la lista negra (${value}).`;
+        if (isProd) {
+            console.error(msg);
+            throw new Error(msg);
+        }
+        console.warn(`⚠️ ${msg} Se generará un secreto efímero.`);
+        return rand(48);
     }
-    console.warn("⚠️ JWT_SECRET no definido: usando secreto efímero de desarrollo (las sesiones caducan al reiniciar).");
-    return crypto.randomBytes(48).toString('base64url');
+
+    if (value && String(value).length >= JWT_SECRET_MIN_LENGTH) {
+        return value;
+    }
+
+    if (isProd) {
+        const reason = !value
+            ? 'JWT_SECRET ausente en producción.'
+            : `JWT_SECRET demasiado corto (${String(value).length}<${JWT_SECRET_MIN_LENGTH}) en producción.`;
+        const msg = `FATAL: ${reason} Defina un valor robusto (>= ${JWT_SECRET_MIN_LENGTH} caracteres aleatorios).`;
+        console.error(msg);
+        throw new Error(msg);
+    }
+
+    if (value) {
+        console.warn(`⚠️ JWT_SECRET demasiado corto (${String(value).length}<${JWT_SECRET_MIN_LENGTH}). Usando secreto efímero de desarrollo.`);
+    } else {
+        console.warn("⚠️ JWT_SECRET no definido: usando secreto efímero de desarrollo (las sesiones caducan al reiniciar).");
+    }
+    return rand(48);
 }
 
-const JWT_SECRET = resolveJwtSecret();
+// Resolución del secreto JWT:
+//  - Producción: OBLIGATORIO definir JWT_SECRET (>=32 caracteres). Si no, el proceso aborta.
+//  - Desarrollo: si falta o es corto, se genera un secreto efímero (las sesiones se invalidan al reiniciar).
+function resolveJwtSecret() {
+    return validateJwtSecret(process.env.JWT_SECRET, IS_PROD);
+}
+
+const JWT_SECRET = (() => {
+    try {
+        return resolveJwtSecret();
+    } catch (err) {
+        // Error irrecuperable en arranque: abortar para no firmar tokens inseguros.
+        console.error("Arranque abortado por configuración insegura de secretos.");
+        process.exit(1);
+    }
+})();
 
 const SUPERADMIN_ROLES = ['Superadministrador', 'superadmin', 'administrator'];
 
@@ -233,5 +289,8 @@ module.exports = {
     checkAuth,
     validatePasswordStrength,
     userIsSuperadmin,
+    validateJwtSecret,
+    resolveJwtSecret,
+    JWT_SECRET_MIN_LENGTH,
     JWT_SECRET
 };
