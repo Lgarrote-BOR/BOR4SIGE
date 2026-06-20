@@ -1,0 +1,11 @@
+node_modules
+.git
+.gitignore
+*.zip
+Dockerfile
+.dockerignore
+.env
+migrate_to_uuid_kv.js
+migrate_to_kv.js
+setup_kv_schema.sql
+xampp*
