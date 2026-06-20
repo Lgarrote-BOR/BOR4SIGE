@@ -19,7 +19,16 @@ async function run() {
     console.log("Iniciando configuración de Base de Datos MariaDB...");
     
     // Conexión inicial sin base de datos seleccionada
-    const conn = await mysql.createConnection({ host, user, password, port });
+    const connConfig = { user, password };
+    if (process.env.DB_SOCKET_PATH) {
+        connConfig.socketPath = `/cloudsql/${process.env.DB_SOCKET_PATH}`;
+        console.log(`🔌 Conectando para configuración vía socket Unix: ${connConfig.socketPath}`);
+    } else {
+        connConfig.host = host;
+        connConfig.port = port;
+        console.log(`🔌 Conectando para configuración vía TCP/IP: ${host}:${port}`);
+    }
+    const conn = await mysql.createConnection(connConfig);
     
     try {
         // 1. Crear base de datos si no existe

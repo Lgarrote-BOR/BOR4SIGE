@@ -121,16 +121,23 @@ function initMockDb() {
 }
 
 try {
-    pool = mysql.createPool({
-        host,
+    const config = {
         user,
         password,
         database,
-        port,
         waitForConnections: true,
         connectionLimit: 5,
         queueLimit: 0
-    });
+    };
+    if (process.env.DB_SOCKET_PATH) {
+        config.socketPath = `/cloudsql/${process.env.DB_SOCKET_PATH}`;
+        console.log(`🔌 Creando pool de conexiones MariaDB vía socket Unix: ${config.socketPath}`);
+    } else {
+        config.host = host;
+        config.port = port;
+        console.log(`🔌 Creando pool de conexiones MariaDB vía TCP/IP: ${host}:${port}`);
+    }
+    pool = mysql.createPool(config);
 } catch (e) {
     console.warn("No se pudo instanciar el pool de MariaDB. Usando modo de simulación.");
     useFallback = true;

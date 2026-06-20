@@ -3,20 +3,25 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    port: parseInt(process.env.DB_PORT) || 3306
-};
-
 const DB_NAME = process.env.DB_NAME || 'bor4sige';
 
 async function migrate() {
     let connection;
     try {
         console.log("Conectando a MariaDB...");
-        connection = await mysql.createConnection(dbConfig);
+        const connConfig = {
+            user: process.env.DB_USER || 'root',
+            password: process.env.DB_PASSWORD || ''
+        };
+        if (process.env.DB_SOCKET_PATH) {
+            connConfig.socketPath = `/cloudsql/${process.env.DB_SOCKET_PATH}`;
+            console.log(`🔌 Conectando para migración vía socket Unix: ${connConfig.socketPath}`);
+        } else {
+            connConfig.host = process.env.DB_HOST || 'localhost';
+            connConfig.port = parseInt(process.env.DB_PORT) || 3306;
+            console.log(`🔌 Conectando para migración vía TCP/IP: ${connConfig.host}:${connConfig.port}`);
+        }
+        connection = await mysql.createConnection(connConfig);
         
         console.log(`Creando base de datos ${DB_NAME} si no existe...`);
         await connection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
