@@ -22,7 +22,7 @@ if (!defined('WPINC')) {
         id="bor4sige-iframe" 
         src="<?php echo esc_url($app_url); ?>" 
         style="width: 100%; height: 100%; border: none; background: #f8f9fb;"
-        allow="clipboard-write; camera; geolocation"
+        allow="clipboard-write"
         onload="bor4sigeHideLoader()"
     ></iframe>
 </div>

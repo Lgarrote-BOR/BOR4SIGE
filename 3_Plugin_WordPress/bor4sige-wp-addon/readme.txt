@@ -1,9 +1,9 @@
 === Bor4SIGE Addon ===
-Contributors: sige-compliance
+Contributors: bor4d
 Tags: iso, compliance, sgi, audit, security, ens
 Requires at least: 5.5
 Tested up to: 6.5
-Stable tag: 1.2.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 
 Addon oficial de Bor4SIGE para integrar la suite de Sistema de Gestión Integrado y Compliance en entornos WordPress.
@@ -43,6 +43,25 @@ El plugin registra los siguientes shortcodes para ser utilizados en páginas pú
 * `[bor4sige_app module="canal_de_denuncias"]` — Muestra únicamente la página pública para registrar y dar seguimiento a denuncias de forma anónima.
 
 == Changelog ==
+
+= 1.3.1 =
+* Seguridad/Privacidad: se elimina el email del usuario (PII) de la URL del iframe del portal (evita fugas en logs, historial y cabecera Referer).
+* Los parámetros wp_user/wp_role se documentan como metadatos NO autoritativos: el backend debe autenticar con su propio JWT y no confiar en ellos.
+* Permisos del iframe reducidos al mínimo (allow="clipboard-write"); se retiran camera y geolocation.
+* Saneado más estricto del atributo `module` del shortcode (sanitize_key en lugar de sanitize_text_field).
+* Se carga el dominio de texto (load_plugin_textdomain) para habilitar traducciones.
+* Marca alineada con Bor4D (autoría y URLs del plugin).
+
+= 1.3.0 =
+* Backend unificado (setup_db.js + db_migration.js fusionados en un solo script de inicialización).
+* Soft delete en todas las tablas operativas (protección contra pérdida accidental de datos).
+* Revocación de sesiones JWT al cambiar contraseña (ISO 27001 A.9.2.3).
+* Bloqueo del Canal de Denuncias del sync genérico (solo endpoint E2E cifrado).
+* Persistencia del mock DB a disco para entornos sin MariaDB.
+* Batch UPSERT para eliminar escrituras N+1 en tablas relacionales.
+* .env.example completo con todas las variables de entorno documentadas.
+* Nuevo rol "Propietario de Plataforma" (SaaS): acceso global, total y absoluto a todas las organizaciones.
+* Invalidación de caché cross-worker para entornos multi-proceso (PM2 cluster).
 
 = 1.2.0 =
 * Compatibilidad con el backend endurecido: autenticación JWT, cabeceras de seguridad (Helmet/CSP) y CORS con lista blanca.

@@ -182,13 +182,16 @@ function Create-PluginZip {
     Compress-Archive -Path $folderPath -DestinationPath $zipPath -CompressionLevel Optimal
 }
 
-# A. Plugin de WordPress
-Write-Host "   -> Comprimiendo Plugin de WordPress..." -ForegroundColor Gray
+# A. Plugin de WordPress (Addon SGI)
+# IMPORTANTE: un plugin de WordPress debe ir DENTRO de su carpeta de nivel superior y con
+# separadores de ruta "/". Por eso se usa Create-PluginZip (Compress-Archive) y NO Create-CleanZip
+# (que dejaba los archivos en la raiz y con backslashes -> WordPress lo rechazaba).
+Write-Host "   -> Comprimiendo Plugin de WordPress (Addon SGI)..." -ForegroundColor Gray
 $wpAddonSrc = Join-Path $pluginDir "bor4sige-wp-addon"
-Create-CleanZip $wpAddonSrc (Join-Path $pluginDir "bor4sige-wp-addon.zip")
+Create-PluginZip $wpAddonSrc (Join-Path $pluginDir "bor4sige-wp-addon.zip")
 $targetPluginDir = Join-Path $targetDir "3_Plugin_WordPress"
 if (Test-Path $targetPluginDir) {
-    Create-CleanZip (Join-Path $targetPluginDir "bor4sige-wp-addon") (Join-Path $targetPluginDir "bor4sige-wp-addon.zip")
+    Create-PluginZip (Join-Path $targetPluginDir "bor4sige-wp-addon") (Join-Path $targetPluginDir "bor4sige-wp-addon.zip")
 }
 
 # B. Web de Presentación — DOS plugins de WordPress + web estática (Nginx)

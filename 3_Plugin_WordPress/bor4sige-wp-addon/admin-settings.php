@@ -163,7 +163,6 @@ function bor4sige_render_settings_page() {
 
         <form method="post" action="options.php">
             <?php settings_fields('bor4sige_settings_group'); ?>
-            <?php do_settings_sections('bor4sige_settings_group'); ?>
 
             <div class="sige-card">
                 <h3>🔌 Servidor y Tenant</h3>

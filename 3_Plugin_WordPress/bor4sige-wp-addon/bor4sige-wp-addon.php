@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Bor4SIGE Addon
- * Plugin URI: https://sige-compliance.com
+ * Plugin URI: https://bor4d.com
  * Description: Addon de integración para embeber y gestionar la suite Bor4SIGE (SGI & Compliance) dentro de WordPress de forma multi-tenant y centralizada.
- * Version: 1.2.0
- * Author: Bor4SIGE Compliance
- * Author URI: https://sige-compliance.com
+ * Version: 1.3.1
+ * Author: Bor4D Consultoría y Tecnología
+ * Author URI: https://bor4d.com
  * License: GPL2
  * Text Domain: bor4sige-wp-addon
  */
@@ -18,6 +18,12 @@ if (!defined('WPINC')) {
 // Definir constantes del plugin
 define('BOR4SIGE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('BOR4SIGE_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Cargar el dominio de texto para traducciones (i18n).
+function bor4sige_load_textdomain() {
+    load_plugin_textdomain('bor4sige-wp-addon', false, dirname(plugin_basename(__FILE__)) . '/languages');
+}
+add_action('init', 'bor4sige_load_textdomain');
 
 // Incluir la página de administración y ajustes
 require_once BOR4SIGE_PLUGIN_DIR . 'admin-settings.php';
@@ -49,18 +55,19 @@ function bor4sige_render_admin_portal() {
     $server_url = esc_url(get_option('bor4sige_server_url', 'http://localhost:3000'));
     $tenant = sanitize_key(get_option('bor4sige_default_tenant', 'alfa'));
     
-    // Obtener datos del usuario logueado en WordPress
+    // Datos del usuario de WordPress como contexto NO autoritativo.
+    // Un parámetro GET es falsificable: el backend debe autenticar siempre con su propio JWT
+    // y nunca confiar en wp_user/wp_role para autorizar. No se envía el email (PII) en la URL
+    // para evitar fugas en logs del servidor, historial del navegador y cabecera Referer.
     $current_user = wp_get_current_user();
     $wp_username = sanitize_user($current_user->user_login);
     $wp_role = !empty($current_user->roles) ? sanitize_key($current_user->roles[0]) : 'subscriber';
-    $wp_email = sanitize_email($current_user->user_email);
 
     // Ensamblar URL final
     $app_url = add_query_arg(array(
         'tenant' => $tenant,
         'wp_user' => $wp_username,
         'wp_role' => $wp_role,
-        'wp_email' => $wp_email,
         'context' => 'wp-admin'
     ), $server_url);
 
@@ -84,12 +91,12 @@ function bor4sige_app_shortcode($atts) {
     // Si se especifica un módulo, ajustar la ruta del iframe
     $target_url = $server_url;
     if (!empty($a['module'])) {
-        $module_path = sanitize_text_field($a['module']);
+        $module_path = sanitize_key($a['module']);
         // Asegurar formato correcto del submódulo
         $target_url = trailingslashit($server_url) . $module_path . '/code.html';
     }
 
-    // Obtener datos del usuario logueado en WordPress para SSO simulado
+    // Datos del usuario de WordPress como contexto NO autoritativo (el backend no debe usarlos para autorizar).
     $current_user = wp_get_current_user();
     if ($current_user->ID !== 0) {
         $wp_username = sanitize_user($current_user->user_login);
@@ -110,7 +117,7 @@ function bor4sige_app_shortcode($atts) {
     ob_start();
     ?>
     <div class="bor4sige-wp-iframe-container" style="width: 100%; height: <?php echo esc_attr($a['height']); ?>; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; background: #f8f9fb;">
-        <iframe src="<?php echo esc_url($app_url); ?>" style="width: 100%; height: 100%; border: none;" allow="clipboard-write; camera"></iframe>
+        <iframe src="<?php echo esc_url($app_url); ?>" style="width: 100%; height: 100%; border: none;" allow="clipboard-write"></iframe>
     </div>
     <?php
     return ob_get_clean();
