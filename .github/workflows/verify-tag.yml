@@ -1,0 +1,125 @@
+# .github/workflows/verify-tag.yml
+#
+# Verifica criptograficamente los tags firmados con SSH (gpg.format=ssh)
+# en cuanto se pushean. Requiere que:
+#   1. El repo tenga el secret SSH_PUBLIC_KEY definido
+#      (contenidos de la clave publica SSH del firmante, incluyendo comentario).
+#   2. El tag haya sido firmado localmente con:
+#        git config gpg.format ssh
+#        git config user.signingkey ~/.ssh/id_ed25519   # o path al .pub o fingerprint
+#      y luego:
+#        git tag -f -s v0.3.0-REFCOMMON-EMA 2ae0271 -m '<msg>'
+#
+# El principal usado en `allowed_signers` viene del tercer campo (comentario)
+# de la clave publica. En este caso: luisgarroter@gmail.com
+#
+# Algoritmo: ed25519 (moderno, resistente a timing attacks).
+# Patron compatible tambien con RSA si la clave es RSA.
+
+name: verify-tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify tag signature (SSH)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GIT_TERMINAL_PROMPT: '0'
+    steps:
+      - name: Checkout repository at the tag
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # pin to v4.1.1 SHA for supply-chain hardening
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Validate SSH_PUBLIC_KEY secret is configured
+        env:
+          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SSH_PUBLIC_KEY:-}" ]; then
+            echo "::error::Repository secret SSH_PUBLIC_KEY is empty or not defined."
+            echo "::error::Go to Settings -> Secrets and variables -> Actions -> New repository secret"
+            echo "::error::Name: SSH_PUBLIC_KEY, Value: contents of your ~/.ssh/id_ed25519.pub (one line)."
+            exit 1
+          fi
+          echo "SSH_PUBLIC_KEY secret present (length=${#SSH_PUBLIC_KEY} chars)"
+
+      - name: Build allowed_signers from the SSH public key
+        env:
+          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
+          # Persist full public key line for offline inspection
+          printf '%s\n' "$SSH_PUBLIC_KEY" > "$HOME/.ssh/tag_signing.pub"
+          chmod 644 "$HOME/.ssh/tag_signing.pub"
+
+          # Extract principal from comment (third whitespace-delimited field).
+          PRINCIPAL=$(printf '%s\n' "$SSH_PUBLIC_KEY" | awk '{print $3}')
+          if [ -z "$PRINCIPAL" ] || [ "$PRINCIPAL" = "$SSH_PUBLIC_KEY" ]; then
+            echo "::error::Could not extract principal from SSH_PUBLIC_KEY (awk third field)."
+            echo "::error::Ensure the key has the canonical OpenSSH format with a comment:"
+            echo "::error::    ssh-ed25519 <base64> <comment>"
+            exit 1
+          fi
+          echo "Detected principal from comment: ${PRINCIPAL}"
+          # Print SHA256 fingerprint so the operator can verify visually in the GH Actions UI
+          FINGERPRINT=$(ssh-keygen -lf "$HOME/.ssh/tag_signing.pub" 2>/dev/null || true)
+          if [ -n "$FINGERPRINT" ]; then
+            echo "::notice::Imported signing key fingerprint: ${FINGERPRINT}"
+          fi
+
+          # allowed_signers format for git tag -v with SSH signing:
+          #   <principal> <type> <base64key> [<comment>]
+          printf '%s %s\n' "$PRINCIPAL" "$SSH_PUBLIC_KEY" > "$HOME/.ssh/allowed_signers"
+          chmod 644 "$HOME/.ssh/allowed_signers"
+
+          echo "--- allowed_signers content ---"
+          cat "$HOME/.ssh/allowed_signers"
+          echo "--- end allowed_signers ---"
+
+      - name: Verify tag signature (SSH)
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          echo "Verifying signature of tag: ${TAG}"
+          echo "Commit pointed by tag:"
+          git rev-parse "${TAG}^{commit}" || true
+          echo ""
+          # git tag -v reads the SSH allowed_signers file when gpg.format=ssh is set.
+          # We pass it explicitly with -c to be deterministic on GH Actions runner.
+          if git -c gpg.format=ssh \
+                 -c gpg.ssh.allowedSignersFile="$HOME/.ssh/allowed_signers" \
+                 tag -v "${TAG}"; then
+            echo ""
+            echo "OK: signature of tag ${TAG} is valid"
+          else
+            echo ""
+            echo "::error::SIGNATURE VERIFICATION FAILED for tag ${TAG}"
+            echo "::error::Possible causes:"
+            echo "::error::  (a) tag was not signed locally with the matching private key"
+            echo "::error::  (b) repository secret SSH_PUBLIC_KEY does not match the signing key"
+            echo "::error::  (c) the principal in allowed_signers does not match the signing principal"
+            exit 1
+          fi
+
+      - name: Show tag metadata (post-verify)
+        if: success()
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "--- tag object (decoded) ---"
+          git cat-file -p "refs/tags/${TAG}" || true
+          echo ""
+          echo "--- commit referenced by tag ---"
+          git log -1 --format='%H%n%an <%ae>%n%ai%n%s%n%n%b' "${TAG}^{commit}" || true
