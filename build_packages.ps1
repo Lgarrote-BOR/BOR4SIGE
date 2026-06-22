@@ -52,7 +52,7 @@ foreach ($mod in $modules) {
 # el nuevo server.js; de lo contrario el instalable falla al arrancar con MODULE_NOT_FOUND.
 $rootFiles = @(
     "index.html", "api-sync.js", "server.js",
-    "auth.js", "database.js", "encryption.js", "setup_db.js", "db_operations.js", "db_migration.js", "test_endpoints.js",
+    "auth.js", "database.js", "encryption.js", "setup_db.js", "db_operations.js", "test_endpoints.js",
     "scripts/smoke_test_db.js",
     "tests/fixtures/expected_manifest.json",
     ".env.example",
@@ -169,6 +169,19 @@ function Create-CleanZip {
     Remove-Item $tempDir -Recurse -Force
 }
 
+# Empaqueta una carpeta CONSERVANDO el directorio raíz dentro del .zip
+# (necesario para los plugins de WordPress: deben llevar una carpeta de nivel superior).
+function Create-PluginZip {
+    param(
+        [string]$folderPath,
+        [string]$zipPath
+    )
+    if (Test-Path $zipPath) {
+        Remove-Item $zipPath -Force
+    }
+    Compress-Archive -Path $folderPath -DestinationPath $zipPath -CompressionLevel Optimal
+}
+
 # A. Plugin de WordPress
 Write-Host "   -> Comprimiendo Plugin de WordPress..." -ForegroundColor Gray
 $wpAddonSrc = Join-Path $pluginDir "bor4sige-wp-addon"
@@ -178,13 +191,44 @@ if (Test-Path $targetPluginDir) {
     Create-CleanZip (Join-Path $targetPluginDir "bor4sige-wp-addon") (Join-Path $targetPluginDir "bor4sige-wp-addon.zip")
 }
 
-# B. Web de Presentación
-Write-Host "   -> Comprimiendo Web de Presentación..." -ForegroundColor Gray
-$webPresSrc = Join-Path $webDir "web_presentacion"
-Create-CleanZip $webPresSrc (Join-Path $webDir "bor4sige_web_presentacion.zip")
+# B. Web de Presentación — DOS plugins de WordPress + web estática (Nginx)
+#   - bor4sige_web_presentacion.zip = Plugin PRODUCTO (sirve index.html, slug /bor4sige/)
+#   - bor4d_web_corporativa.zip      = Plugin CORPORATIVO (sirve la plantilla bilingüe, slug /web-corporativa/)
+#   - bor4sige_web_estatica.zip      = web estática para Nginx/Hetzner
+$webPresSrc      = Join-Path $webDir "web_presentacion"
+$pluginProdDir   = Join-Path $webDir "wp-plugin\bor4sige-presentacion-producto"
+$pluginCorpDir   = Join-Path $webDir "wp-plugin\bor4d-web-corporativa"
+
+# La carpeta web_presentacion es la ÚNICA fuente de verdad de los contenidos.
+Write-Host "   -> Sincronizando contenidos en los plugins..." -ForegroundColor Gray
+if (Test-Path $pluginProdDir) {
+    $ass = Join-Path $pluginProdDir "assets"
+    if (-not (Test-Path $ass)) { New-Item -ItemType Directory -Path $ass -Force | Out-Null }
+    Copy-Item (Join-Path $webPresSrc "index.html")     (Join-Path $ass "index.html") -Force
+    Copy-Item (Join-Path $webPresSrc "logo-bor4d.png") (Join-Path $ass "logo-bor4d.png") -Force
+    Write-Host "   -> Comprimiendo Plugin Producto (BOR4SIGE)..." -ForegroundColor Gray
+    Create-PluginZip $pluginProdDir (Join-Path $webDir "bor4sige_web_presentacion.zip")
+}
+if (Test-Path $pluginCorpDir) {
+    $ass = Join-Path $pluginCorpDir "assets"
+    if (-not (Test-Path $ass)) { New-Item -ItemType Directory -Path $ass -Force | Out-Null }
+    # El fragmento corporativo se sirve como .php (la plantilla lleva un bloque <?php inicial).
+    Copy-Item (Join-Path $webPresSrc "bor4sige_wordpress.html") (Join-Path $ass "landing-template.php") -Force
+    Copy-Item (Join-Path $webPresSrc "logo-bor4d.png")          (Join-Path $ass "logo-bor4d.png") -Force
+    Write-Host "   -> Comprimiendo Plugin Web Corporativa (Bor4D)..." -ForegroundColor Gray
+    Create-PluginZip $pluginCorpDir (Join-Path $webDir "bor4d_web_corporativa.zip")
+}
+
+Write-Host "   -> Comprimiendo Web de Presentación estática (Nginx)..." -ForegroundColor Gray
+Create-CleanZip $webPresSrc (Join-Path $webDir "bor4sige_web_estatica.zip")
+
 $targetWebDir = Join-Path $targetDir "5_Web_Corporativa"
 if (Test-Path $targetWebDir) {
-    Create-CleanZip (Join-Path $targetWebDir "web_presentacion") (Join-Path $targetWebDir "bor4sige_web_presentacion.zip")
+    $tProd = Join-Path $targetWebDir "wp-plugin\bor4sige-presentacion-producto"
+    $tCorp = Join-Path $targetWebDir "wp-plugin\bor4d-web-corporativa"
+    if (Test-Path $tProd) { Create-PluginZip $tProd (Join-Path $targetWebDir "bor4sige_web_presentacion.zip") }
+    if (Test-Path $tCorp) { Create-PluginZip $tCorp (Join-Path $targetWebDir "bor4d_web_corporativa.zip") }
+    Create-CleanZip (Join-Path $targetWebDir "web_presentacion") (Join-Path $targetWebDir "bor4sige_web_estatica.zip")
 }
 
 # C. Webapp Instalable Completa
@@ -205,8 +249,10 @@ if (Test-Path $targetInstParent) {
 # 6. Verificación
 Write-Host "[6/6] Verificando los archivos resultantes..." -ForegroundColor Yellow
 $zips = @(
-    @{path=(Join-Path $pluginDir "bor4sige-wp-addon.zip"); name="Plugin WordPress"},
-    @{path=(Join-Path $webDir "bor4sige_web_presentacion.zip"); name="Web Presentación"},
+    @{path=(Join-Path $pluginDir "bor4sige-wp-addon.zip"); name="Plugin WordPress (Addon SGI)"},
+    @{path=(Join-Path $webDir "bor4sige_web_presentacion.zip"); name="Plugin WP (Producto BOR4SIGE)"},
+    @{path=(Join-Path $webDir "bor4d_web_corporativa.zip"); name="Plugin WP (Web Corporativa Bor4D)"},
+    @{path=(Join-Path $webDir "bor4sige_web_estatica.zip"); name="Web Presentación estática (Nginx)"},
     @{path=(Join-Path $instDir "bor4sige_webapp_instalable.zip"); name="Webapp Completa"},
     @{path=(Join-Path $instDir "bor4sige_webapp_instalable_sgi.zip"); name="Webapp SGI (ligera)"}
 )
