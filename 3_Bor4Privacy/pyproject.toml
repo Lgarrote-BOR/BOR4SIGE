@@ -1,0 +1,9 @@
+[project]
+name = "bor4privacy"
+version = "0.1.0"
+description = "Clon N=5 del patron BOR4SIGE: Privacy ISO 27701 + RGPD + LOPDGDD"
+requires-python = ">=3.10"
+dependencies = ["bor4common"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/cantera"]

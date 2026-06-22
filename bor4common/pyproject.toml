@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bor4common"
+version = "0.1.0"
+description = "Shared lib BOR4SIGE: security/integration + PlataformaContexto canonical (D-002)"
+requires-python = ">=3.10"
+authors = [{name = "Bor"}]
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bor4common*"]

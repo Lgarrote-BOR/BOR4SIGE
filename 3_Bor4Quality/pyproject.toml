@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bor4quality"
+version = "0.1.0"
+description = "BOR4SIGE Quality Module - clon piloto del patron modular (orden B del cuaderno v1.5a)"
+readme = "docs/CONTRATOS_PLANTILLA_MODULAR.md"
+requires-python = ">=3.10"
+authors = [{name = "Bor"}]
+# Replica la politica del piloto 2_Bor4Legal/: solo stdlib.
+# mysql2, bcrypt, helmet, etc. viven en BOR4SIGE, no aqui.
+dependencies = ["bor4common"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bor4quality*"]

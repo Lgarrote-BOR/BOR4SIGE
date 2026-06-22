@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: bor4common
+Version: 0.1.0
+Summary: Shared lib BOR4SIGE: security/integration + PlataformaContexto canonical (D-002)
+Author: Bor
+Requires-Python: >=3.10

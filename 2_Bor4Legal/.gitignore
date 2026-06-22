@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Pytest / mypy / ruff
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Datos operativos sensibles (lista negra §18.3)
+data/catalogs/raw/
+data/profiles/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
